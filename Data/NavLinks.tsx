@@ -31,8 +31,8 @@ export const NavLinks = (): INavBarItem[] => {
       icon: <PiUsersThree />,
       subMenu: [
         { id: "21", title: "Users", icon: <LiaUsersCogSolid />, link: "/123/users" },
-        { id: "22", title: "Roles", icon: <GrShieldSecurity />, link: "/123/roles" },
-        { id: "23", title: "Role Templates", icon: <RiShieldFlashLine />, link: "/123/roles/templates" },
+        { id: "22", title: "Roles", icon: <GrShieldSecurity />, link: "/123/users/roles" },
+        { id: "23", title: "Role Templates", icon: <RiShieldFlashLine />, link: "/123/users/templates" },
       ],
     },
     {

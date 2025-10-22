@@ -22,7 +22,6 @@ const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
     let found: INavBarItem | null = null;
     let parentId: string | null = null;
 
-    console.log('Pathname: ', pathname)
     for (const item of links) {
       if (item.link === pathname) {
         found = item;
