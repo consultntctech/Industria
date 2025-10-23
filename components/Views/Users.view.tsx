@@ -6,6 +6,8 @@ import TextAreaWithLabel from '../shared/inputs/TextAreaWithLabel';
 import PrimaryButton from '../shared/buttons/PrimaryButton';
 import { createUser } from '@/lib/actions/user.action';
 import { IUser } from '@/lib/models/user.model';
+import SearchSelectOrgs from '../shared/inputs/dropdowns/SearchSelectOrgs';
+import GenericLabel from '../shared/inputs/GenericLabel';
 
 
 type UserCompProps = {
@@ -16,6 +18,7 @@ type UserCompProps = {
 const UsersComp = ({openNew, setOpenNew}:UserCompProps) => {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState<Partial<IUser>>({});
+    const [org, setOrg] = useState<string>('');
 
 
     const formRef = useRef<HTMLFormElement>(null);
@@ -31,7 +34,7 @@ const UsersComp = ({openNew, setOpenNew}:UserCompProps) => {
         setLoading(true);
         
         try {
-          const res = await createUser(formData);
+          const res = await createUser({...formData, org});
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
           if(!res.error){
               formRef.current?.reset();
@@ -64,8 +67,10 @@ const UsersComp = ({openNew, setOpenNew}:UserCompProps) => {
           </div>
 
           <div className="flex gap-4 flex-col w-full justify-between">
-            
-            
+            <GenericLabel
+              label='Select organization'
+              input={<SearchSelectOrgs setOrgId={setOrg} required={true} />}
+            />
             <TextAreaWithLabel name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
             <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
           </div>

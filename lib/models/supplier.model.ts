@@ -1,33 +1,34 @@
 import { Document, model, models, Schema, Types } from "mongoose";
 import { IOrganization } from "./org.model";
+import { IUser } from "./user.model";
 
-export interface IUser extends Document {
+export interface ISupplier extends Document {
     _id: string;
     name: string;
+    person: string;
     address: string;
     phone: string;
     email: string;
-    photo: string;
-    password:string;
-    roles: string[];
     description: string;
+    isActive: boolean;
+    createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-const UserSchema = new Schema<IUser>({
+const SupplierSchema = new Schema<ISupplier>({
     name: { type: String, required: true },
     address: { type: String, required: false },
     phone: { type: String, required: false },
-    email: { type: String, required: true, unique:true },
-    photo: {type:String, default:'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80'},
-    password: String,
-    roles: [String],
+    email: String,
+    person: String,
+    isActive: {type:Boolean, default:true},
     description: String,
+    createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})
     
 
-const User = models?.User || model<IUser>('User', UserSchema);
-export default User;
+const Supplier = models?.Supplier || model<ISupplier>('Supplier', SupplierSchema);
+export default Supplier;

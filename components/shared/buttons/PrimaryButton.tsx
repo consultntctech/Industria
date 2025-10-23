@@ -1,6 +1,6 @@
 'use client'
 import LoadingDots from '@/components/misc/LoadingDots';
-import { Settings } from '@/config/Settings';
+import { useSettings } from '@/config/useSettings';
 import React, { ComponentProps } from 'react'
 
 type PrimaryButtonProps = {
@@ -9,12 +9,13 @@ type PrimaryButtonProps = {
 } & ComponentProps<'button'>
 
 const PrimaryButton = ({text, loading, className, ...props}: PrimaryButtonProps) => {
+  const {tertiaryColour, primaryColour} = useSettings();
   return (
     <button
     disabled={loading}
-    style={{backgroundColor:loading? Settings().tertiaryColour:Settings().primaryColour}}
-    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = Settings().tertiaryColour)}
-    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = Settings().primaryColour)} 
+    style={{backgroundColor:loading? tertiaryColour:primaryColour}}
+    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = tertiaryColour)}
+    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = primaryColour)} 
     className={`${className} cursor-pointer text-white font-semibold rounded p-1`} {...props} >
       <LoadingDots loading={loading} text={text} />
     </button>

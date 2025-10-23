@@ -46,9 +46,11 @@ const OrgComp = ({openNew, setOpenNew}:OrgCompProps) => {
     }
     try {
       const res = await createOrg(orgData);
-      formRef.current?.reset();
       enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
-      setOpenNew(false);
+      if(!res.error){
+        formRef.current?.reset();
+        setOpenNew(false);
+      }
     } catch (error) {
       console.log(error);
       enqueueSnackbar('Error occured while creating organization', {variant:'error'});

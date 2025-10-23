@@ -5,6 +5,7 @@ export interface WelcomeEmailParams {
   companyName: string;
   companyInitials?: string;
   userName: string;
+  userEmail: string;
   password: string;
   appUrl: string;
   supportEmail: string;
@@ -19,6 +20,7 @@ export function getWelcomeEmailHTML(params: WelcomeEmailParams): string {
     "{{companyName}}": params.companyName,
     "{{companyInitials}}": params.companyInitials ?? params.companyName[0],
     "{{userName}}": params.userName,
+    "{{userEmail}}": params.userEmail,
     "{{password}}": params.password,
     "{{appUrl}}": params.appUrl,
     "{{supportEmail}}": params.supportEmail,
