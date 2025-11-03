@@ -5,7 +5,7 @@ import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
 type SearchSelectOrgsProps = {
     setOrgId?: Dispatch<SetStateAction<string>>,
-    value?: string,
+    value?: IOrganization | null,
     width?: number,
     required?:boolean,
 }
@@ -17,20 +17,18 @@ const SearchSelectOrgs = ({setOrgId, required, value, width}:SearchSelectOrgsPro
         <Autocomplete
             disablePortal
             options={orgs}
-            onChange={(e, item:IOrganization|null)=>{
-                console.log(e.target)
+            onChange={(_, item:IOrganization|null)=>{
                 if(setOrgId){
                     setOrgId(item?._id as string)
                 }
             }}
-
+            // defaultValue={value}
             inputValue={search}
-            onInputChange={(e, item)=>{
-                console.log(e.target);
+            onInputChange={(_, item)=>{
                 setSearch(item);
             }}
             loading={isPending}
-            isOptionEqualToValue={(option, value)=>option._id === value._id}
+            isOptionEqualToValue={(option, v)=>option._id === v._id}
             getOptionLabel={(option)=>option?.name}
             sx ={{width:width || '100%'}}
             renderInput={(params)=>(
@@ -38,9 +36,8 @@ const SearchSelectOrgs = ({setOrgId, required, value, width}:SearchSelectOrgsPro
                     {...params}
                     required={required}
                     size="small"
-                    label= "Organization"
+                    label= {value ? value?.name : "Organization"}
                     color="primary"
-                    defaultValue={value}
                     className="rounded"
                     slotProps={{
                         input:{

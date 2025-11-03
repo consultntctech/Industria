@@ -4,7 +4,7 @@ import { CiBag1, CiCircleCheck } from "react-icons/ci";
 import { FiRefreshCw } from "react-icons/fi";
 import { GoPeople } from "react-icons/go";
 import { GrAlert, GrShieldSecurity } from "react-icons/gr";
-import { HiOutlineCash, HiOutlineUsers } from "react-icons/hi";
+import { HiOutlineCash, HiOutlineCurrencyDollar, HiOutlineUsers } from "react-icons/hi";
 import { IoAlertCircleOutline, IoSettingsOutline } from "react-icons/io5";
 import { LiaRecycleSolid, LiaShoppingBasketSolid, LiaUsersCogSolid } from "react-icons/lia";
 import { LuBaggageClaim, LuGitPullRequest, LuLayoutDashboard, LuPillBottle, LuShoppingCart } from "react-icons/lu";
@@ -46,9 +46,9 @@ export const NavLinks = (): INavBarItem[] => {
       title: "Products",
       icon: <LuShoppingCart />,
       subMenu: [
+        { id: "33", title: "Categories", icon: <MdOutlineCategory />, link: "/dashboard/products/categories" },
         { id: "31", title: "Batches", icon: <RxStack />, link: "/dashboard/products/batches" },
         { id: "32", title: "Types", icon: <BsCartPlus />, link: "/dashboard/products/types" },
-        { id: "33", title: "Categories", icon: <MdOutlineCategory />, link: "/dashboard/products/categories" },
         { id: "34", title: "Raw Materials", icon: <LiaShoppingBasketSolid />, link: "/dashboard/products/raw-materials" },
       ],
     },
@@ -57,9 +57,9 @@ export const NavLinks = (): INavBarItem[] => {
       title: "Processing",
       icon: <LiaRecycleSolid />,
       subMenu: [
+        { id: "43", title: "Production Items", icon: <LuPillBottle />, link: "/dashboard/processing/production-materials" },
         { id: "41", title: "Production", icon: <FiRefreshCw />, link: "/dashboard/processing/production" },
         { id: "42", title: "Goods", icon: <CiBag1 />, link: "/dashboard/processing/goods" },
-        { id: "43", title: "Production Items", icon: <LuPillBottle />, link: "/dashboard/processing/production-materials" },
       ],
     },
     {
@@ -108,9 +108,10 @@ export const NavLinks = (): INavBarItem[] => {
       title: "Configurations",
       icon: <IoSettingsOutline />,
       subMenu: [
-        { id: "101", title: "Batch No.", icon: <RiStackLine />, link: "/dashboard/settings/batch-no" },
-        { id: "102", title: "Serial No.", icon: <TbLine />, link: "/dashboard/settings/serial-no" },
-        { id: "103", title: "Org Settings", icon: <RiStackshareLine />, link: "/dashboard/settings/org-settings" },
+        { id: "101", title: "Batch No.", icon: <RiStackLine />, link: "/dashboard/config/batch-no" },
+        { id: "102", title: "Serial No.", icon: <TbLine />, link: "/dashboard/config/serial-no" },
+        { id: "103", title: "Org Settings", icon: <RiStackshareLine />, link: "/dashboard/config/org-settings" },
+        { id: "104", title: "Currency", icon: <HiOutlineCurrencyDollar />, link: "/dashboard/config/currency" },
       ],
     },
 

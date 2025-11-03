@@ -24,6 +24,7 @@ export const useSettings = () => {
     enabled: !!user?.org,
   })
 
+
   // console.log("org: ", org);
 
   return {

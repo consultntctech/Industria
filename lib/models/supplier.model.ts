@@ -1,6 +1,7 @@
 import { Document, model, models, Schema, Types } from "mongoose";
 import { IOrganization } from "./org.model";
 import { IUser } from "./user.model";
+import Product from "./product.model";
 
 export interface ISupplier extends Document {
     _id: string;
@@ -29,6 +30,18 @@ const SupplierSchema = new Schema<ISupplier>({
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})
     
+
+SupplierSchema.pre('deleteOne', { document: false, query: true }, async function(next) {
+    try {
+        const supplierId = this.getQuery()._id;
+        if (!supplierId) return next();
+
+        await Product.updateMany({ suppliers: supplierId }, { $pull: { suppliers: supplierId } });
+        next();
+    } catch (error) {
+        console.log(error);
+    }
+});
 
 const Supplier = models?.Supplier || model<ISupplier>('Supplier', SupplierSchema);
 export default Supplier;

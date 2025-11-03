@@ -43,7 +43,8 @@ export async function createUser(data:Partial<IUser>):Promise<IResponse>{
 export async function getUsers():Promise<IResponse>{
     try {
         await connectDB();
-        const users = await User.find();
+        const users = await User.find()
+        .populate('org').lean() as unknown as IUser[];
         return respond('Users found successfully', false, users, 200);
     } catch (error) {
         console.log(error);
@@ -54,7 +55,8 @@ export async function getUsers():Promise<IResponse>{
 export async function getUsersByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
-        const users = await User.find({ org: orgId });
+        const users = await User.find({ org: orgId })
+        .populate('org').lean() as unknown as IUser[];
         return respond('Users found successfully', false, users, 200);
     } catch (error) {
         console.log(error);

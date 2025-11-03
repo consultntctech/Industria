@@ -18,3 +18,8 @@ export interface ISession {
     org: string
     expires?: Date;
 }
+
+export interface IIngredient {
+    materialId: string;
+    qUsed: number;
+}

@@ -4,6 +4,7 @@ import Supplier, { ISupplier } from '../models/supplier.model';
 import { IResponse } from '@/types/Types';
 import { respond } from '../misc';
 import '../models/supplier.model';
+import Product from '../models/product.model';
 
 
 export async function createSupplier(data:Partial<ISupplier>):Promise<IResponse>{
@@ -21,6 +22,18 @@ export async function getSuppliers():Promise<IResponse>{
     try {
         await connectDB();
         const suppliers = await Supplier.find();
+        return respond('Suppliers found successfully', false, suppliers, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching suppliers', true, {}, 500);
+    }
+}
+
+export const getProductSuppliers = async(id:string):Promise<IResponse>=>{
+    try {
+        await connectDB();
+        const product = await Product.findById(id).populate('suppliers');
+        const suppliers = product.suppliers as ISupplier[];
         return respond('Suppliers found successfully', false, suppliers, 200);
     } catch (error) {
         console.log(error);

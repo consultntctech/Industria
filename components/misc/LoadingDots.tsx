@@ -51,7 +51,10 @@ export default function LoadingDots({
       aria-atomic="true"
     >
       <span className="select-none">{text}</span>
-      <span className="w-8 text-left">{dots}</span>
+      {
+        loading &&
+        <span className="w-8 text-left">{dots}</span>
+      }
     </span>
   );
 }

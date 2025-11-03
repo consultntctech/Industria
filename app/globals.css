@@ -8,6 +8,10 @@
   @apply text-xl md:text-2xl font-bold
 }
 
+.subtitle{
+  @apply md:text-xl font-medium
+}
+
 .greyText{
   @apply text-[#9ea2a8] text-[0.8rem] font-medium
 }
@@ -15,3 +19,14 @@
   @apply text-black text-[0.8rem] font-medium
 }
 
+.table-main2{
+    @apply max-w-[82vw] lg:max-w-[92vw] xl:max-w-[80vw] bg-white gap-4 p-4 flex flex-col rounded shadow-xl
+}
+
+.flex-center{
+  @apply flex items-center justify-center
+}
+
+.link{
+  @apply text-blue-600 hover:underline cursor-pointer
+}

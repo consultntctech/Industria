@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { NavLinks } from "@/Data/NavLinks";
 import { INavBarItem } from "@/types/NavBar.types";
 import { FaChevronUp, FaChevronDown } from "react-icons/fa";
@@ -17,19 +17,21 @@ const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
   const [currentItem, setCurrentItem] = useState<INavBarItem | null>(links?.[0] ?? null);
   const [openSubMenuId, setOpenSubMenuId] = useState<string | null>(null);
 
+  const router = useRouter();
+
   // 🧭 Update active item based on current route
   useEffect(() => {
     let found: INavBarItem | null = null;
     let parentId: string | null = null;
 
     for (const item of links) {
-      if (item.link === pathname) {
+      if (pathname.startsWith(item?.link!)) {
         found = item;
         break;
       }
       if (item.subMenu) {
         for (const sub of item.subMenu) {
-          if (sub.link === pathname) {
+          if (pathname?.startsWith(sub?.link!)) {
             found = sub;
             parentId = item.id;
             break;
@@ -46,7 +48,10 @@ const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
 
   const handleTopLevelClick = (item: INavBarItem) => {
     setCurrentItem(item);
-    if (item.subMenu && item.subMenu.length > 0) {
+    if(item?.link){
+      router.push(item.link);
+    }
+    else if (item.subMenu && item.subMenu.length > 0) {
       setOpenSubMenuId((prev) => (prev === item.id ? null : item.id));
     } else {
       setOpenSubMenuId(null);
@@ -56,6 +61,9 @@ const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
   const handleSubItemClick = (parentId: string, subItem: INavBarItem) => {
     setCurrentItem(subItem);
     setOpenSubMenuId(parentId);
+    if(subItem?.link){
+      router.push(subItem.link);
+    }
   };
 
   const isActiveTopLevel = (item: INavBarItem) => currentItem?.id === item.id;
