@@ -5,7 +5,7 @@ import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
 type SearchSelectBatchConfigsProps = {
     setSelect?: Dispatch<SetStateAction<string>>,
-    value?: string,
+    value?: IBatchConfig | null,
     width?: number,
     required?:boolean,
 }
@@ -17,20 +17,20 @@ const SearchSelectBatchConfigs = ({setSelect, required, value, width}:SearchSele
         <Autocomplete
             disablePortal
             options={batchConfigs}
-            onChange={(e, item:IBatchConfig|null)=>{
-                console.log(e.target)
+            onChange={(_, item:IBatchConfig|null)=>{
+                // console.log(e.target)
                 if(setSelect){
                     setSelect(item?._id as string)
                 }
             }}
-
+            defaultValue={value}
             inputValue={search}
-            onInputChange={(e, item)=>{
-                console.log(e.target);
+            onInputChange={(_, item)=>{
+                // console.log(e.target);
                 setSearch(item);
             }}
             loading={isPending}
-            isOptionEqualToValue={(option, value)=>option._id === value._id}
+            isOptionEqualToValue={(option, v)=>option._id === v._id}
             getOptionLabel={(option)=>option?.mode}
             sx ={{width:width || '100%'}}
             renderInput={(params)=>(
@@ -38,9 +38,9 @@ const SearchSelectBatchConfigs = ({setSelect, required, value, width}:SearchSele
                     {...params}
                     required={required}
                     size="small"
-                    label= "Configuration"
+                    label= {'Configuration'}
                     color="primary"
-                    defaultValue={value}
+                    // defaultValue={value}
                     className="rounded"
                     slotProps={{
                         input:{

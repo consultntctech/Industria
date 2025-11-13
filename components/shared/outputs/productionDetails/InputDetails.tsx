@@ -73,7 +73,7 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Production Cost:</span>
-          <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol}${production?.productionCost}`}</span>
+          <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.productionCost}`}</span>
         </div>
 
 

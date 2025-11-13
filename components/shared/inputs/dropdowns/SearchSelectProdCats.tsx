@@ -5,7 +5,7 @@ import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
 type SearchSelectProdCatsProps = {
     setSelect?: Dispatch<SetStateAction<string>>,
-    value?: string,
+    value?: ICategory | null,
     width?: number,
     required?:boolean,
 }
@@ -17,20 +17,21 @@ const SearchSelectProdCats = ({setSelect, required, value, width}:SearchSelectPr
         <Autocomplete
             disablePortal
             options={categories}
-            onChange={(e, item:ICategory|null)=>{
-                console.log(e.target)
+            onChange={(_, item:ICategory|null)=>{
+                // console.log(e.target)
                 if(setSelect){
                     setSelect(item?._id as string)
                 }
             }}
 
             inputValue={search}
-            onInputChange={(e, item)=>{
-                console.log(e.target);
+            onInputChange={(_, item)=>{
+                // console.log(e.target);
                 setSearch(item);
             }}
+            defaultValue={value}
             loading={isPending}
-            isOptionEqualToValue={(option, value)=>option._id === value._id}
+            isOptionEqualToValue={(option, v)=>option._id === v._id}
             getOptionLabel={(option)=>option?.name}
             sx ={{width:width || '100%'}}
             renderInput={(params)=>(
@@ -40,7 +41,6 @@ const SearchSelectProdCats = ({setSelect, required, value, width}:SearchSelectPr
                     size="small"
                     label= "Category"
                     color="primary"
-                    defaultValue={value}
                     className="rounded"
                     slotProps={{
                         input:{

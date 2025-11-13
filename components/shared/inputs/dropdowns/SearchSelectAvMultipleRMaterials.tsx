@@ -14,11 +14,11 @@ type SearchSelectAvMultipleRMaterialsProps = {
     // fixedSelection?:ISupplier[];
     width?:number;
     required?:boolean;
-    value?:string;
+    value?:IRMaterial[];
     disabled?:boolean;
 } 
 
-const SearchSelectAvMultipleRMaterials = ({setSelection, batchId,  width, required, value, disabled}:SearchSelectAvMultipleRMaterialsProps) => {
+const SearchSelectAvMultipleRMaterials = ({setSelection, batchId,  width, required, value=[], disabled}:SearchSelectAvMultipleRMaterialsProps) => {
     const [search, setSearch] = useState<string>('');
     const {materials, isPending} = useFetchAvailableRMaterialsByBatch(batchId);
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -30,6 +30,7 @@ const SearchSelectAvMultipleRMaterials = ({setSelection, batchId,  width, requir
         disableCloseOnSelect
         multiple
         filterSelectedOptions
+        defaultValue={value || []}
         options={materials}
         onChange={(_, items:IRMaterial[])=>{
             // const fixed = fixedSelection ?? [];
@@ -43,10 +44,10 @@ const SearchSelectAvMultipleRMaterials = ({setSelection, batchId,  width, requir
         }}
 
         inputValue={search}
-        onInputChange={(_, value)=>setSearch(value)}
+        onInputChange={(_, v)=>setSearch(v)}
         // value={selection ?? []}
         loading={isPending && !!batchId}
-        isOptionEqualToValue={(option, value)=>option._id === value._id}
+        isOptionEqualToValue={(option, v)=>option._id === v._id}
         getOptionLabel={(option)=>{
             const product = option?.product as IProduct;
             return `${product?.name} - ${option?.materialName}`;
@@ -93,7 +94,7 @@ const SearchSelectAvMultipleRMaterials = ({setSelection, batchId,  width, requir
                 size="small"
                 label= "Raw Materials"
                 color="primary"
-                defaultValue={value}
+                // defaultValue={value}
                 className="rounded"
                 slotProps={{
                     input:{

@@ -7,7 +7,7 @@ export const useFetchProditem = () => {
         try {
             const res = await getProdItems();
             const data = res.payload as IProdItem[];
-            return data;
+            return data.sort((a, b) => new Date(b?.createdAt)!.getTime() - new Date(a?.createdAt)!.getTime());
         } catch (error) {
             console.log(error);
             return [];

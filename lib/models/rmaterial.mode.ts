@@ -25,8 +25,13 @@ export interface IRMaterial extends Document {
     reason: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization
-    createdAt?: Date;
-    updatedAt?: Date;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export interface IRMaterialPopulate extends IRMaterial {
+    quantity: number;
+    materialId: string | Types.ObjectId | IRMaterial;
 }
 
 const RMaterialSchema = new Schema<IRMaterial>({

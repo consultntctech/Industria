@@ -5,6 +5,7 @@ import { IResponse } from '@/types/Types';
 import { respond } from '../misc';
 import '../models/supplier.model';
 import Product from '../models/product.model';
+import { verifyOrgAccess } from '../middleware/verifyOrgAccess';
 
 
 export async function createSupplier(data:Partial<ISupplier>):Promise<IResponse>{
@@ -21,7 +22,9 @@ export async function createSupplier(data:Partial<ISupplier>):Promise<IResponse>
 export async function getSuppliers():Promise<IResponse>{
     try {
         await connectDB();
-        const suppliers = await Supplier.find();
+        const suppliers = await Supplier.find()
+        .populate('createdBy')
+        .populate('org').lean() as unknown as ISupplier[];
         return respond('Suppliers found successfully', false, suppliers, 200);
     } catch (error) {
         console.log(error);
@@ -44,7 +47,9 @@ export const getProductSuppliers = async(id:string):Promise<IResponse>=>{
 export async function getSuppliersByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
-        const suppliers = await Supplier.find({ org: orgId });
+        const suppliers = await Supplier.find({ org: orgId })
+        .populate('createdBy')
+        .populate('org').lean() as unknown as ISupplier[];
         return respond('Suppliers found successfully', false, suppliers, 200);
     } catch (error) {
         console.log(error);
@@ -67,7 +72,13 @@ export async function updateSupplier(data:Partial<ISupplier>):Promise<IResponse>
 export async function getSupplier(id:string):Promise<IResponse>{
     try {
         await connectDB();
-        const supplier = await Supplier.findById(id);
+        const check = await verifyOrgAccess(Supplier, id, "Supplier",[
+            { path: "createdBy" },
+            { path: "org" },
+        ])
+        if('allowed' in check === false) return check;
+        const supplier = check.doc;
+        
         return respond("Supplier retrieved successfully", false, supplier, 200);
     } catch (error) {
         console.log(error);

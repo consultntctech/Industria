@@ -36,6 +36,8 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
     useEffect(() => {
         if(currentUser){
             setFormData({...currentUser, org:organization?._id});// Set form data when currentUser changes
+        }else{
+            setFormData({});// Reset form data when currentUser is null
         }
     }, [currentUser])
    
@@ -43,6 +45,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
         setOpenNew(false);
         setCurrentUser(null);
         setOrg('');
+        setFormData({});
     }
     
 
@@ -75,7 +78,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
           if(!res.error){
               formRef?.current?.reset();
-              setOpenNew(false);
+              handleClose();
               refetch();
           }
         } catch (error) {
@@ -92,8 +95,8 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
       
       <form ref={formRef} onSubmit={currentUser ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
         <div className="flex flex-col gap-1">
-          <span className="title" >Add new user</span>
-          <span className="greyText" >Create a new user to handle operations</span>
+          <span className="title" >{currentUser ? 'Edit user' : 'Add new user'}</span>
+          <span className="greyText" >{currentUser ? 'Edit the details of the user' : 'Create a new user to handle operations'}</span>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-4 items-stretch">
@@ -106,15 +109,10 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
 
           <div className="flex gap-4 flex-col w-full justify-between">
             {
-              organization ?
+              openNew &&
               <GenericLabel
                 label='Select organization'
-                input={<SearchSelectOrgs value={organization} setOrgId={setOrg} />}
-              />
-              :
-              <GenericLabel
-                label='Select organization'
-                input={<SearchSelectOrgs  setOrgId={setOrg} required={true} />}
+                input={<SearchSelectOrgs value={organization}  setOrgId={setOrg} required={!!currentUser} />}
               />
             }
             <TextAreaWithLabel defaultValue={currentUser?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />

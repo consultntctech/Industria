@@ -12,7 +12,7 @@ type SearchSelectMultipleSuppliersProps = {
     // fixedSelection?:ISupplier[];
     width?:number;
     required?:boolean;
-    value?:string;
+    value?:ISupplier[];
 }
 
 const SearchSelectMultipleSuppliers = ({setSelection,  width, required, value}:SearchSelectMultipleSuppliersProps) => {
@@ -36,12 +36,12 @@ const SearchSelectMultipleSuppliers = ({setSelection,  width, required, value}:S
             // setSelection([...fixed, ...uniqueSelection]);
             setSelection(ids);
         }}
-
+        defaultValue={value}
         inputValue={search}
-        onInputChange={(_, value)=>setSearch(value)}
+        onInputChange={(_, v)=>setSearch(v)}
         // value={selection ?? []}
         loading={isPending}
-        isOptionEqualToValue={(option, value)=>option._id === value._id}
+        isOptionEqualToValue={(option, v)=>option._id === v._id}
         getOptionLabel={(option)=>option?.name}
         sx ={{width:width || '100%'}}
 
@@ -83,7 +83,7 @@ const SearchSelectMultipleSuppliers = ({setSelection,  width, required, value}:S
                 size="small"
                 label= "Suppliers"
                 color="primary"
-                defaultValue={value}
+                // defaultValue={value}
                 className="rounded"
                 slotProps={{
                     input:{

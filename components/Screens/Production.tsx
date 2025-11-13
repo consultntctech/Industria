@@ -1,10 +1,11 @@
 'use client'
 import { Tooltip } from "@mui/material"
-import ProductionComp from "../Views/ProductionComp"
+// import ProductionComp from "../Views/ProductionComp"
 import { IoMdAddCircle } from "react-icons/io"
 import Title from "../misc/Title"
 import { useSettings } from "@/config/useSettings"
 import { useRouter } from "next/navigation"
+import ProductionTable from "../tables/productions/ProductionTable"
 
 const Production = () => {
     const {primaryColour} = useSettings();
@@ -21,7 +22,8 @@ const Production = () => {
                 <IoMdAddCircle style={{color:primaryColour}} size={30} className={`cursor-pointer`} />
             </Tooltip>
         </div>
-        <ProductionComp/>
+        {/* <ProductionComp/> */}
+        <ProductionTable/>
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { comparePassword, encryptPassword, respond, sendWelcomeEmail } from '../
 import User, { IUser } from '../models/user.model';
 import { generatePassword } from '@/functions/helpers';
 import Organization from '../models/org.model';
+import { verifyOrgAccess } from '../middleware/verifyOrgAccess';
 
 
 export async function createUser(data:Partial<IUser>):Promise<IResponse>{
@@ -79,7 +80,9 @@ export async function updateUser(data:Partial<IUser>):Promise<IResponse>{
 export async function getUser(id:string):Promise<IResponse>{
     try {
         await connectDB();
-        const user = await User.findById(id);
+        const check = await verifyOrgAccess(User, id, "User",[{ path: "org" }])
+        if('allowed' in check === false) return check;
+        const user = check.doc;
         return respond("User retrieved successfully", false, user, 200);
     } catch (error) {
         console.log(error);

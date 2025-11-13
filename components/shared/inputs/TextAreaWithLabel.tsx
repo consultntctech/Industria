@@ -1,5 +1,4 @@
 import React, { ComponentProps } from 'react'
-import TextInput from './TextInput'
 import TextArea from './TextArea';
 
 type TextAreaWithLabelProps = {

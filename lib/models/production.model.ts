@@ -6,6 +6,12 @@ import { IBatch } from "./batch.model";
 import { IRMaterial } from "./rmaterial.mode";
 import { IProdItem } from "./proditem.model";
 import { Schema } from "mongoose";
+import ProdApproval from "./prodapproval.model";
+
+export interface ProdIngredient{
+    materialId: string
+    quantity: number;
+}
 
 export interface IProduction extends Document {
     _id: string;
@@ -60,6 +66,17 @@ const ProductionSchema = new Schema<IProduction>({
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})
 
+ProductionSchema.pre('deleteOne', { document: false, query: true }, async function(next) {
+    try {
+        const prodId = this.getQuery()._id;
+        if (!prodId) return next();
+        await ProdApproval.deleteOne({ production: prodId });
+        next();
+    } catch (error) {
+        console.log(error);
+        next();
+    }
+});
 
 const Production = models?.Production || model<IProduction>('Production', ProductionSchema);
 export default Production;

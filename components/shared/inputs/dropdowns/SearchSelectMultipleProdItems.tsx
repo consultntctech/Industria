@@ -12,7 +12,7 @@ type SearchSelectMultipleProdItemsProps = {
     // fixedSelection?:ISupplier[];
     width?:number;
     required?:boolean;
-    value?:string;
+    value?:IProdItem[];
 }
 
 const SearchSelectMultipleProdItems = ({setSelection,  width, required, value}:SearchSelectMultipleProdItemsProps) => {
@@ -26,6 +26,7 @@ const SearchSelectMultipleProdItems = ({setSelection,  width, required, value}:S
         disableCloseOnSelect
         multiple
         filterSelectedOptions
+        defaultValue={value}
         options={proditems}
         onChange={(_, items:IProdItem[])=>{
             // const fixed = fixedSelection ?? [];
@@ -38,10 +39,10 @@ const SearchSelectMultipleProdItems = ({setSelection,  width, required, value}:S
         }}
 
         inputValue={search}
-        onInputChange={(_, value)=>setSearch(value)}
+        onInputChange={(_, v)=>setSearch(v)}
         // value={selection ?? []}
         loading={isPending}
-        isOptionEqualToValue={(option, value)=>option._id === value._id}
+        isOptionEqualToValue={(option, v)=>option._id === v._id}
         getOptionLabel={(option)=>option?.name}
         sx ={{width:width || '100%'}}
 
@@ -83,7 +84,7 @@ const SearchSelectMultipleProdItems = ({setSelection,  width, required, value}:S
                 size="small"
                 label= "Manufacturing materials"
                 color="primary"
-                defaultValue={value}
+                // defaultValue={value}
                 className="rounded"
                 slotProps={{
                     input:{

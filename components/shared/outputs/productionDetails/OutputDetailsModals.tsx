@@ -1,7 +1,7 @@
 import { FaChevronUp } from "react-icons/fa"
 import ModalContainer from "../ModalContainer"
 import { IoIosClose } from "react-icons/io"
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IProduction } from "@/lib/models/production.model";
 import InputWithLabel from "../../inputs/InputWithLabel";
 import PrimaryButton from "../../buttons/PrimaryButton";
@@ -22,6 +22,12 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
     const formRef = useRef<HTMLFormElement>(null);
     const {currency} = useCurrencyConfig();
 
+    useEffect(() => {
+        if(production){
+            setData({...production});
+        }
+    }, [production])
+
     const onChange = (e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
         setData((pre)=>({
           ...pre, [e.target.name]: e.target.value
@@ -34,10 +40,8 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
         
         try {
           const updateData:Partial<IProduction> = {
-            ...production,
             ...data,
             status:'Completed',
-            id:production?._id
           };
           const res = await updateProduction(updateData);
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -73,7 +77,7 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
                 <div className="flex gap-4 flex-col w-full justify-between">
                     <div className="flex flex-col gap-4 w-full">
                         <InputWithLabel defaultValue={production?.extraCost} type="number" onChange={onChange} name="extraCost" min={0}  placeholder={`eg. ${currency?.symbol}200`} label={`Extra cost on production ${currency?.symbol}`} className="w-full" />
-                        <TextAreaWithLabel defaultValue={production?.notes} name="note" onChange={onChange} placeholder="enter note" label="Production note" className="w-full" />
+                        <TextAreaWithLabel defaultValue={production?.notes} name="notes" onChange={onChange} placeholder="enter note" label="Production note" className="w-full" />
                     </div>
                     <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
                 </div>

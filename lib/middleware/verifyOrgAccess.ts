@@ -3,6 +3,7 @@ import { Model, Document, PopulateOptions } from "mongoose";
 import { respond } from "../misc";
 import { getSession } from "../session";
 import { ISession } from "@/types/Types";
+import { IOrganization } from "../models/org.model";
 
 interface HasOrg extends Document {
   org: string | object;
@@ -34,7 +35,10 @@ export async function verifyOrgAccess<T extends HasOrg>(
 
   // 3️⃣ Check organization match
   const userOrgId = String(user.org);
-  const docOrgId = String(doc.org);
+  const docOrgId = typeof doc.org === "string" ? doc.org : String((doc.org as IOrganization)._id);
+
+  // console.log('User ORg ID ', userOrgId);
+  // console.log('Doc Org ID ', docOrgId);
 
   if (userOrgId !== docOrgId) {
     return respond(`Forbidden: You do not have access to this ${modelName}`, true, {}, 403);

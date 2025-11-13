@@ -6,7 +6,7 @@ import { Dispatch, Fragment, SetStateAction, useState } from "react"
 type SearchSelectLtdSuppliersProps = {
     productId:string;
     setSelect?: Dispatch<SetStateAction<string>>,
-    value?: string,
+    value?: ISupplier | null,
     width?: number,
     required?:boolean,
 }
@@ -19,20 +19,20 @@ const SearchSelectLtdSuppliers = ({setSelect, productId, required, value, width}
         <Autocomplete
             disablePortal
             options={suppliers}
-            onChange={(e, item:ISupplier|null)=>{
-                console.log(e.target)
+            onChange={(_, item:ISupplier|null)=>{
+                // console.log(e.target)
                 if(setSelect){
                     setSelect(item?._id as string)
                 }
             }}
-
+            defaultValue={value}
             inputValue={search}
-            onInputChange={(e, item)=>{
-                console.log(e.target);
+            onInputChange={(_, item)=>{
+                // console.log(e.target);
                 setSearch(item);
             }}
             loading={!!productId && isPending}
-            isOptionEqualToValue={(option, value)=>option._id === value._id}
+            isOptionEqualToValue={(option, v)=>option._id === v._id}
             getOptionLabel={(option)=>option?.name}
             sx ={{width:width || '100%'}}
             renderInput={(params)=>(
@@ -42,7 +42,7 @@ const SearchSelectLtdSuppliers = ({setSelect, productId, required, value, width}
                     size="small"
                     label= "Supplier"
                     color="primary"
-                    defaultValue={value}
+                    // defaultValue={value}
                     className="rounded"
                     slotProps={{
                         input:{

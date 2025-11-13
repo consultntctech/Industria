@@ -5,6 +5,7 @@ import Category, { ICategory } from "../models/category.model";
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
 import '../models/org.model';
+import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
 export async function createCategory(cat:Partial<ICategory>):Promise<IResponse>{
     try {
@@ -20,7 +21,9 @@ export async function createCategory(cat:Partial<ICategory>):Promise<IResponse>{
 export async function getCategories():Promise<IResponse>{
     try {
         await connectDB();
-        const cats = await Category.find();
+        const cats = await Category.find()
+        .populate('createdBy')
+        .populate('org').lean() as unknown as ICategory[];
         return respond('Categories found successfully', false, cats, 200);
     } catch (error) {
         console.log(error);
@@ -31,7 +34,9 @@ export async function getCategories():Promise<IResponse>{
 export async function getCategoriesByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
-        const cats = await Category.find({ org: orgId });
+        const cats = await Category.find({ org: orgId })
+        .populate('createdBy')
+        .populate('org').lean() as unknown as ICategory[];
         return respond('Categories found successfully', false, cats, 200);
     } catch (error) {
         console.log(error);
@@ -42,7 +47,9 @@ export async function getCategoriesByOrg(orgId:string):Promise<IResponse>{
 export async function getCategoryById(id:string):Promise<IResponse>{
     try {
         await connectDB();
-        const cat = await Category.findById(id);
+        const check = await verifyOrgAccess(Category, id, "Category",[{ path: "org"}, { path: "createdBy"}]);
+        if('allowed' in check === false) return check;
+        const cat = check.doc;
         return respond('Category found successfully', false, cat, 200);
     } catch (error) {
         console.log(error);

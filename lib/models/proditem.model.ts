@@ -6,6 +6,7 @@ import Production from "./production.model";
 
 export interface IProdItem extends Document {
     _id: string;
+    materialName: string;
     name: string;
     quantity: number;
     price: number;
@@ -13,12 +14,13 @@ export interface IProdItem extends Document {
     description: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization
-    createdAt?: Date;
-    updatedAt?: Date;
+    createdAt: string;
+    updatedAt: string;
 }
 
 
 const ProdItemSchema = new Schema<IProdItem>({
+    materialName: { type: String, required: true },
     name: { type: String, required: true },
     quantity: { type: Number, required: true },
     price: { type: Number, required: false },

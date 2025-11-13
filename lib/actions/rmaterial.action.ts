@@ -8,6 +8,7 @@ import '../models/org.model';
 import '../models/supplier.model';
 import '../models/batch.model';
 import Product, { IProduct } from "../models/product.model";
+import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
 export async function createRMaterial(data: Partial<IRMaterial>): Promise<IResponse> {
   try {
@@ -58,7 +59,12 @@ export async function createRMaterial(data: Partial<IRMaterial>): Promise<IRespo
 export async function getRMaterials():Promise<IResponse>{
     try {
         await connectDB();
-        const materials = await RMaterial.find();
+        const materials = await RMaterial.find()
+        .populate('product')
+        .populate('supplier')
+        .populate('batch')
+        .populate('createdBy')
+        .populate('org') as unknown as IRMaterial[];
         return respond('Raw Materials found successfully', false, materials, 200);
     } catch (error) {
         console.log(error);
@@ -86,7 +92,12 @@ export async function getAvailableRMaterialsByBatch(batchId:string):Promise<IRes
 export async function getRMaterialsByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
-        const materials = await RMaterial.find({ org: orgId });
+        const materials = await RMaterial.find({ org: orgId })
+        .populate('product')
+        .populate('supplier')
+        .populate('batch')
+        .populate('createdBy')
+        .populate('org') as unknown as IRMaterial[];
         return respond('Raw Materials found successfully', false, materials, 200);
     } catch (error) {
         console.log(error);
@@ -109,7 +120,18 @@ export async function updateRMaterial(data:Partial<IRMaterial>):Promise<IRespons
 export async function getRMaterial(id:string):Promise<IResponse>{
     try {
         await connectDB();
-        const material = await RMaterial.findById(id);
+        const check = await verifyOrgAccess(RMaterial, id, "Raw Material",[
+            { path: "product" },
+            { path: "supplier" },
+            { path: "batch" },
+            { path: "createdBy" },
+            { path: "org" },
+        ]);
+
+        if ("allowed" in check === false) return check;
+
+        const material = check.doc;
+
         return respond("Raw Material retrieved successfully", false, material, 200);
     } catch (error) {
         console.log(error);

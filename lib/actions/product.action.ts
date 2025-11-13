@@ -23,7 +23,11 @@ export async function createProduct(data:Partial<IProduct>):Promise<IResponse>{
 export async function getProducts():Promise<IResponse>{
     try {
         await connectDB();
-        const products = await Product.find();
+        const products = await Product.find()
+        .populate('category')
+        .populate('suppliers')
+        .populate('createdBy')
+        .populate('org').lean() as unknown as IProduct[];
         return respond('Products found successfully', false, products, 200);
     } catch (error) {
         console.log(error);
@@ -34,7 +38,11 @@ export async function getProducts():Promise<IResponse>{
 export async function getProductsByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
-        const products = await Product.find({ org: orgId });
+        const products = await Product.find({ org: orgId })
+        .populate('category')
+        .populate('suppliers')
+        .populate('createdBy')
+        .populate('org').lean() as unknown as IProduct[];
         return respond('Products found successfully', false, products, 200);
     } catch (error) {
         console.log(error);
@@ -54,11 +62,16 @@ export async function updateProduct(data:Partial<IProduct>):Promise<IResponse>{
     }
 }
 
-export async function getProduction(id: string): Promise<IResponse> {
+export async function getProduct(id: string): Promise<IResponse> {
   try {
     await connectDB();
 
-    const check = await verifyOrgAccess(Product, id, "Product");
+    const check = await verifyOrgAccess(Product, id, "Product",[
+      { path: "category" },
+      { path: "suppliers" },
+      { path: "createdBy" },
+      { path: "org" },
+    ]);
 
     // If not allowed, return the middleware's response directly
     if ("allowed" in check === false) return check;

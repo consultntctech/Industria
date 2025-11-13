@@ -1,12 +1,14 @@
 import DialogueAlet from '@/components/misc/DialogueAlet'
 import { useFetchUsers } from '@/hooks/fetch/useFetchUsers'
-import { deleteUser } from '@/lib/actions/user.action'
+import { deleteUser, getUser } from '@/lib/actions/user.action'
 import { IUser } from '@/lib/models/user.model'
 import { Paper } from '@mui/material'
-import { DataGrid, GridToolbar } from '@mui/x-data-grid'
+import { DataGrid } from '@mui/x-data-grid'
 import { enqueueSnackbar } from 'notistack'
-import React, { Dispatch, SetStateAction, useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { UserColoumns } from './UserColumns'
+import UserInfoModal from './UserInfoModal'
+import { useSearchParams } from 'next/navigation'
 
 type UserTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -15,17 +17,47 @@ type UserTableProps = {
 }
 
 const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => {
-    const [showEdit, setShowEdit] = useState(false);
     const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
-    
 
     const {users, isPending, refetch} = useFetchUsers();
+    const searchParams = useSearchParams();
+    const userId = searchParams.get("Id");
+
+    useEffect(() => {
+        if (!userId) return;
+
+        let isMounted = true;
+
+        const fetchUser = async () => {
+            try {
+            const res = await getUser(userId);
+            if (!isMounted) return;
+
+            const userData = res.payload as IUser;
+            if (!res.error) {
+                setCurrentUser(userData);
+                setShowInfo(true);
+            }
+            } catch (error) {
+            if (isMounted) {
+                enqueueSnackbar("Error occurred while fetching user", { variant: "error" });
+            }
+            }
+        };
+
+        fetchUser();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [userId]);
+
+
 
     const paginationModel = { page: 0, pageSize: 15 };
 
     const handleEdit = (user:IUser)=>{
-        setShowEdit(true);
         setCurrentUser(user);
         setOpenNew(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -42,7 +74,6 @@ const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => 
     }
 
     const handleClose = ()=>{
-        setShowEdit(false);
         setShowInfo(false);
         setShowDelete(false);
         setCurrentUser(null);
@@ -69,6 +100,7 @@ const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => 
   return (
     <div className='table-main2' >
         <span className='font-bold text-xl' >Users</span>
+        <UserInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentUser={currentUser} setCurrentUser={setCurrentUser} />
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteUser} title="Delete User" content={content} />
         <div className="flex w-full">
             {

@@ -4,9 +4,12 @@ import SupplierComp from "../Views/SupplierComp"
 import Title from "../misc/Title"
 import { useState } from "react";
 import { useSettings } from "@/config/useSettings";
+import SuppliersTable from "../tables/suppliers/SuppliersTable";
+import { ISupplier } from "@/lib/models/supplier.model";
 
 const Supplier = () => {
     const [openNew, setOpenNew] = useState(false);
+    const [currentSupplier, setCurrentSupplier] = useState<ISupplier | null>(null);
     const {primaryColour} = useSettings();
   return (
     <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
@@ -14,7 +17,8 @@ const Supplier = () => {
             <Title title="Suppliers" isLink={false}/>
             <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
         </div>
-        <SupplierComp openNew={openNew} setOpenNew={setOpenNew}/>
+        <SupplierComp openNew={openNew} setOpenNew={setOpenNew} currentSupplier={currentSupplier} setCurrentSupplier={setCurrentSupplier} />
+        <SuppliersTable setOpenNew={setOpenNew} currentSupplier={currentSupplier} setCurrentSupplier={setCurrentSupplier} />
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { connectDB } from "../mongoose";
 import Batch, { IBatch } from "../models/batch.model";
 import { respond } from "../misc";
 import BatchConfig, { IBatchConfig } from "../models/batchconfig.model";
+import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
 export async function createBatch(data: Partial<IBatch>): Promise<IResponse> {
   try {
@@ -79,13 +80,88 @@ export async function createBatch(data: Partial<IBatch>): Promise<IResponse> {
 }
 
 
+export async function updateBatch(data: Partial<IBatch>): Promise<IResponse> {
+  try {
+    await connectDB();
+
+    // ✅ Find the existing batch
+    const existingBatch = await Batch.findById(data._id);
+    if (!existingBatch) {
+      return respond("Batch not found", true, {}, 404);
+    }
+
+    let updatedFields: Partial<IBatch> = { ...data };
+
+    // ✅ If this batch is linked to a configuration, recompute code if needed
+    if (data.isConfig && data.config) {
+      const config = await BatchConfig.findById(data.config).lean() as unknown as IBatchConfig;
+
+      if (!config) {
+        return respond("Batch configuration not found", true, {}, 404);
+      }
+
+      let code = "";
+
+      // ✅ Auto-increment type
+      if (config.type === "Auto-increment") {
+        // Find last batch across all Auto-increment batches in the same org
+        const lastAutoBatch = await Batch.findOne({
+          org: data.org || existingBatch.org,
+          $or: [
+            { configType: "Auto-increment" },
+            { configType: { $exists: false } },
+          ],
+        })
+          .sort({ createdAt: -1 })
+          .lean() as unknown as IBatch;
+
+        let lastNumber = 0;
+        if (lastAutoBatch?.code) {
+          const numericMatch = lastAutoBatch.code.match(/\d+/);
+          if (numericMatch) {
+            lastNumber = parseInt(numericMatch[0], 10) || 0;
+          }
+        }
+
+        const nextNumber = lastNumber + (config.increament || 1);
+        const padded = String(nextNumber).padStart(config.length, "0");
+        code = `${config.prefix || ""}${padded}${config.suffix || ""}`;
+      }
+
+      // ✅ Auto-generation type
+      else if (config.type === "Auto-generation") {
+        const randomString = Array.from({ length: config.length }, () =>
+          Math.floor(Math.random() * 10)
+        ).join("");
+
+        code = `${config.prefix || ""}${randomString}${config.suffix || ""}`;
+      }
+
+      // ✅ Update code and config type
+      updatedFields.code = code;
+      updatedFields.configType = config.type;
+    }
+
+    // ✅ Perform update
+    const updatedBatch = await Batch.findByIdAndUpdate(data._id, updatedFields, { new: true });
+
+    return respond("Batch code updated successfully", false, updatedBatch, 200);
+  } catch (error) {
+    console.error(error);
+    return respond("Error occurred while updating batch code", true, {}, 500);
+  }
+}
+
 
 
 
 export async function getBatches():Promise<IResponse>{
     try {
         await connectDB();
-        const batches = await Batch.find();
+        const batches = await Batch.find()
+        .populate('createdBy')
+        .populate('org')
+        .populate('config').lean() as unknown as IBatch[];
         return respond('Batches found successfully', false, batches, 200);
     } catch (error) {
         console.log(error);
@@ -96,7 +172,10 @@ export async function getBatches():Promise<IResponse>{
 export async function getBatchesByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
-        const batches = await Batch.find({ org: orgId });
+        const batches = await Batch.find({ org: orgId })
+        .populate('createdBy')
+        .populate('org')
+        .populate('config').lean() as unknown as IBatch[];
         return respond('Batches found successfully', false, batches, 200);
     } catch (error) {
         console.log(error);
@@ -105,21 +184,12 @@ export async function getBatchesByOrg(orgId:string):Promise<IResponse>{
 }
 
 
-export async function updateBatch(data:Partial<IBatch>):Promise<IResponse>{
-    try {
-        await connectDB();
-        const updatedBatch = await Batch.findByIdAndUpdate(data._id, data, { new: true });
-        return respond('Batch code updated successfully', false, updatedBatch, 200);
-    } catch (error) {
-        console.log(error);
-        return respond('Error occured while updating batch code', true, {}, 500);
-    }
-}
-
 export async function getBatch(id:string):Promise<IResponse>{
     try {
         await connectDB();
-        const batch = await Batch.findById(id);
+        const check = await verifyOrgAccess(Batch, id, 'Batch');
+        if('allowed' in check === false) return check;
+        const batch = check.doc;
         return respond("Batch retrieved successfully", false, batch, 200);
     } catch (error) {
         console.log(error);

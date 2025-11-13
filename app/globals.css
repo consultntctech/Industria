@@ -30,3 +30,12 @@
 .link{
   @apply text-blue-600 hover:underline cursor-pointer
 }
+
+
+.mlabel{
+  @apply text-slate-700  font-medium
+}
+
+.mtext{
+  @apply text-[0.9rem]
+}

@@ -22,7 +22,7 @@ const SearchSelectOrgs = ({setOrgId, required, value, width}:SearchSelectOrgsPro
                     setOrgId(item?._id as string)
                 }
             }}
-            // defaultValue={value}
+            defaultValue={value}
             inputValue={search}
             onInputChange={(_, item)=>{
                 setSearch(item);
@@ -36,7 +36,7 @@ const SearchSelectOrgs = ({setOrgId, required, value, width}:SearchSelectOrgsPro
                     {...params}
                     required={required}
                     size="small"
-                    label= {value ? value?.name : "Organization"}
+                    label= {"Organization"}
                     color="primary"
                     className="rounded"
                     slotProps={{

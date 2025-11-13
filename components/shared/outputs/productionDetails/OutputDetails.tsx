@@ -10,6 +10,10 @@ import { updateProduction } from "@/lib/actions/production.action";
 import DialogueAlet from "@/components/misc/DialogueAlet";
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
+import { IProduct } from "@/lib/models/product.model";
+import { useAuth } from "@/hooks/useAuth";
+import { IProdApproval } from "@/lib/models/prodapproval.model";
+import { createProdApproval } from "@/lib/actions/prodapproval.action";
 
 type OutputDetailsProps = {
     production: IProduction | null;
@@ -20,7 +24,12 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
     const [openDialog, setOpenDialog] = useState(false);
     const {primaryColour} = useSettings();
     const {currency} = useCurrencyConfig();
+    const productToProduce = production?.productToProduce as IProduct;
     const yieldRate =  ((production?.outputQuantity! / production?.xquantity!) * 100).toFixed(2);
+    const {user} = useAuth();
+    const extraCost = production?.extraCost || 0;
+    const prodCost = production?.productionCost || 0;
+    const totalCost = extraCost + prodCost;
 
     const title = 'Submit Production for Approval';
     const content = 'Are you sure you want to submit this production? You cannot edit the production after submitting for approval.';
@@ -30,17 +39,26 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
             const updateData:Partial<IProduction> = {
                 ...production,
                 status:'Pending Approval',
-                id:production?._id
             };
             const res = await updateProduction(updateData);
-            enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             if(!res.error){
                 setOpenDialog(false);
-                window.location.reload();
+                const approvalData:Partial<IProdApproval> = {
+                    production: production?._id,
+                    name: production?.name,
+                    status: 'Pending',
+                    createdBy: user?._id,
+                    org: user?.org,
+                };
+                const approvalRes = await createProdApproval(approvalData);
+                if (!approvalRes.error) {
+                    enqueueSnackbar(approvalRes.message, {variant:approvalRes.error?'error':'success'});
+                    window.location.reload();
+                }
             }
         } catch (error) {
             console.log(error);
-            enqueueSnackbar('Error occured while submitting production', {variant:'error'});
+            enqueueSnackbar('Error occured while submitting approval request', {variant:'error'});
         }
     }
 
@@ -70,7 +88,7 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
                 <>
                     <div className="flex flex-row items-center gap-4">
                         <span className="truncate w-1/2 md:w-1/5" >Output Quantity:</span>
-                        <span className="text-gray-600 truncate " >{production?.outputQuantity}</span>
+                        <span className="text-gray-600 truncate " >{production?.outputQuantity} {productToProduce?.uom || ''}</span>
                     </div>
                     
                     <div className="flex flex-row items-center gap-4">
@@ -90,7 +108,11 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
 
                     <div className="flex flex-row items-center gap-4">
                         <span className="truncate w-1/2 md:w-1/5" >Extra Cost:</span>
-                        <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol}${production?.extraCost || 0}`}</span>
+                        <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.extraCost || 0}`}</span>
+                    </div>
+                    <div className="flex flex-row items-center gap-4">
+                        <span className="truncate w-1/2 md:w-1/5" >Total Cost:</span>
+                        <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${totalCost || 0}`}</span>
                     </div>
 
                     <div className="flex flex-row items-center gap-4">

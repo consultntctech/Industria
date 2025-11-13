@@ -2,7 +2,7 @@ import React, {  ReactNode } from 'react'
 
 
 type GenericLabelProps = {
-    label: string;
+    label?: string;
     input:ReactNode
 } 
 

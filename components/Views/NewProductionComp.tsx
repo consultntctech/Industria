@@ -30,21 +30,42 @@ const NewProductionComp = () => {
     const [ingredients, setIngredients] = useState<IIngredient[]>([]);
     const [proditems, setProditems] = useState<IProdItem[]>([]);
     const [data, setData] = useState<Partial<IProduction>>({});
+    const [totalPrice, setTotalPrice] = useState(0);
+    const [totalProd, setTotalProd] = useState(0);
+    const [productionCost, setProductionCost] = useState(0);
 
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
     const {user} = useAuth();
     const {currency} = useCurrencyConfig();
 
-    const totalPrice = rawMaterials.reduce((sum, material) => {
-        const ingredient = ingredients.find(ing => ing.materialId === material._id);
-        const qUsed = ingredient?.qUsed || 0;
-        return sum + (material.price * qUsed);
-    }, 0);
 
-    const totalProd = proditems.reduce((sum, item) => {
-        return sum + (item?.price || 0);
-    }, 0);
+
+    useEffect(() => {
+        const price = rawMaterials.reduce((sum, material) => {
+            const ingredient = ingredients.find(ing => ing.materialId === material._id);
+            const qUsed = ingredient?.qUsed || 0;
+            return sum + (material.unitPrice * qUsed);
+        }, 0);
+        setTotalPrice(price);
+    }, [rawMaterials, ingredients]);
+
+   useEffect(() => {
+        const prod = proditems.reduce((sum, item) => {
+            return sum + (item?.price || 0);
+        }, 0);
+        setTotalProd(prod);
+    }, [proditems]);
+
+    // console.log('Total Price: ', totalPrice);
+    useEffect(() => {
+        setProductionCost(totalPrice + totalProd);
+    }, [totalPrice, totalProd]);
+ 
+    const onchangeProdCost = (e:React.ChangeEvent<HTMLInputElement>)=>{
+        const {value} = e.target;
+        setProductionCost(Number(value));
+    }
 
     // alert(totalPrice + totalProd);
 
@@ -53,9 +74,9 @@ const NewProductionComp = () => {
         setIngredients(prev => prev.filter(ing => validIds.has(ing.materialId)));
         setData(pre=>({
             ...pre,
-            productionCost: totalPrice + totalProd
+            productionCost
         }));
-    }, [rawMaterials, totalPrice, totalPrice]);
+    }, [rawMaterials, totalPrice, totalPrice, totalProd]);
 
     const onChange = (e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
         setData((pre)=>({
@@ -168,7 +189,7 @@ const NewProductionComp = () => {
                                 label="Add production items"
                                 input={<SearchSelectMultipleProdItems setSelection={setProditems} />}
                             />
-                            <InputWithLabel defaultValue={totalPrice + totalProd} onChange={onChange} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Production cost ${currency?.symbol}`} className="w-full" />
+                            <InputWithLabel value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Production cost ${currency?.symbol}`} className="w-full" />
                         </div>
                         <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
                     </div>

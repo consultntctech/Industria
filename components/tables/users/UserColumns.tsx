@@ -67,7 +67,7 @@ export const UserColoumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/orgs?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
                 )
             }
         },
@@ -107,7 +107,7 @@ export const UserColoumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="Edit User">
+                    <Tooltip title="View User">
                         <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
                     </Tooltip>
                     <Tooltip title="Edit User">
