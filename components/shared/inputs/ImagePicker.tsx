@@ -6,7 +6,7 @@ type ImagePickerProps = {
 
 const ImagePicker = ({className, ...props}: ImagePickerProps) => {
   return (
-    <div className='w-[10rem] h-[10rem] border-dashed' >ImagePicker</div>
+    <div {...props} className='w-[10rem] h-[10rem] border-dashed' >ImagePicker</div>
   )
 }
 
