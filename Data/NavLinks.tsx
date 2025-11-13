@@ -73,13 +73,13 @@ export const NavLinks = (): INavBarItem[] => {
     },
     {
       id: "6",
-      title: "Returns",
+      title: "Transactions",
       icon: <HiOutlineCash />,
       subMenu: [
-        { id: "61", title: "Sales", icon: <PiCashRegisterLight />, link: "/dashboard/returns/sales" },
-        { id: "62", title: "Orders", icon: <LuGitPullRequest />, link: "/dashboard/returns/orders" },
-        { id: "63", title: "Refunds", icon: <TbCashOff />, link: "/dashboard/returns/refunds" },
-        { id: "64", title: "Finance", icon: <TbTimeline />, link: "/dashboard/returns/finance" },
+        { id: "61", title: "Sales", icon: <PiCashRegisterLight />, link: "/dashboard/transactions/sales" },
+        { id: "62", title: "Orders", icon: <LuGitPullRequest />, link: "/dashboard/transactions/orders" },
+        { id: "63", title: "Refunds", icon: <TbCashOff />, link: "/dashboard/transactions/refunds" },
+        { id: "64", title: "Finance", icon: <TbTimeline />, link: "/dashboard/transactions/finance" },
       ],
     },
     {
