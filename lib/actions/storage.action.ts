@@ -22,7 +22,10 @@ export async function createStorage(data:Partial<IStorage>):Promise<IResponse>{
 export async function getStorages():Promise<IResponse>{
     try {
         await connectDB();
-        const storages = await Storage.find();
+        const storages = await Storage.find()
+        .populate('org')
+        .populate('createdBy')
+        .lean() as unknown as IStorage[];
         return respond('Storages found successfully', false, storages, 200);
     } catch (error) {
         console.log(error);
@@ -33,7 +36,10 @@ export async function getStorages():Promise<IResponse>{
 export async function getStoragesByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
-        const storages = await Storage.find({ org: orgId });
+        const storages = await Storage.find({ org: orgId })
+         .populate('org')
+        .populate('createdBy')
+        .lean() as unknown as IStorage[];
         return respond('Storages found successfully', false, storages, 200);
     } catch (error) {
         console.log(error);

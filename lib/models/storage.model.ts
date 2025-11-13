@@ -10,8 +10,8 @@ export interface IStorage extends Document {
     description?: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
-    createdAt: Date;
-    updatedAt: Date;
+    createdAt: string;
+    updatedAt: string;
 }
 
 const StorageSchema = new Schema<IStorage>({

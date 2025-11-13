@@ -7,6 +7,7 @@ import { respond } from "../misc";
 import '../models/org.model';
 import '../models/product.model';
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
+import Production from "../models/production.model";
 
 
 export async function createGood(data: Partial<IGood>): Promise<IResponse> {
@@ -127,7 +128,11 @@ export async function getGood(id:string):Promise<IResponse>{
 export async function deleteGood(id:string):Promise<IResponse>{
     try {
         await connectDB();
-        const deletedGood = await Good.deleteOne({ _id: id });
+        const good = await Good.findById(id);
+        const [deletedGood] = await Promise.all([
+            Good.deleteOne({ _id: id }),
+            Production.findByIdAndUpdate(good?._production, {status:'In Progress'}, {new:true})
+        ])
         return respond('Finished good deleted successfully', false, deletedGood, 200);
     } catch (error) {
         console.log(error);
