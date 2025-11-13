@@ -31,7 +31,7 @@ export async function createUser(data:Partial<IUser>):Promise<IResponse>{
             userName: data.name!,
             userEmail: data.email!,
             password: password,
-            appUrl: 'http://localhost:3000',
+            appUrl: 'https://industra-app.vercel.app/',
             supportEmail: org?.email || 'annan@consultntctech.com',
         });
         return respond('User created successfully', false, newUser, 201);

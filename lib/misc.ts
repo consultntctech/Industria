@@ -71,7 +71,7 @@ export async function sendWelcomeEmail({
     },
   });
 
-  console.log(process.env.GMAIL_USER, process.env.GMAIL_PASS)
+  // console.log(process.env.GMAIL_USER, process.env.GMAIL_PASS)
 
   await transporter.sendMail({
     from: `"${companyName}" <${supportEmail}>`,
