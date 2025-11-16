@@ -7,12 +7,12 @@ import GenericLabel from '../../inputs/GenericLabel';
 import SearchSelectBatches from '../../inputs/dropdowns/SearchSelectBatches';
 import SearchSelectAvMultipleRMaterials from '../../inputs/dropdowns/SearchSelectAvMultipleRMaterials';
 import RMQSelector from '@/components/misc/RMQSelector';
-import SearchSelectMultipleProdItems from '../../inputs/dropdowns/SearchSelectMultipleProdItems';
+// import SearchSelectMultipleProdItems from '../../inputs/dropdowns/SearchSelectMultipleProdItems';
 import InputWithLabel from '../../inputs/InputWithLabel';
 import PrimaryButton from '../../buttons/PrimaryButton';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { IRMaterial } from '@/lib/models/rmaterial.mode';
-import { IProdItem } from '@/lib/models/proditem.model';
+// import { IProdItem } from '@/lib/models/proditem.model';
 import { IIngredient } from '@/types/Types';
 import {  updateProductionIngredients } from '@/lib/actions/production.action';
 import { enqueueSnackbar } from 'notistack';
@@ -21,33 +21,32 @@ import '@/styles/customscroll.css'
 type ProductionContentModalProps = {
   openNew:boolean;
   setOpenNew: Dispatch<SetStateAction<boolean>>;
-  setOpenItem: Dispatch<SetStateAction<boolean>>;
-  openItem: boolean;
+//   setOpenItem: Dispatch<SetStateAction<boolean>>;
+//   openItem: boolean;
   production: IProduction | null;
 }
 
-const ProductionContentModal = ({openNew, setOpenNew, setOpenItem, openItem, production}:ProductionContentModalProps) => {
+const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionContentModalProps) => {
   const [loading, setLoading] = React.useState(false);
   const [data, setData] = React.useState<Partial<IProduction>>({});
   const [rawMaterials, setRawMaterials] = useState<IRMaterial[]>([]);
   const [oldRawMaterials, setOldRawMaterials] = useState<IRMaterial[]>([]);
   const [ingredients, setIngredients] = useState<IIngredient[]>([]);
-  const [proditems, setProditems] = useState<IProdItem[]>([]);
+//   const [proditems, setProditems] = useState<IProdItem[]>([]);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [totalProd, setTotalProd] = useState(0);
+//   const [totalProd, setTotalProd] = useState(0);
   const [productionCost, setProductionCost] = useState(0);
   const [productBatchId, setProductBatchId] = useState<string>('');
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
     const {currency} = useCurrencyConfig();
-    const savedProditems = production?.proditems as unknown as IProdItem[];
+    // const savedProditems = production?.proditems as unknown as IProdItem[];
 
 
     useEffect(()=>{
         if(production){
             setData({...production});
-            setProditems(savedProditems);
              const formattedIngredients: IIngredient[] = production?.ingredients?.map((ing) => ({
                 materialId: (ing.materialId as IRMaterial)._id,
                 qUsed: ing.quantity,
@@ -75,17 +74,17 @@ const ProductionContentModal = ({openNew, setOpenNew, setOpenItem, openItem, pro
         setTotalPrice(price);
     }, [rawMaterials, ingredients]);
 
-   useEffect(() => {
-        const prod = proditems.reduce((sum, item) => {
-            return sum + (item?.price || 0);
-        }, 0);
-        setTotalProd(prod);
-    }, [proditems]);
+//    useEffect(() => {
+//         const prod = proditems.reduce((sum, item) => {
+//             return sum + (item?.price || 0);
+//         }, 0);
+//         setTotalProd(prod);
+//     }, [proditems]);
 
     // console.log('Total Price: ', totalPrice);
     useEffect(() => {
-        setProductionCost(totalPrice + totalProd);
-    }, [totalPrice, totalProd]);
+        setProductionCost(totalPrice);
+    }, [totalPrice]);
  
     const onchangeProdCost = (e:React.ChangeEvent<HTMLInputElement>)=>{
         const {value} = e.target;
@@ -104,7 +103,7 @@ const ProductionContentModal = ({openNew, setOpenNew, setOpenItem, openItem, pro
             ...pre,
             productionCost: productionCost + extraCost
         }));
-    }, [rawMaterials, totalPrice, totalPrice, totalProd]);
+    }, [rawMaterials, totalPrice, totalPrice]);
 
    
     const onChangeInput = (e:React.ChangeEvent<HTMLInputElement>)=>{
@@ -122,7 +121,7 @@ const ProductionContentModal = ({openNew, setOpenNew, setOpenItem, openItem, pro
 
   const handleClose = ()=>{
     setOpenNew(false);
-    setOpenItem(false);
+    // setOpenItem(false);
   }
 
  const handleSubmit = async(e:React.FormEvent<HTMLFormElement>)=>{
@@ -137,7 +136,7 @@ const ProductionContentModal = ({openNew, setOpenNew, setOpenItem, openItem, pro
                      materialId: ing.materialId,
                      quantity: ing.qUsed
                  })),
-                 proditems: proditems?.map(item=>item._id),
+                //  proditems: proditems?.map(item=>item._id),
                  inputQuantity: rawMaterials?.length,
              }
              
@@ -166,7 +165,7 @@ const ProductionContentModal = ({openNew, setOpenNew, setOpenItem, openItem, pro
     //  console.log('Raw Materials: ', ingredients)
 
   return (
-    <ModalContainer  open={openNew || openItem} handleClose={handleClose}>
+    <ModalContainer  open={openNew} handleClose={handleClose}>
         <div className="flex w-[90%] md:w-[50%] max-h-[95%]">
             <form ref={formRef} onSubmit={ handleSubmit}  className="formBox overflow-y-scroll scrollbar-custom  h-full relative p-4 flex-col gap-8 w-full" >
                 <div className="flex flex-col gap-1">
@@ -209,13 +208,13 @@ const ProductionContentModal = ({openNew, setOpenNew, setOpenItem, openItem, pro
                                     }
                                 </>
                             }
-                            {
+                            {/* {
                                 openItem &&
                                 <GenericLabel
                                     label="Add production items"
                                     input={<SearchSelectMultipleProdItems value={proditems} setSelection={setProditems} />}
                                 />
-                            }
+                            } */}
                             <InputWithLabel value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Production cost ${currency?.symbol}`} className="w-full" />
                         </div>
                         <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />

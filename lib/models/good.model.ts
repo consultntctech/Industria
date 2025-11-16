@@ -2,6 +2,7 @@ import { Document, model, models, Schema, Types } from "mongoose";
 import { IOrganization } from "./org.model";
 import { IUser } from "./user.model";
 import { IProduction } from "./production.model";
+import { IBatch } from "./batch.model";
 
 export interface IGood extends Document {
     _id: string;
@@ -10,6 +11,7 @@ export interface IGood extends Document {
     description: string;
     production: string | Types.ObjectId | IProduction;
     unitPrice: number;
+    batch: string | Types.ObjectId | IBatch;
     quantity: number;
     threshold: number;
     org: string | Types.ObjectId | IOrganization;
@@ -26,6 +28,7 @@ const GoodSchema = new Schema<IGood>({
     unitPrice: Number,
     threshold: {type:Number, default:0},
     quantity: Number,
+    batch: { type: Schema.Types.ObjectId, ref: 'Batch', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     createdAt: Date,

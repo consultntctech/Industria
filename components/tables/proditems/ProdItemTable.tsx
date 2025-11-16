@@ -99,7 +99,7 @@ const ProdItemTable = ({setOpenNew, currentProdItem, setCurrentProdItem}:ProdIte
 
   return (
     <div className='table-main2' >
-        <span className='font-bold text-xl' >Production Materials</span>
+        <span className='font-bold text-xl' >Materials</span>
         <ProductInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentProdItem={currentProdItem} setCurrentProdItem={setCurrentProdItem} />
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteItem} title="Delete Item" content={content} />
         <div className="flex w-full">

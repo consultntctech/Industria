@@ -66,7 +66,7 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
   return (
      <div className="formBox p-3 flex-col gap-4 relative">
         {
-            production?.status === 'New' &&
+            !(production?.status === 'Pending Approval' || production?.status === 'Approved') &&
             <>
             <div className="flex flex-col gap-1">
                 <span className="title" >Production is still in progress</span>

@@ -228,7 +228,7 @@ export async function getProduction(id: string): Promise<IResponse> {
         { path: "supervisor" },
         { path: "createdBy" },
         { path: "batch" },
-        {path: 'proditems'},
+        // {path: 'proditems'},
         {path: 'ingredients', populate: {path:'materialId', populate:[{path:'batch'}, {path:'product'}]}}
       ]
     );

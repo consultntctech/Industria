@@ -20,6 +20,18 @@ export const ProductionColumns = (
             field: 'name',
             headerName: 'Name',
             width:120,
+            valueFormatter: (_, row:IProduction)=>{
+                return row ? row.name : '';
+            },
+            valueGetter: (_, row:IProduction)=>{
+                return row ? row.name : '';
+            },
+            renderCell: (params:GridRenderCellParams)=>{
+                const production = params?.row as IProduction;
+                return (
+                    <Link href={`/dashboard/processing/production/${production?._id}`} className="link" >{production?.name}</Link>
+                )
+            }
         },
 
         {

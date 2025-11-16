@@ -13,8 +13,8 @@ export interface IBatch extends Document {
     config: string | Types.ObjectId | IBatchConfig;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization
-    createdAt?: Date;
-    updatedAt?: Date;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 const BatchSchema = new Schema<IBatch>({

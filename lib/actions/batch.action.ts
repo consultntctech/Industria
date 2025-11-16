@@ -187,7 +187,7 @@ export async function getBatchesByOrg(orgId:string):Promise<IResponse>{
 export async function getBatch(id:string):Promise<IResponse>{
     try {
         await connectDB();
-        const check = await verifyOrgAccess(Batch, id, 'Batch');
+        const check = await verifyOrgAccess(Batch, id, 'Batch', [{ path: 'config' }]);
         if('allowed' in check === false) return check;
         const batch = check.doc;
         return respond("Batch retrieved successfully", false, batch, 200);

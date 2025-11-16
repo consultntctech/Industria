@@ -18,7 +18,7 @@ export const useSettings = () => {
       return null;
     }
   }
-  const {data:org, isPending} = useQuery({
+  const {data:org, isPending, isSuccess} = useQuery({
     queryKey: ['userOrg', user?.org],
     queryFn: fetchOrg,
     enabled: !!user?.org,
@@ -34,6 +34,6 @@ export const useSettings = () => {
     appName: org?.appName || "Industra",
     appDescription: org?.description|| "Manage your industrial tasks with ease",
     logo: org?.logo || "/images/bird-colorful-gradient-design-vector_343694-2506.jpg",
-    isPending
+    isPending, isSuccess
   };
 };

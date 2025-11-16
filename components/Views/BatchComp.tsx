@@ -30,6 +30,7 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
   const {refetch} = useBatches();
 
   const currentConfig = currentBatch?.config as IBatchConfig;
+  // console.log('Current Config: ', currentConfig)
 
 
 

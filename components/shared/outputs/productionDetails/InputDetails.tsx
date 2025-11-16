@@ -27,7 +27,7 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
   return (
     <div className="formBox p-3 flex-col gap-4 relative">
         {
-            production?.status !== 'Pending Approval' &&
+            !(production?.status === 'Pending Approval' || production?.status === 'Approved') &&
             <Tooltip title="Edit Production Details">
                 <FaPenToSquare onClick={()=>setOpenNew(true)} style={{color:primaryColour}} className='cursor-pointer absolute top-1 right-1' />
             </Tooltip>

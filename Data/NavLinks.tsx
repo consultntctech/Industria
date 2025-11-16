@@ -57,7 +57,6 @@ export const NavLinks = (): INavBarItem[] => {
       title: "Processing",
       icon: <LiaRecycleSolid />,
       subMenu: [
-        { id: "43", title: "Production Items", icon: <LuPillBottle />, link: "/dashboard/processing/production-materials" },
         { id: "41", title: "Production", icon: <FiRefreshCw />, link: "/dashboard/processing/production" },
         { id: "42", title: "Goods", icon: <CiBag1 />, link: "/dashboard/processing/goods" },
       ],
@@ -68,7 +67,8 @@ export const NavLinks = (): INavBarItem[] => {
       icon: <LuBaggageClaim />,
       subMenu: [
         { id: "51", title: "Customers", icon: <HiOutlineUsers />, link: "/dashboard/distribution/customers" },
-        { id: "52", title: "Packaging", icon: <TfiPackage />, link: "/dashboard/distribution/packaging" },
+        { id: "52", title: "Packaging Items", icon: <LuPillBottle />, link: "/dashboard/distribution/packaging-materials" },
+        { id: "53", title: "Packaging", icon: <TfiPackage />, link: "/dashboard/distribution/packaging" },
       ],
     },
     {

@@ -8,6 +8,7 @@ import React, { Dispatch, SetStateAction } from 'react'
 import { IProduction } from '@/lib/models/production.model';
 import { IProduct } from '@/lib/models/product.model';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
+import { IBatch } from '@/lib/models/batch.model';
 
 type GoodsInfoModalProps = {
     infoMode:boolean,
@@ -21,6 +22,7 @@ const GoodsInfoModal = ({infoMode, setInfoMode, currentGood, setCurrentGood}:Goo
     const creator = currentGood?.createdBy as IUser;
     const production = currentGood?.production as IProduction;
     const product = production?.productToProduce as IProduct;
+    const batch = currentGood?.batch as IBatch;
     const {currency} = useCurrencyConfig();
 
     const handleClose = ()=>{
@@ -40,6 +42,10 @@ const GoodsInfoModal = ({infoMode, setInfoMode, currentGood, setCurrentGood}:Goo
             <div className="flex flex-col">
                 <span className="mlabel">Serial Name</span>
                 <span className="mtext">{currentGood?.serialName}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Batch</span>
+                <Link  href={`/dashboard/products/batches?Id=${batch?._id}`} className="mtext link">{batch?.code}</Link>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Product</span>

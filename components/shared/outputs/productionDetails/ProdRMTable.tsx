@@ -10,11 +10,11 @@ import { GoPencil } from 'react-icons/go'
 
 type ProdRMTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
-    setOpenItem:Dispatch<SetStateAction<boolean>>;
+    // setOpenItem:Dispatch<SetStateAction<boolean>>;
     production: IProduction | null;
 }
 
-const ProdRMTable = ({setOpenNew, production, setOpenItem}:ProdRMTableProps) => {
+const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
 
     const materials = production?.ingredients as unknown as IRMaterialPopulate[];
 
@@ -26,7 +26,7 @@ const ProdRMTable = ({setOpenNew, production, setOpenItem}:ProdRMTableProps) => 
 
     const handleEdit = ()=>{
         setOpenNew(true);
-        setOpenItem(false);
+        // setOpenItem(false);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -56,7 +56,7 @@ const ProdRMTable = ({setOpenNew, production, setOpenItem}:ProdRMTableProps) => 
         <div className="flex flex-row items-center gap-6">
             <span className='font-bold text-xl' >Raw Materials</span>
             {
-                production?.status !== 'Pending Approval' &&
+                !(production?.status === 'Pending Approval' || production?.status === 'Approved') &&
                 <Tooltip title="Edit production content">
                     <GoPencil onClick={handleEdit}  className="cursor-pointer text-blue-700" />
                 </Tooltip>

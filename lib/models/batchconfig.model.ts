@@ -12,8 +12,8 @@ export interface IBatchConfig extends Document {
     increament: number;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization
-    createdAt?: Date;
-    updatedAt?: Date;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 const BatchConfigSchema = new Schema<IBatchConfig>({
@@ -28,5 +28,5 @@ const BatchConfigSchema = new Schema<IBatchConfig>({
 }, {timestamps:true})
 
 
-const BatchConfig = models?.BatchConfig || models.BatchConfig || model<IBatchConfig>('BatchConfig', BatchConfigSchema);
+const BatchConfig = models?.BatchConfig || model<IBatchConfig>('BatchConfig', BatchConfigSchema);
 export default BatchConfig;

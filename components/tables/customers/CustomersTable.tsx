@@ -1,83 +1,90 @@
+import { useFetchCustomers } from "@/hooks/fetch/useFetchCustomers";
+import { deleteCustomer, getCustomer } from "@/lib/actions/customer.action";
+import { ICustomer } from "@/lib/models/customer.model";
 import { Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { enqueueSnackbar } from "notistack";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import DialogueAlet from "@/components/misc/DialogueAlet";
+import CustomersInfoModal from "./CustomersInfoModal";
 import { useSearchParams } from "next/navigation";
-import { IBatch } from "@/lib/models/batch.model";
-import { useBatches } from "@/hooks/fetch/useBatches";
-import { deleteBatch, getBatch } from "@/lib/actions/batch.action";
-import { BatchColumns } from "./BatchColumns";
+import { CustomersColoumns } from "./CustomersColumns";
 
-type BatchTableProps = {
+type CustomersTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
-    currentBatch:IBatch | null;
-    setCurrentBatch:Dispatch<SetStateAction<IBatch | null>>;
+    currentCustomer:ICustomer | null;
+    setCurrentCustomer:Dispatch<SetStateAction<ICustomer | null>>;
 }
 
-const BatchTable = ({setOpenNew, currentBatch, setCurrentBatch}:BatchTableProps) => {
+const CustomersTable = ({setOpenNew, currentCustomer, setCurrentCustomer}:CustomersTableProps) => {
+    const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
     
 
-    const {batches, isPending, refetch} = useBatches();
+    const {customers, isPending, refetch} = useFetchCustomers();
 
-    // console.log('Creator: ', categories[0]?.createdBy)
+
     const searchParams = useSearchParams();
-        const batchId = searchParams.get("Id");
+        const CustomerId = searchParams.get("Id");
     
         useEffect(() => {
-            if (!batchId) return;
+            if (!CustomerId) return;
     
             let isMounted = true;
     
-            const fetchBatch = async () => {
+            const fetchCustomer = async () => {
                 try {
-                const res = await getBatch(batchId);
+                const res = await getCustomer(CustomerId);
                 if (!isMounted) return;
     
-                const item = res.payload as IBatch;
+                const item = res.payload as ICustomer;
                 if (!res.error) {
-                    setCurrentBatch(item);
-                    handleEdit(item)
+                    setCurrentCustomer(item);
+                    setShowInfo(true);
                 }
                 } catch (error) {
                 if (isMounted) {
-                    enqueueSnackbar("Error occurred while fetching batch code", { variant: "error" });
+                    enqueueSnackbar("Error occurred while fetching customer", { variant: "error" });
                 }
                 }
             };
     
-            fetchBatch();
+            fetchCustomer();
     
             return () => {
                 isMounted = false;
             };
-        }, [batchId]);
+        }, [CustomerId]);
 
 
     const paginationModel = { page: 0, pageSize: 15 };
 
-    const handleEdit = (cat:IBatch)=>{
-        setCurrentBatch(cat);
+    const handleEdit = (item:ICustomer)=>{
+        setCurrentCustomer(item);
         setOpenNew(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    const handleInfo = (item:ICustomer)=>{
+        setShowInfo(true);
+        setCurrentCustomer(item);
+    }
 
-    const handleDelete = (cat:IBatch)=>{
+    const handleDelete = (item:ICustomer)=>{
         setShowDelete(true);
-        setCurrentBatch(cat);
+        setCurrentCustomer(item);
     }
 
     const handleClose = ()=>{
+        setShowInfo(false);
         setShowDelete(false);
-        setCurrentBatch(null);
+        setCurrentCustomer(null);
     }
 
-    const handleDeleteUser = async()=>{
+    const handleDeleteItem = async()=>{
         try {
-            if(!currentBatch) return;
-            const res = await deleteBatch(currentBatch?._id);
+            if(!currentCustomer) return;
+            const res = await deleteCustomer(currentCustomer?._id);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             handleClose();
             if(!res.error){
@@ -85,17 +92,18 @@ const BatchTable = ({setOpenNew, currentBatch, setCurrentBatch}:BatchTableProps)
             }
         } catch (error) {
             console.log(error);
-            enqueueSnackbar('Error occured while deleting batch code', {variant:'error'});
+            enqueueSnackbar('Error occured while deleting Customer', {variant:'error'});
         }
     }
 
 
-    const content = currentBatch ? `Are you sure you want to delete batch code ${currentBatch.code}? This action cannot be undone.` : '';
+    const content = currentCustomer ? `Are you sure you want to delete Customer ${currentCustomer.name}? This action cannot be undone.` : '';
 
   return (
     <div className='table-main2' >
-        <span className='font-bold text-xl' >Product Categories</span>
-        <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteUser} title="Delete Batch Code" content={content} />
+        <span className='font-bold text-xl' >Customers</span>
+        <CustomersInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentCustomer={currentCustomer} setCurrentCustomer={setCurrentCustomer} />
+        <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteItem} title="Delete Customer" content={content} />
         <div className="flex w-full">
             {
                 // loading ? 
@@ -104,18 +112,17 @@ const BatchTable = ({setOpenNew, currentBatch, setCurrentBatch}:BatchTableProps)
                 <Paper className='w-full' sx={{ height: 'auto', }}>
                     <DataGrid
                         loading={isPending}
-                        getRowId={(row:IBatch)=>row._id}
-                        rows={batches}
-                        columns={BatchColumns(handleEdit, handleDelete)}
+                        getRowId={(row:ICustomer)=>row._id}
+                        rows={customers}
+                        columns={CustomersColoumns(handleInfo, handleEdit, handleDelete)}
                         initialState={{ 
                             pagination: { paginationModel },
                             columns:{
                                 columnVisibilityModel:{
-                                  org:false,
-                                  config:false,
                                   createdBy:false,
                                   createdAt:false,
                                   updatedAt:false,
+                                  org:false,
                                 }
                               }
                          }}
@@ -141,4 +148,4 @@ const BatchTable = ({setOpenNew, currentBatch, setCurrentBatch}:BatchTableProps)
   )
 }
 
-export default BatchTable
+export default CustomersTable

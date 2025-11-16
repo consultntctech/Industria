@@ -37,15 +37,15 @@ export const ProdItemColumns = (
         },
         {
             field: 'price',
-            headerName: 'Price',
+            headerName: currency ? `Price (${currency.symbol})` : 'Price',
             width:110,
             valueFormatter:(_, row:IProdItem)=>{
                 const cost = row?.price as number || 0;
-                return `${currency?.symbol || ''}${cost}`;
+                return cost;
             },
             valueGetter:(_, row:IProdItem)=>{
                 const cost = row?.price as number || 0;
-                return `${currency?.symbol || ''}${cost}`;
+                return cost;
             }
         },
 

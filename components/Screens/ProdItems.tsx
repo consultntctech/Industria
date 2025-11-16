@@ -10,7 +10,7 @@ const ProdItems = () => {
     const [openNew, setOpenNew] = useState(false);
     const [currentProdItem, setCurrentProdItem] = useState<IProdItem | null>(null);
   return (
-    <TopContent isLink={false} title="Production Materials" openNew={openNew} setOpenNew={setOpenNew}>
+    <TopContent isLink={false} title="Packaging Materials" openNew={openNew} setOpenNew={setOpenNew}>
         <ProdItemComp currentProdItem={currentProdItem} setCurrentProdItem={setCurrentProdItem} openNew={openNew} setOpenNew={setOpenNew}/>
         <ProdItemTable setOpenNew={setOpenNew} currentProdItem={currentProdItem} setCurrentProdItem={setCurrentProdItem} />
     </TopContent>

@@ -21,6 +21,7 @@ import '@/styles/customscroll.css'
 import DialogueAlet from '@/components/misc/DialogueAlet';
 import { IGood } from '@/lib/models/good.model';
 import { createGood } from '@/lib/actions/good.action';
+// import { IBatch } from '@/lib/models/batch.model';
 
 type ProdApprovalInfoModalProps = {
     openNew:boolean;
@@ -44,6 +45,9 @@ const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApprova
     const product = production?.productToProduce as IProduct;
     const creator = currentProdApproval?.createdBy as IUser;
     const approver = currentProdApproval?.approver as IUser;
+    const batch = production?.batch
+
+    // console.log('Batch: ', batch)
 
     const handleClose = ()=>{
         setOpenNew(false);
@@ -64,6 +68,7 @@ const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApprova
                         production: production?._id,
                         org: user?.org,
                         createdBy: user?._id,
+                        batch
                     }
 
                     const goodsRes = await createGood(goodsData);

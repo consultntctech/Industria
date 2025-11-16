@@ -12,9 +12,9 @@ import SearchSelectAvMultipleRMaterials from "../shared/inputs/dropdowns/SearchS
 import { IRMaterial } from "@/lib/models/rmaterial.mode";
 import RMQSelector from "../misc/RMQSelector";
 import { IIngredient } from "@/types/Types";
-import SearchSelectMultipleProdItems from "../shared/inputs/dropdowns/SearchSelectMultipleProdItems";
+// import SearchSelectMultipleProdItems from "../shared/inputs/dropdowns/SearchSelectMultipleProdItems";
 import { IProduction } from "@/lib/models/production.model";
-import { IProdItem } from "@/lib/models/proditem.model";
+// import { IProdItem } from "@/lib/models/proditem.model";
 import { enqueueSnackbar } from "notistack";
 import { createProduction } from "@/lib/actions/production.action";
 import { useRouter } from "next/navigation";
@@ -28,10 +28,10 @@ const NewProductionComp = () => {
     const [productBatchId, setProductBatchId] = useState<string>('');
     const [rawMaterials, setRawMaterials] = useState<IRMaterial[]>([]);
     const [ingredients, setIngredients] = useState<IIngredient[]>([]);
-    const [proditems, setProditems] = useState<IProdItem[]>([]);
+    // const [proditems, setProditems] = useState<IProdItem[]>([]);
     const [data, setData] = useState<Partial<IProduction>>({});
     const [totalPrice, setTotalPrice] = useState(0);
-    const [totalProd, setTotalProd] = useState(0);
+    // const [totalProd, setTotalProd] = useState(0);
     const [productionCost, setProductionCost] = useState(0);
 
     const router = useRouter();
@@ -50,17 +50,17 @@ const NewProductionComp = () => {
         setTotalPrice(price);
     }, [rawMaterials, ingredients]);
 
-   useEffect(() => {
-        const prod = proditems.reduce((sum, item) => {
-            return sum + (item?.price || 0);
-        }, 0);
-        setTotalProd(prod);
-    }, [proditems]);
+//    useEffect(() => {
+//         const prod = proditems.reduce((sum, item) => {
+//             return sum + (item?.price || 0);
+//         }, 0);
+//         setTotalProd(prod);
+//     }, [proditems]);
 
     // console.log('Total Price: ', totalPrice);
     useEffect(() => {
-        setProductionCost(totalPrice + totalProd);
-    }, [totalPrice, totalProd]);
+        setProductionCost(totalPrice);
+    }, [totalPrice]);
  
     const onchangeProdCost = (e:React.ChangeEvent<HTMLInputElement>)=>{
         const {value} = e.target;
@@ -76,7 +76,7 @@ const NewProductionComp = () => {
             ...pre,
             productionCost
         }));
-    }, [rawMaterials, totalPrice, totalPrice, totalProd]);
+    }, [rawMaterials, totalPrice, totalPrice]);
 
     const onChange = (e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
         setData((pre)=>({
@@ -101,7 +101,7 @@ const NewProductionComp = () => {
                     materialId: ing.materialId,
                     quantity: ing.qUsed
                 })),
-                proditems: proditems?.map(item=>item._id),
+                // proditems: proditems?.map(item=>item._id),
                 inputQuantity: rawMaterials?.length,
             }
             
@@ -185,10 +185,10 @@ const NewProductionComp = () => {
                                     </div>
                                 </div>
                             }
-                            <GenericLabel
+                            {/* <GenericLabel
                                 label="Add production items"
                                 input={<SearchSelectMultipleProdItems setSelection={setProditems} />}
-                            />
+                            /> */}
                             <InputWithLabel value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Production cost ${currency?.symbol}`} className="w-full" />
                         </div>
                         <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />

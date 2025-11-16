@@ -119,6 +119,7 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
                                 columnVisibilityModel:{
                                   org:false,
                                   production: false,
+                                  batch: false,
                                   description: false,
                                   createdBy:false,
                                   createdAt:false,

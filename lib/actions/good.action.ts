@@ -6,6 +6,7 @@ import { connectDB } from "../mongoose";
 import { respond } from "../misc";
 import '../models/org.model';
 import '../models/product.model';
+import '../models/batch.model';
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Production from "../models/production.model";
 
@@ -66,6 +67,7 @@ export async function getGoods():Promise<IResponse>{
                 path:'productToProduce'
             }
         }).
+        populate('batch').
         populate('createdBy').
         populate('org').lean() as unknown as IGood[];
         return respond('Finished goods found successfully', false, goods, 200);
@@ -86,6 +88,7 @@ export async function getGoodsByOrg(orgId:string):Promise<IResponse>{
                 path:'productToProduce'
             }
         }).
+        populate('batch').
         populate('createdBy').
         populate('org').lean() as unknown as IGood[];
         return respond('Finished goods found successfully', false, goods, 200);
@@ -113,6 +116,7 @@ export async function getGood(id:string):Promise<IResponse>{
         const check = await verifyOrgAccess(Good, id, "Good", [
             { path: "product" },
             { path: "createdBy" },
+            { path: "batch" },
             { path: "org" },
         ]);
         if ("allowed" in check === false) return check;
@@ -131,7 +135,7 @@ export async function deleteGood(id:string):Promise<IResponse>{
         const good = await Good.findById(id);
         const [deletedGood] = await Promise.all([
             Good.deleteOne({ _id: id }),
-            Production.findByIdAndUpdate(good?._production, {status:'In Progress'}, {new:true})
+            Production.findByIdAndUpdate(good?.production, {status:'In Progress'}, {new:true})
         ])
         return respond('Finished good deleted successfully', false, deletedGood, 200);
     } catch (error) {

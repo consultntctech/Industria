@@ -31,7 +31,7 @@ export async function getBatchConfigsByOrg(orgId:string):Promise<IResponse>{
                 { org: orgId },
                 { mode: "Default" }
             ]
-        });
+        })
 
         return respond('Batch-no configurations found successfully', false, batchConfigs, 200);
     } catch (error) {

@@ -1,5 +1,6 @@
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
+import { IBatch } from "@/lib/models/batch.model";
 import { IGood } from "@/lib/models/good.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IProduct } from "@/lib/models/product.model";
@@ -30,6 +31,25 @@ export const GoodColumns = (
             field: 'serialName',
             headerName: 'Serial Name',
             width:110,
+        },
+        {
+            field:'batch',
+            headerName: 'Batch',
+            width:170,
+            valueFormatter: (_, row:IGood)=>{
+                const batch = row?.batch as IBatch;
+                return batch ? batch.code : '';
+            },
+            valueGetter: (_, row:IGood)=>{
+                const batch = row?.batch as IBatch;
+                return batch ? batch.code : '';
+            },
+            renderCell: (params:GridRenderCellParams)=>{
+                const batch = params?.row?.batch as IBatch;
+                return (
+                    <Link href={`/dashboard/products/batches?Id=${batch?._id}`} className="link" >{batch?.code}</Link>
+                )
+            }
         },
 
         {
