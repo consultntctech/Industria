@@ -5,11 +5,8 @@ import TextAreaWithLabel from '@/components/shared/inputs/TextAreaWithLabel';
 import ModalContainer from '@/components/shared/outputs/ModalContainer';
 import { formatDate } from '@/functions/dates';
 import { useAuth } from '@/hooks/useAuth';
-import { updateProdApproval } from '@/lib/actions/prodapproval.action';
-import { updateProduction } from '@/lib/actions/production.action';
-import { IProdApproval } from '@/lib/models/prodapproval.model';
-import { IProduct } from '@/lib/models/product.model';
-import { IProduction } from '@/lib/models/production.model';
+// import { updateProduction } from '@/lib/actions/production.action';
+
 import { IUser } from '@/lib/models/user.model';
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import Link from 'next/link';
@@ -20,19 +17,23 @@ import { IoIosClose } from 'react-icons/io';
 import '@/styles/customscroll.css'
 import DialogueAlet from '@/components/misc/DialogueAlet';
 import { IGood } from '@/lib/models/good.model';
-import { createGood } from '@/lib/actions/good.action';
+import { IPackage } from '@/lib/models/package.model';
+// import { IBatch } from '@/lib/models/batch.model';
+import { updatePackApproval } from '@/lib/actions/packapproval.action';
+import { updatePackageV2 } from '@/lib/actions/package.action';
+import { IPackApproval } from '@/lib/models/packapproval.model';
 // import { IBatch } from '@/lib/models/batch.model';
 
-type ProdApprovalInfoModalProps = {
+type ApprovalsApprovalInfoModalProps = {
     openNew:boolean;
     setOpenNew:Dispatch<SetStateAction<boolean>>;
-    currentProdApproval: IProdApproval | null;
-    setCurrentProdApproval:Dispatch<SetStateAction<IProdApproval | null>>;
-    refetch:(options?: RefetchOptions | undefined) => Promise<QueryObserverResult<IProdApproval[], Error>>
+    currentApproval: IPackApproval | null;
+    setCurrentApproval:Dispatch<SetStateAction<IPackApproval | null>>;
+    refetch:(options?: RefetchOptions | undefined) => Promise<QueryObserverResult<IPackApproval[], Error>>
 }
 
 
-const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApproval, setCurrentProdApproval}:ProdApprovalInfoModalProps) => {
+const ApprovalsApprovalInfoModal = ({openNew, refetch, setOpenNew, currentApproval, setCurrentApproval}:ApprovalsApprovalInfoModalProps) => {
     const [loading, setLoading] = useState(false);
     const [rejectLoading, setRejectLoading] = useState(false);
     const [notes, setNotes] = useState<string>('');
@@ -41,50 +42,37 @@ const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApprova
     const [opeApprove, setOpeApprove] = useState(false);
     const [opeReject, setOpeReject] = useState(false);
 
-    const production = currentProdApproval?.production as IProduction;
-    const product = production?.productToProduce as IProduct;
-    const creator = currentProdApproval?.createdBy as IUser;
-    const approver = currentProdApproval?.approver as IUser;
-    const batch = production?.batch
+    const pack = currentApproval?.package as IPackage;
+    const good = pack?.good as IGood;
+    const creator = currentApproval?.createdBy as IUser;
+    const approver = currentApproval?.approver as IUser;
+    // const batch = pack?.batch as IBatch;
 
     // console.log('Batch: ', batch)
 
     const handleClose = ()=>{
         setOpenNew(false);
-        setCurrentProdApproval(null);
+        setCurrentApproval(null);
     }
 
     const handleApprove = async()=>{
         setLoading(true);
         
         try {
-            const res = await updateProduction({...production, status:'Approved', approvedBy:user?._id, reviewNotes:notes});
+            const res = await updatePackageV2({...pack, approvalStatus:'Approved', approvedBy:user?._id, comment:notes});
             if(!res.error){
-                const appRes = await updateProdApproval({...currentProdApproval, status:'Approved', approver:user?._id, notes});
+                const appRes = await updatePackApproval({...currentApproval, status:'Approved', approver:user?._id, notes});
                 if(!appRes.error){
-                    const goodsData: Partial<IGood> = {
-                        name: product?.name,
-                        quantity: production?.outputQuantity,
-                        quantityLeftToPackage: production?.outputQuantity,
-                        production: production?._id,
-                        org: user?.org,
-                        createdBy: user?._id,
-                        batch
-                    }
-
-                    const goodsRes = await createGood(goodsData);
-                    if(!goodsRes.error){
-                        enqueueSnackbar('Production Approved', {variant:'success'});
-                        refetch();
-                        handleClose();
-                        setOpeApprove(false);
-                    }
+                    enqueueSnackbar('Package Approved', {variant:'success'});
+                    refetch();
+                    handleClose();
+                    setOpeApprove(false);
                 }
           }
           
         } catch (error) {
           console.log(error);
-          enqueueSnackbar('Error occured while approving production', {variant:'error'});
+          enqueueSnackbar('Error occured while approving packaging', {variant:'error'});
         }finally{
           setLoading(false);
         }
@@ -94,11 +82,11 @@ const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApprova
         setRejectLoading(true);
         
         try {
-            const res = await updateProduction({...production, status:'Rejected', approvedBy:user?._id, reviewNotes:notes});
+            const res = await updatePackageV2({...pack, approvalStatus:'Rejected', approvedBy:user?._id, comment:notes});
             if(!res.error){
-                const appRes = await updateProdApproval({...currentProdApproval, status:'Rejected', approver:user?._id, notes});
+                const appRes = await updatePackApproval({...currentApproval, status:'Rejected', approver:user?._id, notes});
                 if(!appRes.error){
-                    enqueueSnackbar('Production rejected successfully', {variant:'success'});
+                    enqueueSnackbar('Package rejected successfully', {variant:'success'});
                     refetch();
                     handleClose();
                     setOpeReject(false);
@@ -107,32 +95,32 @@ const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApprova
           
         } catch (error) {
           console.log(error);
-          enqueueSnackbar('Error occured while rejecting production', {variant:'error'});
+          enqueueSnackbar('Error occured while rejecting package', {variant:'error'});
         }finally{
           setRejectLoading(false);
         }
     }
 
-    const approveContent = `Are you sure you want to approve this production? This will create ${production?.outputQuantity} ${product?.uom?.toLowerCase() || 'units'} of ${product?.name} as finished goods.`;
-    const rejectContent = `Are you sure you want to reject this production? This will send the production back to the production team for further work.`;
+    const approveContent = `Are you sure you want to approve this package? This will create ${pack?.accepted} ${pack?.weight?.toLowerCase() || 'units'} of ${good?.name} in your warehouse.`;
+    const rejectContent = `Are you sure you want to reject this package? This will send the package for further work.`;
 
   return (
     <ModalContainer  open={openNew } handleClose={handleClose}>
         <div className="flex w-[90%] md:w-[50%] max-h-[95%]">
-            <DialogueAlet open={opeApprove} handleClose={()=>setOpeApprove(false)} agreeClick={handleApprove} title="Approve Production" content={approveContent} />
-            <DialogueAlet open={opeReject} handleClose={()=>setOpeReject(false)} agreeClick={handleReject} title="Reject Production" content={rejectContent} />
+            <DialogueAlet open={opeApprove} handleClose={()=>setOpeApprove(false)} agreeClick={handleApprove} title="Approve Package" content={approveContent} />
+            <DialogueAlet open={opeReject} handleClose={()=>setOpeReject(false)} agreeClick={handleReject} title="Reject Package" content={rejectContent} />
             <div    className="formBox overflow-y-scroll scrollbar-custom  h-full relative p-4 flex-col gap-8 w-full" >
                 <div className="flex flex-col gap-1">
-                    <span className="title" >Approve Production Release</span>
-                    <span className="greyText" >Release {production?.outputQuantity} {product?.uom?.toLowerCase() || 'units'} of {product?.name}</span>
+                    <span className="title" >Approve Package Release</span>
+                    <span className="greyText" >Release {pack?.accepted} {pack?.weight?.toLowerCase() || 'units'} of {good?.name}</span>
                 </div>
         
                 <div className="flex flex-col gap-4 w-full">
                     <div className="flex gap-4 flex-col w-full">
                         <div className="flex flex-row items-center gap-4">
-                            <span className="truncate w-1/2 md:w-1/5" >Production:</span>
-                            <Link className="" href={`/dashboard/processing/production/${production?._id}`} >
-                            <span className="text-blue-600 underline " >{production?.name}</span>
+                            <span className="truncate w-1/2 md:w-1/5" >Package:</span>
+                            <Link className="" href={`/dashboard/distribution/packaging/${pack?._id}`} >
+                            <span className="text-blue-600 underline " >{pack?.name}</span>
                             </Link>
                         </div>
                         <div className="flex flex-row items-center gap-4">
@@ -143,15 +131,15 @@ const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApprova
                         </div>
                         <div className="flex flex-row items-start gap-4">
                             <span className="truncate w-1/2 md:w-1/5" >Submitted On:</span>
-                            <span className="text-gray-600 flex-1 md:flex-5" >{formatDate(currentProdApproval?.createdAt)}</span>
+                            <span className="text-gray-600 flex-1 md:flex-5" >{formatDate(currentApproval?.createdAt)}</span>
                         </div>
                         <div className="flex flex-row items-start gap-4">
                             <span className="truncate w-1/2 md:w-1/5" >Production Note:</span>
-                            <span className="text-gray-600 flex-1 md:flex-5" >{production?.notes || 'None'}</span>
+                            <span className="text-gray-600 flex-1 md:flex-5" >{pack?.description || 'None'}</span>
                         </div>
 
                         {
-                            currentProdApproval?.status !=='Pending' &&
+                            currentApproval?.status !=='Pending' &&
                             <>
                             <div className="flex flex-row items-center gap-4">
                                 <span className="truncate w-1/2 md:w-1/5" >Action Taken By:</span>
@@ -162,16 +150,16 @@ const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApprova
                             </div>
                             <div className="flex flex-row items-start gap-4">
                                 <span className="truncate w-1/2 md:w-1/5" >Action Taken On:</span>
-                                <span className="text-gray-600 flex-1 md:flex-5" >{formatDate(currentProdApproval?.updatedAt)}</span>
+                                <span className="text-gray-600 flex-1 md:flex-5" >{formatDate(currentApproval?.updatedAt)}</span>
                             </div>
                             </>
                         }
                         <GenericLabel 
-                            input={<TextAreaWithLabel readOnly={currentProdApproval?.status !=='Pending'} defaultValue={currentProdApproval?.notes} name="notes" onChange={(e)=>setNotes(e.target.value)} placeholder="enter review note" label="Review Note" className="w-full" />}
+                            input={<TextAreaWithLabel readOnly={currentApproval?.status !=='Pending'} defaultValue={currentApproval?.notes} name="notes" onChange={(e)=>setNotes(e.target.value)} placeholder="enter review note" label="Review Note" className="w-full" />}
                         />
                     </div>
                     {
-                        currentProdApproval?.status === 'Pending' ?
+                        currentApproval?.status === 'Pending' ?
                         <div className="flex flex-col md:flex-row w-full gap-6 items-center">
                             <PrimaryButton onClick={()=>setOpeApprove(true)} loading={loading} type="button" text={loading?"loading" : "Approve"} className="w-full mt-4" />
                             <SecondaryButton onClick={()=>setOpeReject(true)} loading={rejectLoading} type="button" text={rejectLoading?"loading" : "Reject"} className="w-full mt-4" />
@@ -194,4 +182,4 @@ const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApprova
   )
 }
 
-export default ProdApprovalInfoModal
+export default ApprovalsApprovalInfoModal

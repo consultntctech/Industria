@@ -13,6 +13,7 @@ export interface IGood extends Document {
     unitPrice: number;
     batch: string | Types.ObjectId | IBatch;
     quantity: number;
+    quantityLeftToPackage: number;
     threshold: number;
     org: string | Types.ObjectId | IOrganization;
     createdBy: string | Types.ObjectId | IUser;
@@ -27,6 +28,7 @@ const GoodSchema = new Schema<IGood>({
     production: { type: Schema.Types.ObjectId, ref: 'Production', required: false },
     unitPrice: Number,
     threshold: {type:Number, default:0},
+    quantityLeftToPackage: {type:Number, default:0},
     quantity: Number,
     batch: { type: Schema.Types.ObjectId, ref: 'Batch', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

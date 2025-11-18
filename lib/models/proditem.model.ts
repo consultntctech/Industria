@@ -3,6 +3,7 @@ import { ISupplier } from "./supplier.model";
 import { IUser } from "./user.model";
 import { IOrganization } from "./org.model";
 import Production from "./production.model";
+import Package from "./package.model";
 
 export interface IProdItem extends Document {
     _id: string;
@@ -38,7 +39,10 @@ ProdItemSchema.pre('deleteOne', { document: false, query: true }, async function
         const prodItemId = this.getQuery()._id;
         if (!prodItemId) return next();
 
-        await Production.updateMany({ proditems: prodItemId }, { $pull: { proditems: prodItemId } });
+        await Promise.all([
+            Production.updateMany({ proditems: prodItemId }, { $pull: { proditems: prodItemId } }),
+            Package.updateMany({ packagingMaterial: prodItemId }, { $pull: { packagingMaterial: prodItemId } }),
+        ])
         next();
     } catch (error) {
         console.log(error);

@@ -1,26 +1,26 @@
-import { useFetchUsers } from "@/hooks/fetch/useFetchUsers"
-import { IUser } from "@/lib/models/user.model"
+import { useFetchProductions } from "@/hooks/fetch/useFetchProductions"
+import { IProduction } from "@/lib/models/production.model"
 import { Autocomplete, CircularProgress, TextField } from "@mui/material"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
-type SearchSelectUsersProps = {
-    setSelect?: Dispatch<SetStateAction<string>>,
-    value?: IUser | null,
+type SearchSelectProductionsProps = {
+    setSelect?: Dispatch<SetStateAction<IProduction | null>>,
+    value?: IProduction | null,
     width?: number,
     required?:boolean,
 }
-const SearchSelectUsers = ({setSelect, required, value, width}:SearchSelectUsersProps) => {
-    const {users, isPending} = useFetchUsers();
+const SearchSelectProductions = ({setSelect, required, value, width}:SearchSelectProductionsProps) => {
+    const {productions, isPending} = useFetchProductions();
     const [search, setSearch] = useState<string>('');
 
     return(
         <Autocomplete
             disablePortal
-            options={users}
-            onChange={(e, item:IUser|null)=>{
-                console.log(e.target)
+            options={productions}
+            onChange={(_, item:IProduction|null)=>{
+                // console.log(e.target)
                 if(setSelect){
-                    setSelect(item?._id as string)
+                    setSelect(item)
                 }
             }}
             defaultValue={value}
@@ -29,7 +29,7 @@ const SearchSelectUsers = ({setSelect, required, value, width}:SearchSelectUsers
                 setSearch(item);
             }}
             loading={isPending}
-            isOptionEqualToValue={(option, v)=>option._id === v._id}
+            isOptionEqualToValue={(option, value)=>option._id === value._id}
             getOptionLabel={(option)=>option?.name}
             sx ={{width:width || '100%'}}
             renderInput={(params)=>(
@@ -37,7 +37,7 @@ const SearchSelectUsers = ({setSelect, required, value, width}:SearchSelectUsers
                     {...params}
                     required={required}
                     size="small"
-                    label= "User"
+                    label= "Production"
                     color="primary"
                     className="rounded"
                     slotProps={{
@@ -59,4 +59,4 @@ const SearchSelectUsers = ({setSelect, required, value, width}:SearchSelectUsers
     )
 }
 
-export default SearchSelectUsers
+export default SearchSelectProductions

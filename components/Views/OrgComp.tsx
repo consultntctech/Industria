@@ -39,9 +39,9 @@ const OrgComp = ({openNew, setOpenNew}:OrgCompProps) => {
     e.preventDefault();
     setLoading(true);
     const orgData:Partial<IOrganization> = {
-      ...formData, pcolor:formData.pcolor === '#000000' ? '' : formData.pcolor,
-      scolor:formData.scolor === '#000000' ? '' : formData.scolor,
-      tcolor:formData.tcolor === '#000000' ? '' : formData.tcolor,
+      ...formData, pcolor:formData.pcolor === '#000000' ? '#0076D1' : formData.pcolor,
+      scolor:formData.scolor === '#000000' ? '#1c80cc' : formData.scolor,
+      tcolor:formData.tcolor === '#000000' ? '#005fa3' : formData.tcolor,
       logo: logo.url
     }
     try {

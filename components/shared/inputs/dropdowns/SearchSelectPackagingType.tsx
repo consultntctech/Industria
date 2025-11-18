@@ -6,11 +6,13 @@ import { Dispatch, SetStateAction } from 'react';
 type SearchSelectPackagingTypeProps = {
     value: TPackagingProcess | null;
     setValue: Dispatch<SetStateAction<TPackagingProcess | null>>;
+    dfValue?: TPackagingProcess | null;
+    width?: number;
 }
 
 const filter = createFilterOptions<TPackagingProcess>();
 
-export default function SearchSelectPackagingType({ value, setValue }: SearchSelectPackagingTypeProps) {
+export default function SearchSelectPackagingType({ value, width, setValue, dfValue }: SearchSelectPackagingTypeProps) {
 
   return (
     <Autocomplete
@@ -29,6 +31,7 @@ export default function SearchSelectPackagingType({ value, setValue }: SearchSel
           setValue(newValue);
         }
       }}
+      defaultValue={dfValue}
       filterOptions={(options, params) => {
         const filtered = filter(options, params);
 
@@ -69,10 +72,10 @@ export default function SearchSelectPackagingType({ value, setValue }: SearchSel
           </li>
         );
       }}
-      sx={{ width: 300 }}
+      sx={{ width: width || '100%' }}
       freeSolo
       renderInput={(params) => (
-        <TextField {...params} label="Packaging type" />
+        <TextField  {...params} size='small' label="Packaging type" />
       )}
     />
   );

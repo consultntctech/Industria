@@ -13,7 +13,7 @@ import { PiCashRegisterLight, PiUsersThree } from "react-icons/pi";
 import { RiShieldFlashLine, RiStackLine, RiStackshareLine } from "react-icons/ri";
 import { RxStack } from "react-icons/rx";
 import { SiAwsorganizations } from "react-icons/si";
-import { TbCashOff, TbLine, TbTimeline } from "react-icons/tb";
+import { TbCashOff,  TbTimeline } from "react-icons/tb";
 import { TfiPackage } from "react-icons/tfi";
 
 export const NavLinks = (): INavBarItem[] => {
@@ -109,7 +109,7 @@ export const NavLinks = (): INavBarItem[] => {
       icon: <IoSettingsOutline />,
       subMenu: [
         { id: "101", title: "Batch No.", icon: <RiStackLine />, link: "/dashboard/config/batch-no" },
-        { id: "102", title: "Serial No.", icon: <TbLine />, link: "/dashboard/config/serial-no" },
+        // { id: "102", title: "Serial No.", icon: <TbLine />, link: "/dashboard/config/serial-no" },
         { id: "103", title: "Org Settings", icon: <RiStackshareLine />, link: "/dashboard/config/org-settings" },
         { id: "104", title: "Currency", icon: <HiOutlineCurrencyDollar />, link: "/dashboard/config/currency" },
       ],

@@ -1,24 +1,24 @@
-import { useFetchUsers } from "@/hooks/fetch/useFetchUsers"
-import { IUser } from "@/lib/models/user.model"
+import { useFetchStorages } from "@/hooks/fetch/useFetchStorages"
+import { IStorage } from "@/lib/models/storage.model"
 import { Autocomplete, CircularProgress, TextField } from "@mui/material"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
-type SearchSelectUsersProps = {
+type SearchSelectStoragesProps = {
     setSelect?: Dispatch<SetStateAction<string>>,
-    value?: IUser | null,
+    value?: IStorage | null,
     width?: number,
     required?:boolean,
 }
-const SearchSelectUsers = ({setSelect, required, value, width}:SearchSelectUsersProps) => {
-    const {users, isPending} = useFetchUsers();
+const SearchSelectStorages = ({setSelect, required, value, width}:SearchSelectStoragesProps) => {
+    const {storages, isPending} = useFetchStorages();
     const [search, setSearch] = useState<string>('');
 
     return(
         <Autocomplete
             disablePortal
-            options={users}
-            onChange={(e, item:IUser|null)=>{
-                console.log(e.target)
+            options={storages}
+            onChange={(_, item:IStorage|null)=>{
+                // console.log(e.target)
                 if(setSelect){
                     setSelect(item?._id as string)
                 }
@@ -37,7 +37,7 @@ const SearchSelectUsers = ({setSelect, required, value, width}:SearchSelectUsers
                     {...params}
                     required={required}
                     size="small"
-                    label= "User"
+                    label= "Storage Location"
                     color="primary"
                     className="rounded"
                     slotProps={{
@@ -59,4 +59,4 @@ const SearchSelectUsers = ({setSelect, required, value, width}:SearchSelectUsers
     )
 }
 
-export default SearchSelectUsers
+export default SearchSelectStorages

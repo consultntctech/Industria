@@ -36,6 +36,7 @@ const StorageTable = ({setOpenNew, currentStorage, setCurrentStorage}:StorageTab
             if (!res.error) {
                 setCurrentStorage(userData);
                 setOpenNew(true);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
             } catch (error) {
             if (isMounted) {

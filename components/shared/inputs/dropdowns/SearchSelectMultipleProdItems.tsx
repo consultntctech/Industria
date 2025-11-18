@@ -21,6 +21,8 @@ const SearchSelectMultipleProdItems = ({setSelection,  width, required, value}:S
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
     const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
+    // console.log('IDS: ',proditems.map((item)=>item._id))
+
   return (
     <Autocomplete
         disableCloseOnSelect
@@ -43,7 +45,7 @@ const SearchSelectMultipleProdItems = ({setSelection,  width, required, value}:S
         // value={selection ?? []}
         loading={isPending}
         isOptionEqualToValue={(option, v)=>option._id === v._id}
-        getOptionLabel={(option)=>option?.name}
+        getOptionLabel={(option)=>`${option?.materialName} (${option?.name})`}
         sx ={{width:width || '100%'}}
 
         renderValue={(tagValue, getTagProps)=>
@@ -54,7 +56,7 @@ const SearchSelectMultipleProdItems = ({setSelection,  width, required, value}:S
                     <Chip
                         {...tagProps}
                         key={key}
-                        label={option.name}
+                        label={`${option?.materialName} (${option?.name})`}
                         // disabled={!!fixedSelection?.find((item)=>item._id === option._id)}
                     />
                 )

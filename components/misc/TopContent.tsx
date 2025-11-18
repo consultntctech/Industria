@@ -10,7 +10,8 @@ type TopContentProps = {
   
 } & ComponentProps<typeof Title>;
 const TopContent = ({openNew, setOpenNew, title, isLink=false, children}:TopContentProps) => {
-    const {primaryColour} = useSettings();
+    const {primaryColour, isSuccess} = useSettings();
+    if(!isSuccess) return null;
   return (
     <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
         <div className="flex w-full items-center flex-row justify-between">

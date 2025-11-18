@@ -2,87 +2,87 @@ import DialogueAlet from '@/components/misc/DialogueAlet'
 import { Paper } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { enqueueSnackbar } from 'notistack'
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import React, { Dispatch, SetStateAction,  useEffect, useState } from 'react'
+import PackageInfoModal from './PackageInfoModal'
 import { useSearchParams } from 'next/navigation'
-import { IGood } from '@/lib/models/good.model'
-import { useFetchGoods } from '@/hooks/fetch/useFetchGoods'
-import { deleteGood, getGood } from '@/lib/actions/good.action'
-import GoodsInfoModal from './GoodsInfoModal'
-import { GoodColumns } from './GoodsColumns'
+import { PackagesColumns } from './PackagesColumns'
+import { IPackage } from '@/lib/models/package.model'
+import { useFetchPackages } from '@/hooks/fetch/useFetchPackages'
+import { deletePackage, getPackage } from '@/lib/actions/package.action'
 
-type GoodTableProps = {
+type PackageTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
-    currentGood:IGood | null;
-    setCurrentGood:Dispatch<SetStateAction<IGood | null>>;
+    currentPackage:IPackage | null;
+    setCurrentPackage:Dispatch<SetStateAction<IPackage | null>>;
 }
 
-const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => {
+const PackageTable = ({setOpenNew, currentPackage, setCurrentPackage}:PackageTableProps) => {
     const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
 
-    const {goods, isPending, refetch} = useFetchGoods();
+    const {packages, isPending, refetch} = useFetchPackages();
     const searchParams = useSearchParams();
-    const GoodId = searchParams.get("Id");
+    const PackageId = searchParams.get("Id");
 
     useEffect(() => {
-        if (!GoodId) return;
+        if (!PackageId) return;
 
         let isMounted = true;
 
-        const fetchGood = async () => {
+        const fetchItem = async () => {
             try {
-            const res = await getGood(GoodId);
+            const res = await getPackage(PackageId);
             if (!isMounted) return;
 
-            const userData = res.payload as IGood;
+            const itemData = res.payload as IPackage;
             if (!res.error) {
-                setCurrentGood(userData);
+                setCurrentPackage(itemData);
                 setShowInfo(true);
             }
             } catch (error) {
             if (isMounted) {
-                enqueueSnackbar("Error occurred while fetching goods", { variant: "error" });
+                enqueueSnackbar("Error occurred while fetching Package", { variant: "error" });
             }
             }
         };
 
-        fetchGood();
+        fetchItem();
 
         return () => {
             isMounted = false;
         };
-    }, [GoodId]);
+    }, [PackageId]);
 
 
 
     const paginationModel = { page: 0, pageSize: 15 };
 
-    const handleEdit = (item:IGood)=>{
-        setCurrentGood(item);
+    const handleEdit = (user:IPackage)=>{
+        setCurrentPackage(user);
         setOpenNew(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    const handleInfo = (item:IGood)=>{
+    const handleInfo = (user:IPackage)=>{
         setShowInfo(true);
-        setCurrentGood(item);
+        setCurrentPackage(user);
     }
 
-    const handleDelete = (item:IGood)=>{
+    const handleDelete = (user:IPackage)=>{
         setShowDelete(true);
-        setCurrentGood(item);
+        setCurrentPackage(user);
     }
 
     const handleClose = ()=>{
         setShowInfo(false);
         setShowDelete(false);
-        setCurrentGood(null);
+        setCurrentPackage(null);
     }
 
     const handleDeleteItem = async()=>{
         try {
-            if(!currentGood) return;
-            const res = await deleteGood(currentGood?._id);
+            if(!currentPackage) return;
+            const res = await deletePackage(currentPackage?._id);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             handleClose();
             if(!res.error){
@@ -90,18 +90,18 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
             }
         } catch (error) {
             console.log(error);
-            enqueueSnackbar('Error occured while deleting goods', {variant:'error'});
+            enqueueSnackbar('Error occured while deleting package', {variant:'error'});
         }
     }
 
 
-    const content = currentGood ? `Are you sure you want to delete Finished Goods ${currentGood.name} ? This will also delete all packaged items for these goods.` : '';
+    const content = currentPackage ? `Are you sure you want to delete Package: ${currentPackage.name} ? This action cannot be undone.` : '';
 
   return (
     <div className='table-main2' >
-        <span className='font-bold text-xl' >Goods</span>
-        <GoodsInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentGood={currentGood} setCurrentGood={setCurrentGood} />
-        <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteItem} title="Delete Good" content={content} />
+        <span className='font-bold text-xl' >Packages</span>
+        <PackageInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentPackage={currentPackage} setCurrentPackage={setCurrentPackage} />
+        <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteItem} title="Delete Package" content={content} />
         <div className="flex w-full">
             {
                 // loading ? 
@@ -110,20 +110,29 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
                 <Paper className='w-full' sx={{ height: 'auto', }}>
                     <DataGrid
                         loading={isPending}
-                        getRowId={(row:IGood)=>row._id}
-                        rows={goods}
-                        columns={GoodColumns(handleInfo, handleEdit, handleDelete)}
+                        getRowId={(row:IPackage)=>row._id}
+                        rows={packages}
+                        columns={PackagesColumns(handleInfo, handleEdit, handleDelete)}
                         initialState={{ 
                             pagination: { paginationModel },
                             columns:{
                                 columnVisibilityModel:{
                                   org:false,
-                                  production: false,
-                                  batch: false,
+                                  supervisor: false,
                                   description: false,
                                   createdBy:false,
                                   createdAt:false,
                                   updatedAt:false,
+                                  packagingMaterial: false,
+                                  useProdBatch: false,
+                                  batch: true,
+                                  quantity: false,
+                                  rejected: false,
+                                  qStatus: false,
+                                  comment:false,
+                                  approvalStatus: false,
+                                  approvedBy: false,
+                                  storage: true,
                                 }
                               }
                          }}
@@ -149,4 +158,4 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
   )
 }
 
-export default GoodTable
+export default PackageTable

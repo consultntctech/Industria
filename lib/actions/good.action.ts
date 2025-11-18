@@ -77,6 +77,38 @@ export async function getGoods():Promise<IResponse>{
     }
 }
 
+export async function getAvailableGoods():Promise<IResponse>{
+    try {
+        await connectDB();
+        const goods = await Good.find({ quantityLeftToPackage: { $gt: 0 } }).
+        populate('production').
+        populate('batch').
+        populate('createdBy').
+        populate('org').lean() as unknown as IGood[];
+        return respond('Available finished goods found successfully', false, goods, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching available finished goods', true, {}, 500);
+    }
+}
+
+
+export async function getAvailableGoodsByOrg(orgId:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const goods = await Good.find({ org: orgId, quantityLeftToPackage: { $gt: 0 } }).
+        populate('production').
+        populate('batch').
+        populate('createdBy').
+        populate('org').lean() as unknown as IGood[];
+        return respond('Available finished goods found successfully', false, goods, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching available finished goods', true, {}, 500);
+    }
+}
+
+
 
 export async function getGoodsByOrg(orgId:string):Promise<IResponse>{
     try {
@@ -114,7 +146,7 @@ export async function getGood(id:string):Promise<IResponse>{
     try {
         await connectDB();
         const check = await verifyOrgAccess(Good, id, "Good", [
-            { path: "product" },
+            { path: "production" },
             { path: "createdBy" },
             { path: "batch" },
             { path: "org" },

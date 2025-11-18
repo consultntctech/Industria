@@ -28,9 +28,9 @@ export const useSettings = () => {
   // console.log("org: ", org);
 
   return {
-    primaryColour: org?.pcolor || "#0076D1",
-    secondaryColour: org?.scolor || "#1c80cc",
-    tertiaryColour: org?.tcolor || "#005fa3",
+    primaryColour: org?.pcolor,
+    secondaryColour: org?.scolor ,
+    tertiaryColour: org?.tcolor ,
     appName: org?.appName || "Industra",
     appDescription: org?.description|| "Manage your industrial tasks with ease",
     logo: org?.logo || "/images/bird-colorful-gradient-design-vector_343694-2506.jpg",
