@@ -9,7 +9,8 @@ type SecondaryButtonProps = {
 } & ComponentProps<'button'>
 
 const SecondaryButton = ({text, loading, className, ...props}: SecondaryButtonProps) => {
-  const {tertiaryColour, secondaryColour} = useSettings();
+  const {tertiaryColour, secondaryColour, isSuccess} = useSettings();
+  if(!isSuccess || !secondaryColour || !tertiaryColour) return null;
   return (
     <button
         disabled={loading}
