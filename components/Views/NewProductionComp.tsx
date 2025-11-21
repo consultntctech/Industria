@@ -76,7 +76,7 @@ const NewProductionComp = () => {
             ...pre,
             productionCost
         }));
-    }, [rawMaterials, totalPrice, totalPrice]);
+    }, [rawMaterials,  totalPrice]);
 
     const onChange = (e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
         setData((pre)=>({

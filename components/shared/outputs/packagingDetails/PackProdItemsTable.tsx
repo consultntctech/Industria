@@ -2,21 +2,21 @@ import { Paper, Tooltip } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 // import { enqueueSnackbar } from 'notistack'
 import React, { Dispatch, SetStateAction } from 'react'
-import {  IRMaterial, IRMaterialPopulate } from '@/lib/models/rmaterial.mode'
 // import { deleteRMaterial } from '@/lib/actions/rmaterial.action'
-import { ProdRMColumns } from './ProdRMColumn'
-import { IProduction } from '@/lib/models/production.model'
 import { GoPencil } from 'react-icons/go'
+import { IProdItem } from '@/lib/models/proditem.model'
+import { IPackage, IProdItemPopulate } from '@/lib/models/package.model'
+import { PackProdItemsColumn } from './PackProdItemsColumn'
 
-type ProdRMTableProps = {
-    setOpenNew:Dispatch<SetStateAction<boolean>>;
-    // setOpenItem:Dispatch<SetStateAction<boolean>>;
-    production: IProduction | null;
+type PackProdItemsTableProps = {
+    // setOpenNew:Dispatch<SetStateAction<boolean>>;
+    setOpenItem:Dispatch<SetStateAction<boolean>>;
+    pack: IPackage | null;
 }
 
-const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
+const PackProdItemsTable = ({ setOpenItem,  pack}:PackProdItemsTableProps) => {
 
-    const materials = production?.ingredients as unknown as IRMaterialPopulate[];
+    const materials = pack?.packagingMaterial as unknown as IProdItemPopulate[];
 
 
     // console.log('Materials: ', materials)
@@ -25,8 +25,8 @@ const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
     const paginationModel = { page: 0, pageSize: 15 };
 
     const handleEdit = ()=>{
-        setOpenNew(true);
-        // setOpenItem(false);
+        // setOpenNew(false);
+        setOpenItem(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -54,10 +54,10 @@ const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
   return (
     <div className='table-main2' >
         <div className="flex flex-row items-center gap-6">
-            <span className='font-bold text-xl' >Raw Materials</span>
+            <span className='font-bold text-xl' >Packaging Materials</span>
             {
-                !(production?.status === 'Pending Approval' || production?.status === 'Approved') &&
-                <Tooltip title="Edit production content">
+                pack?.approvalStatus !== 'Approved' &&
+                <Tooltip title="Edit packaging items">
                     <GoPencil onClick={handleEdit}  className="cursor-pointer text-blue-700" />
                 </Tooltip>
             }
@@ -69,13 +69,13 @@ const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
                 // :
                 <Paper className='w-full' sx={{ height: 'auto', }}>
                     <DataGrid
-                        loading={!production}
-                        getRowId={(row:IRMaterialPopulate)=>{
-                            const material = row?.materialId as IRMaterial;
+                        loading={!pack}
+                        getRowId={(row:IProdItemPopulate)=>{
+                            const material = row?.materialId as IProdItem;
                             return material?._id;
                         }}
                         rows={materials}
-                        columns={ProdRMColumns( )}
+                        columns={PackProdItemsColumn( )}
                         initialState={{ 
                             pagination: { paginationModel },
                             
@@ -102,4 +102,4 @@ const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
   )
 }
 
-export default ProdRMTable
+export default PackProdItemsTable

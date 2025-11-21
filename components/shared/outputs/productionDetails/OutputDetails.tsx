@@ -80,7 +80,7 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
             {
                 (production?.status !== 'New' && production?.status !== 'Pending Approval') &&
                 <Tooltip title="Edit Output Details">
-                    <FaPenToSquare onClick={()=>setOpenNew(true)} style={{color:primaryColour}} className='cursor-pointer absolute top-1 right-1' />
+                    <FaPenToSquare onClick={()=>setOpenNew(true)} color={primaryColour} className='cursor-pointer absolute top-1 right-1' />
                 </Tooltip>
             }
             {

@@ -5,7 +5,7 @@ import { IBatch } from '@/lib/models/batch.model';
 import { IGood } from '@/lib/models/good.model';
 import { IOrganization } from '@/lib/models/org.model';
 import { IPackage } from '@/lib/models/package.model';
-import { IProdItem } from '@/lib/models/proditem.model';
+// import { IProdItem } from '@/lib/models/proditem.model';
 import { IStorage } from '@/lib/models/storage.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
@@ -22,7 +22,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
     const organization = currentPackage?.org as IOrganization;
     const batch = currentPackage?.batch as IBatch;
     const creator = currentPackage?.createdBy as IUser;
-    const proditems = currentPackage?.packagingMaterial as IProdItem[];
+    // const proditems = currentPackage?.packagingMaterial as IProdItem[];
     const supervisor = currentPackage?.supervisor as IUser;
     const product = currentPackage?.good as IGood;
     const storage = currentPackage?.storage as IStorage;
@@ -42,7 +42,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
 
             <div className="flex flex-col">
                 <span className="mlabel">Name</span>
-                <span className="mtext">{currentPackage?.name}</span>
+                <Link  href={`/dashboard/distribution/packaging/${currentPackage?._id}`} className="mtext link">{currentPackage?.name}</Link>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Type</span>
@@ -61,7 +61,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
                 <span className="mlabel">Batch</span>
                 <Link  href={`/dashboard/products/batches?Id=${batch?._id}`} className="mtext link">{batch?.code}</Link>
             </div>
-            {
+            {/* {
                 proditems?.length > 0 &&
                 <div className="flex flex-col">
                     <span className="mlabel">Packaging Materials</span>
@@ -75,7 +75,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
                         }
                     </div>
                 </div>
-            }
+            } */}
 
             <div className="flex flex-col">
                 <span className="mlabel">Quantity</span>

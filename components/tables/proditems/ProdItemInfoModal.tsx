@@ -41,11 +41,39 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
                 <span className="mtext">{currentProdItem?.name}</span>
             </div>
             <div className="flex flex-col">
-                <span className="mlabel">Quantity</span>
+                <span className="mlabel">Category</span>
+                <span className="mtext">{currentProdItem?.category}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Subcategory</span>
+                <span className="mtext">{currentProdItem?.subcategory}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Unit of measure</span>
+                <span className="mtext">{currentProdItem?.uom}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Reorder threshold</span>
+                <span className="mtext">{currentProdItem?.threshold}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Quality status</span>
+                <span className="mtext">{currentProdItem?.qStatus}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Quantity received</span>
                 <span className="mtext">{currentProdItem?.quantity}</span>
             </div>
             <div className="flex flex-col">
-                <span className="mlabel">Price</span>
+                <span className="mlabel">Quantity in stock</span>
+                <span className="mtext">{currentProdItem?.stock}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Unit price</span>
+                <span className="mtext">{currency?.symbol || ''}${currentProdItem?.unitPrice}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Total price</span>
                 <span className="mtext">{currency?.symbol || ''}${currentProdItem?.price}</span>
             </div>
             

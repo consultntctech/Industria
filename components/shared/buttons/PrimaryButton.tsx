@@ -10,7 +10,7 @@ type PrimaryButtonProps = {
 
 const PrimaryButton = ({text, loading, className, ...props}: PrimaryButtonProps) => {
   const {tertiaryColour, primaryColour, isSuccess} = useSettings();
-  if(!isSuccess) return null;
+  if(!isSuccess || !primaryColour || !tertiaryColour) return null;
   return (
     <button
     disabled={loading}

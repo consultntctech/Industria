@@ -27,3 +27,9 @@ export function generatePassword(length: number): string {
     .join("");
 }
 
+
+
+export function arraysEqual(a:string[], b:string[]) {
+    if (a.length !== b.length) return false;
+    return [...a].sort().join() === [...b].sort().join();
+}

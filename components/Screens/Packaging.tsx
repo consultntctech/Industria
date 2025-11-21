@@ -1,19 +1,29 @@
 'use client'
 
-import { useState } from "react";
-import PackagingComp from "../Views/PackagingComp";
-import TopContent from "../misc/TopContent";
+
 import PackageTable from "../tables/packages/PackagesTable";
-import { IPackage } from "@/lib/models/package.model";
+import Title from "../misc/Title";
+import { Tooltip } from "@mui/material";
+import { IoMdAddCircle } from "react-icons/io";
+import { useSettings } from "@/config/useSettings";
+import Link from "next/link";
 
 const Packaging = () => {
-    const [openNew, setOpenNew] = useState(false);
-    const [currentPackage, setCurrentPackage] = useState<IPackage | null>(null);
+  const {primaryColour} = useSettings()
+    
   return (
-    <TopContent isLink={false} title="Packaging" openNew={openNew} setOpenNew={setOpenNew}>
-        <PackagingComp currentPackage={currentPackage} setCurrentPackage={setCurrentPackage} openNew={openNew} setOpenNew={setOpenNew} />
-        <PackageTable setOpenNew={setOpenNew} currentPackage={currentPackage} setCurrentPackage={setCurrentPackage} />
-    </TopContent>
+     <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
+        <div className="flex w-full items-center flex-row justify-between">
+            <Title title="Packaging" isLink={false}/>
+            <Link  href={`/dashboard/distribution/packaging/new`} >
+              <Tooltip title="Start packaging" placement="top">
+                  <IoMdAddCircle style={{color:primaryColour}} size={30} className={`cursor-pointer`} />
+              </Tooltip>
+            </Link>
+        </div>
+        {/* <ProductionComp/> */}
+        <PackageTable/>
+    </div>
   )
 }
 

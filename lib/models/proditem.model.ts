@@ -11,6 +11,14 @@ export interface IProdItem extends Document {
     name: string;
     quantity: number;
     price: number;
+    category: string;
+    subcategory: string;
+    uom: string;
+    threshold: number;
+    unitPrice: number;
+    qStatus: string;
+    stock: number;
+    used: number;
     reusable: boolean;
     suppliers: string[] | Types.ObjectId[] | ISupplier[];
     description: string;
@@ -25,6 +33,14 @@ const ProdItemSchema = new Schema<IProdItem>({
     materialName: { type: String, required: true },
     name: { type: String, required: true },
     quantity: { type: Number, required: true },
+    category: { type: String, required: true },
+    subcategory: { type: String, required: true },
+    uom: { type: String, required: false, default:'units' },
+    threshold: { type: Number, required: false, default:0 },
+    unitPrice: { type: Number, required: false },
+    qStatus: { type: String, required: false, default:'Pass' },
+    stock: { type: Number, required: false },
+    used: { type: Number, required: false, default:0 },
     price: { type: Number, required: false },
     reusable: { type: Boolean, required: false },
     suppliers: { type: [Schema.Types.ObjectId], ref: 'Supplier', required: false },

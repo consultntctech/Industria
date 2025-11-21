@@ -29,27 +29,81 @@ export const ProdItemColumns = (
             headerName: 'Name',
             width:120,
         },
+        {
+            field:'category',
+            headerName: 'Category',
+            width:100
+        },
+        {
+            field:'subcategory',
+            headerName: 'Subcategory',
+            width:100
+        },
 
         {
             field: 'quantity',
-            headerName: 'Quantity',
+            headerName: 'Quantity received',
             width:110,
+            headerAlign: 'center',
+        },
+        {
+            field: 'stock',
+            headerName: 'Stock',
+            width:80,
+            headerAlign: 'center',
+        },
+        {
+            field: 'used',
+            headerName: 'Used',
+            width:80,
+            headerAlign: 'center',
+        },
+        {
+            field: 'threshold',
+            headerName: 'Threshold',
+            width:80,
+            headerAlign: 'center',
+        },
+
+        {
+            field: 'unitPrice',
+            headerName: currency ? `Unit price (${currency.symbol})` : 'Unit price',
+            width:100,
+            headerAlign:'center'
         },
         {
             field: 'price',
-            headerName: currency ? `Price (${currency.symbol})` : 'Price',
-            width:110,
+            headerName: currency ? `Total Price (${currency.symbol})` : 'Total Price',
+            width:100,
+            headerAlign:'center'
+        },
+        {
+            field: 'uom',
+            headerName: 'Unit of measure',
+            width:100,
+            headerAlign:'center'
+        },
+        {
+            field: 'qStatus',
+            headerName: 'Quality status',
+            width:100,
+            headerAlign:'center'
+        },
+        {
+            field: 'reusable',
+            headerName: 'Reusable',
+            width:100,
+            headerAlign:'center',
             valueFormatter:(_, row:IProdItem)=>{
-                const cost = row?.price as number || 0;
-                return cost;
+                const reusable = row?.reusable as boolean;
+                return reusable ? 'Yes' : 'No';
             },
             valueGetter:(_, row:IProdItem)=>{
-                const cost = row?.price as number || 0;
-                return cost;
+                const reusable = row?.reusable as boolean;
+                return reusable ? 'Yes' : 'No';
             }
         },
 
-        
         {
             field:'suppliers',
             headerName: 'Suppliers',

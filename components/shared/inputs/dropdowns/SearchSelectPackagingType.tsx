@@ -1,9 +1,11 @@
-import { PACKAGING_PROCESSES, TPackagingProcess } from '@/Data/PackagingProcesses';
+import { TPackagingProcess } from '@/Data/PackagingProcesses';
 import { TextField } from '@mui/material';
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
 import { Dispatch, SetStateAction } from 'react';
 
 type SearchSelectPackagingTypeProps = {
+    list: TPackagingProcess[];
+    caption:string;
     value: TPackagingProcess | null;
     setValue: Dispatch<SetStateAction<TPackagingProcess | null>>;
     dfValue?: TPackagingProcess | null;
@@ -12,7 +14,7 @@ type SearchSelectPackagingTypeProps = {
 
 const filter = createFilterOptions<TPackagingProcess>();
 
-export default function SearchSelectPackagingType({ value, width, setValue, dfValue }: SearchSelectPackagingTypeProps) {
+export default function SearchSelectPackagingType({ list, caption, value, width, setValue, dfValue }: SearchSelectPackagingTypeProps) {
 
   return (
     <Autocomplete
@@ -51,7 +53,7 @@ export default function SearchSelectPackagingType({ value, width, setValue, dfVa
       clearOnBlur
       handleHomeEndKeys
       id="free-solo-with-text-demo"
-      options={PACKAGING_PROCESSES}
+      options={list}
       getOptionLabel={(option) => {
         // Value selected with enter, right from the input
         if (typeof option === 'string') {
@@ -75,7 +77,7 @@ export default function SearchSelectPackagingType({ value, width, setValue, dfVa
       sx={{ width: width || '100%' }}
       freeSolo
       renderInput={(params) => (
-        <TextField  {...params} size='small' label="Packaging type" />
+        <TextField  {...params} size='small' label={caption} />
       )}
     />
   );

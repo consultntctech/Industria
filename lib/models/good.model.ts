@@ -3,6 +3,7 @@ import { IOrganization } from "./org.model";
 import { IUser } from "./user.model";
 import { IProduction } from "./production.model";
 import { IBatch } from "./batch.model";
+import Package from "./package.model";
 
 export interface IGood extends Document {
     _id: string;
@@ -37,6 +38,17 @@ const GoodSchema = new Schema<IGood>({
     updatedAt: Date,
 }, { timestamps: true })
 
+GoodSchema.pre('deleteOne', { document: false, query: true }, async function(next) {
+    try {
+        const goodId = this.getQuery()._id;
+        if (!goodId) return next();
+        await Package.updateMany({ good: goodId }, {approvalStatus:'Pending'});
+        next();
+    } catch (error) {
+        console.log(error);
+        next();
+    }
+});
 
 const Good = models?.Good || model<IGood>('Good', GoodSchema);
 export default Good;

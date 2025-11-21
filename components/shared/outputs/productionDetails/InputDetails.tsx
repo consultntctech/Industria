@@ -29,7 +29,7 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
         {
             !(production?.status === 'Pending Approval' || production?.status === 'Approved') &&
             <Tooltip title="Edit Production Details">
-                <FaPenToSquare onClick={()=>setOpenNew(true)} style={{color:primaryColour}} className='cursor-pointer absolute top-1 right-1' />
+                <FaPenToSquare onClick={()=>setOpenNew(true)} color={primaryColour} className='cursor-pointer absolute top-1 right-1' />
             </Tooltip>
         }
         <InputDetailsModal production={production} openNew={openNew} setOpenNew={setOpenNew} />
@@ -86,7 +86,7 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Supervised By:</span>
-          <Link className="" href={`/dashboard/users?Id=${creator?._id}`} >
+          <Link className="" href={`/dashboard/users?Id=${supervisor?._id}`} >
             <span className="text-blue-600 underline " >{supervisor?.name}</span>
           </Link>
         </div>

@@ -4,7 +4,7 @@ import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IPackage } from "@/lib/models/package.model";
-import { IProdItem } from "@/lib/models/proditem.model";
+// import { IProdItem } from "@/lib/models/proditem.model";
 import { IStorage } from "@/lib/models/storage.model";
 import { IUser } from "@/lib/models/user.model";
 import { Tooltip } from "@mui/material";
@@ -25,6 +25,14 @@ export const PackagesColumns = (
             field: 'name',
             headerName: 'Name',
             width:160,
+            valueFormatter: (_, item:IPackage)=> item.name || '',
+            valueGetter: (_, item:IPackage)=> item.name || '',
+            renderCell: (param:GridRenderCellParams)=>{
+                const pack = param.row;
+                return(
+                    <Link href={`/dashboard/distribution/packaging/${pack?._id}`} >{pack?.name}</Link>
+                )
+            }
         },
         
         {
@@ -33,37 +41,7 @@ export const PackagesColumns = (
             width:100
         },
         
-        {
-            field:'packagingMaterial',
-            headerName: 'Packaging Materials',
-            width:200,
-            valueFormatter: (_, row:IPackage)=>{
-                const packs = row?.packagingMaterial as IProdItem[];
-                const items = packs.map(item=>item.name)?.join(', ');
-                return items.length ? items : '';
-            },
-            valueGetter: (_, row:IPackage)=>{
-                const packs = row?.packagingMaterial as IProdItem[];
-                const items = packs.map(item=>item.name)?.join(', ');
-                return items.length ? items : '';
-            },
-            renderCell: (params: GridRenderCellParams) => {
-                const items = params.row?.packagingMaterials as IProdItem[];
-                return (
-                    <div className="flex flex-row items-center gap-1 flex-wrap">
-                    {items?.map((item, index) => (
-                        <span key={item?._id}>
-                        <Link href={`/dashboard/distribution/packaging-materials?Id=${item?._id}`} className="link">
-                            {item?.name}
-                        </Link>
-                        {index < items.length - 1 && ', '}
-                        </span>
-                    ))}
-                    </div>
-                );
-            }
-
-        },
+      
        
         {
             field: 'quantity',

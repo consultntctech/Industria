@@ -82,6 +82,35 @@ export async function getProdItemsByOrg(orgId:string):Promise<IResponse>{
     }
 }
 
+export async function getAvailableProdItems():Promise<IResponse>{
+    try {
+        await connectDB();
+        const prodItems = await ProdItem.find({ $or: [{stock: { $gt: 0 }}, {reusable: true}] }).
+        populate('suppliers').
+        populate('createdBy').
+        populate('org').lean() as unknown as IProdItem[];
+        return respond('Available production items found successfully', false, prodItems, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching available production items', true, {}, 500);
+    }
+}
+
+
+export async function getAvailableProdItemsByOrg(orgId:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const prodItems = await ProdItem.find({ org: orgId, $or: [{stock: { $gt: 0 }}, {reusable: true}] }).
+        populate('suppliers').
+        populate('createdBy').
+        populate('org').lean() as unknown as IProdItem[];
+        return respond('Available production items found successfully', false, prodItems, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching available production items', true, {}, 500);
+    }
+}
+
 
 export async function updateProdItem(data:Partial<IProdItem>):Promise<IResponse>{
     try {

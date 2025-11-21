@@ -118,6 +118,15 @@ const ProdItemTable = ({setOpenNew, currentProdItem, setCurrentProdItem}:ProdIte
                             columns:{
                                 columnVisibilityModel:{
                                   org:false,
+                                //   unitPrice: false,
+                                  uom: false,
+                                  qStatus: false,
+                                  used: false,
+                                  threshold: false,
+                                //   reusable: false,
+                                  quantity: false,
+                                  materialName: false,
+                                  category:false,
                                   description: false,
                                   createdBy:false,
                                   createdAt:false,

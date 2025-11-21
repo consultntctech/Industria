@@ -2,56 +2,25 @@ import DialogueAlet from '@/components/misc/DialogueAlet'
 import { Paper } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { enqueueSnackbar } from 'notistack'
-import React, { Dispatch, SetStateAction,  useEffect, useState } from 'react'
+import React, {   useState } from 'react'
 import PackageInfoModal from './PackageInfoModal'
-import { useSearchParams } from 'next/navigation'
+// import { useSearchParams } from 'next/navigation'
 import { PackagesColumns } from './PackagesColumns'
 import { IPackage } from '@/lib/models/package.model'
 import { useFetchPackages } from '@/hooks/fetch/useFetchPackages'
-import { deletePackage, getPackage } from '@/lib/actions/package.action'
+import { deletePackage } from '@/lib/actions/package.action'
 
-type PackageTableProps = {
-    setOpenNew:Dispatch<SetStateAction<boolean>>;
-    currentPackage:IPackage | null;
-    setCurrentPackage:Dispatch<SetStateAction<IPackage | null>>;
-}
 
-const PackageTable = ({setOpenNew, currentPackage, setCurrentPackage}:PackageTableProps) => {
+const PackageTable = () => {
     const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
+    const [currentPackage, setCurrentPackage] = useState<IPackage | null>(null);
 
     const {packages, isPending, refetch} = useFetchPackages();
-    const searchParams = useSearchParams();
-    const PackageId = searchParams.get("Id");
+    // const searchParams = useSearchParams();
+    // const PackageId = searchParams.get("Id");
 
-    useEffect(() => {
-        if (!PackageId) return;
-
-        let isMounted = true;
-
-        const fetchItem = async () => {
-            try {
-            const res = await getPackage(PackageId);
-            if (!isMounted) return;
-
-            const itemData = res.payload as IPackage;
-            if (!res.error) {
-                setCurrentPackage(itemData);
-                setShowInfo(true);
-            }
-            } catch (error) {
-            if (isMounted) {
-                enqueueSnackbar("Error occurred while fetching Package", { variant: "error" });
-            }
-            }
-        };
-
-        fetchItem();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [PackageId]);
+   
 
 
 
@@ -59,7 +28,6 @@ const PackageTable = ({setOpenNew, currentPackage, setCurrentPackage}:PackageTab
 
     const handleEdit = (user:IPackage)=>{
         setCurrentPackage(user);
-        setOpenNew(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -123,7 +91,7 @@ const PackageTable = ({setOpenNew, currentPackage, setCurrentPackage}:PackageTab
                                   createdBy:false,
                                   createdAt:false,
                                   updatedAt:false,
-                                  packagingMaterial: false,
+                                //   packagingMaterial: false,
                                   useProdBatch: false,
                                   batch: true,
                                   quantity: false,

@@ -23,3 +23,8 @@ export interface IIngredient {
     materialId: string;
     qUsed: number;
 }
+
+export interface IQSelector {
+    materialId: string;
+    quantity: number;
+}
