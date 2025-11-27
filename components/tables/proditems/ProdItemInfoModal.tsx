@@ -66,7 +66,7 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Quantity in stock</span>
-                <span className="mtext">{currentProdItem?.stock}</span>
+                <span className="mtext">{currentProdItem?.stock < 0 ? 0 : currentProdItem?.stock}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Unit price</span>

@@ -7,6 +7,7 @@ import PackInputDetails from "../shared/outputs/packagingDetails/PackInputDetail
 import PackOutputDetails from "../shared/outputs/packagingDetails/PackOutputDetails";
 import PackProdItemsTable from "../shared/outputs/packagingDetails/PackProdItemsTable";
 import PackageContentModal from "../shared/outputs/packagingDetails/PackageContentModal";
+import LineItemsTable from "../shared/outputs/packagingDetails/lineitems/LineItemsTable";
 
 type SinglePackageCompProps = {
     currentPackage: IPackage | null
@@ -24,8 +25,7 @@ const SinglePackageComp = ({currentPackage}:SinglePackageCompProps) => {
           onClickFirstTab={()=>setActiveTab('first')}
           SecondTabText="Secondary Details" onClickSecondTab={()=>setActiveTab('second')} showSecondTab
           ThirdTabText="Packaging Materials" onClickThirdTab={()=>setActiveTab('third')} showThirdTab
-          // ThirdTabText="Production Materials" onClickThirdTab={()=>setActiveTab('third')}
-        //   ThirdTabText="Output" onClickThirdTab={()=>setActiveTab('third')}
+          FourthTabText="Line Items" onClickFourthTab={()=>setActiveTab('fourth')} showFourthTab
         />
   
         {
@@ -39,6 +39,10 @@ const SinglePackageComp = ({currentPackage}:SinglePackageCompProps) => {
         {
           activeTab === 'third' &&
           <PackProdItemsTable setOpenItem={setOpenItem}   pack={currentPackage} />
+        }
+        {
+          activeTab === 'fourth' &&
+          <LineItemsTable  pack={currentPackage} />
         }
        
         <PackageContentModal openNew={openItem} setOpenNew={setOpenItem}  pack={currentPackage} />

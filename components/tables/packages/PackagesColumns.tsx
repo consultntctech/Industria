@@ -30,7 +30,7 @@ export const PackagesColumns = (
             renderCell: (param:GridRenderCellParams)=>{
                 const pack = param.row;
                 return(
-                    <Link href={`/dashboard/distribution/packaging/${pack?._id}`} >{pack?.name}</Link>
+                    <Link className="link" href={`/dashboard/distribution/packaging/${pack?._id}`} >{pack?.name}</Link>
                 )
             }
         },

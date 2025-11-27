@@ -26,6 +26,10 @@ import SearchSelectStorages from '../shared/inputs/dropdowns/SearchSelectStorage
 import TextAreaWithLabel from '../shared/inputs/TextAreaWithLabel';
 import PrimaryButton from '../shared/buttons/PrimaryButton';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
+import { IProduction } from '@/lib/models/production.model';
+import { IProduct } from '@/lib/models/product.model';
+import { ILineItem } from '@/lib/models/lineitem.model';
+import { createLineItems } from '@/lib/actions/lineitem.action';
 
 const NewPackageComp = () => {
     const [loading, setLoading] = useState(false);
@@ -101,34 +105,58 @@ const NewPackageComp = () => {
     
         try {
             const formData:Partial<IPackage> = {
-            ...data,
-            org: user?.org,
-            createdBy: user?._id,
-            packagingMaterial: packItems,
-            good: good?._id,
-            supervisor,
-            batch: useProdBatch ? goodBatch?._id : batch,
-            useProdBatch,
-            accepted,
-            packagingType: packagingType?.label,
-            storage,
-            cost
+                ...data,
+                org: user?.org,
+                createdBy: user?._id,
+                packagingMaterial: packItems,
+                good: good?._id,
+                supervisor,
+                batch: useProdBatch ? goodBatch?._id : batch,
+                useProdBatch,
+                accepted,
+                packagingType: packagingType?.label,
+                storage,
+                cost
             }
             const res = await createPackage(formData);
             if(!res.error){
-            formRef.current?.reset();
-            const packed = res.payload as IPackage;
-            const appData:Partial<IPackApproval> = {
-                package: packed._id,
-                createdBy: user?._id,
-                status: 'Pending',
-                name: data.name,
-                org: user?.org,
+                const packed = res.payload as IPackage;
+                const gd = packed.good as IGood;
+                const pd = gd?.production as IProduction;
+                const prod = pd?.productToProduce as IProduct;
+                const bt = gd?.batch as IBatch;
+
+                
+                const lnData: Partial<ILineItem> = {
+                    product: prod._id,
+                    name: prod?.name,
+                    batch: bt._id,
+                    good: gd._id,
+                    package: packed._id,
+                    status: 'Available',
+                    createdBy: user?._id,
+                    org: user?.org,
+                }
+                let LnArray: Partial<ILineItem>[] = [];
+                const appData:Partial<IPackApproval> = {
+                    package: packed._id,
+                    createdBy: user?._id,
+                    status: 'Pending',
+                    name: data.name,
+                    org: user?.org,
                 }
                 const appRes = await createPackApproval(appData);
                 if(!appRes.error){
-                enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
-                router.push(`/dashboard/distribution/packaging/${packed?._id}`)
+                    
+                    for(let i = 0; i < packed?.accepted; i++){
+                        LnArray.push(lnData);
+                    }
+                    const lnRes = await createLineItems(LnArray);
+                    if(!lnRes.error){
+                        formRef.current?.reset();
+                        enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
+                        router.push(`/dashboard/distribution/packaging/${packed?._id}`)
+                    }
                 }
             }
         } catch (error) {

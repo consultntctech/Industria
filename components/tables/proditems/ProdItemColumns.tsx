@@ -57,6 +57,14 @@ export const ProdItemColumns = (
             headerName: 'Used',
             width:80,
             headerAlign: 'center',
+            valueFormatter: (_, row:IProdItem)=>{
+                const used = (row?.used || 0) > row?.quantity ? row?.quantity : row?.used;
+                return used;
+            },
+            valueGetter: (_, row:IProdItem)=>{
+                const used = (row?.used || 0) > row?.quantity ? row?.quantity : row?.used;
+                return used;
+            }
         },
         {
             field: 'threshold',

@@ -41,7 +41,7 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentProduct, setCurrentProd
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Category</span>
-                <Link  href={`/dashboard/products/categories?${category?._id}`} className="mtext link">{category?.name}</Link>
+                <Link  href={`/dashboard/products/categories?Id=${category?._id}`} className="mtext link">{category?.name}</Link>
             </div>
             
             <div className="flex flex-col">

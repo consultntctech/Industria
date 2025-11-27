@@ -14,6 +14,7 @@ import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Good from "../models/good.model";
 import PackApproval from "../models/packapproval.model";
 import ProdItem from "../models/proditem.model";
+import LineItem from "../models/lineitem.model";
 
 export async function createPackage(data: Partial<IPackage>): Promise<IResponse> {
   const session = await (await connectDB()).startSession();
@@ -24,6 +25,7 @@ export async function createPackage(data: Partial<IPackage>): Promise<IResponse>
     // 1. Create the Package
     const newPackage = await Package.create([data], { session });
     const pkg = newPackage[0];
+    await pkg.populate({ path: "good", populate:[{path:'batch'}, {path:'production', populate:{path:'productToProduce'}}] });
 
     // 2. Validate Good
     const good = await Good.findById(data.good).session(session);
@@ -394,7 +396,7 @@ export async function getPackage(id: string): Promise<IResponse> {
     await connectDB();
 
     const check = await verifyOrgAccess(Package, id, "Package",[
-        { path: "good", populate:{path:'batch'} },
+        { path: "good", populate:[{path:'batch'}, {path:'production', populate:{path:'productToProduce'}}] },
         { path: "supervisor" },
         { path: "createdBy" },
         { path: "org" },
@@ -430,6 +432,11 @@ export async function deletePackage(id: string): Promise<IResponse> {
     if (!pack) {
       await session.abortTransaction();
       return respond("Package not found", true, {}, 404);
+    }
+    const litems = await LineItem.find({ package: id, status:'Sold' }).session(session);
+    if (litems.length > 0) {
+      await session.abortTransaction();
+      return respond("You cannot delete this package. Package has sold items", true, {}, 400);
     }
 
     // --------------------------------------------

@@ -81,7 +81,7 @@ export async function getAvailableGoods():Promise<IResponse>{
     try {
         await connectDB();
         const goods = await Good.find({ quantityLeftToPackage: { $gt: 0 } }).
-        populate('production').
+        populate({path:'production', populate:{path:'productToProduce'}}).
         populate('batch').
         populate('createdBy').
         populate('org').lean() as unknown as IGood[];
@@ -97,7 +97,7 @@ export async function getAvailableGoodsByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const goods = await Good.find({ org: orgId, quantityLeftToPackage: { $gt: 0 } }).
-        populate('production').
+        populate({path:'production', populate:{path:'productToProduce'}}).
         populate('batch').
         populate('createdBy').
         populate('org').lean() as unknown as IGood[];
@@ -146,7 +146,7 @@ export async function getGood(id:string):Promise<IResponse>{
     try {
         await connectDB();
         const check = await verifyOrgAccess(Good, id, "Good", [
-            { path: "production" },
+            { path: "production", populate: { path: "productToProduce" } },
             { path: "createdBy" },
             { path: "batch" },
             { path: "org" },
