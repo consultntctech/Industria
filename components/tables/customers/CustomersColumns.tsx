@@ -135,13 +135,13 @@ export const CustomersColoumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View supplier">
+                    <Tooltip title="View customer">
                         <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
                     </Tooltip>
-                    <Tooltip title="Edit supplier">
+                    <Tooltip title="Edit customer">
                         <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
                     </Tooltip>
-                    <Tooltip title="Delete supplier">
+                    <Tooltip title="Delete customer">
                         <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
                     </Tooltip>
                 </div>

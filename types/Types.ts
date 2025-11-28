@@ -28,3 +28,10 @@ export interface IQSelector {
     materialId: string;
     quantity: number;
 }
+
+
+export interface ISoldItem {
+    id: string;
+    name: string;
+    quantity: number;
+}

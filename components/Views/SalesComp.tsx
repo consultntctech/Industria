@@ -21,7 +21,6 @@ import { ISales } from "@/lib/models/sales.model";
 import { createSales, updateSales } from "@/lib/actions/sales.action";
 import { useRouter } from "next/navigation";
 import { useFetchSales } from "@/hooks/fetch/useFetchSales";
-// import { useFetchSaless } from "@/hooks/fetch/useFetchSaless";
 
 type SalesCompProps = {
   openNew:boolean;
@@ -42,13 +41,15 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
     const {currency} = useCurrencyConfig();
 
     const {lineItems:items, isPending} = useFetchAvailableLineItemsByProduct(product?._id as string, batch);
+    const {refetch} = useFetchSales();
 
     // console.log('Items: ', items.length)
     const formRef = useRef<HTMLFormElement>(null);
-    const {refetch} = useFetchSales();
     const router = useRouter();
     const savedItems = currentSales?.products as ILineItem[];
     const savedCustomer = currentSales?.customer as ICustomer;
+
+    // console.log('Saved Customer: ', savedCustomer)
 
     useEffect(()=>{
          if(isSelectedAll){
@@ -72,9 +73,9 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
             setLineItems(savedItems);
             setCustomer(savedCustomer);
         }
-        return ()=>{
-            setData({});
-        }
+       else{
+           setData({});
+       }
     }, [currentSales])
 
     const handleClose = ()=>{
@@ -108,8 +109,8 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             if(!res.error){
                 formRef.current?.reset();
-                refetch();
                 handleClose();
+                refetch();
             }
         } catch (error) {
             console.log(error);
@@ -162,7 +163,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                     <div className="flex flex-col gap-4 w-full">
                         <div className="flex gap-4 flex-col w-full md:flex-row ">
                             <GenericLabel label="Product"
-                                input={<SearchSelectProducts required type="Finished Good" setSelect={setProduct} />}
+                                input={<SearchSelectProducts required={!currentSales} type="Finished Good" setSelect={setProduct} />}
                             />
                             <GenericLabel label="Batch (optional)"
                                 input={<SearchSelectBatches type="Finished Good" setSelect={setBatch} />}
@@ -172,7 +173,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                             <InputWithLabel onChange={onChange} name="quantity"  min={1} placeholder="eg. 10" label="Quantity" className="w-full" />
                             <div className="flex flex-row gap-2 items-center w-full">
                                 <GenericLabel label="Pick products"
-                                    input={<SearchSelectAvMultipleLineItems selection={lineItems} items={items} required isPending={isPending} productId={product?._id as string}  setSelection={setLineItems} />}
+                                    input={<SearchSelectAvMultipleLineItems selection={lineItems} items={items} isPending={isPending} productId={product?._id as string}  setSelection={setLineItems} />}
                                 />
                             {
                                 items?.length > 0 &&
@@ -184,8 +185,8 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                         <span>{lineItems?.length} / {items?.length} products selected</span>
 
                         <div className="flex gap-4 flex-col w-full md:flex-row ">
-                            <InputWithLabel min={0} label={currency ? `Discount amount ${currency?.symbol}`:`Discount amount`} type="number" onChange={onChange} name="discount" />
-                            <InputWithLabel min={0} label={currency ? `Charges ${currency?.symbol}`:`Charges`} type="number" onChange={onChange} name="charges" />
+                            <InputWithLabel defaultValue={currentSales?.discount} min={0} step={0.001} label={currency ? `Discount amount ${currency?.symbol}`:`Discount amount`} type="number" onChange={onChange} name="discount" />
+                            <InputWithLabel defaultValue={currentSales?.charges} min={0} step={0.001} label={currency ? `Charges ${currency?.symbol}`:`Charges`} type="number" onChange={onChange} name="charges" />
                         </div>
                         {
                             lineItems?.length > 0 &&
@@ -195,8 +196,8 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
         
                     <div className="flex gap-4 flex-col w-full justify-between">
                         <div className="flex flex-col gap-4 w-full">
-                            <SearchSelectCustomers required setSelect={setCustomer} />
-                            <TextAreaWithLabel name="narration" onChange={onChange} placeholder="enter narration" label="Narration" className="w-full" />
+                            <SearchSelectCustomers required={!currentSales} value={savedCustomer} setSelect={setCustomer} />
+                            <TextAreaWithLabel defaultValue={currentSales?.narration} name="narration" onChange={onChange} placeholder="enter narration" label="Narration" className="w-full" />
                         </div>
                         <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentSales ? 'Update': "Proceed"} className="w-full mt-4" />
                     </div>

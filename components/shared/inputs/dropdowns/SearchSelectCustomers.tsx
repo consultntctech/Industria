@@ -4,7 +4,7 @@ import { Autocomplete, CircularProgress, TextField } from "@mui/material"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
 type SearchSelectCustomersProps = {
-    setSelect?: Dispatch<SetStateAction<ICustomer | null>>,
+    setSelect: Dispatch<SetStateAction<ICustomer | null>>,
     value?: ICustomer | null,
     width?: number,
     required?:boolean,
@@ -29,7 +29,7 @@ const SearchSelectCustomers = ({setSelect, required, value, width}:SearchSelectC
                 setSearch(item);
             }}
             loading={isPending}
-            isOptionEqualToValue={(option, value)=>option._id === value._id}
+            isOptionEqualToValue={(option, v)=>option._id === v._id}
             getOptionLabel={(option)=>option?.name}
             sx ={{width:width || '100%'}}
             renderInput={(params)=>(

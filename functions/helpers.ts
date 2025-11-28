@@ -1,3 +1,6 @@
+import { ILineItem } from "@/lib/models/lineitem.model";
+import { IProduct } from "@/lib/models/product.model";
+import { ISoldItem } from "@/types/Types";
 
 export function generatePassword(length: number): string {
   const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -32,4 +35,29 @@ export function generatePassword(length: number): string {
 export function arraysEqual(a:string[], b:string[]) {
     if (a.length !== b.length) return false;
     return [...a].sort().join() === [...b].sort().join();
+}
+
+
+
+export function getProductCounts(items: ILineItem[]):ISoldItem[] {
+  const counts = new Map<string, { name: string; quantity: number }>();
+
+  for (const item of items) {
+    const product = item.product as IProduct; // fully populated
+
+    if (!counts.has(product._id)) {
+      counts.set(product._id, {
+        name: product.name,
+        quantity: 1
+      });
+    } else {
+      counts.get(product._id)!.quantity++;
+    }
+  }
+
+  return Array.from(counts, ([id, data]) => ({
+    id,
+    name: data.name,
+    quantity: data.quantity
+  }));
 }

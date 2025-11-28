@@ -16,7 +16,7 @@ export const useFetchSales = (isToday?: boolean) => {
 
 
     const {data:sales=[], isPending, refetch, isSuccess} = useQuery({
-        queryKey: ['sales', isToday],
+        queryKey: ['allsales', isToday],
         queryFn: fetchSales,
     })
     return {sales, isPending, refetch, isSuccess}
