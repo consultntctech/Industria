@@ -4,18 +4,17 @@ import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { ICustomer } from "@/lib/models/customer.model";
 import { ILineItem } from "@/lib/models/lineitem.model";
 import { IOrganization } from "@/lib/models/org.model";
-import { ISales } from "@/lib/models/sales.model";
+import { IReturns } from "@/lib/models/returns.model";
 import { IUser } from "@/lib/models/user.model";
 import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import { LiaUndoAltSolid } from "react-icons/lia";
+import { GoInfo } from "react-icons/go";
+import { LiaRedoAltSolid } from "react-icons/lia";
 
-export const SalesColoumns = (
-    handleInfo: (sale:ISales)=>void,
-    handleEdit: (sale:ISales)=>void,
-    handleRefund: (sale:ISales)=>void,
+export const ReturnsColumns = (
+    handleInfo: (item:IReturns)=>void,
+    handleResell: (item:IReturns)=>void,
 ):GridColDef[]=>{
     const {currency} = useCurrencyConfig();
 
@@ -23,12 +22,12 @@ export const SalesColoumns = (
 
         {
             field: 'createdAt',
-            headerName: 'Sold On',
+            headerName: 'Return On',
             width:100,
-            valueFormatter:(_, row:ISales)=>{
+            valueFormatter:(_, row:IReturns)=>{
                 return formatTimestamp(row?.createdAt)
             },
-            valueGetter:(_, row:ISales)=>{
+            valueGetter:(_, row:IReturns)=>{
                 return formatTimestamp(row?.createdAt)
             }
         },
@@ -36,11 +35,11 @@ export const SalesColoumns = (
             field: 'customer',
             headerName: 'Customer',
             width:170,
-            valueFormatter: (_, row:ISales)=>{
+            valueFormatter: (_, row:IReturns)=>{
                 const customer = row?.customer as ICustomer;
                 return customer ? customer.name : '';
             },
-            valueGetter: (_, row:ISales)=>{
+            valueGetter: (_, row:IReturns)=>{
                 const customer = row?.customer as ICustomer;
                 return customer ? customer.name : '';
             },
@@ -56,13 +55,13 @@ export const SalesColoumns = (
             field:'products',
             headerName: 'Products',
             width:200,
-            valueFormatter: (_, row:ISales)=>{
+            valueFormatter: (_, row:IReturns)=>{
                 const products = row?.products as ILineItem[];
                 const items = getProductCounts(products);
                 const itemNames = items.map(item=>item.name)?.join(', ');
                 return itemNames ? itemNames : '';
             },
-            valueGetter: (_, row:ISales)=>{
+            valueGetter: (_, row:IReturns)=>{
                 const products = row?.products as ILineItem[];
                 const items = getProductCounts(products);
                 const itemNames = items.map(item=>item.name)?.join(', ');
@@ -104,6 +103,11 @@ export const SalesColoumns = (
             headerName: `Charges ${currency?.symbol || ''}`,
             width:100,
         },
+        {
+            field: 'reason',
+            headerName: `Reason`,
+            width:200,
+        },
 
         
 
@@ -111,11 +115,11 @@ export const SalesColoumns = (
             field:'org',
             headerName: 'Organization',
             width:170,
-            valueFormatter: (_, row:ISales)=>{
+            valueFormatter: (_, row:IReturns)=>{
                 const org = row?.org as IOrganization;
                 return org ? org.name : '';
             },
-            valueGetter: (_, row:ISales)=>{
+            valueGetter: (_, row:IReturns)=>{
                 const org = row?.org as IOrganization;
                 return org ? org.name : '';
             },
@@ -132,11 +136,11 @@ export const SalesColoumns = (
             field:'createdBy',
             headerName: 'Sales Personnel',
             width:170,
-            valueFormatter: (_, row:ISales)=>{
+            valueFormatter: (_, row:IReturns)=>{
                 const creator = row?.createdBy as IUser;
                 return creator ? creator.name : '';
             },
-            valueGetter: (_, row:ISales)=>{
+            valueGetter: (_, row:IReturns)=>{
                 const creator = row?.createdBy as IUser;
                 return creator ? creator.name : '';
             },
@@ -153,10 +157,10 @@ export const SalesColoumns = (
             field: 'updatedAt',
             headerName: 'Modified',
             width:100,
-            valueFormatter:(_, row:ISales)=>{
+            valueFormatter:(_, row:IReturns)=>{
                 return formatTimestamp(row?.updatedAt)
             },
-            valueGetter:(_, row:ISales)=>{
+            valueGetter:(_, row:IReturns)=>{
                 return formatTimestamp(row?.updatedAt)
             }
         },
@@ -173,14 +177,11 @@ export const SalesColoumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View sale">
+                    <Tooltip title="View return details">
                         <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
                     </Tooltip>
-                    <Tooltip title="Edit sale">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Return sale">
-                        <LiaUndoAltSolid  onClick={()=>handleRefund(params?.row)}  className="cursor-pointer text-blue-700" />
+                    <Tooltip title="Resale returned items">
+                        <LiaRedoAltSolid  onClick={()=>handleResell(params?.row)}  className="cursor-pointer text-blue-700" />
                     </Tooltip>
                 </div>
             )

@@ -20,7 +20,8 @@ import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { ISales } from "@/lib/models/sales.model";
 import { createSales, updateSales } from "@/lib/actions/sales.action";
 import { useRouter } from "next/navigation";
-import { useFetchSales } from "@/hooks/fetch/useFetchSales";
+// import { useFetchSales } from "@/hooks/fetch/useFetchSales";
+import { useQueryClient } from "@tanstack/react-query";
 
 type SalesCompProps = {
   openNew:boolean;
@@ -41,13 +42,15 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
     const {currency} = useCurrencyConfig();
 
     const {lineItems:items, isPending} = useFetchAvailableLineItemsByProduct(product?._id as string, batch);
-    const {refetch} = useFetchSales();
+    // const {refetch} = useFetchSales();
 
     // console.log('Items: ', items.length)
     const formRef = useRef<HTMLFormElement>(null);
     const router = useRouter();
     const savedItems = currentSales?.products as ILineItem[];
     const savedCustomer = currentSales?.customer as ICustomer;
+    const utils = useQueryClient();
+
 
     // console.log('Saved Customer: ', savedCustomer)
 
@@ -109,8 +112,8 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             if(!res.error){
                 formRef.current?.reset();
+                utils.invalidateQueries({ queryKey: ['allsales'] });
                 handleClose();
-                refetch();
             }
         } catch (error) {
             console.log(error);
@@ -136,7 +139,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             if(!res.error){
                 formRef.current?.reset();
-                refetch();
+                utils.invalidateQueries({ queryKey: ['allsales'] });
                 handleClose();
             }
         } catch (error) {
@@ -170,7 +173,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                             />
                         </div>
                         <div className="flex gap-4 flex-col w-full md:flex-row ">
-                            <InputWithLabel onChange={onChange} name="quantity"  min={1} placeholder="eg. 10" label="Quantity" className="w-full" />
+                            <InputWithLabel onChange={onChange} name="quantity"  min={1} placeholder="eg. 10" label="Quantity to search for" className="w-full" />
                             <div className="flex flex-row gap-2 items-center w-full">
                                 <GenericLabel label="Pick products"
                                     input={<SearchSelectAvMultipleLineItems selection={lineItems} items={items} isPending={isPending} productId={product?._id as string}  setSelection={setLineItems} />}

@@ -12,7 +12,7 @@ export async function createSales(data:Partial<ISales>):Promise<IResponse>{
         await connectDB();
         const newSales = await Sales.create(data);
         const items = data.products as string[];
-        await LineItem.updateMany({ _id: { $in: items } }, {soldTo: data.customer });
+        await LineItem.updateMany({ _id: { $in: items } }, {soldTo: data.customer, status:'Sold' });
         return respond('Products sold successfully', false, newSales, 201);
     } catch (error) {
         console.log(error);
@@ -163,9 +163,9 @@ export async function deleteSales(id:string):Promise<IResponse>{
     try {
         await connectDB();
         const deletedSales = await Sales.deleteOne({ _id: id });
-        return respond('Sales deleted successfully', false, deletedSales, 200);
+        return respond('Sales removed successfully', false, deletedSales, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while deleting sales', true, {}, 500);
+        return respond('Error occured while removing sales', true, {}, 500);
     }
 }

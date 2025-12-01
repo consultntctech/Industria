@@ -27,7 +27,7 @@ const SalesSchema = new Schema<ISales>({
     price: { type: Number, required: false },
     discount: { type: Number, required: false },
     charges: { type: Number, required: false },
-    products: { type: [Schema.Types.ObjectId], ref:'LineItem', required: false },
+    products: { type: [Schema.Types.ObjectId], ref:'LineItem', required: true },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
 }, {timestamps:true})

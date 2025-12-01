@@ -5,12 +5,16 @@ import { Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { enqueueSnackbar } from "notistack";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import DialogueAlet from "@/components/misc/DialogueAlet";
 import { useSearchParams } from "next/navigation";
 import SalesInfoModal from "./SalesInfoModal";
 import { SalesColoumns } from "./SalesColumns";
 import CustomCheckV2 from "@/components/misc/CustomCheckV2";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
+import { useQueryClient } from "@tanstack/react-query";
+import DialogueAlertWithInput from "@/components/misc/DialogueAlertWithInput";
+import { IReturns } from "@/lib/models/returns.model";
+import { createReturns } from "@/lib/actions/returns.action";
+import { ILineItem } from "@/lib/models/lineitem.model";
 
 type SalesTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -22,44 +26,47 @@ const SalesTable = ({setOpenNew, currentSales, setCurrentSales}:SalesTableProps)
     const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
     const [isToday, setIsToday] = useState(true);
+    const [reason, setReason] = useState('');
     
 
     const {sales, isPending, refetch} = useFetchSales(isToday);
     const {currency} = useCurrencyConfig();
     const salesAmount = sales?.reduce((acc, curr) => acc + curr.price, 0);
     // console.log('Sales: ', sales)
-
+    const utils = useQueryClient();
     const searchParams = useSearchParams();
-        const SalesId = searchParams.get("Id");
-    
-        useEffect(() => {
-            if (!SalesId) return;
-    
-            let isMounted = true;
-    
-            const fetchSales = async () => {
-                try {
-                const res = await getSale(SalesId);
-                if (!isMounted) return;
-    
-                const item = res.payload as ISales;
-                if (!res.error) {
-                    setCurrentSales(item);
-                    setShowInfo(true);
-                }
-                } catch (error) {
-                if (isMounted) {
-                    enqueueSnackbar("Error occurred while fetching sales record", { variant: "error" });
-                }
-                }
-            };
-    
-            fetchSales();
-    
-            return () => {
-                isMounted = false;
-            };
-        }, [SalesId]);
+    const SalesId = searchParams.get("Id");
+
+    const products = currentSales?.products as ILineItem[];
+
+    useEffect(() => {
+        if (!SalesId) return;
+
+        let isMounted = true;
+
+        const fetchSales = async () => {
+            try {
+            const res = await getSale(SalesId);
+            if (!isMounted) return;
+
+            const item = res.payload as ISales;
+            if (!res.error) {
+                setCurrentSales(item);
+                setShowInfo(true);
+            }
+            } catch (error) {
+            if (isMounted) {
+                enqueueSnackbar("Error occurred while fetching sales record", { variant: "error" });
+            }
+            }
+        };
+
+        fetchSales();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [SalesId]);
 
 
     const paginationModel = { page: 0, pageSize: 15 };
@@ -88,21 +95,34 @@ const SalesTable = ({setOpenNew, currentSales, setCurrentSales}:SalesTableProps)
 
     const handleRefundItem = async()=>{
         try {
-            if(!currentSales) return;
+            if(!currentSales || !reason) return;
+            const {createdAt, updatedAt, ...salesData} = currentSales;
+            const retData:Partial<IReturns> = {
+                ...salesData,
+                products: products.map((p)=>p._id),
+                reason,
+            }
+            console.log(createdAt, updatedAt)
             const res = await deleteSales(currentSales?._id);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
-            handleClose();
             if(!res.error){
+                utils.invalidateQueries({ queryKey: ['allsales'] });
                 refetch();
+                
+                const retRes = await createReturns(retData);
+                if(!retRes.error){
+                    enqueueSnackbar(retRes.message, {variant:retRes.error?'error':'success'});
+                    handleClose();
+                }
             }
         } catch (error) {
             console.log(error);
-            enqueueSnackbar('Error occured while deleting Sales', {variant:'error'});
+            enqueueSnackbar('Error occured while removing Sales record', {variant:'error'});
         }
     }
 
 
-    const content = `Are you sure you want to refund this sale record? This will create a refund record for this sale and remove it from here.`
+    const content = `Are you sure you want to return this sale record? This will create a return record for this sale and remove it from here.`
 
   return (
     <div className='table-main2' >
@@ -114,7 +134,7 @@ const SalesTable = ({setOpenNew, currentSales, setCurrentSales}:SalesTableProps)
             </div>
         </div>
         <SalesInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentSale={currentSales} setCurrentSale={setCurrentSales} />
-        <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleRefundItem} title="Delete Sales" content={content} />
+        <DialogueAlertWithInput label='Reason for returning' required onChange={(e)=>setReason(e.target.value)} open={showDelete} handleClose={handleClose} agreeClick={handleRefundItem} title="Return Sales" content={content} />
         <div className="flex w-full">
             {
                 // loading ? 

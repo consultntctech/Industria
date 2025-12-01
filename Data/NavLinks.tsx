@@ -78,7 +78,7 @@ export const NavLinks = (): INavBarItem[] => {
       subMenu: [
         { id: "61", title: "Sales", icon: <PiCashRegisterLight />, link: "/dashboard/transactions/sales" },
         { id: "62", title: "Orders", icon: <LuGitPullRequest />, link: "/dashboard/transactions/orders" },
-        { id: "63", title: "Refunds", icon: <TbCashOff />, link: "/dashboard/transactions/refunds" },
+        { id: "63", title: "Returns", icon: <TbCashOff />, link: "/dashboard/transactions/returns" },
         { id: "64", title: "Finance", icon: <TbTimeline />, link: "/dashboard/transactions/finance" },
       ],
     },
