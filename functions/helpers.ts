@@ -1,4 +1,5 @@
 import { ILineItem } from "@/lib/models/lineitem.model";
+import { IOrder } from "@/lib/models/order.model";
 import { IProduct } from "@/lib/models/product.model";
 import { ISoldItem } from "@/types/Types";
 
@@ -60,4 +61,11 @@ export function getProductCounts(items: ILineItem[]):ISoldItem[] {
     name: data.name,
     quantity: data.quantity
   }));
+}
+
+
+
+export function isDeadlinePast(order: IOrder): boolean {
+    if (!order.deadline) return true;
+    return new Date(order.deadline).getTime() < new Date(order.fulfilledAt).getTime();
 }

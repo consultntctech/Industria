@@ -16,7 +16,7 @@ export const useFetchReturns = (isToday?:boolean) => {
     
 
     const {data:returns=[], isPending, refetch, isSuccess} = useQuery({
-        queryKey: ['Returns'],
+        queryKey: ['Returns', isToday],
         queryFn: fetchReturns,
     })
     return {returns, isPending, refetch, isSuccess}

@@ -94,10 +94,29 @@ export async function getAvailableLineItemsByProduct(
     return respond("Error occurred while fetching line items", true, {}, 500);
   }
 }
+
+
 export async function getLineItemsByProduct (productId: string): Promise<IResponse> {
     try {
         await connectDB();
         const lineItems = await LineItem.find({ product: productId }).
+        populate('product').
+        populate('good').
+        populate('package').
+        populate('createdBy').
+        populate('org').lean() as unknown as ILineItem[];
+        return respond('Line items found successfully', false, lineItems, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching line items', true, {}, 500);
+    }
+}
+
+
+export async function getLineItemsByProductAndOrg (productId: string, orgId:string): Promise<IResponse> {
+    try {
+        await connectDB();
+        const lineItems = await LineItem.find({ product: productId, org: orgId }).
         populate('product').
         populate('good').
         populate('package').
