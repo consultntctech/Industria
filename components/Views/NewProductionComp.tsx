@@ -19,6 +19,7 @@ import { enqueueSnackbar } from "notistack";
 import { createProduction } from "@/lib/actions/production.action";
 import { useRouter } from "next/navigation";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
+import SearchSelectBatchesWithRM from "../shared/inputs/dropdowns/SearchSelectBatchesWithRM";
 
 const NewProductionComp = () => {
     const [loading, setLoading] = useState(false);
@@ -165,7 +166,7 @@ const NewProductionComp = () => {
                         <div className="flex flex-col gap-4 w-full">
                             <GenericLabel
                                 label="Pick a batch to select raw materials"
-                                input={<SearchSelectBatches type="Raw Material" required={true} setSelect={setProductBatchId} />}
+                                input={<SearchSelectBatchesWithRM required={true} setSelect={setProductBatchId} />}
                             />
                             <GenericLabel
                                 label="Select raw materials"

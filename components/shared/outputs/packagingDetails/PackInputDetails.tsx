@@ -6,10 +6,11 @@ import Link from 'next/link';
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import { FaPenToSquare } from 'react-icons/fa6';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
-import { IPackage } from '@/lib/models/package.model';
+import { IGoodsPopulate, IPackage } from '@/lib/models/package.model';
 import { IGood } from '@/lib/models/good.model';
 import { IStorage } from '@/lib/models/storage.model';
 import PackInputDetailsModal from './PackInputDetailsModal';
+import { IProduction } from '@/lib/models/production.model';
 // import { formatDate } from '@/functions/dates';
 
 type PackInputDetailsProps = {
@@ -23,8 +24,10 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
     const batch = pack?.batch as IBatch;
     const supervisor = pack?.supervisor as IUser;
     const creator = pack?.createdBy as IUser;
-    const product = pack?.good as IGood;
+    const products = pack?.goods as IGoodsPopulate[]
     const storage = pack?.storage as IStorage;
+
+    // console.log('Package: ', pack)
 
     const {primaryColour} = useSettings();
     const {currency} = useCurrencyConfig();
@@ -42,11 +45,24 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
           <span className="text-gray-600 truncate " >{pack?.name}</span>
         </div>
         
-        <div className="flex flex-row items-center gap-4">
+        <div className="flex flex-row items-start gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Finished good:</span>
-          <Link className="" href={`/dashboard/processing/goods?Id=${product?._id}`} >
-            <span className="text-blue-600 underline " >{product?.name}</span>
-          </Link>
+          {
+            products.length > 0 &&
+            products?.map((item, index)=>{
+              const product = item?.goodId as IGood;
+              const production = product?.production as IProduction;
+              // console.log('Good: ', product)
+              return (
+                <span key={index} >
+                  <Link className="" href={`/dashboard/processing/goods?Id=${product?._id}`} >
+                    <span className="text-blue-600 underline" >{item?.quantity} x {product?.name} ({production?.name})</span>
+                  </Link>
+                  {index < products.length -1 && ', '}
+                </span>
+              )
+            })
+          }
         </div>
 
         <div className="flex flex-row items-center gap-4">

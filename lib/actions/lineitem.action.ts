@@ -29,6 +29,35 @@ export async function createLineItems (data:Partial<ILineItem>[]):Promise<IRespo
     }
 }
 
+
+export async function createPriceForAllLineItemsInPackage (packageId: string, price: number): Promise<IResponse> {
+    try {
+        await connectDB();
+        const lineItems = await LineItem.updateMany(
+            { package: packageId },
+            { price: price }
+        );
+        return respond('Line items price updated successfully', false, lineItems, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while updating line items', true, {}, 500);
+    }
+}
+
+export async function publishLineItemsForPackage (packageId: string): Promise<IResponse> {
+    try {
+        await connectDB();
+        const lineitems = await LineItem.updateMany(
+            { package: packageId },
+            { status: 'Available' }
+        );
+        return respond('Line items published successfully', false, lineitems, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while publishing line items', true, {}, 500);
+    }
+}
+
 export async function updateLineItem (data: Partial<ILineItem>): Promise<IResponse> {
     try {
         await connectDB();

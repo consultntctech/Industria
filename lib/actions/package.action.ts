@@ -25,23 +25,52 @@ export async function createPackage(data: Partial<IPackage>): Promise<IResponse>
     // 1. Create the Package
     const newPackage = await Package.create([data], { session });
     const pkg = newPackage[0];
-    await pkg.populate({ path: "good", populate:[{path:'batch'}, {path:'production', populate:{path:'productToProduce'}}] });
 
-    // 2. Validate Good
-    const good = await Good.findById(data.good).session(session);
-    if (!good) {
+    await pkg.populate({
+      path: "goods.goodId",
+      populate: [
+        { path: "batch" },
+        { path: "production", populate: { path: "productToProduce" } }
+      ]
+    });
+
+    // ---------------------------------------------------------
+    // 2. Validate ALL goods in array
+    // ---------------------------------------------------------
+    if (!pkg.goods || pkg.goods.length === 0) {
       await session.abortTransaction();
-      return respond("Good not found", true, {}, 404);
+      return respond("Goods list cannot be empty", true, {}, 400);
     }
 
-    // 3. Update Good quantityLeftToPackage
-    await Good.findByIdAndUpdate(
-      good._id,
-      { $inc: { quantityLeftToPackage: -pkg.accepted } },
-      { session }
-    );
+    for (const g of pkg.goods) {
+      const good = await Good.findById(g.goodId).session(session);
 
-    // 4. Update ProdItems (materials used)
+      if (!good) {
+        await session.abortTransaction();
+        return respond(`Good not found: ${g.goodId}`, true, {}, 404);
+      }
+
+      // Decrease quantityLeftToPackage by the amount used in package
+      if (g.quantity > good.quantityLeftToPackage) {
+        await session.abortTransaction();
+        return respond(
+          `Not enough quantityLeftToPackage for good: ${good._id}`,
+          true,
+          {},
+          400
+        );
+      }
+
+      await Good.findByIdAndUpdate(
+        good._id,
+        { $inc: { quantityLeftToPackage: -g.quantity } },
+        { session }
+      );
+    }
+
+    // ---------------------------------------------------------
+    // 3. Update ProdItems (materials used)
+    // ---------------------------------------------------------
     if (pkg.packagingMaterial && pkg.packagingMaterial.length > 0) {
       for (const material of pkg.packagingMaterial) {
         const prodItem = await ProdItem.findById(material.materialId).session(session);
@@ -51,8 +80,9 @@ export async function createPackage(data: Partial<IPackage>): Promise<IResponse>
           return respond(`ProdItem not found: ${material.materialId}`, true, {}, 404);
         }
 
-        // Safety: prevent used > stock
-        if (material.quantity > prodItem.stock - prodItem.used) {
+        const available = prodItem.stock - prodItem.used;
+
+        if (material.quantity > available) {
           await session.abortTransaction();
           return respond(
             `Not enough stock for material ${prodItem.name}`,
@@ -88,6 +118,7 @@ export async function createPackage(data: Partial<IPackage>): Promise<IResponse>
 }
 
 
+
 export async function updatePackagingMaterials(
   data: Partial<IPackage>
 ): Promise<IResponse> {
@@ -96,7 +127,9 @@ export async function updatePackagingMaterials(
   try {
     session.startTransaction();
 
-    // 1. Find old package
+    // -------------------------------------------------
+    // 1. Load old package
+    // -------------------------------------------------
     const oldPackage = await Package.findById(data._id)
       .lean()
       .session(session) as unknown as IPackage;
@@ -109,9 +142,12 @@ export async function updatePackagingMaterials(
     const oldMaterials = oldPackage.packagingMaterial || [];
     const newMaterials = data.packagingMaterial || [];
 
-    // --------------------------------------------
+    const oldGoods = oldPackage.goods || [];
+    const newGoods = data.goods || [];
+
+    // -------------------------------------------------
     // 2. Reverse OLD ProdItem usage
-    // --------------------------------------------
+    // -------------------------------------------------
     for (const oldMat of oldMaterials) {
       await ProdItem.findByIdAndUpdate(
         oldMat.materialId,
@@ -120,14 +156,11 @@ export async function updatePackagingMaterials(
       );
     }
 
-    // --------------------------------------------
-    // 3. Apply NEW ProdItem usage
-    //    (We check that stock is sufficient before applying)
-    // --------------------------------------------
+    // -------------------------------------------------
+    // 3. Apply NEW ProdItem usage (with stock check)
+    // -------------------------------------------------
     for (const newMat of newMaterials) {
-      const prodItem = await ProdItem.findById(newMat.materialId).session(
-        session
-      );
+      const prodItem = await ProdItem.findById(newMat.materialId).session(session);
 
       if (!prodItem) {
         await session.abortTransaction();
@@ -139,8 +172,8 @@ export async function updatePackagingMaterials(
         );
       }
 
-      // Safety: prevent using more than available
       const available = prodItem.stock - prodItem.used;
+
       if (newMat.quantity > available) {
         await session.abortTransaction();
         return respond(
@@ -158,24 +191,32 @@ export async function updatePackagingMaterials(
       );
     }
 
-    // --------------------------------------------
-    // 4. Update Good quantityLeftToPackage 
-    //    ONLY IF accepted is updated
-    // --------------------------------------------
-    if (data.accepted !== undefined) {
-      const good = await Good.findById(oldPackage.good).session(session);
+    // -------------------------------------------------
+    // 4. Reverse OLD goods quantityLeftToPackage
+    // -------------------------------------------------
+    for (const oldG of oldGoods) {
+      await Good.findByIdAndUpdate(
+        oldG.goodId,
+        { $inc: { quantityLeftToPackage: oldG.quantity } },
+        { session }
+      );
+    }
+
+    // -------------------------------------------------
+    // 5. Apply NEW goods quantityLeftToPackage
+    // -------------------------------------------------
+    for (const newG of newGoods) {
+      const good = await Good.findById(newG.goodId).session(session);
+
       if (!good) {
         await session.abortTransaction();
-        return respond("Good not found", true, {}, 404);
+        return respond(`Good not found: ${newG.goodId}`, true, {}, 404);
       }
 
-      const diff = data.accepted - oldPackage.accepted;
-
-      // Prevent increasing beyond available
-      if (diff > 0 && diff > good.quantityLeftToPackage) {
+      if (newG.quantity > good.quantityLeftToPackage) {
         await session.abortTransaction();
         return respond(
-          "Not enough quantityLeftToPackage remaining for this Good",
+          `Not enough quantityLeftToPackage for Good: ${good._id}`,
           true,
           {},
           400
@@ -184,14 +225,14 @@ export async function updatePackagingMaterials(
 
       await Good.findByIdAndUpdate(
         good._id,
-        { $inc: { quantityLeftToPackage: -diff } },
+        { $inc: { quantityLeftToPackage: -newG.quantity } },
         { session }
       );
     }
 
-    // --------------------------------------------
-    // 5. Update Package itself (other fields allowed)
-    // --------------------------------------------
+    // -------------------------------------------------
+    // 6. Update Package (materials + goods + other fields)
+    // -------------------------------------------------
     const updatedPackage = await Package.findByIdAndUpdate(
       data._id,
       data,
@@ -201,7 +242,12 @@ export async function updatePackagingMaterials(
     await session.commitTransaction();
     session.endSession();
 
-    return respond("Packaging materials updated successfully", false, updatedPackage, 200);
+    return respond(
+      "Packaging materials updated successfully",
+      false,
+      updatedPackage,
+      200
+    );
 
   } catch (error) {
     console.error("Error updating packaging materials:", error);
@@ -216,11 +262,12 @@ export async function updatePackagingMaterials(
 
 
 
+
 export async function getApprovedPackages():Promise<IResponse>{
     try {
         await connectDB();
         const packages = await Package.find({ approvalStatus: 'Approved', accepted: { $gt: 0 } })
-        .populate({path:'good', populate:{path:'batch'}})
+        .populate({path:'goods', populate:{path:'goodId', populate:[{path:'batch'}, {path:'production', populate:{path:'productToProduce'}}]}})
         .populate('supervisor')
         .populate('storage')
         .populate('batch')
@@ -245,7 +292,7 @@ export async function getApprovedPackagesByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const packages = await Package.find({ org: orgId, approvalStatus: 'Approved', accepted: { $gt: 0 } })
-        .populate({path:'good', populate:{path:'batch'}})
+        .populate({path:'goods', populate:{path:'goodId', populate:[{path:'batch'}, {path:'production', populate:{path:'productToProduce'}}]}})
         .populate('supervisor')
         .populate('createdBy')
         .populate('approvedBy')
@@ -271,7 +318,7 @@ export async function getPackages():Promise<IResponse>{
     try {
         await connectDB();
         const packages = await Package.find()
-        .populate({path:'good', populate:{path:'batch'}})
+        .populate({path:'goods', populate:{path:'goodId', populate:[{path:'batch'}, {path:'product'}, {path:'production', populate:{path:'productToProduce'}}]}})
         .populate('supervisor')
         .populate('storage')
         .populate('batch')
@@ -295,7 +342,7 @@ export async function getPackagesByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const packages = await Package.find({ org: orgId })
-        .populate({path:'good', populate:{path:'batch'}})
+        .populate({path:'goods', populate:{path:'goodId', populate:[{path:'batch'}, {path:'product'}, {path:'production', populate:{path:'productToProduce'}}]}})
         .populate('supervisor')
         .populate('createdBy')
         .populate('approvedBy')
@@ -317,47 +364,121 @@ export async function getPackagesByOrg(orgId:string):Promise<IResponse>{
 
 
 export async function updatePackage(data: Partial<IPackage>): Promise<IResponse> {
+  const session = await (await connectDB()).startSession();
+
   try {
-    await connectDB();
+    session.startTransaction();
 
     if (!data._id) {
+      await session.abortTransaction();
       return respond("Package ID is required", true, {}, 400);
     }
 
-    const oldPackage = await Package.findById(data._id);
+    // 1. Find OLD package
+    const oldPackage = await Package.findById(data._id).session(session);
     if (!oldPackage) {
+      await session.abortTransaction();
       return respond("Package not found", true, {}, 404);
     }
 
-    const updatedPackage = await Package.findByIdAndUpdate(data._id, data, { new: true });
+    // 2. Reverse OLD materials usage
+    const oldMaterials = oldPackage.packagingMaterial || [];
 
-    const good = await Good.findById(data.good);
-    if (!good) {
-      return respond("Good not found", true, {}, 404);
+    for (const oldMat of oldMaterials) {
+      await ProdItem.findByIdAndUpdate(
+        oldMat.materialId,
+        { $inc: { used: -oldMat.quantity } },
+        { session }
+      );
     }
 
-    if (typeof data.accepted !== "number") {
-      return respond("Accepted quantity is required", true, {}, 400);
+    // 3. Apply NEW materials usage
+    const newMaterials = data.packagingMaterial || [];
+
+    for (const newMat of newMaterials) {
+      const prodItem = await ProdItem.findById(newMat.materialId).session(session);
+
+      if (!prodItem) {
+        await session.abortTransaction();
+        return respond(`ProdItem not found: ${newMat.materialId}`, true, {}, 404);
+      }
+
+      const available = prodItem.stock - prodItem.used;
+      if (newMat.quantity > available) {
+        await session.abortTransaction();
+        return respond(
+          `Not enough stock for material: ${prodItem.name}`,
+          true,
+          {},
+          400
+        );
+      }
+
+      await ProdItem.findByIdAndUpdate(
+        newMat.materialId,
+        { $inc: { used: newMat.quantity } },
+        { session }
+      );
     }
 
-    // quantityLeftToPackage = oldAccepted - newAccepted
-    const quantityDiff = oldPackage.accepted - data.accepted;
+    // 4. Update Good.quantityLeftToPackage if accepted changed
+    if (typeof data.accepted === "number") {
+      const good = await Good.findById(oldPackage.good).session(session);
+      if (!good) {
+        await session.abortTransaction();
+        return respond("Good not found", true, {}, 404);
+      }
 
-    // Update good quantity in ONE atomic update
-    await Promise.all([
-      Good.findByIdAndUpdate(good._id, {
-        $inc: { quantityLeftToPackage: quantityDiff }
-      }),
-      PackApproval.findOneAndUpdate({package:data._id}, {status:'Pending'}, { new: true })
-    ])
+      const diff = data.accepted - oldPackage.accepted;
+
+      // if accepted increases, ensure good has enough quantity
+      if (diff > 0 && diff > good.quantityLeftToPackage) {
+        await session.abortTransaction();
+        return respond(
+          "Not enough quantityLeftToPackage available for this Good",
+          true,
+          {},
+          400
+        );
+      }
+
+      await Good.findByIdAndUpdate(
+        good._id,
+        { $inc: { quantityLeftToPackage: -diff } },
+        { session }
+      );
+    }
+
+    // 5. Update the Package itself
+    const updatedPackage = await Package.findByIdAndUpdate(
+      data._id,
+      data,
+      { new: true, session }
+    );
+
+    // 6. Reset approval to pending
+    await PackApproval.findOneAndUpdate(
+      { package: data._id },
+      { status: "Pending" },
+      { new: true, session }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
 
     return respond("Package updated successfully", false, updatedPackage, 200);
 
   } catch (error) {
-    console.log(error);
+    console.log("Error updating package:", error);
+
+    try {
+      await session.abortTransaction();
+    } catch {}
+
     return respond("Error occurred while updating package", true, {}, 500);
   }
 }
+
 
 
 export async function updatePackageV2(data:Partial<IPackage>):Promise<IResponse>{
@@ -396,7 +517,7 @@ export async function getPackage(id: string): Promise<IResponse> {
     await connectDB();
 
     const check = await verifyOrgAccess(Package, id, "Package",[
-        { path: "good", populate:[{path:'batch'}, {path:'production', populate:{path:'productToProduce'}}] },
+        { path: "goods", populate:{path:'goodId', populate:[{path:'batch'}, {path:'product'}, {path:'production', populate:{path:'productToProduce'}}]} },
         { path: "supervisor" },
         { path: "createdBy" },
         { path: "org" },
@@ -420,40 +541,50 @@ export async function getPackage(id: string): Promise<IResponse> {
 }
 
 
-
 export async function deletePackage(id: string): Promise<IResponse> {
   const session = await (await connectDB()).startSession();
 
   try {
     session.startTransaction();
 
+    // --------------------------------------------
     // 1. Find package
+    // --------------------------------------------
     const pack = await Package.findById(id).session(session);
     if (!pack) {
       await session.abortTransaction();
       return respond("Package not found", true, {}, 404);
     }
-    const litems = await LineItem.find({ package: id, status:'Sold' }).session(session);
+
+    // Cannot delete if any sold LineItems reference this package
+    const litems = await LineItem.find({ package: id, status: { $in: ["Sold", "Returned"]} })
+      .session(session);
+
     if (litems.length > 0) {
       await session.abortTransaction();
-      return respond("You cannot delete this package. Package has sold items", true, {}, 400);
+      return respond(
+        "You cannot delete this package. Package has sold items",
+        true,
+        {},
+        400
+      );
     }
 
     // --------------------------------------------
     // 2. Return used ProdItem quantities
     // --------------------------------------------
     if (pack.packagingMaterial && pack.packagingMaterial.length > 0) {
-      for (const material of pack.packagingMaterial) {
+      for (const mat of pack.packagingMaterial) {
         await ProdItem.findByIdAndUpdate(
-          material.materialId,
-          { $inc: { used: -material.quantity } },
+          mat.materialId,
+          { $inc: { used: -mat.quantity } },
           { session }
         );
       }
     }
 
     // --------------------------------------------
-    // 3. Return Good quantityLeftToPackage
+    // 3. Return Good.quantityLeftToPackage
     // --------------------------------------------
     await Good.findByIdAndUpdate(
       pack.good,
@@ -462,11 +593,9 @@ export async function deletePackage(id: string): Promise<IResponse> {
     );
 
     // --------------------------------------------
-    // 4. Delete the package
+    // 4. Delete the package itself
     // --------------------------------------------
-    const deletedPackage = await Package.deleteOne({ _id: id }).session(
-      session
-    );
+    const deletedPackage = await Package.deleteOne({ _id: id }).session(session);
 
     await session.commitTransaction();
     session.endSession();
@@ -477,6 +606,7 @@ export async function deletePackage(id: string): Promise<IResponse> {
       deletedPackage,
       200
     );
+
   } catch (error) {
     console.error("Error deleting package:", error);
 
@@ -487,3 +617,4 @@ export async function deletePackage(id: string): Promise<IResponse> {
     return respond("Error occurred while deleting package", true, {}, 500);
   }
 }
+

@@ -18,6 +18,12 @@
 .smallText{
   @apply text-black text-[0.8rem] font-medium
 }
+.greyText2{
+  @apply text-[#9ea2a8] text-[0.7rem] font-medium
+}
+.smallText2{
+  @apply text-black text-[0.7rem] font-medium
+}
 
 .table-main2{
     @apply max-w-[82vw] lg:max-w-[92vw] xl:max-w-[80vw] bg-white gap-4 p-4 flex flex-col rounded shadow-xl

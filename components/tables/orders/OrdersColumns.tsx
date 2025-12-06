@@ -197,7 +197,7 @@ export const OrdersColumns = (
                     </Tooltip>
                     {
                         params?.row?.status === 'Pending' &&
-                        <Tooltip title="Fullfill order">
+                        <Tooltip title="Fulfill order">
                             <IoMdCheckmarkCircleOutline onClick={()=>handleFulfill(params?.row)}  className="cursor-pointer text-blue-700" />
                         </Tooltip>
                     }

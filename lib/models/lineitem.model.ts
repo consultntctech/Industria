@@ -33,7 +33,7 @@ const LineItemSchema = new Schema<ILineItem>({
     good: { type: Schema.Types.ObjectId, ref: 'Good', required: false },
     package: { type: Schema.Types.ObjectId, ref: 'Package', required: false },
     soldTo: { type: Schema.Types.ObjectId, ref: 'Customer', required: false },
-    status: { type: String, required: true, default:'Available' },
+    status: { type: String, required: true, default:'Pending' },
     price: { type: Number, required: false, default:0 },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

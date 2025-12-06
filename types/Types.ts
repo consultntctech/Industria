@@ -30,8 +30,28 @@ export interface IQSelector {
 }
 
 
+export interface IQGSelector {
+    goodId: string;
+    quantity: number;
+}
+
+
 export interface ISoldItem {
     id: string;
     name: string;
     quantity: number;
+}
+
+
+export interface IStats {
+    totalSales?: number;
+    totalSalesAmount?: number;
+    totalOrders?: number;
+    totalOrdersAmount?: number;
+    totalReturns?: number;
+    totalReturnsAmount?: number;
+    totalProductions?: number;
+    totalProductionsAmount?: number;
+    totalPackaging?: number;
+    totalPackagingAmount?: number;
 }

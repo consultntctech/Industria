@@ -4,7 +4,7 @@ import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { IBatch } from '@/lib/models/batch.model';
 import { IGood } from '@/lib/models/good.model';
 import { IOrganization } from '@/lib/models/org.model';
-import { IPackage } from '@/lib/models/package.model';
+import { IGoodsPopulate, IPackage } from '@/lib/models/package.model';
 // import { IProdItem } from '@/lib/models/proditem.model';
 import { IStorage } from '@/lib/models/storage.model';
 import { IUser } from '@/lib/models/user.model';
@@ -23,8 +23,9 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
     const batch = currentPackage?.batch as IBatch;
     const creator = currentPackage?.createdBy as IUser;
     // const proditems = currentPackage?.packagingMaterial as IProdItem[];
+    const goods = currentPackage?.goods as IGoodsPopulate[];
     const supervisor = currentPackage?.supervisor as IUser;
-    const product = currentPackage?.good as IGood;
+    const product = goods?.map((g)=> g?.goodId as IGood)[0];
     const storage = currentPackage?.storage as IStorage;
     const approver = currentPackage?.approvedBy as IUser;
 

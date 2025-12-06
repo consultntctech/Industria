@@ -7,6 +7,7 @@ import { respond } from "../misc";
 import '../models/org.model';
 import '../models/product.model';
 import '../models/batch.model';
+import '../models/user.model';
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Production from "../models/production.model";
 
@@ -69,6 +70,7 @@ export async function getGoods():Promise<IResponse>{
         }).
         populate('batch').
         populate('createdBy').
+        populate('product').
         populate('org').lean() as unknown as IGood[];
         return respond('Finished goods found successfully', false, goods, 200);
     } catch (error) {
@@ -84,6 +86,7 @@ export async function getAvailableGoods():Promise<IResponse>{
         populate({path:'production', populate:{path:'productToProduce'}}).
         populate('batch').
         populate('createdBy').
+        populate('product').
         populate('org').lean() as unknown as IGood[];
         return respond('Available finished goods found successfully', false, goods, 200);
     } catch (error) {
@@ -100,6 +103,40 @@ export async function getAvailableGoodsByOrg(orgId:string):Promise<IResponse>{
         populate({path:'production', populate:{path:'productToProduce'}}).
         populate('batch').
         populate('createdBy').
+        populate('product').
+        populate('org').lean() as unknown as IGood[];
+        return respond('Available finished goods found successfully', false, goods, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching available finished goods', true, {}, 500);
+    }
+}
+
+export async function getAvailableGoodsByProduct(productId:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const goods = await Good.find({ quantityLeftToPackage: { $gt: 0 }, product:productId }).
+        populate({path:'production', populate:{path:'productToProduce'}}).
+        populate('batch').
+        populate('createdBy').
+        populate('product').
+        populate('org').lean() as unknown as IGood[];
+        return respond('Available finished goods found successfully', false, goods, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching available finished goods', true, {}, 500);
+    }
+}
+
+
+export async function getAvailableGoodsByOrgAndProduct(orgId:string, productId:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const goods = await Good.find({ org: orgId, quantityLeftToPackage: { $gt: 0 }, product:productId }).
+        populate({path:'production', populate:{path:'productToProduce'}}).
+        populate('batch').
+        populate('createdBy').
+        populate('product').
         populate('org').lean() as unknown as IGood[];
         return respond('Available finished goods found successfully', false, goods, 200);
     } catch (error) {
@@ -122,6 +159,7 @@ export async function getGoodsByOrg(orgId:string):Promise<IResponse>{
         }).
         populate('batch').
         populate('createdBy').
+        populate('product').
         populate('org').lean() as unknown as IGood[];
         return respond('Finished goods found successfully', false, goods, 200);
     } catch (error) {

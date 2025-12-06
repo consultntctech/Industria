@@ -6,6 +6,8 @@ import Batch, { IBatch } from "../models/batch.model";
 import { respond } from "../misc";
 import BatchConfig, { IBatchConfig } from "../models/batchconfig.model";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
+import RMaterial from "../models/rmaterial.mode";
+import LineItem from "../models/lineitem.model";
 
 export async function createBatch(data: Partial<IBatch>): Promise<IResponse> {
   try {
@@ -169,9 +171,10 @@ export async function getBatches():Promise<IResponse>{
     }
 }
 
+
 export async function getBatchesByOrg(orgId:string):Promise<IResponse>{
-    try {
-        await connectDB();
+  try {
+    await connectDB();
         const batches = await Batch.find({ org: orgId })
         .populate('createdBy')
         .populate('org')
@@ -182,6 +185,170 @@ export async function getBatchesByOrg(orgId:string):Promise<IResponse>{
         return respond('Error occured while fetching batches', true, {}, 500);
     }
 }
+
+export async function getBatchesWithGoods(): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        // 1️⃣ Get all batch IDs where qAccepted > 0
+        const acceptedBatches = await RMaterial.aggregate([
+            {
+                $match: {
+                    qAccepted: { $gt: 0 }
+                }
+            },
+            {
+                $group: {
+                    _id: "$batch"
+                }
+            }
+        ]);
+
+        const batchIds = acceptedBatches.map(b => b._id);
+
+        // If nothing found, return empty
+        if (batchIds.length === 0) {
+            return respond("No batches with accepted goods found", false, [], 200);
+        }
+
+        // 2️⃣ Fetch the batch documents and populate
+        const batches = await Batch.find({ _id: { $in: batchIds } })
+            .populate("createdBy")
+            .populate("org")
+            .populate("config")
+            .lean<IBatch[]>();
+
+        return respond("Batches found successfully", false, batches, 200);
+
+    } catch (error) {
+        console.log(error);
+        return respond("Error occurred while fetching batches with goods", true, {}, 500);
+    }
+}
+
+
+export async function getBatchesWithGoodsByOrg(orgId:string):Promise<IResponse>{
+    try {
+        await connectDB();
+
+        // 1️⃣ Get all batch IDs where qAccepted > 0
+        const acceptedBatches = await RMaterial.aggregate([
+            {
+                $match: {
+                    qAccepted: { $gt: 0 },
+                    org: orgId
+                }
+            },
+            {
+                $group: {
+                    _id: "$batch"
+                }
+            }
+        ]);
+
+        const batchIds = acceptedBatches.map(b => b._id);
+
+        // If nothing found, return empty
+        if (batchIds.length === 0) {
+            return respond("No batches with accepted goods found", false, [], 200);
+        }
+
+        // 2️⃣ Fetch the batch documents and populate
+        const batches = await Batch.find({ _id: { $in: batchIds } })
+            .populate("createdBy")
+            .populate("org")
+            .populate("config")
+            .lean<IBatch[]>();
+
+        return respond("Batches found successfully", false, batches, 200);
+
+    } catch (error) {
+        console.log(error);
+        return respond("Error occurred while fetching batches with goods", true, {}, 500);
+    }
+}
+
+
+export async function getBatchesWithLineItems(): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        // 1️⃣ Get all batch IDs that have available line items
+        const batchesWithItems = await LineItem.aggregate([
+            {
+                $match: {
+                    status: "Available"
+                }
+            },
+            {
+                $group: {
+                    _id: "$batch"
+                }
+            }
+        ]);
+
+        const batchIds = batchesWithItems.map(b => b._id);
+
+        if (batchIds.length === 0) {
+            return respond("No batches with available line items found", false, [], 200);
+        }
+
+        // 2️⃣ Fetch & populate batch docs
+        const batches = await Batch.find({ _id: { $in: batchIds } })
+            .populate("createdBy")
+            .populate("org")
+            .populate("config")
+            .lean<IBatch[]>();
+
+        return respond("Batches found successfully", false, batches, 200);
+
+    } catch (error) {
+        console.log(error);
+        return respond("Error occurred while fetching batches with line items", true, {}, 500);
+    }
+}
+
+
+export async function getBatchesWithLineItemsByOrg(orgId: string): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        // 1️⃣ Get all batch IDs that have available line items AND belong to the org
+        const batchesWithItems = await LineItem.aggregate([
+            {
+                $match: {
+                    status: "Available",
+                    org: orgId
+                }
+            },
+            {
+                $group: {
+                    _id: "$batch"
+                }
+            }
+        ]);
+
+        const batchIds = batchesWithItems.map(b => b._id);
+
+        if (batchIds.length === 0) {
+            return respond("No batches with available line items found for this organization", false, [], 200);
+        }
+
+        // 2️⃣ Fetch & populate batch docs
+        const batches = await Batch.find({ _id: { $in: batchIds } })
+            .populate("createdBy")
+            .populate("org")
+            .populate("config")
+            .lean<IBatch[]>();
+
+        return respond("Batches found successfully", false, batches, 200);
+
+    } catch (error) {
+        console.log(error);
+        return respond("Error occurred while fetching batches with line items by org", true, {}, 500);
+    }
+}
+
 
 
 export async function getBatch(id:string):Promise<IResponse>{

@@ -11,6 +11,19 @@ export interface IProdItemQuantity {
     materialId: string | Types.ObjectId | IProdItem;
     quantity: number;
 }
+export interface IGoodsQuantity {
+    goodId: string | Types.ObjectId | IGood;
+    quantity: number;
+}
+
+export interface IProdItemPopulate extends IProdItem {
+    quantity: number;
+    materialId: string | Types.ObjectId | IProdItem;
+}
+export interface IGoodsPopulate extends IGood {
+    quantity: number;
+    goodId: string | Types.ObjectId | IGood;
+}
 
 export interface IPackage extends Document {
     _id: string;
@@ -18,7 +31,8 @@ export interface IPackage extends Document {
     supervisor: string | Types.ObjectId | IUser;
     packagingType: string;
     packagingMaterial: IProdItemQuantity[];
-    good: string | Types.ObjectId | IGood;
+    // good: string | Types.ObjectId | IGood;
+    goods: IGoodsQuantity[];
     useProdBatch: boolean;
     batch: string | Types.ObjectId | IBatch;
     quantity: number;
@@ -39,10 +53,7 @@ export interface IPackage extends Document {
     updatedAt: string;
 }
 
-export interface IProdItemPopulate extends IProdItem {
-    quantity: number;
-    materialId: string | Types.ObjectId | IProdItem;
-}
+
 
 const PackageSchema = new Schema<IPackage>({
     name: { type: String, required: true },
@@ -52,7 +63,10 @@ const PackageSchema = new Schema<IPackage>({
         materialId: { type: Schema.Types.ObjectId, ref: 'ProdItem', required: false },
         quantity: { type: Number, required: false, default: 1 },
     }],
-    good: { type: Schema.Types.ObjectId, ref: 'Good', required: true },
+    goods: [{
+        goodId: { type: Schema.Types.ObjectId, ref: 'Good', required: false },
+        quantity: { type: Number, required: false, default: 1 },
+    }],
     useProdBatch: { type: Boolean, required: false },
     batch: { type: Schema.Types.ObjectId, ref: 'Batch', required: false },
     quantity: { type: Number, required: true },

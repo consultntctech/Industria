@@ -1,17 +1,17 @@
-import { useBatches } from "@/hooks/fetch/useBatches"
+import {  useFetchBatchesWithLineItems } from "@/hooks/fetch/useBatches"
 import { IBatch } from "@/lib/models/batch.model"
 import { Autocomplete, CircularProgress, TextField } from "@mui/material"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
-type SearchSelectBatchesProps = {
+type SearchSelectBatchesWithLineItemsProps = {
     setSelect?: Dispatch<SetStateAction<string>>,
     value?: IBatch | null,
     width?: number,
     required?:boolean,
-    type?:'Raw Material'|'Finished Good' |'Packaging',
+    // type?:'Raw Material'|'Finished Good'
 }
-const SearchSelectBatches = ({setSelect, type, required, value, width}:SearchSelectBatchesProps) => {
-    const {batches, isPending} = useBatches(type);
+const SearchSelectBatchesWithLineItems = ({setSelect,  required, value, width}:SearchSelectBatchesWithLineItemsProps) => {
+    const {batches, isPending} = useFetchBatchesWithLineItems();
     const [search, setSearch] = useState<string>('');
 
     return(
@@ -60,4 +60,4 @@ const SearchSelectBatches = ({setSelect, type, required, value, width}:SearchSel
     )
 }
 
-export default SearchSelectBatches
+export default SearchSelectBatchesWithLineItems

@@ -6,23 +6,24 @@ import InputWithLabel from "../../inputs/InputWithLabel";
 import PrimaryButton from "../../buttons/PrimaryButton";
 import { enqueueSnackbar } from "notistack";
 import GenericLabel from "../../inputs/GenericLabel";
-import SearchSelectBatches from "../../inputs/dropdowns/SearchSelectBatches";
 import SearchSelectUsers from "../../inputs/dropdowns/SearchSelectUsers";
 import { IBatch } from "@/lib/models/batch.model";
 import { IUser } from "@/lib/models/user.model";
-import { IPackage } from "@/lib/models/package.model";
+import { IGoodsPopulate, IPackage } from "@/lib/models/package.model";
 import { useRouter } from "next/navigation";
 import SearchSelectPackagingType from "../../inputs/dropdowns/SearchSelectPackagingType";
 import { PACKAGING_PROCESSES, TPackagingProcess } from "@/Data/PackagingProcesses";
-import SearchSelectGoods from "../../inputs/dropdowns/SearchSelectGoods";
-import CustomCheckV2 from "@/components/misc/CustomCheckV2";
-import TextInput from "../../inputs/TextInput";
 import SearchSelectStorages from "../../inputs/dropdowns/SearchSelectStorages";
 import TextAreaWithLabel from "../../inputs/TextAreaWithLabel";
 import { IStorage } from "@/lib/models/storage.model";
 import { IGood } from "@/lib/models/good.model";
 import { updatePackage } from "@/lib/actions/package.action";
 import '@/styles/customscroll.css'
+import { IProduct } from "@/lib/models/product.model";
+import { IQGSelector } from "@/types/Types";
+import SearchSelectProducts from "../../inputs/dropdowns/SearchSelectProducts";
+import SearchSelectAvMultipleGoods from "../../inputs/dropdowns/SearchSelectAvMultipleGoods";
+import GoodsQSelector from "@/components/misc/GoodsQSelector";
 
 type PackInputDetailsModalProps = {
     openNew:boolean;
@@ -33,46 +34,56 @@ type PackInputDetailsModalProps = {
 const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModalProps) => {
     const [loading, setLoading] = useState(false);
     const [packagingType, setPackagingType] = useState<TPackagingProcess | null>(null);
-    const [good, setGood] = useState<IGood | null>(null);
-    const [useProdBatch, setUseProdBatch] = useState(true);
+    // const [good, setGood] = useState<IGood | null>(null);
+    // const [useProdBatch, setUseProdBatch] = useState(true);
     const [batch, setBatch] = useState<string>('');
     const [supervisor, setSupervisor] = useState<string>('');
     const [storage, setStorage] = useState<string>('');
     const [data, setData] = useState<Partial<IPackage>>({});
-    const [accepted, setAccepted] = useState<number>(0);
     const [typed, setTyped] = useState<TPackagingProcess | null>(null);
+    const [product, setProduct] = useState<IProduct | null>(null);
+    const [newGoods, setNewGoods] = useState<IGood[]>([]);
+    const [goodItems, setGoodItems] = useState<IQGSelector[]>([]);
 
     const router = useRouter();
     
 
-    const goodBatch = good?.batch as IBatch;
     const batched = pack?.batch as IBatch;
     const supervisord = pack?.supervisor as IUser;
     const storaged = pack?.storage as IStorage;
-    const gooded = pack?.good as IGood;
+    const goods = pack?.goods as IGoodsPopulate[];
+    const savedGoods = goods.map(g=> g.goodId as IGood);
+    const gooded = savedGoods[0];
+    const savedProduct = gooded?.product as IProduct;
+    const savedGoodItems = goods.map(g=> ({goodId: (g.goodId as IGood)._id as string, quantity: g.quantity}));
     
     // console.log('Good Batch: ', goodBatch)
+    // console.log('Gooded: ', gooded)
         
     
         // console.log('packagingMaterial', currentPackage?.packagingMaterial)
+    const quantity = goodItems.reduce((acc, curr) => acc + curr.quantity, 0);
+    const accepted = quantity - Number(data.rejected || 0);
+
     useEffect(() => {
         if(pack){
             setData({...pack});
-            setUseProdBatch(pack?.useProdBatch);
             setTyped({label:pack?.packagingType, inputValue:pack?.packagingType});
             setPackagingType({label:pack?.packagingType, inputValue:pack?.packagingType});
             setSupervisor(supervisord?._id);
             setStorage(storaged?._id);
-            setGood(gooded);
+            setNewGoods(savedGoods);
+            setProduct(savedProduct)
+            setBatch(batched?._id);
+            setGoodItems(savedGoodItems);
         }
     }, [pack]);
     
     useEffect(() => {
-        if(good && data.quantity){
-            const value = data.quantity - Number(data.rejected || 0);
-            setAccepted(value);
-        }
-    }, [good, data.quantity, data?.rejected])
+        const validIds = new Set(newGoods.map(g => g._id));
+        setGoodItems(prev => prev.filter(ing => validIds.has(ing.goodId)));
+        setData(pre=>({...pre}));
+    }, [newGoods])
     
 
     
@@ -101,10 +112,10 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
             const formData:Partial<IPackage> = {
                 ...data,
                 approvalStatus: 'Pending',
-                good: good?._id,
+                goods: goodItems,
                 supervisor,
-                batch: useProdBatch ? goodBatch?._id : batch,
-                useProdBatch,
+                batch,
+                useProdBatch:false,
                 accepted,
                 packagingType: packagingType?.label,
                 storage,
@@ -124,13 +135,30 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
         }
     }
         
-        
+         
            
             
     //    console.log('Typed: ', typed)
     
      
     // if(!pack || PACKAGING_PROCESSES.length === 0) return null;
+    const onChangeGoodsInput = (e:React.ChangeEvent<HTMLInputElement>)=>{
+        const {id, value} = e.target;
+        const qty = parseInt(value, 10) || 0;
+        setGoodItems(pre=>{
+            const existing = pre.find(ing=>ing.goodId === id);
+            if(existing){
+                return pre.map(ing=>ing.goodId === id ? {...ing, quantity: qty} : ing);
+            }else{
+                return [...pre, {goodId:id, quantity: qty}];
+            }
+        })
+    }
+
+    const getQuantity = (item:IGood)=>{
+        const qtyObj = savedGoodItems.find(gi=> gi.goodId === item._id);
+        return qtyObj ? qtyObj.quantity : 0; 
+    }
 
   return (
      <ModalContainer open={openNew} handleClose={()=>setOpenNew(false)}>
@@ -165,34 +193,32 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
                             label="Supervisor"
                             input={<SearchSelectUsers value={supervisord} required setSelect={setSupervisor} />}
                         />
-                        <GenericLabel
-                            label="Goods"
-                            input={<SearchSelectGoods value={gooded} required setSelect={setGood} />}
+                         <GenericLabel
+                            label="Product to package"
+                            input={<SearchSelectProducts value={savedProduct} type='Finished Good' required setSelect={setProduct} />}
+                        />
+                        <GenericLabel label='Finished goods'
+                            input={<SearchSelectAvMultipleGoods df={savedGoods} productId={product?._id as string} setSelection={setNewGoods} />}
                         />
                         {
-                            good &&
-                            <>
-                                <div className="flex flex-row items-center gap-4">
-                                    <span className="smallText">Inherit batch from production</span>
-                                    <CustomCheckV2 checked={useProdBatch} setChecked={setUseProdBatch} />
-                                </div>
-                                <GenericLabel
-                                    label={`${!useProdBatch ? 'Select batch' : 'Production batch'}`}
-                                    input={
-                                        useProdBatch ?
-                                        <TextInput readOnly value={goodBatch?.code} />
-                                        :
-                                        <SearchSelectBatches value={batched} type="Finished Good" required={true} setSelect={setBatch} />
+                            newGoods.length > 0 &&
+                            <div className="flex flex-col w-full border border-gray-200 p-2  gap-2 rounded-xl">
+                                <span className="subtitle text-gray-500 gap-2" >Goods</span>
+                                <div className="flex flex-row flex-wrap items-center gap-2">
+                                    {
+                                        newGoods.map((material, index)=>
+                                            <GoodsQSelector key={index} item={material} quantity={getQuantity(material)} inputId={material?._id} onChangeInput={onChangeGoodsInput} name={material?.name} />
+                                        )
                                     }
-                                />
-                            </>
+                                </div>
+                            </div>
                         }
                         
                         {/* <InputWithLabel onChange={onChange} name="unitCost" required type="number" min={0} placeholder="enter price" label="Unit cost" className="w-full" /> */}
-                        <InputWithLabel defaultValue={pack?.quantity} onChange={onChange} max={ (good?.quantityLeftToPackage || 0) + (pack?.accepted||0)}   name="quantity" required type="number" min={0} placeholder="enter quantity" label="Quantity to package" className="w-full" />
-                        <InputWithLabel defaultValue={pack?.rejected} onChange={onChange} name="rejected" type="number" max={good?.quantityLeftToPackage}   label="No. of goods rejected" className="w-full" />
+                        {/* <InputWithLabel value={quantity} onChange={onChange} readOnly max={ (good?.quantityLeftToPackage || 0) + (accepted||0)}   name="quantity" type="number" min={0} placeholder="enter quantity" label="Quantity to package" className="w-full" /> */}
+                        <InputWithLabel defaultValue={pack?.rejected} step={0.0001} onChange={onChange} name="rejected" type="number" readOnly   label="No. of goods rejected" className="w-full" />
                         {
-                            good && Number(data.quantity || 0) > 0 &&
+                            (newGoods.length > 0) && quantity > 0 &&
                             <InputWithLabel value={accepted} readOnly onChange={onChange} name="accepted" type="number"  label="No. of goods for sales" className="w-full" />
                         }
                     </div>

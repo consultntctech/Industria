@@ -5,10 +5,10 @@ import { createPackage } from '@/lib/actions/package.action';
 import { createPackApproval } from '@/lib/actions/packapproval.action';
 import { IBatch } from '@/lib/models/batch.model';
 import { IGood } from '@/lib/models/good.model';
-import { IPackage } from '@/lib/models/package.model';
+import { IGoodsPopulate, IPackage } from '@/lib/models/package.model';
 import { IPackApproval } from '@/lib/models/packapproval.model';
 import { IProdItem } from '@/lib/models/proditem.model';
-import { IQSelector } from '@/types/Types';
+import { IQGSelector, IQSelector } from '@/types/Types';
 import { useRouter } from 'next/navigation';
 import { enqueueSnackbar } from 'notistack';
 import React, { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
@@ -18,9 +18,8 @@ import SearchSelectPackagingType from '../shared/inputs/dropdowns/SearchSelectPa
 import SearchSelectAvMultipleProdItems from '../shared/inputs/dropdowns/SearchSelectAvMultipleProdItems';
 import ProdItemSelector from '../misc/ProdItemSelector';
 import SearchSelectUsers from '../shared/inputs/dropdowns/SearchSelectUsers';
-import SearchSelectGoods from '../shared/inputs/dropdowns/SearchSelectGoods';
-import CustomCheckV2 from '../misc/CustomCheckV2';
-import TextInput from '../shared/inputs/TextInput';
+// import CustomCheckV2 from '../misc/CustomCheckV2';
+// import TextInput from '../shared/inputs/TextInput';
 import SearchSelectBatches from '../shared/inputs/dropdowns/SearchSelectBatches';
 import SearchSelectStorages from '../shared/inputs/dropdowns/SearchSelectStorages';
 import TextAreaWithLabel from '../shared/inputs/TextAreaWithLabel';
@@ -30,37 +29,39 @@ import { IProduction } from '@/lib/models/production.model';
 import { IProduct } from '@/lib/models/product.model';
 import { ILineItem } from '@/lib/models/lineitem.model';
 import { createLineItems } from '@/lib/actions/lineitem.action';
+import SearchSelectProducts from '../shared/inputs/dropdowns/SearchSelectProducts';
+import GoodsQSelector from '../misc/GoodsQSelector';
+import SearchSelectAvMultipleGoods from '../shared/inputs/dropdowns/SearchSelectAvMultipleGoods';
 
 const NewPackageComp = () => {
     const [loading, setLoading] = useState(false);
     const [packagingType, setPackagingType] = useState<TPackagingProcess | null>(null);
     const [packagingMaterial, setPackagingMaterial] = useState<IProdItem[]>([]);
-    const [good, setGood] = useState<IGood | null>(null);
-    const [useProdBatch, setUseProdBatch] = useState(true);
+    // const [good, setGood] = useState<IGood | null>(null);
+    // const [useProdBatch, setUseProdBatch] = useState(true);
     const [batch, setBatch] = useState<string>('');
     const [supervisor, setSupervisor] = useState<string>('');
     const [storage, setStorage] = useState<string>('');
     const [cost, setCost] = useState<number>(0);
     const [data, setData] = useState<Partial<IPackage>>({});
-    const [accepted, setAccepted] = useState<number>(0);
+    // const [accepted, setAccepted] = useState<number>(0);
     const [packItems, setPackItems] = useState<IQSelector[]>([]);
+    const [product, setProduct] = useState<IProduct | null>(null);
+    const [goods, setGoods] = useState<IGood[]>([]);
+    const [goodItems, setGoodItems] = useState<IQGSelector[]>([]);
 
     const {user} = useAuth();
     const router = useRouter();
     const {currency} = useCurrencyConfig();
 
-    const goodBatch = good?.batch as IBatch;
+    // const goodBatch = good?.batch as IBatch;
     
 
     // console.log('packagingMaterial', currentPackage?.packagingMaterial)
     
-
-    useEffect(() => {
-        if(good && data.quantity){
-            const value = data.quantity - Number(data.rejected || 0);
-            setAccepted(value);
-        }
-    }, [good, data.quantity, data?.rejected])
+    const quantity = goodItems.reduce((acc, curr) => acc + curr.quantity, 0);
+    const accepted = quantity - Number(data.rejected || 0);
+    
     
        
     useEffect(() => {
@@ -79,6 +80,12 @@ const NewPackageComp = () => {
         setData(pre=>({...pre, cost}));
     }, [packagingMaterial,  cost]);
     
+
+    useEffect(() => {
+        const validIds = new Set(goods.map(g => g._id));
+        setGoodItems(prev => prev.filter(ing => validIds.has(ing.goodId)));
+        setData(pre=>({...pre, cost}));
+    }, [goods])
     
     
     
@@ -86,16 +93,16 @@ const NewPackageComp = () => {
         const onChange = (e:ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
         setData((pre)=>({
             ...pre, [e.target.name]: e.target.value
-    }))
+        }))
     }
     
          
     
     const onSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setData(prev => ({
-        ...prev,
-        [e.target.name]: e.target.value
-    }));
+        setData(prev => ({
+            ...prev,
+            [e.target.name]: e.target.value
+        }));
     };
 
     
@@ -103,25 +110,30 @@ const NewPackageComp = () => {
         e.preventDefault();
         setLoading(true);
     
+        // console.log('Goods: ', goodItems)
         try {
             const formData:Partial<IPackage> = {
                 ...data,
+                quantity: accepted,
                 org: user?.org,
                 createdBy: user?._id,
                 packagingMaterial: packItems,
-                good: good?._id,
+                goods: goodItems,
                 supervisor,
-                batch: useProdBatch ? goodBatch?._id : batch,
-                useProdBatch,
+                // batch: useProdBatch ? goodBatch?._id : batch,
+                batch,
+                useProdBatch: false,
                 accepted,
                 packagingType: packagingType?.label,
                 storage,
                 cost
             }
             const res = await createPackage(formData);
+            // enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             if(!res.error){
                 const packed = res.payload as IPackage;
-                const gd = packed.good as IGood;
+                const packedGoods = packed.goods as IGoodsPopulate[];
+                const gd = packedGoods.map(g=> g.goodId as IGood)[0];
                 const pd = gd?.production as IProduction;
                 const prod = pd?.productToProduce as IProduct;
                 const bt = gd?.batch as IBatch;
@@ -133,7 +145,7 @@ const NewPackageComp = () => {
                     batch: bt._id,
                     good: gd._id,
                     package: packed._id,
-                    status: 'Available',
+                    status: 'Pending',
                     createdBy: user?._id,
                     org: user?.org,
                 }
@@ -183,10 +195,27 @@ const NewPackageComp = () => {
         })
     }
 
+    const onChangeGoodsInput = (e:React.ChangeEvent<HTMLInputElement>)=>{
+        const {id, value} = e.target;
+        const qty = parseInt(value, 10) || 0;
+        setGoodItems(pre=>{
+            const existing = pre.find(ing=>ing.goodId === id);
+            if(existing){
+                return pre.map(ing=>ing.goodId === id ? {...ing, quantity: qty} : ing);
+            }else{
+                return [...pre, {goodId:id, quantity: qty}];
+            }
+        })
+    }
+
     const changeCost = (e:React.ChangeEvent<HTMLInputElement>)=>{
         const {value} = e.target;
         setCost(Number(value));
     }
+
+
+    
+
   return (
     <div className={`flex p-4 lg:p-8 rounded-2xl w-full`} >
       
@@ -218,11 +247,32 @@ const NewPackageComp = () => {
                     input={<SearchSelectUsers required setSelect={setSupervisor} />}
                 />
                 <GenericLabel
-                    label="Goods"
-                    input={<SearchSelectGoods required setSelect={setGood} />}
+                    label="Product to package"
+                    input={<SearchSelectProducts type='Finished Good' required setSelect={setProduct} />}
+                />
+                <GenericLabel label='Finished goods'
+                    input={<SearchSelectAvMultipleGoods productId={product?._id as string} setSelection={setGoods} />}
                 />
                 {
-                    good &&
+                    goods.length > 0 &&
+                    <div className="flex flex-col w-full border border-gray-200 p-2  gap-2 rounded-xl">
+                        <span className="subtitle text-gray-500 gap-2" >Goods</span>
+                        <div className="flex flex-row flex-wrap items-center gap-2">
+                            {
+                                goods.map((material, index)=>
+                                    <GoodsQSelector key={index} item={material} inputId={material?._id} onChangeInput={onChangeGoodsInput} name={material?.name} />
+                                )
+                            }
+                        </div>
+                    </div>
+                }
+
+                {/* <GenericLabel
+                    label="Goods"
+                    input={<SearchSelectGoods required setSelect={setGood} />}
+                /> */}
+                {/* {
+                    goods.length > 0 &&
                     <>
                         <div className="flex flex-row items-center gap-4">
                             <span className="smallText">Inherit batch from production</span>
@@ -234,24 +284,30 @@ const NewPackageComp = () => {
                                 useProdBatch ?
                                 <TextInput readOnly value={goodBatch?.code} />
                                 :
-                                <SearchSelectBatches  type="Finished Good" required={true} setSelect={setBatch} />
+                                <SearchSelectBatches  type="Packaging" required={true} setSelect={setBatch} />
                             }
                         />
                     </>
-                }
+                } */}
+                <GenericLabel
+                    label={'Select package batch'}
+                    input={
+                        <SearchSelectBatches  type="Packaging" required={true} setSelect={setBatch} />
+                    }
+                />
                 
                 {/* <InputWithLabel onChange={onChange} name="unitCost" required type="number" min={0} placeholder="enter price" label="Unit cost" className="w-full" /> */}
-                <InputWithLabel onChange={onChange} max={ good?.quantityLeftToPackage}   name="quantity" required type="number" min={0} placeholder="enter quantity" label="Quantity to package" className="w-full" />
-                <InputWithLabel onChange={onChange} name="rejected" type="number" max={good?.quantityLeftToPackage}   label="No. of goods rejected" className="w-full" />
+                {/* <InputWithLabel onChange={onChange} max={ good?.quantityLeftToPackage}   name="quantity" required type="number" min={0} placeholder="enter quantity" label="Quantity to package" className="w-full" /> */}
+                <InputWithLabel onChange={onChange} step={0.0001} name="rejected" type="number" max={quantity}   label="No. of goods rejected" className="w-full" />
                 {
-                    good && Number(data.quantity || 0) > 0 &&
+                    goods && (quantity > 0) &&
                     <InputWithLabel value={accepted} readOnly onChange={onChange} name="accepted" type="number"  label="No. of goods for sales" className="w-full" />
                 }
             </div>
 
             <div className="flex gap-4 flex-col w-full justify-between">
                 <div className="flex flex-col gap-4 w-full">
-                    <InputWithLabel onChange={onChange}  name="weight" required  placeholder="eg. 25kg" label="Package weight" className="w-full" />
+                    <InputWithLabel onChange={onChange} step={0.0001}  name="weight" required  placeholder="eg. 25kg" label="Package weight" className="w-full" />
                     <GenericLabel
                         label="Select location"
                         input={<SearchSelectStorages  setSelect={setStorage} />}

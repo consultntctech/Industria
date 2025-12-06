@@ -36,7 +36,12 @@ export async function updateOrder(data:Partial<IOrder>):Promise<IResponse>{
 export async function getOrders():Promise<IResponse>{
     try {
         await connectDB();
-        const orders = await Order.find();
+        const orders = await Order.find()
+        .populate('customer')
+        .populate('product')
+        .populate('createdBy')
+        .populate('org')
+        .lean<IOrder[]>();
         return respond('Orders found successfully', false, orders, 200);
     } catch (error) {
         console.log(error);
@@ -94,7 +99,12 @@ export async function getTodayOrdersByOrg(orgId:string):Promise<IResponse>{
 export async function getOrdersByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
-        const orders = await Order.find({ org: orgId });
+        const orders = await Order.find({ org: orgId })
+         .populate('customer')
+        .populate('product')
+        .populate('createdBy')
+        .populate('org')
+        .lean<IOrder[]>();
         return respond('Orders found successfully', false, orders, 200);
     } catch (error) {
         console.log(error);
@@ -106,7 +116,12 @@ export async function getOrdersByOrg(orgId:string):Promise<IResponse>{
 export async function getOrder(id:string):Promise<IResponse>{
     try {
         await connectDB();
-        const check = await verifyOrgAccess(Order, id, "Order");
+        const check = await verifyOrgAccess(Order, id, "Order", [
+            { path: "customer" },
+            { path: "product" },
+            { path: "createdBy" },
+            { path: "org" },
+        ]);
         if ("allowed" in check === false) return check;
         const order = check.doc;
         return respond('Order found successfully', false, order, 200);

@@ -37,7 +37,7 @@ export async function getStoragesByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const storages = await Storage.find({ org: orgId })
-         .populate('org')
+        .populate('org')
         .populate('createdBy')
         .lean() as unknown as IStorage[];
         return respond('Storages found successfully', false, storages, 200);

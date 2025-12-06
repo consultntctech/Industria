@@ -54,6 +54,7 @@ const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApprova
         setCurrentProdApproval(null);
     }
 
+    
     const handleApprove = async()=>{
         setLoading(true);
         
@@ -69,6 +70,7 @@ const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApprova
                         production: production?._id,
                         org: user?.org,
                         createdBy: user?._id,
+                        product: product?._id,
                         batch
                     }
 

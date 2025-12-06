@@ -9,7 +9,7 @@ import { FaChevronUp } from "react-icons/fa";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
-import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
+// import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 
 type GoodsCompProps = {
     openNew:boolean;
@@ -24,7 +24,7 @@ const GoodsComp = ({openNew, setOpenNew, currentGood, setCurrentGood}:GoodsCompP
     const [data, setData] = useState<Partial<IGood>>({});
     const formRef = useRef<HTMLFormElement>(null);
     const {refetch} = useFetchGoods();
-    const {currency} = useCurrencyConfig();
+    // const {currency} = useCurrencyConfig();
 
 
     useEffect(() => {
@@ -79,8 +79,8 @@ const GoodsComp = ({openNew, setOpenNew, currentGood, setCurrentGood}:GoodsCompP
         
                 <div className="flex flex-col lg:flex-row gap-4 items-stretch">
                     <div className="flex gap-4 flex-col w-full">
-                    <InputWithLabel type="number" min={0} defaultValue={currentGood?.unitPrice} onChange={onChange} name="unitPrice"  label={currency ? `Unit Price (${currency?.symbol})` : 'Unit Price'} className="w-full" />
-                    <InputWithLabel type="number" min={0} defaultValue={currentGood?.unitPrice} onChange={onChange} name="threshold"  label="Threshold" className="w-full" />
+                    {/* <InputWithLabel type="number" min={0} defaultValue={currentGood?.unitPrice} onChange={onChange} name="unitPrice"  label={currency ? `Unit Price (${currency?.symbol})` : 'Unit Price'} className="w-full" /> */}
+                    <InputWithLabel type="number" min={0} defaultValue={currentGood?.threshold} onChange={onChange} name="threshold"  label="Threshold" className="w-full" />
                     <TextAreaWithLabel defaultValue={currentGood?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                     <PrimaryButton loading={loading} type="submit" text={loading?"loading" :  "Update"} className="w-full mt-4" />
                     </div>

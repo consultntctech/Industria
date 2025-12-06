@@ -96,7 +96,20 @@ export const RMaterialColumns = (
         {
             field: 'qAccepted',
             headerName: 'Stock',
-            width:110,
+            width:100,
+        },
+        {
+            field: 'qUsed',
+            headerName: 'Quantity Used',
+            width:100,
+            valueFormatter:(_, row:IRMaterial)=>{
+                const used = (row?.qReceived || 0) - (row?.qAccepted ||0) - (row?.qRejected||0);
+                return used;
+            },
+            valueGetter:(_, row:IRMaterial)=>{
+                const used = (row?.qReceived || 0) - (row?.qAccepted ||0) - (row?.qRejected||0);
+                return used;
+            }
         },
         {
             field: 'qRejected',

@@ -17,7 +17,7 @@ export async function createReturns(data:Partial<IReturns>):Promise<IResponse>{
             return respond('No items to return', true, {}, 400);
         }
         const returns = await Returns.create(data);
-        await LineItem.updateMany({ _id: { $in: items } }, {soldTo: data.customer });
+        await LineItem.updateMany({ _id: { $in: items } }, {soldTo: data.customer, status: 'Returned' });
         const text = (data?.products?.length || []?.length) > 1 ? 'Items' : 'Item';
         return respond(`${text} returned successfully`, false, returns, 201);
     } catch (error) {

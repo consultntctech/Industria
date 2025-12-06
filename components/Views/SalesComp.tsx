@@ -9,7 +9,6 @@ import { enqueueSnackbar } from "notistack";
 import { IProduct } from "@/lib/models/product.model";
 import GenericLabel from "../shared/inputs/GenericLabel";
 import SearchSelectProducts from "../shared/inputs/dropdowns/SearchSelectProducts";
-import SearchSelectBatches from "../shared/inputs/dropdowns/SearchSelectBatches";
 import { ILineItem } from "@/lib/models/lineitem.model";
 import SearchSelectAvMultipleLineItems from "../shared/inputs/dropdowns/SearchSelectAvMultipleLineItems";
 import CustomCheckV2 from "../misc/CustomCheckV2";
@@ -22,6 +21,7 @@ import { createSales, updateSales } from "@/lib/actions/sales.action";
 import { useRouter } from "next/navigation";
 // import { useFetchSales } from "@/hooks/fetch/useFetchSales";
 import { useQueryClient } from "@tanstack/react-query";
+import SearchSelectBatchesWithLineItems from "../shared/inputs/dropdowns/SearchSelectBatchesWithLineItems";
 
 type SalesCompProps = {
   openNew:boolean;
@@ -97,6 +97,11 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
     const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
+        if(!lineItems || lineItems.length === 0){
+            enqueueSnackbar('Please select at least one product', {variant:'error'});
+            setLoading(false);
+            return;
+        }
         
         try {
             const formData:Partial<ISales> = {
@@ -169,7 +174,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                                 input={<SearchSelectProducts required={!currentSales} type="Finished Good" setSelect={setProduct} />}
                             />
                             <GenericLabel label="Batch (optional)"
-                                input={<SearchSelectBatches type="Finished Good" setSelect={setBatch} />}
+                                input={<SearchSelectBatchesWithLineItems setSelect={setBatch} />}
                             />
                         </div>
                         <div className="flex gap-4 flex-col w-full md:flex-row ">

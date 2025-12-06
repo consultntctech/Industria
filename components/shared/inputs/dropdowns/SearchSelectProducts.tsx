@@ -8,7 +8,7 @@ type SearchSelectProductsProps = {
     value?: IProduct | null,
     width?: number,
     required?:boolean,
-    type?:'Raw Material'|'Finished Good'
+    type?:'Raw Material'|'Finished Good' |'Packaging',
 }
 const SearchSelectProducts = ({setSelect, type, required, value, width}:SearchSelectProductsProps) => {
     const {products, isPending} = useFetchProducts(type);

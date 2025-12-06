@@ -4,6 +4,7 @@ import { IUser } from "./user.model";
 import { IProduction } from "./production.model";
 import { IBatch } from "./batch.model";
 import Package from "./package.model";
+import { IProduct } from "./product.model";
 
 export interface IGood extends Document {
     _id: string;
@@ -11,7 +12,8 @@ export interface IGood extends Document {
     serialName: string;
     description: string;
     production: string | Types.ObjectId | IProduction;
-    unitPrice: number;
+    product: string | Types.ObjectId | IProduct;
+    // unitPrice: number;
     batch: string | Types.ObjectId | IBatch;
     quantity: number;
     quantityLeftToPackage: number;
@@ -27,7 +29,8 @@ const GoodSchema = new Schema<IGood>({
     serialName: String,
     description: String,
     production: { type: Schema.Types.ObjectId, ref: 'Production', required: false },
-    unitPrice: Number,
+    product: { type: Schema.Types.ObjectId, ref: 'Product', required: false },
+    // unitPrice: Number,
     threshold: {type:Number, default:0},
     quantityLeftToPackage: {type:Number, default:0},
     quantity: Number,

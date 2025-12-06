@@ -123,7 +123,7 @@ const ProdItemTable = ({setOpenNew, currentProdItem, setCurrentProdItem}:ProdIte
                                   qStatus: false,
                                   used: false,
                                   threshold: false,
-                                //   reusable: false,
+                                  reusable: false,
                                   quantity: false,
                                   materialName: false,
                                   category:false,

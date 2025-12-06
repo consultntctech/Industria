@@ -13,6 +13,7 @@ import { OrdersColumns } from "./OrdersColumns";
 import DialogueAlet from "@/components/misc/DialogueAlet";
 import { useQueryClient } from "@tanstack/react-query";
 import OrdersFulfillCompModal from "./OrdersFulfillCompModal";
+import { ICustomer } from "@/lib/models/customer.model";
 
 type OrdersTableProps = {
     setOpenNew: Dispatch<React.SetStateAction<boolean>>;
@@ -105,7 +106,7 @@ const OrderTable = ({setOpenNew, currentOrder, setCurrentOrder}:OrdersTableProps
         }
     }
 
-    const content = `You are about to delete order record for ${currentOrder?.customer as string}. This action is irreversible. Are you sure you want to proceed?`;
+    const content = `You are about to delete order record for ${(currentOrder?.customer as ICustomer)?.name}. This action is irreversible. Are you sure you want to proceed?`;
 
   return (
     <div className='table-main2' >

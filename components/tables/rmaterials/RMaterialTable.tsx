@@ -128,6 +128,7 @@ const RMaterialTable = ({setOpenNew, currentMaterial, setCurrentMaterial}:RMater
                                   updatedAt:false,
                                   qReceived: false,
                                   qRejected: false,
+                                  qUsed: false,
                                   discount: false,
                                   charges: false,
                                   yield: false,

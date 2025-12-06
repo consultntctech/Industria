@@ -1,5 +1,5 @@
 import { formatDate } from "@/functions/dates";
-import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
+// import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
 import { IGood } from "@/lib/models/good.model";
 import { IOrganization } from "@/lib/models/org.model";
@@ -17,7 +17,7 @@ export const GoodColumns = (
     handleEdit: (user:IGood)=>void,
     handleDelete: (user:IGood)=>void,
 ):GridColDef[]=>{
-    const {currency} = useCurrencyConfig();
+    // const {currency} = useCurrencyConfig();
 
     return [
        
@@ -80,11 +80,11 @@ export const GoodColumns = (
             width:100,
             headerAlign: 'center',
         },
-        {
-            field:'unitPrice',
-            headerName: `Price ${currency ? `(${currency?.symbol})`:'' } `,
-            width:100,
-        },
+        // {
+        //     field:'unitPrice',
+        //     headerName: `Price ${currency ? `(${currency?.symbol})`:'' } `,
+        //     width:100,
+        // },
         {
             field:'production',
             headerName: 'Production',

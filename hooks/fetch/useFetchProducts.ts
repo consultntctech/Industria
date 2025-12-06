@@ -2,7 +2,7 @@ import { getProducts } from "@/lib/actions/product.action";
 import { IProduct } from "@/lib/models/product.model";
 import { useQuery } from "@tanstack/react-query";
 
-export const useFetchProducts = (type?:'Raw Material'|'Finished Good') =>{
+export const useFetchProducts = (type?:'Raw Material'|'Finished Good'|'Packaging') => {
     const fetchProducts = async():Promise<IProduct[]>=>{
         try {
             const res = await getProducts();

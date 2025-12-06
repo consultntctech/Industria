@@ -17,11 +17,12 @@ import { IoIosClose } from 'react-icons/io';
 import '@/styles/customscroll.css'
 import DialogueAlet from '@/components/misc/DialogueAlet';
 import { IGood } from '@/lib/models/good.model';
-import { IPackage } from '@/lib/models/package.model';
+import { IGoodsPopulate, IPackage } from '@/lib/models/package.model';
 // import { IBatch } from '@/lib/models/batch.model';
 import { updatePackApproval } from '@/lib/actions/packapproval.action';
 import { updatePackageV2 } from '@/lib/actions/package.action';
 import { IPackApproval } from '@/lib/models/packapproval.model';
+import { publishLineItemsForPackage } from '@/lib/actions/lineitem.action';
 // import { IBatch } from '@/lib/models/batch.model';
 
 type ApprovalsApprovalInfoModalProps = {
@@ -43,7 +44,8 @@ const ApprovalsApprovalInfoModal = ({openNew, refetch, setOpenNew, currentApprov
     const [opeReject, setOpeReject] = useState(false);
 
     const pack = currentApproval?.package as IPackage;
-    const good = pack?.good as IGood;
+    const goods = pack?.goods as IGoodsPopulate[];
+    const good = goods?.map(g=> g?.goodId as IGood)[0];
     const creator = currentApproval?.createdBy as IUser;
     const approver = currentApproval?.approver as IUser;
     // const batch = pack?.batch as IBatch;
@@ -63,10 +65,16 @@ const ApprovalsApprovalInfoModal = ({openNew, refetch, setOpenNew, currentApprov
             if(!res.error){
                 const appRes = await updatePackApproval({...currentApproval, status:'Approved', approver:user?._id, notes});
                 if(!appRes.error){
-                    enqueueSnackbar('Package Approved', {variant:'success'});
-                    refetch();
-                    handleClose();
-                    setOpeApprove(false);
+                    // enqueueSnackbar('Package Approved', {variant:'success'});
+                    const lineRes = await publishLineItemsForPackage(pack?._id);
+                    if(!lineRes.error){
+                        enqueueSnackbar('Package Approved', {variant:'success'});
+                        enqueueSnackbar('Line items published for sales', {variant:'info'});
+                        refetch();
+                        handleClose();
+                        setOpeApprove(false);
+                    }
+                    
                 }
           }
           

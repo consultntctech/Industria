@@ -1,4 +1,4 @@
-import { getAvailableGoods, getGoods } from "@/lib/actions/good.action";
+import { getAvailableGoods, getAvailableGoodsByProduct, getGoods } from "@/lib/actions/good.action";
 import { IGood } from "@/lib/models/good.model";
 import { useQuery } from "@tanstack/react-query";
 
@@ -37,6 +37,27 @@ export const useFetchAvailableGoods = () => {
     const {data:goods=[], isPending, refetch, isSuccess} = useQuery({
         queryKey: ['availableGoods'],
         queryFn: fetchAvailableGoods,
+    })
+    return {goods, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchAvailableGoodsByProduct = (productId:string) => {
+    const fetchAvailableGoods = async ():Promise<IGood[]> => {
+        try {
+            if(!productId) return [];
+            const res = await getAvailableGoodsByProduct(productId);
+            const data = res.payload as IGood[];
+            return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+    const {data:goods=[], isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['availableGoodsByProduct', productId],
+        queryFn: fetchAvailableGoods,
+        enabled: !!productId,
     })
     return {goods, isPending, refetch, isSuccess}
 }

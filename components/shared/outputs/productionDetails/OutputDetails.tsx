@@ -78,7 +78,7 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
         <OutputDetailsModals production={production} openNew={openNew} setOpenNew={setOpenNew} />
         <DialogueAlet open={openDialog} handleClose={()=>setOpenDialog(false)} agreeClick={handleAgreeClick} title={title} content={content} />
             {
-                (production?.status !== 'New' && production?.status !== 'Pending Approval') &&
+                !(production?.status === 'New' || production?.status === 'Pending Approval' || production?.status === 'Approved') &&
                 <Tooltip title="Edit Output Details">
                     <FaPenToSquare onClick={()=>setOpenNew(true)} color={primaryColour} className='cursor-pointer absolute top-1 right-1' />
                 </Tooltip>
@@ -138,7 +138,7 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
                         <span className="text-gray-600 flex-1 md:flex-5" >{production?.reviewNotes || 'None'}</span>
                     </div>
                     {
-                        production?.status !== 'Pending Approval' &&
+                        !(production?.status === 'Pending Approval' || production?.status === 'Approved') &&
                         <div className="flex w-full justify-end flex-row">
                             <PrimaryButton onClick={()=>setOpenDialog(true)} className="w-fit px-3" type="button" text="Submit for Approval" />
                         </div>

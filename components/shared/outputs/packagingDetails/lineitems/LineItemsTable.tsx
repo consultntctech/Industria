@@ -8,9 +8,13 @@ import {  useFetchLineItemsByPackage } from '@/hooks/fetch/useFetchLineItems'
 import LineItemsInfoModal from './LineItemsInfoModal'
 import { IPackage } from '@/lib/models/package.model'
 import { ILineItem } from '@/lib/models/lineitem.model'
-import { getLineItem } from '@/lib/actions/lineitem.action'
+import { createPriceForAllLineItemsInPackage, getLineItem } from '@/lib/actions/lineitem.action'
 import { LineItemsColumns } from './LineItemsColumns'
 import LineItemEditComp from './LineItemEditComp'
+// import { IoPricetagOutline } from 'react-icons/io5'
+import PrimaryButton from '@/components/shared/buttons/PrimaryButton'
+import DialogueAlertWithInput from '@/components/misc/DialogueAlertWithInput'
+import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig'
 
 type LineItemTableProps = {
     pack:IPackage | null;
@@ -19,7 +23,11 @@ type LineItemTableProps = {
 const LineItemsTable = ({ pack}:LineItemTableProps) => {
     const [showInfo, setShowInfo] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
+    const [showPriceAll, setShowPriceAll] = useState(false);
     const [currentLineItem, setCurrentLineItem] = useState<ILineItem | null>(null);
+    const [price, setPrice] = useState<string>('');
+
+    const {currency} = useCurrencyConfig();
 
     const {lineItems, isPending, refetch} = useFetchLineItemsByPackage(pack?._id as string);
     const searchParams = useSearchParams();
@@ -70,19 +78,40 @@ const LineItemsTable = ({ pack}:LineItemTableProps) => {
     }
 
 
-    // const handleClose = ()=>{
-    //     setShowInfo(false);
-    //     setCurrentLineItem(null);
-    //     setShowEdit(false);
-    // }
+    const handleClose = ()=>{
+        setShowPriceAll(false);
+    }
 
+    const handlePriceAll = async()=>{
+        try {
+            if(!price || isNaN(Number(price))){
+                enqueueSnackbar('Please provide a valid price', {variant:'error'});
+                return;
+            }
+            const res = await createPriceForAllLineItemsInPackage(pack?._id as string, Number(price));
+            enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
+            if(!res.error){
+                refetch();
+                window.location.reload();
+            }
+        } catch (error) {
+            console.log(error);
+            enqueueSnackbar('Error occured while setting prices for all line items', {variant:'error'});
+        }
+    }
 
 
     // const content = currentLineItem ? `Are you sure you want to delete Finished LineItems ${currentLineItem.name} ? This will also delete all packaged items for these goods.` : '';
-
+    const content = `The price value you provide here will be set for all line items in this package. This will also override any existing prices set for individual line items.`;
   return (
     <div className='table-main2' >
-        <span className='font-bold text-xl' >Line Items</span>
+        <div className="flex items-center justify-between gap-5">
+            <span className='font-bold text-xl' >Line Items</span>
+                <PrimaryButton onClick={()=>setShowPriceAll(true)} text={`Set price for all`} className='px-4 py-1' />
+            {/* <Tooltip title="Set prices all line items">
+            </Tooltip> */}
+        </div>
+        <DialogueAlertWithInput onChange={(e)=>setPrice(e.target.value)} agreeClick={handlePriceAll} handleClose={handleClose} open={showPriceAll}  title={`Set Price (${currency?.symbol || ''})`} content={content} />
         <LineItemsInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentLineItem={currentLineItem} setCurrentLineItem={setCurrentLineItem} />
         <LineItemEditComp showEdit={showEdit} setShowEdit={setShowEdit} currentLineItem={currentLineItem} setCurrentLineItem={setCurrentLineItem} refetch={refetch} />
         {/* <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteItem} title="Delete LineItem" content={content} /> */}

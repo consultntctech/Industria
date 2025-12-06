@@ -7,7 +7,7 @@ import Link from 'next/link';
 import React, { Dispatch, SetStateAction } from 'react'
 import { IProduction } from '@/lib/models/production.model';
 import { IProduct } from '@/lib/models/product.model';
-import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
+// import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { IBatch } from '@/lib/models/batch.model';
 
 type GoodsInfoModalProps = {
@@ -23,7 +23,7 @@ const GoodsInfoModal = ({infoMode, setInfoMode, currentGood, setCurrentGood}:Goo
     const production = currentGood?.production as IProduction;
     const product = production?.productToProduce as IProduct;
     const batch = currentGood?.batch as IBatch;
-    const {currency} = useCurrencyConfig();
+    // const {currency} = useCurrencyConfig();
 
     const handleClose = ()=>{
         setInfoMode(false);
@@ -61,10 +61,10 @@ const GoodsInfoModal = ({infoMode, setInfoMode, currentGood, setCurrentGood}:Goo
                 <span className="mtext">{currentGood?.quantity}</span>
             </div>
 
-            <div className="flex flex-col">
+            {/* <div className="flex flex-col">
                 <span className="mlabel">Unit Price</span>
                 <span className="mtext">{currentGood?.unitPrice ? `${currency?.symbol||''}${currentGood?.unitPrice}` : 'Not set'}</span>
-            </div>
+            </div> */}
 
             <div className="flex flex-col">
                 <span className="mlabel">Threshold</span>

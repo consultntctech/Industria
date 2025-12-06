@@ -94,7 +94,7 @@ const BatchTable = ({setOpenNew, currentBatch, setCurrentBatch}:BatchTableProps)
 
   return (
     <div className='table-main2' >
-        <span className='font-bold text-xl' >Product Categories</span>
+        <span className='font-bold text-xl' >Batches</span>
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteUser} title="Delete Batch Code" content={content} />
         <div className="flex w-full">
             {

@@ -23,6 +23,7 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
     const creator = currentMaterial?.createdBy as IUser;
     const supplier = currentMaterial?.supplier as ISupplier;
     const product = currentMaterial?.product as IProduct;
+    const used = (currentMaterial?.qReceived || 0) - (currentMaterial?.qAccepted ||0) - (currentMaterial?.qRejected||0);
     const {currency} = useCurrencyConfig();
 
     const handleClose = ()=>{
@@ -59,6 +60,10 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
             <div className="flex flex-col">
                 <span className="mlabel">Quantity Received</span>
                 <span className="mtext">{currentMaterial?.qReceived}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Quantity Used</span>
+                <span className="mtext">{used}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Quantity Rejected</span>
