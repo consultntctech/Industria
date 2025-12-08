@@ -4,6 +4,7 @@ import { IResponse } from "@/types/Types";
 import Organization, { IOrganization } from "../models/org.model";
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
+// import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
 export async function createOrg(org:Partial<IOrganization>):Promise<IResponse>{
     try {

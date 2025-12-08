@@ -25,7 +25,7 @@ export const OrganizationSchema = new Schema({
     appName: String,
     email: { type: String, required: true },
     website: String,
-    logo: String,
+    logo: {type:String, default:'https://thumbs.dreamstime.com/b/real-estate-logo-home-house-simple-design-vector-icons-135196436.jpg'},
     pcolor: String,
     scolor: String,
     tcolor: String,

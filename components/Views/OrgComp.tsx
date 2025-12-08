@@ -1,4 +1,4 @@
-import React, { ChangeEvent, Dispatch, FormEvent, SetStateAction, useRef, useState } from "react";
+import React, { ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel"
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel"
 import { FaChevronUp } from "react-icons/fa";
@@ -7,18 +7,31 @@ import { IOrganization } from "@/lib/models/org.model";
 import { CloudinaryUploadWidgetInfo, CloudinaryUploadWidgetResults } from "next-cloudinary";
 import Uploader from "../misc/Uploader";
 import { enqueueSnackbar } from "notistack";
-import { createOrg } from "@/lib/actions/org.action";
+import { createOrg, updateOrg } from "@/lib/actions/org.action";
+import Image from "next/image";
+import { useFetchOrgs } from "@/hooks/fetch/useFetchOrgs";
 
 type OrgCompProps = {
   openNew:boolean;
   setOpenNew: Dispatch<SetStateAction<boolean>>;
+  currentOrganization:IOrganization | null;
+  setCurrentOrganization:Dispatch<SetStateAction<IOrganization | null>>;
 }
 
 
-const OrgComp = ({openNew, setOpenNew}:OrgCompProps) => {
+const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganization}:OrgCompProps) => {
   const [logo, setLogo] = useState<{url:string, filename:string}>({url:'', filename:''});
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<IOrganization>>({});
+
+  const {refetch} = useFetchOrgs();
+
+  useEffect(() => {
+    if(currentOrganization){
+      setFormData(currentOrganization);
+      setLogo({url:currentOrganization?.logo, filename:''});
+    }
+  }, [currentOrganization?.logo]);
 
   const cloudinarySuccess = async(result:CloudinaryUploadWidgetResults) =>{
     try {
@@ -49,7 +62,8 @@ const OrgComp = ({openNew, setOpenNew}:OrgCompProps) => {
       enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
       if(!res.error){
         formRef.current?.reset();
-        setOpenNew(false);
+        refetch();
+        handleClose();
       }
     } catch (error) {
       console.log(error);
@@ -59,22 +73,63 @@ const OrgComp = ({openNew, setOpenNew}:OrgCompProps) => {
     }
   }
 
+
+  const handleUpdate = async(e:FormEvent<HTMLFormElement>)=>{
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const orgData:Partial<IOrganization> = {
+        ...formData, logo: logo.url
+      }
+      const res = await updateOrg(orgData);
+      enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
+      if(!res.error){
+        formRef.current?.reset();
+        refetch();
+        handleClose();
+      }
+    } catch (error) {
+      console.log(error);
+      enqueueSnackbar('Error occured while updating organization', {variant:'error'});
+    }finally{
+      setLoading(false);
+    }
+  }
+
+  const handleClose = () => {
+    setOpenNew(false);
+    setCurrentOrganization(null);
+  }
+
   return (
     <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
       
-      <form ref={formRef} onSubmit={handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
+      <form ref={formRef} onSubmit={currentOrganization ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
         <div className="flex flex-col gap-1">
-          <span className="title" >Add new organization</span>
-          <span className="greyText" >Create a new organization to manage manufacturing operations</span>
+          <span className="title" >{currentOrganization ? `Edit organization` : `Add new organization`}</span>
+          <span className="greyText" >{currentOrganization ? `Edit organization details` : `Create a new organization to manage manufacturing operations`}</span>
         </div>
+        {
+          logo?.url &&
+          <div className="flex w-full justify-center">
+            <div className="flex-center w-full">
+                <div className="flex-center w-fit bg-slate-300 rounded-full p-2">
+                    <div className="h-20 w-20 relative rounded-full">
+                        <Image fill className='rounded-full' alt='user' src={logo.url} />
+                    </div>
+                </div>
+            </div>
+          </div>
+        }
 
         <div className="flex flex-col lg:flex-row gap-4 items-stretch">
           <div className="flex gap-4 flex-col w-full">
-            <InputWithLabel onChange={onChange} name="name" required placeholder="enter name" label="Name" className="w-full" />
-            <InputWithLabel onChange={onChange} name="address" required placeholder="enter address" label="Address" className="w-full" />
-            <InputWithLabel onChange={onChange} name="phone" required placeholder="enter phone" label="Phone" className="w-full" />
-            <InputWithLabel onChange={onChange} name="email" required type="email" placeholder="enter email" label="Email" className="w-full" />
-            <InputWithLabel onChange={onChange} name="website" placeholder="enter URL" label="Website" className="w-full" />
+            <InputWithLabel defaultValue={currentOrganization?.name} onChange={onChange} name="name" required placeholder="enter name" label="Name" className="w-full" />
+            <InputWithLabel defaultValue={currentOrganization?.address} onChange={onChange} name="address" required placeholder="enter address" label="Address" className="w-full" />
+            <InputWithLabel defaultValue={currentOrganization?.phone} onChange={onChange} name="phone" required placeholder="enter phone" label="Phone" className="w-full" />
+            <InputWithLabel defaultValue={currentOrganization?.email} onChange={onChange} name="email" required type="email" placeholder="enter email" label="Email" className="w-full" />
+            <InputWithLabel defaultValue={currentOrganization?.website} onChange={onChange} name="website" placeholder="enter URL" label="Website" className="w-full" />
           </div>
 
           <div className="flex gap-4 flex-col w-full">
@@ -85,16 +140,16 @@ const OrgComp = ({openNew, setOpenNew}:OrgCompProps) => {
             </div>
             {/* <InputWithLabel onChange={onChange} name="logo" type="file" required placeholder="" label="Logo" className="w-full font-bold" /> */}
             <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-              <InputWithLabel onChange={onChange} name='pcolor' type="color" required placeholder="" label="Primary Color" className="w-full cursor-pointer md:w-[5rem]" />
-              <InputWithLabel onChange={onChange} name='scolor' type="color" required placeholder="" label="Secondary Color" className="w-full cursor-pointer md:w-[5rem]" />
-              <InputWithLabel onChange={onChange} name='tcolor' type="color" required placeholder="" label="Tertiary Color" className="w-full cursor-pointer md:w-[5rem]" />
+              <InputWithLabel defaultValue={currentOrganization?.pcolor} onChange={onChange} name='pcolor' type="color" required placeholder="" label="Primary Color" className="w-full cursor-pointer md:w-[5rem]" />
+              <InputWithLabel defaultValue={currentOrganization?.scolor} onChange={onChange} name='scolor' type="color" required placeholder="" label="Secondary Color" className="w-full cursor-pointer md:w-[5rem]" />
+              <InputWithLabel defaultValue={currentOrganization?.tcolor} onChange={onChange} name='tcolor' type="color" required placeholder="" label="Tertiary Color" className="w-full cursor-pointer md:w-[5rem]" />
             </div>
-            <TextAreaWithLabel name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
-            <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+            <TextAreaWithLabel defaultValue={currentOrganization?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
+            <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentOrganization ? 'Update' : "Submit"} className="w-full mt-4" />
           </div>
         </div>
 
-        <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={()=>setOpenNew(false)} >
+        <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
           <FaChevronUp />
         </div>
       </form>
