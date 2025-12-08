@@ -6,7 +6,7 @@ import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { IOrganization } from '@/lib/models/org.model'
 import { useFetchOrgs } from '@/hooks/fetch/useFetchOrgs'
-import { deleteOrg, getOrgById } from '@/lib/actions/org.action'
+import { deleteOrg, getOrg } from '@/lib/actions/org.action'
 import OrganizationInfoModal from './OrganizationInfoModal'
 import { OrganizationColumns } from './OrganizationColumns'
 
@@ -31,7 +31,7 @@ const OrganizationTable = ({setOpenNew, currentOrganization, setCurrentOrganizat
 
         const fetchOrganization = async () => {
             try {
-            const res = await getOrgById(orgId);
+            const res = await getOrg(orgId);
             if (!isMounted) return;
 
             const orgData = res.payload as IOrganization;

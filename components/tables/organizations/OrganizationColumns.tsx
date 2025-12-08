@@ -45,9 +45,15 @@ export const OrganizationColumns = (
             field: 'website',
             headerName: 'Website',
             width:170,
-            renderCell: (params:GridRenderCellParams)=>(
-                <Link target="_blank" href={`${params?.row?.website}`}  className="link">{params.row?.website}</Link>
-            )
+            renderCell: (params:GridRenderCellParams)=>{
+                const website = params.row?.website;
+                    const normalizedUrl = website?.startsWith("http")
+                    ? website
+                    : `https://${website}`;
+                return(
+                    <Link target="_blank" href={`${normalizedUrl}`}  className="link">{params.row?.website}</Link>
+                )
+            }
         },
 
         {

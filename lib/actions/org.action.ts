@@ -4,6 +4,7 @@ import { IResponse } from "@/types/Types";
 import Organization, { IOrganization } from "../models/org.model";
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
+import { getSession } from "../session";
 // import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
 export async function createOrg(org:Partial<IOrganization>):Promise<IResponse>{
@@ -27,6 +28,32 @@ export async function getOrgs():Promise<IResponse>{
         return respond('Error occured while fetching organizations', true, {}, 500);
     }
 }
+
+export async function getOrg(id:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const orgIds = ['68f8c19d786ede7566b3432c'];
+        const [user, org] = await Promise.all([
+            getSession(),
+            Organization.findById(id)
+        ])
+        if(!user){
+            return respond("You're not authenticated", true, {}, 422);
+        }
+        if(!org){
+            return respond('Organization not found', true, {}, 404);
+        }
+        if(!orgIds.includes(String(user.org))){
+            return respond("You don't have access to this organization", true, {}, 403);
+        }
+        
+        return respond('Organization found successfully', false, org, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching organization', true, {}, 500);
+    }
+}
+
 
 export async function getOrgById(id:string):Promise<IResponse>{
     try {

@@ -132,19 +132,22 @@ const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganizati
             <InputWithLabel defaultValue={currentOrganization?.website} onChange={onChange} name="website" placeholder="enter URL" label="Website" className="w-full" />
           </div>
 
-          <div className="flex gap-4 flex-col w-full">
-            {/* <InputWithLabel onChange={onChange} name="appName" placeholder="enter a custom name for this app" label="App name" className="w-full" /> */}
-            <div className="flex flex-col gap-1">
-              <span className="smallText" >Logo</span>
-              <Uploader text={logo?.filename ? logo?.filename : 'Upload Image' } onSuccess={cloudinarySuccess} />
+
+          <div className="flex gap-4 flex-col w-full justify-between">
+            <div className="flex gap-4 flex-col w-full">
+              {/* <InputWithLabel onChange={onChange} name="appName" placeholder="enter a custom name for this app" label="App name" className="w-full" /> */}
+              <div className="flex flex-col gap-1">
+                <span className="smallText" >Logo</span>
+                <Uploader text={logo?.filename ? logo?.filename : 'Upload Image' } onSuccess={cloudinarySuccess} />
+              </div>
+              {/* <InputWithLabel onChange={onChange} name="logo" type="file" required placeholder="" label="Logo" className="w-full font-bold" /> */}
+              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+                <InputWithLabel defaultValue={currentOrganization?.pcolor} onChange={onChange} name='pcolor' type="color" required placeholder="" label="Primary Color" className="w-full cursor-pointer md:w-[5rem]" />
+                <InputWithLabel defaultValue={currentOrganization?.scolor} onChange={onChange} name='scolor' type="color" required placeholder="" label="Secondary Color" className="w-full cursor-pointer md:w-[5rem]" />
+                <InputWithLabel defaultValue={currentOrganization?.tcolor} onChange={onChange} name='tcolor' type="color" required placeholder="" label="Tertiary Color" className="w-full cursor-pointer md:w-[5rem]" />
+              </div>
+              <TextAreaWithLabel defaultValue={currentOrganization?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
             </div>
-            {/* <InputWithLabel onChange={onChange} name="logo" type="file" required placeholder="" label="Logo" className="w-full font-bold" /> */}
-            <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-              <InputWithLabel defaultValue={currentOrganization?.pcolor} onChange={onChange} name='pcolor' type="color" required placeholder="" label="Primary Color" className="w-full cursor-pointer md:w-[5rem]" />
-              <InputWithLabel defaultValue={currentOrganization?.scolor} onChange={onChange} name='scolor' type="color" required placeholder="" label="Secondary Color" className="w-full cursor-pointer md:w-[5rem]" />
-              <InputWithLabel defaultValue={currentOrganization?.tcolor} onChange={onChange} name='tcolor' type="color" required placeholder="" label="Tertiary Color" className="w-full cursor-pointer md:w-[5rem]" />
-            </div>
-            <TextAreaWithLabel defaultValue={currentOrganization?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
             <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentOrganization ? 'Update' : "Submit"} className="w-full mt-4" />
           </div>
         </div>
