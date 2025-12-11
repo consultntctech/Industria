@@ -1,25 +1,25 @@
-import { useFetchUsers } from "@/hooks/fetch/useFetchUsers"
-import { IUser } from "@/lib/models/user.model"
+// import { useFetchAvailableGoods } from "@/hooks/fetch/useFetchGoods"
+// import { ITable } from "@/lib/models/good.model"
+import { TableData } from "@/Data/roles/table"
+import { ITable } from "@/types/Types"
 import { Autocomplete, CircularProgress, TextField } from "@mui/material"
-// import { enqueueSnackbar } from "notistack"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
-type SearchSelectUsersProps = {
-    setSelect?: Dispatch<SetStateAction<IUser | null>>,
-    value?: IUser | null,
+type SearchSelectTableProps = {
+    setSelect?: Dispatch<SetStateAction<ITable | null>>,
+    value?: ITable | null,
     width?: number,
     required?:boolean,
 }
-const SearchSelectUsers = ({setSelect, required, value, width}:SearchSelectUsersProps) => {
-    const {users, isPending} = useFetchUsers();
+const SearchSelectTable = ({setSelect, required, value, width}:SearchSelectTableProps) => {
+    // const {goods, isPending} = useFetchAvailableGoods();
     const [search, setSearch] = useState<string>('');
-
 
     return(
         <Autocomplete
             disablePortal
-            options={users}
-            onChange={(_, item:IUser|null)=>{
+            options={TableData}
+            onChange={(_, item:ITable|null)=>{
                 // console.log(e.target)
                 if(setSelect){
                     setSelect(item)
@@ -30,8 +30,8 @@ const SearchSelectUsers = ({setSelect, required, value, width}:SearchSelectUsers
             onInputChange={(_, item)=>{
                 setSearch(item);
             }}
-            loading={isPending}
-            isOptionEqualToValue={(option, v)=>option._id === v._id}
+            loading={!TableData}
+            isOptionEqualToValue={(option, v)=>option.id === v.id}
             getOptionLabel={(option)=>option?.name}
             sx ={{width:width || '100%'}}
             renderInput={(params)=>(
@@ -39,7 +39,7 @@ const SearchSelectUsers = ({setSelect, required, value, width}:SearchSelectUsers
                     {...params}
                     required={required}
                     size="small"
-                    label= "User"
+                    label= "Table"
                     color="primary"
                     className="rounded"
                     slotProps={{
@@ -47,7 +47,7 @@ const SearchSelectUsers = ({setSelect, required, value, width}:SearchSelectUsers
                             ...params.InputProps,
                             endAdornment:(
                                 <Fragment>
-                                    {isPending ? <CircularProgress size={20} color="inherit" />: null}
+                                    {!TableData ? <CircularProgress size={20} color="inherit" />: null}
                                     {params.InputProps.endAdornment}
                                 </Fragment>
                             )
@@ -61,4 +61,4 @@ const SearchSelectUsers = ({setSelect, required, value, width}:SearchSelectUsers
     )
 }
 
-export default SearchSelectUsers
+export default SearchSelectTable

@@ -6,6 +6,7 @@ import User, { IUser } from '../models/user.model';
 import { generatePassword } from '@/functions/helpers';
 import Organization from '../models/org.model';
 import { verifyOrgAccess } from '../middleware/verifyOrgAccess';
+import '../models/role.model'
 
 
 export async function createUser(data:Partial<IUser>):Promise<IResponse>{
@@ -45,7 +46,7 @@ export async function getUsers():Promise<IResponse>{
     try {
         await connectDB();
         const users = await User.find()
-        .populate('org').lean() as unknown as IUser[];
+        .populate('org').populate('roles').lean() as unknown as IUser[];
         return respond('Users found successfully', false, users, 200);
     } catch (error) {
         console.log(error);
@@ -57,12 +58,23 @@ export async function getUsersByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const users = await User.find({ org: orgId })
-        .populate('org').lean() as unknown as IUser[];
+        .populate('org').populate('roles').lean() as unknown as IUser[];
         return respond('Users found successfully', false, users, 200);
     } catch (error) {
         console.log(error);
         return respond('Error occured while fetching users', true, {}, 500);
     }
+}
+
+export async function updateAllUsers(data:Partial<IUser>[]): Promise<IResponse> {
+  try {
+    await connectDB();
+    const users = await User.updateMany({}, data);
+    return respond('Users found successfully', false, users, 200);
+  } catch (error) {
+    console.log(error);
+    return respond('Error occured while fetching users', true, {}, 500);
+  }
 }
 
 
@@ -76,6 +88,25 @@ export async function updateUser(data:Partial<IUser>):Promise<IResponse>{
         return respond('Error occured while updating user', true, {}, 500);
     }
 }
+
+
+export async function AssignRolesToUsers(userIds: string[], roleIds: string[]): Promise<IResponse> {
+  try {
+    await connectDB();
+
+    const updatedUser = await User.updateMany(
+      { _id: { $in: userIds } },
+      { $addToSet: { roles: { $each: roleIds } } }
+    );
+
+    return respond('Roles assigned successfully', false, updatedUser, 200);
+  } catch (error) {
+    console.log(error);
+    return respond('Error occurred while assigning roles', true, {}, 500);
+  }
+}
+
+
 
 export async function getUser(id:string):Promise<IResponse>{
     try {

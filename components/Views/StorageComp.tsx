@@ -84,7 +84,7 @@ const StorageComp = ({openNew, setOpenNew, currentStorage, setCurrentStorage}:St
             }
         } catch (error) {
             console.log(error);
-            enqueueSnackbar('Error occured while creating storage location', {variant:'error'});
+            enqueueSnackbar('Error occured while creating updating location', {variant:'error'});
         }finally{
             setLoading(false);
         }

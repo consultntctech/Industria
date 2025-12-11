@@ -37,7 +37,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
     // const [good, setGood] = useState<IGood | null>(null);
     // const [useProdBatch, setUseProdBatch] = useState(true);
     const [batch, setBatch] = useState<string>('');
-    const [supervisor, setSupervisor] = useState<string>('');
+    const [supervisor, setSupervisor] = useState<IUser | null>(null);
     const [storage, setStorage] = useState<string>('');
     const [data, setData] = useState<Partial<IPackage>>({});
     const [typed, setTyped] = useState<TPackagingProcess | null>(null);
@@ -70,7 +70,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
             setData({...pack});
             setTyped({label:pack?.packagingType, inputValue:pack?.packagingType});
             setPackagingType({label:pack?.packagingType, inputValue:pack?.packagingType});
-            setSupervisor(supervisord?._id);
+            setSupervisor(supervisord);
             setStorage(storaged?._id);
             setNewGoods(savedGoods);
             setProduct(savedProduct)
@@ -113,7 +113,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
                 ...data,
                 approvalStatus: 'Pending',
                 goods: goodItems,
-                supervisor,
+                supervisor: supervisor?._id,
                 batch,
                 useProdBatch:false,
                 accepted,

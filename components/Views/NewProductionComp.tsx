@@ -20,11 +20,12 @@ import { createProduction } from "@/lib/actions/production.action";
 import { useRouter } from "next/navigation";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import SearchSelectBatchesWithRM from "../shared/inputs/dropdowns/SearchSelectBatchesWithRM";
+import { IUser } from "@/lib/models/user.model";
 
 const NewProductionComp = () => {
     const [loading, setLoading] = useState(false);
     const [batch, setBatch] = useState<string>('');
-    const [supervisor, setSupervisor] = useState<string>('');
+    const [supervisor, setSupervisor] = useState<IUser | null>(null);
     const [productToProduce, setProductToProduce] = useState<IProduct|null>(null);
     const [productBatchId, setProductBatchId] = useState<string>('');
     const [rawMaterials, setRawMaterials] = useState<IRMaterial[]>([]);
@@ -97,7 +98,7 @@ const NewProductionComp = () => {
                 status:'New',
                 org:user?.org,
                 createdBy:user?._id,
-                supervisor,
+                supervisor: supervisor?._id,
                 ingredients: ingredients.map(ing=>({
                     materialId: ing.materialId,
                     quantity: ing.qUsed

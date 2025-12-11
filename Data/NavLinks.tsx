@@ -8,7 +8,7 @@ import { HiOutlineCash, HiOutlineCurrencyDollar, HiOutlineUsers } from "react-ic
 import { IoAlertCircleOutline, IoSettingsOutline } from "react-icons/io5";
 import { LiaRecycleSolid, LiaShoppingBasketSolid, LiaUsersCogSolid } from "react-icons/lia";
 import { LuBaggageClaim, LuGitPullRequest, LuLayoutDashboard, LuPillBottle, LuShoppingCart } from "react-icons/lu";
-import { MdOutlineCategory, MdOutlineStoreMallDirectory, MdStackedLineChart } from "react-icons/md";
+import { MdOutlineCategory, MdOutlineStoreMallDirectory, /*MdStackedLineChart*/ } from "react-icons/md";
 import { PiCashRegisterLight, PiUsersThree } from "react-icons/pi";
 import { RiShieldFlashLine, RiStackLine, RiStackshareLine } from "react-icons/ri";
 import { RxStack } from "react-icons/rx";
@@ -97,12 +97,12 @@ export const NavLinks = (): INavBarItem[] => {
         { id: "122", title: "Approvals", icon: <CiCircleCheck />, link: "/dashboard/approvals" },
       ],
     },
-    {
-      id: "8",
-      title: "Reports",
-      icon: <MdStackedLineChart />,
-      link: "/dashboard/reports",
-    },
+    // {
+    //   id: "8",
+    //   title: "Reports",
+    //   icon: <MdStackedLineChart />,
+    //   link: "/dashboard/reports",
+    // },
     {
       id: "10",
       title: "Configurations",

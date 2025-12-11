@@ -32,6 +32,7 @@ import { createLineItems } from '@/lib/actions/lineitem.action';
 import SearchSelectProducts from '../shared/inputs/dropdowns/SearchSelectProducts';
 import GoodsQSelector from '../misc/GoodsQSelector';
 import SearchSelectAvMultipleGoods from '../shared/inputs/dropdowns/SearchSelectAvMultipleGoods';
+import { IUser } from '@/lib/models/user.model';
 
 const NewPackageComp = () => {
     const [loading, setLoading] = useState(false);
@@ -40,7 +41,7 @@ const NewPackageComp = () => {
     // const [good, setGood] = useState<IGood | null>(null);
     // const [useProdBatch, setUseProdBatch] = useState(true);
     const [batch, setBatch] = useState<string>('');
-    const [supervisor, setSupervisor] = useState<string>('');
+    const [supervisor, setSupervisor] = useState<IUser | null>(null);
     const [storage, setStorage] = useState<string>('');
     const [cost, setCost] = useState<number>(0);
     const [data, setData] = useState<Partial<IPackage>>({});
@@ -119,7 +120,7 @@ const NewPackageComp = () => {
                 createdBy: user?._id,
                 packagingMaterial: packItems,
                 goods: goodItems,
-                supervisor,
+                supervisor: supervisor?._id,
                 // batch: useProdBatch ? goodBatch?._id : batch,
                 batch,
                 useProdBatch: false,

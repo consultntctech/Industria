@@ -27,7 +27,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
 
     const [batch, setBatch] = useState<string>('');
     const [productToProduce, setProductToProduce] = useState<IProduct|null>(null);
-    const [supervisor, setSupervisor] = useState<string>('');
+    const [supervisor, setSupervisor] = useState<IUser | null>(null);
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -40,7 +40,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
         if(production){
             setBatch(batched?._id);
             setProductToProduce(productToProd);
-            setSupervisor(supervisord?._id);
+            setSupervisor(supervisord);
         }
     }, [production]);
 
@@ -60,7 +60,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
             ...data,
             status: production?.status === 'Completed' ? 'Completed' : 'In Progress',
             id:production?._id,
-            batch, supervisor, productToProduce: productToProduce?._id
+            batch, supervisor: supervisor?._id, productToProduce: productToProduce?._id
           };
           const res = await updateProduction(updateData);
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});

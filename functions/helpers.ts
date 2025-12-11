@@ -1,7 +1,9 @@
+import { TableData } from "@/Data/roles/table";
 import { ILineItem } from "@/lib/models/lineitem.model";
 import { IOrder } from "@/lib/models/order.model";
 import { IProduct } from "@/lib/models/product.model";
-import { ISoldItem } from "@/types/Types";
+import { IRole } from "@/lib/models/role.model";
+import { IOperation, ISoldItem } from "@/types/Types";
 
 export function generatePassword(length: number): string {
   const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -68,4 +70,13 @@ export function getProductCounts(items: ILineItem[]):ISoldItem[] {
 export function isDeadlinePast(order: IOrder): boolean {
     if (!order.deadline) return true;
     return new Date(order.deadline).getTime() < new Date(order.fulfilledAt).getTime();
+}
+
+
+export const getRoleTitles = (role:IRole|null):string[]=>{
+  if(!role) return [];
+  const table = TableData.find(t=>t.id===role.permissions?.tableid);
+  const operations = role.permissions?.operations as IOperation[];
+  // console.log('Operations: ', operations)
+  return operations.map(op=>`${table?.name} ${op.title}`);
 }

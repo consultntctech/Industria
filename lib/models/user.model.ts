@@ -1,5 +1,6 @@
 import { Document, model, models, Schema, Types } from "mongoose";
 import { IOrganization } from "./org.model";
+import { IRole } from "./role.model";
 
 export interface IUser extends Document {
     _id: string;
@@ -9,7 +10,7 @@ export interface IUser extends Document {
     email: string;
     photo: string;
     password:string;
-    roles: string[];
+    roles: string[] | Types.ObjectId[] | IRole[];
     description: string;
     org: string | Types.ObjectId | IOrganization
     createdAt?: Date;
@@ -23,7 +24,7 @@ const UserSchema = new Schema<IUser>({
     email: { type: String, required: true, unique:true },
     photo: {type:String, default:'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80'},
     password: String,
-    roles: [String],
+    roles: { type: [Schema.Types.ObjectId], ref: 'Role', required: false, default: [] },
     description: String,
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})

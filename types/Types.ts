@@ -55,3 +55,16 @@ export interface IStats {
     totalPackaging?: number;
     totalPackagingAmount?: number;
 }
+
+export interface IOperation {
+    id: string;
+    name: string;
+    title: string;
+    description?: string
+}
+
+export interface ITable {
+    id: string;
+    name: string;
+    description: string;
+}
