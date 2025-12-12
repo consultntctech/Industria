@@ -1,6 +1,7 @@
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
 import { formatDate } from '@/functions/dates';
 import { IOrganization } from '@/lib/models/org.model';
+import { IRole } from '@/lib/models/role.model';
 import { IUser } from '@/lib/models/user.model';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -15,6 +16,7 @@ type UserInfoModalProps = {
 
 const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser}:UserInfoModalProps) => {
     const organization = currentUser?.org as IOrganization;
+    const roles = currentUser?.roles as IRole[];
     const handleClose = ()=>{
         setInfoMode(false);
         setCurrentUser(null);
@@ -48,6 +50,21 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser}:User
             <div className="flex flex-col">
                 <span className="mlabel">Address</span>
                 <span className="mtext">{currentUser?.address || 'None'}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Roles</span>
+                {
+                    roles?.length > 0 ?
+                    <div className="flex flex-col gap-2.5">
+                    {
+                        roles.map((role, index)=>(
+                            <Link key={index} href={`/dashboard/users/roles?Id=${role?._id}`}  className="link">{role.name}</Link>
+                        ))
+                    }
+                    </div>
+                    :
+                    <span className="mtext">None</span>
+                }
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Organization</span>

@@ -139,7 +139,7 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
         
                 <div className="flex flex-col lg:flex-row gap-4 items-stretch">
                     <div className="flex gap-4 flex-col w-full">
-                        <InputWithLabel defaultValue={currentRole?.name} onChange={onChange} name="name" required placeholder="something to remember it by" label="Give it a name" className="w-full" />
+                        <InputWithLabel defaultValue={currentRole?.name} onChange={onChange} name="name" required placeholder="eg. Sales Manager" label="Give it a name" className="w-full" />
                         {
                             currentRole ?
                             <>

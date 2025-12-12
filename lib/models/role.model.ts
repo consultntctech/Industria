@@ -2,6 +2,7 @@ import { IOperation } from "@/types/Types";
 import { Document, model, models, Schema, Types } from "mongoose";
 import User, { IUser } from "./user.model";
 import { IOrganization } from "./org.model";
+import RoleTemplate from "./roletemplate.model";
 
 export interface IRole extends Document{
     _id: string;
@@ -32,7 +33,10 @@ RoleSchema.pre('deleteOne', { document: false, query: true }, async function(nex
     try {
         const roleId = this.getQuery()._id;
         if (!roleId) return next();
-        await User.updateMany({ roles: roleId }, { $pull: { roles: roleId } });
+        await Promise.all([
+            User.updateMany({ roles: roleId }, { $pull: { roles: roleId } }),
+            RoleTemplate.updateMany({ roles: roleId }, { $pull: { roles: roleId } }),
+        ])
         next();
     } catch (error) {
         console.log(error);
