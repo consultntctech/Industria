@@ -44,7 +44,7 @@ const RoletemplateInfoModal = ({infoMode, setInfoMode, currentRoletemplate, setC
                 <div className="flex flex-col gap-2.5">
                     {
                         roles.map((role, index)=>(
-                            <Link key={index} href={`/dashboard/users/roles?Id=${role?._id}`} className="link">{role?.name}</Link>
+                            <Link key={index} href={`/dashboard/roles?Id=${role?._id}`} className="link">{role?.name}</Link>
                             
                         ))
                     }

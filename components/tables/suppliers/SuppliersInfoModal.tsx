@@ -1,5 +1,6 @@
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
 import { formatDate } from '@/functions/dates';
+import { useFetchRawMaterialsBySupplier } from '@/hooks/fetch/useRMaterials';
 import { ISupplier } from '@/lib/models/supplier.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
@@ -14,6 +15,13 @@ type SuppliersInfoModalProps = {
 
 const SuppliersInfoModal = ({infoMode, setInfoMode, currentSupplier, setCurrentSupplier}:SuppliersInfoModalProps) => {
     const creator = currentSupplier?.createdBy as IUser;
+    const {materials, isPending} = useFetchRawMaterialsBySupplier(currentSupplier?._id as string);
+    const quantity = materials?.reduce((acc, material) => acc + material?.qReceived, 0);
+    const rejected = materials?.reduce((acc, material) => acc + material?.qRejected, 0);
+
+    const accepted = quantity - rejected;
+    const percentage = Math.round((accepted / quantity) * 100);
+
     // console.log('Creator:', creator);
     const handleClose = ()=>{
         setInfoMode(false);
@@ -28,6 +36,10 @@ const SuppliersInfoModal = ({infoMode, setInfoMode, currentSupplier, setCurrentS
             <div className="flex flex-col">
                 <span className="mlabel">Name</span>
                 <span className="mtext">{currentSupplier?.name}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Quality Rate</span>
+                <span className="mtext">{isPending ? 'Loading...' : `${percentage}%`}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Email</span>

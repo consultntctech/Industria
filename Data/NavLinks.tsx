@@ -13,7 +13,7 @@ import { PiCashRegisterLight, PiUsersThree } from "react-icons/pi";
 import { RiShieldFlashLine, RiStackLine, RiStackshareLine } from "react-icons/ri";
 import { RxStack } from "react-icons/rx";
 import { SiAwsorganizations } from "react-icons/si";
-import { TbCashOff,  TbTimeline } from "react-icons/tb";
+import { TbCashOff,  TbDashboard,  TbTimeline } from "react-icons/tb";
 import { TfiPackage } from "react-icons/tfi";
 
 export const NavLinks = (): INavBarItem[] => {
@@ -31,8 +31,8 @@ export const NavLinks = (): INavBarItem[] => {
       icon: <PiUsersThree />,
       subMenu: [
         { id: "21", title: "Users", icon: <LiaUsersCogSolid />, link: "/dashboard/users" },
-        { id: "22", title: "Roles", icon: <GrShieldSecurity />, link: "/dashboard/users/roles" },
-        { id: "23", title: "Role Templates", icon: <RiShieldFlashLine />, link: "/dashboard/users/templates" },
+        { id: "22", title: "Roles", icon: <GrShieldSecurity />, link: "/dashboard/roles" },
+        { id: "23", title: "Role Templates", icon: <RiShieldFlashLine />, link: "/dashboard/templates" },
       ],
     },
     {
@@ -46,6 +46,7 @@ export const NavLinks = (): INavBarItem[] => {
       title: "Products",
       icon: <LuShoppingCart />,
       subMenu: [
+        {id: '30', title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/products/dashboard'},
         { id: "33", title: "Categories", icon: <MdOutlineCategory />, link: "/dashboard/products/categories" },
         { id: "31", title: "Batches", icon: <RxStack />, link: "/dashboard/products/batches" },
         { id: "32", title: "Types", icon: <BsCartPlus />, link: "/dashboard/products/types" },
@@ -57,6 +58,7 @@ export const NavLinks = (): INavBarItem[] => {
       title: "Processing",
       icon: <LiaRecycleSolid />,
       subMenu: [
+        {id: '40', title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/processing/dashboard'},
         { id: "41", title: "Production", icon: <FiRefreshCw />, link: "/dashboard/processing/production" },
         { id: "42", title: "Goods", icon: <CiBag1 />, link: "/dashboard/processing/goods" },
       ],
@@ -66,6 +68,7 @@ export const NavLinks = (): INavBarItem[] => {
       title: "Distribution",
       icon: <LuBaggageClaim />,
       subMenu: [
+        {id: '50', title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/distribution/dashboard'},
         { id: "51", title: "Customers", icon: <HiOutlineUsers />, link: "/dashboard/distribution/customers" },
         { id: "52", title: "Packaging Items", icon: <LuPillBottle />, link: "/dashboard/distribution/packaging-materials" },
         { id: "53", title: "Packaging", icon: <TfiPackage />, link: "/dashboard/distribution/packaging" },
@@ -76,6 +79,7 @@ export const NavLinks = (): INavBarItem[] => {
       title: "Transactions",
       icon: <HiOutlineCash />,
       subMenu: [
+        {id: '60', title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/transactions/dashboard'},
         { id: "61", title: "Sales", icon: <PiCashRegisterLight />, link: "/dashboard/transactions/sales" },
         { id: "62", title: "Orders", icon: <LuGitPullRequest />, link: "/dashboard/transactions/orders" },
         { id: "63", title: "Returns", icon: <TbCashOff />, link: "/dashboard/transactions/returns" },

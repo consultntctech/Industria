@@ -1,10 +1,10 @@
 import { useFetchStats } from "@/hooks/fetch/useFetchStats";
-import { FinanceCardProps } from "./FinanceCard";
 import { TbBrandCashapp } from "react-icons/tb";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { useSettings } from "@/config/useSettings";
+import { CardProps } from "@/types/Types";
 
-export const FinanceCardsData = ():Partial<FinanceCardProps>[] => {
+export const FinanceCardsData = ():Partial<CardProps>[] => {
     const {stats} = useFetchStats();
     const {currency} = useCurrencyConfig();
     const {primaryColour} = useSettings();

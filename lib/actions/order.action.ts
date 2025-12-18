@@ -1,6 +1,6 @@
 'use server';
 
-import { IResponse } from "@/types/Types";
+import { IOrderStats, IResponse } from "@/types/Types";
 import Order, { IOrder } from "../models/order.model";
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
@@ -130,6 +130,169 @@ export async function getOrder(id:string):Promise<IResponse>{
         return respond('Error occured while fetching order', true, {}, 500);
     }
 }
+
+
+export async function getOrdersGroupedByMonth(): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const orders = await Order.aggregate([
+            {
+                $match: {
+                    price: { $ne: null }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    quantity: { $sum: "$price" }
+                }
+            },
+            {
+                $sort: {
+                    "_id.year": 1,
+                    "_id.month": 1
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    month: {
+                        $dateToString: {
+                            format: "%b",
+                            date: {
+                                $dateFromParts: {
+                                    year: "$_id.year",
+                                    month: "$_id.month",
+                                    day: 1
+                                }
+                            }
+                        }
+                    },
+                    quantity: 1
+                }
+            }
+        ]);
+
+        return respond('Orders fetched successfully', false, orders, 200);
+    } catch (error) {
+        console.error(error);
+        return respond('Error occurred while fetching orders', true, {}, 500);
+    }
+}
+
+
+export async function getOrdersQuantityGroupedByMonth(): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const orders = await Order.aggregate([
+            {
+                $match: {
+                    quantity: { $ne: null }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    quantity: { $sum: "$quantity" }
+                }
+            },
+            {
+                $sort: {
+                    "_id.year": 1,
+                    "_id.month": 1
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    month: {
+                        $dateToString: {
+                            format: "%b",
+                            date: {
+                                $dateFromParts: {
+                                    year: "$_id.year",
+                                    month: "$_id.month",
+                                    day: 1
+                                }
+                            }
+                        }
+                    },
+                    quantity: 1
+                }
+            }
+        ]);
+
+        return respond('Orders quantity fetched successfully', false, orders, 200);
+    } catch (error) {
+        console.error(error);
+        return respond('Error occurred while fetching orders quantity', true, {}, 500);
+    }
+}
+
+
+export const getOrderStats = async (): Promise<IResponse> => {
+    try {
+        await connectDB();
+
+        const today = new Date();
+
+        const [pending, fulfilled, delayed] = await Promise.all([
+            // Pending orders
+            Order.countDocuments({ status: 'Pending' }),
+
+            // Fulfilled orders
+            Order.countDocuments({ status: 'Fulfilled' }),
+
+            // Delayed orders (deadline < today AND not fulfilled)
+            Order.countDocuments({
+                status: { $ne: 'Fulfilled' },
+                deadline: { $exists: true, $ne: null },
+                $expr: {
+                    $lt: [
+                        {
+                            $dateFromString: {
+                                dateString: "$deadline"
+                            }
+                        },
+                        today
+                    ]
+                }
+            })
+        ]);
+
+        const orderStats: IOrderStats = {
+            pending,
+            fulfilled,
+            delayed
+        };
+
+        return respond(
+            'Order stats fetched successfully',
+            false,
+            orderStats,
+            200
+        );
+    } catch (error) {
+        console.error(error);
+        return respond(
+            'Error occurred while fetching order stats',
+            true,
+            {},
+            500
+        );
+    }
+};
+
+
+
 
 export async function deleteOrder(id:string):Promise<IResponse>{
     try {

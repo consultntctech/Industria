@@ -44,7 +44,7 @@ export const RoletemplateColumns = (
                     <div className="flex flex-wrap gap-2 flex-row">
                         {roles?.map((op, index)=>(
                             <span key={index} >
-                                <Link  className="link" href={`/dashboard/users/roles?Id=${op._id}`}>{op.name}</Link>
+                                <Link  className="link" href={`/dashboard/roles?Id=${op._id}`}>{op.name}</Link>
                                 {index < roles.length - 1 && ', '}
                             </span>
                         ))}

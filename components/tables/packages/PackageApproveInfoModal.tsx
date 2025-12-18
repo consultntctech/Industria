@@ -50,6 +50,8 @@ const ApprovalsApprovalInfoModal = ({openNew, refetch, setOpenNew, currentApprov
     const approver = currentApproval?.approver as IUser;
     // const batch = pack?.batch as IBatch;
 
+    // console.log('Package: ', pack)
+    // console.log('Good: ', goods)
     // console.log('Batch: ', batch)
 
     const handleClose = ()=>{

@@ -1,3 +1,6 @@
+import Card from "@/components/misc/Card";
+import { ComponentProps, ReactNode } from "react";
+
 export interface IResponse {
     message: string;
     error: boolean;
@@ -67,4 +70,47 @@ export interface ITable {
     id: string;
     name: string;
     description: string;
+}
+
+export interface IMonthlyStats {
+    month: string;
+    quantity: number;
+}
+
+
+export interface CardProps extends ComponentProps<typeof Card>{
+    title: string;
+    titleIcon: ReactNode;
+    centerText: string;
+    bottomText: string;
+};
+
+
+export interface ITransactMontly{
+    sales: number;
+    order: IOrderStats
+    return: number;
+}
+
+export interface IOrderStats{
+    pending: number;
+    fulfilled: number;
+    delayed: number;
+}
+
+export interface IYearMonth{
+    year: number;
+    month: string;
+    id: number;
+}
+
+
+export interface ITransactCount{
+    sales: IMonthlyStats[];
+    order: {
+        pending:IMonthlyStats[];
+        fulfilled:IMonthlyStats[];
+        delayed:IMonthlyStats[];
+    };
+    return: IMonthlyStats[];
 }

@@ -8,6 +8,7 @@ import '../models/org.model';
 import '../models/user.model'
 import '../models/production.model'
 import '../models/package.model'
+import '../models/good.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
 export async function createPackApproval(data: Partial<IPackApproval>): Promise<IResponse> {
@@ -30,7 +31,7 @@ export async function getPackApprovals():Promise<IResponse>{
     try {
         await connectDB();
         const packApprovals = await PackApproval.find()
-        .populate({path:'package', populate:[{path:'good'}, {path:'batch'}]})
+        .populate({path:'package', populate:[{path:'goods.goodId'}, {path:'batch'}]})
         .populate('createdBy')
         .populate('approver')
         .populate('org') as unknown as IPackApproval[];
@@ -46,7 +47,7 @@ export async function getPackApprovalsByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const packApprovals = await PackApproval.find({ org: orgId })
-        .populate({path:'package', populate:[{path:'good'}, {path:'batch'}]})
+        .populate({path:'package', populate:[{path:'goods.goodId'}, {path:'batch'}]})
         .populate('createdBy')
         .populate('approver')
         .populate('org') as unknown as IPackApproval[];
@@ -74,7 +75,7 @@ export async function getPackApproval(id:string):Promise<IResponse>{
         await connectDB();
         const check = await verifyOrgAccess(PackApproval, id, "PackApproval",
             [
-                { path: "package", populate: [{ path: "good" }, {path:"batch"}] },
+                { path: "package", populate: [{ path: "goods.goodId" }, {path:"batch"}] },
                 { path: "createdBy" },
                 { path: "approver" },
                 { path: "org" },

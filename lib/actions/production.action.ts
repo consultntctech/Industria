@@ -245,6 +245,75 @@ export async function getProduction(id: string): Promise<IResponse> {
   }
 }
 
+export async function getLastSixMonthsProductions(): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+        sixMonthsAgo.setHours(0, 0, 0, 0);
+
+        const productions = await Production.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: sixMonthsAgo },
+                    outputQuantity: { $ne: null }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    quantity: { $sum: "$outputQuantity" }
+                }
+            },
+            {
+                $sort: {
+                    "_id.year": 1,
+                    "_id.month": 1
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    month: {
+                        $dateToString: {
+                            format: "%b",
+                            date: {
+                                $dateFromParts: {
+                                    year: "$_id.year",
+                                    month: "$_id.month",
+                                    day: 1
+                                }
+                            }
+                        }
+                    },
+                    quantity: 1
+                }
+            }
+        ]);
+
+        return respond(
+            'Productions found successfully',
+            false,
+            productions,
+            200
+        );
+    } catch (error) {
+        console.error(error);
+        return respond(
+            'Error occurred while fetching productions',
+            true,
+            {},
+            500
+        );
+    }
+}
+
+
+
 export async function deleteProduction(id: string): Promise<IResponse> {
   try {
     await connectDB();

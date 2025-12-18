@@ -1,3 +1,6 @@
+import PackagingFinanceChart from "../shared/outputs/finance/charts/PackagingFinanceChart";
+import ProductionFinanceChart from "../shared/outputs/finance/charts/ProductionFinanceChart";
+import TransactionFinanceChart from "../shared/outputs/finance/charts/TransactionFinanceChart";
 import FinanceCard from "../shared/outputs/finance/FinanceCard";
 import { FinanceCardsData } from "../shared/outputs/finance/FinanceCardsData"
 
@@ -16,6 +19,12 @@ const FinanceComp = () => {
             ))
           }
         </div>
+      </div>
+
+      <div className="flex flex-row flex-wrap gap-8 w-full">
+        <ProductionFinanceChart />
+        <PackagingFinanceChart />
+        <TransactionFinanceChart />
       </div>
     </div>
   )

@@ -1,5 +1,6 @@
-import { getApprovedPackages, getPackages } from "@/lib/actions/package.action";
+import { getApprovedPackages, getLastSixMonthsPackages, getPackages } from "@/lib/actions/package.action";
 import { IPackage } from "@/lib/models/package.model";
+import { IMonthlyStats } from "@/types/Types";
 import { useQuery } from "@tanstack/react-query";
 
 export const useFetchPackages = () => {
@@ -39,4 +40,25 @@ export const useFetchApprovedPackages = () => {
         queryFn: fetchApprovedPackages,
     })
     return {packages, isPending, refetch, isSuccess}
+}
+
+
+
+export const useFetchSixMonthPackages = () => {
+    const fetchPackages = async ():Promise<IMonthlyStats[]> => {
+        try {
+            const res = await getLastSixMonthsPackages();
+            const data = res.payload as IMonthlyStats[];
+            return data;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+  
+  const {data:packages=[], isPending, refetch, isSuccess} = useQuery({
+    queryKey: ['sixmonthspackages'],
+    queryFn: fetchPackages,
+  })
+  return {packages, isPending, refetch, isSuccess}
 }

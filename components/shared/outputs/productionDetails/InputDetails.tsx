@@ -60,11 +60,11 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
           <span className="truncate w-1/2 md:w-1/5" >Raw Materials:</span>
           <span onClick={()=>setActiveTab('second')}  className="text-blue-600 underline cursor-pointer" >{production?.ingredients?.length}</span>
         </div>
-
+{/* 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Production Materials:</span>
           <span onClick={()=>setActiveTab('third')}  className="text-blue-600 underline cursor-pointer" >{production?.proditems?.length}</span>
-        </div>
+        </div> */}
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Expected Output:</span>

@@ -100,7 +100,7 @@ const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => 
   return (
     <div className='table-main2' >
         <span className='font-bold text-xl' >Users</span>
-        <UserInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentUser={currentUser} setCurrentUser={setCurrentUser} />
+        <UserInfoModal refetch={refetch} infoMode={showInfo} setInfoMode={setShowInfo} currentUser={currentUser} setCurrentUser={setCurrentUser} />
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteUser} title="Delete User" content={content} />
         <div className="flex w-full">
             {

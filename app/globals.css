@@ -26,7 +26,10 @@
 }
 
 .table-main2{
-    @apply max-w-[82vw] lg:max-w-[92vw] xl:max-w-[80vw] bg-white gap-4 p-4 flex flex-col rounded shadow-xl
+    @apply max-w-[92vw] lg:max-w-[72vw] xl:max-w-[74vw] bg-white gap-4 p-4 flex flex-col rounded shadow-xl
+}
+.table-main1{
+    @apply max-w-[92vw] lg:max-w-[40vw] xl:max-w-[40vw] bg-white gap-4 p-4 flex flex-col rounded shadow-xl
 }
 
 .flex-center{
@@ -44,4 +47,8 @@
 
 .mtext{
   @apply text-[0.9rem]
+}
+
+.semibold{
+  @apply font-semibold text-[1rem]
 }

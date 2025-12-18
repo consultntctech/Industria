@@ -72,6 +72,49 @@ export function isDeadlinePast(order: IOrder): boolean {
     return new Date(order.deadline).getTime() < new Date(order.fulfilledAt).getTime();
 }
 
+export function compareLastTwoOrders(orders: number[]): string {
+  if (!orders || orders.length === 0) {
+    return "No data available";
+  }
+
+  if (orders.length === 1) {
+    return `Only 1 order so far`;
+  }
+
+  const previous = orders.at(-2);
+  const current = orders.at(-1);
+
+  if (!previous || !current) {
+    return "Not enough data to compare";
+  }
+
+  // Both zero
+  if (previous === 0 && current === 0) {
+    return "No change from last month";
+  }
+
+  // Prevent division by zero
+  if (previous === 0) {
+    return current > 0
+      ? "100% more than last month"
+      : "No change from last month";
+  }
+
+  const percentageChange = ((current - previous) / previous) * 100;
+  const rounded = Math.abs(Math.round(percentageChange));
+
+  if (percentageChange > 0) {
+    return `${rounded}% more than last month`;
+  }
+
+  if (percentageChange < 0) {
+    return `${rounded}% less than last month`;
+  }
+
+  return "No change from last month";
+}
+
+
 
 export const getRoleTitles = (role:IRole|null):string[]=>{
   if(!role) return [];
@@ -79,4 +122,26 @@ export const getRoleTitles = (role:IRole|null):string[]=>{
   const operations = role.permissions?.operations as IOperation[];
   // console.log('Operations: ', operations)
   return operations.map(op=>`${table?.name} ${op.title}`);
+}
+
+
+export function normalizeAndGroup(
+  sales: number[],
+  orders: number[],
+  returns: number[]
+): number[][] {
+  const maxLength = Math.max(sales.length, orders.length, returns.length);
+
+  const normalizedSales = [...sales, ...Array(maxLength - sales.length).fill(0)];
+  const normalizedOrders = [...orders, ...Array(maxLength - orders.length).fill(0)];
+  const normalizedReturns = [
+    ...returns.map(r => -Math.abs(r)),
+    ...Array(maxLength - returns.length).fill(0),
+  ];
+
+  return Array.from({ length: maxLength }, (_, i) => [
+    normalizedSales[i],
+    normalizedOrders[i],
+    normalizedReturns[i],
+  ]);
 }

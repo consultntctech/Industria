@@ -1,4 +1,4 @@
-import { getAvailableRMaterialsByBatch, getRMaterials } from "@/lib/actions/rmaterial.action";
+import { getAvailableRMaterialsByBatch, getRawMaterialsBySupplier, getRMaterials } from "@/lib/actions/rmaterial.action";
 import { IRMaterial } from "@/lib/models/rmaterial.mode";
 import { useQuery } from "@tanstack/react-query";
 
@@ -49,4 +49,26 @@ export const useFetchRMaterials = () => {
 
     return {materials, isPending, refetch, isSuccess}
   
+}
+
+
+export const useFetchRawMaterialsBySupplier = (supplierId:string) => {
+    const fetchRawMaterialsBySupplier = async ():Promise<IRMaterial[]> => {
+        try {
+            if (!supplierId) return [];
+            const res = await getRawMaterialsBySupplier(supplierId);
+            const data = res.payload as IRMaterial[];
+            return data;
+        
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+    const {data:materials=[], isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['rawMaterials', supplierId],
+        queryFn: fetchRawMaterialsBySupplier,
+        enabled: !!supplierId,
+    })
+    return {materials, isPending, refetch, isSuccess}
 }

@@ -26,7 +26,7 @@ const ProductSchema = new Schema<IProduct>({
     threshold: { type: Number, required: true, default: 0 },
     category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     suppliers: { type: [Schema.Types.ObjectId], ref: 'Supplier', required: false },
-    type: { type: String, required: true },
+    type: { type: String, required: true, default:'Raw Material' },
     description: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

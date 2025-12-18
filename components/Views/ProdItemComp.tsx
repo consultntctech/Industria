@@ -170,13 +170,13 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
                             </select>
                             }
                         />
-                        <InputWithLabel defaultValue={currentProdItem?.threshold} onChange={onChange} name="threshold" required type="number" min={0} placeholder="0" label="Reorder threshold" className="w-full" />
+                        <InputWithLabel defaultValue={currentProdItem?.threshold} onChange={onChange} name="threshold" type="number" min={0} placeholder="0" label="Reorder threshold" className="w-full" />
                         <InputWithLabel defaultValue={currentProdItem?.quantity} onChange={onChange} name="quantity" required type="number" min={1} placeholder="10" label="Enter quantity" className="w-full" />
                     </div>
         
                     <div className="flex gap-4 flex-col w-full justify-between">
                         <div className="flex flex-col gap-4 w-full">
-                          <InputWithLabel defaultValue={currentProdItem?.unitPrice} onChange={onChange} name="unitPrice" required type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={'Enter unit price ' + (currency?.symbol || '')} className="w-full" />
+                          <InputWithLabel defaultValue={currentProdItem?.unitPrice} step={0.0001} onChange={onChange} name="unitPrice" required type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={'Enter unit price ' + (currency?.symbol || '')} className="w-full" />
                           <InputWithLabel value={price} onChange={(e)=>setPrice(Number(e.target.value))} name="price" required type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={'Enter total price ' + (currency?.symbol || '')} className="w-full" />
                           <InputWithLabel defaultValue={currentProdItem?.uom} onChange={onChange} name="uom" placeholder='eg. liters' label='Unit of measure' className="w-full" />
                           <div className="flex flex-row items-center gap-4">

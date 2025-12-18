@@ -1,5 +1,6 @@
-import { getSales, getTodaySales } from "@/lib/actions/sales.action";
+import { getLastSixMonthsSales, getSales, getSalesGroupedByMonth, getSalesQuantityGroupedByMonth, getTodaySales } from "@/lib/actions/sales.action";
 import { ISales } from "@/lib/models/sales.model"
+import { IMonthlyStats } from "@/types/Types";
 import { useQuery } from "@tanstack/react-query";
 
 export const useFetchSales = (isToday?: boolean) => {
@@ -20,4 +21,64 @@ export const useFetchSales = (isToday?: boolean) => {
         queryFn: fetchSales,
     })
     return {sales, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchSixMonthsSales = () => {
+    const fetchSales = async ():Promise<IMonthlyStats[]> => {
+        try {
+            const res = await getLastSixMonthsSales();
+            const data = res.payload as IMonthlyStats[];
+            return data;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:sales=[], isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['sixmonthssales'],
+        queryFn: fetchSales,
+    })
+    return {sales, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchSalesByMonth = () => {
+    const fetchSales = async ():Promise<IMonthlyStats[]> => {
+        try {
+            const res = await getSalesGroupedByMonth();
+            const data = res.payload as IMonthlyStats[];
+            return data.slice(-6);
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:sales=[], isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['salesbymonth'],
+        queryFn: fetchSales,
+    })
+    return {sales, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchSalesQuantityByMonth = () => {
+    const fetchSales = async ():Promise<IMonthlyStats[]> => {
+        try {
+            const res = await getSalesQuantityGroupedByMonth();
+            const data = res.payload as IMonthlyStats[];
+            return data;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+  const {data:sales=[], isPending, refetch, isSuccess} = useQuery({
+    queryKey: ['salesquantitybymonth'],
+    queryFn: fetchSales,
+  })
+  return {sales, isPending, refetch, isSuccess}
 }

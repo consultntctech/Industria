@@ -1,5 +1,6 @@
-import { getOrders, getTodayOrders } from "@/lib/actions/order.action";
+import { getOrders, getOrdersGroupedByMonth, getOrdersQuantityGroupedByMonth, getOrderStats, getTodayOrders } from "@/lib/actions/order.action";
 import { IOrder } from "@/lib/models/order.model"
+import { IMonthlyStats, IOrderStats } from "@/types/Types";
 import { useQuery } from "@tanstack/react-query";
 
 export const useFetchOrders = (isToday?:boolean) => {
@@ -20,4 +21,66 @@ export const useFetchOrders = (isToday?:boolean) => {
     })
 
     return {orders, isPending, refetch, isSuccess}
+}
+
+
+
+export const useFetchOrdersByMonth = () => {
+    const fetchOrders = async ():Promise<IMonthlyStats[]> => {
+        try {
+            const res = await getOrdersGroupedByMonth();
+            const data = res.payload as IMonthlyStats[];
+            return data.slice(-6);
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+  
+  const {data:orders=[], isPending, refetch, isSuccess} = useQuery({
+    queryKey: ['ordersbymonth'],
+    queryFn: fetchOrders,
+  })
+  return {orders, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchOrdersQuantityByMonth = () => {
+    const fetchOrders = async ():Promise<IMonthlyStats[]> => {
+        try {
+            const res = await getOrdersQuantityGroupedByMonth();
+            const data = res.payload as IMonthlyStats[];
+            return data;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+  const {data:orders=[], isPending, refetch, isSuccess} = useQuery({
+    queryKey: ['ordersquantitybymonth'],
+    queryFn: fetchOrders,
+  })
+  return {orders, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchOrderStats = () => {
+    const fetchOrderStats = async ():Promise<IOrderStats | null> => {
+        try {
+            const res = await getOrderStats();
+            const data = res.payload as IOrderStats;
+            return data;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+  
+  
+  const {data:orderStats, isPending, refetch, isSuccess} = useQuery({
+    queryKey: ['alltimeorderstats'],
+    queryFn: fetchOrderStats,
+  })
+  return {orderStats, isPending, refetch, isSuccess}
 }

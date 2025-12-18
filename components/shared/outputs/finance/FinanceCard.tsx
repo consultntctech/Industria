@@ -1,14 +1,8 @@
 import Card from "@/components/misc/Card"
-import { ComponentProps, ReactNode } from "react";
+import { CardProps } from "@/types/Types";
 
-export interface FinanceCardProps extends ComponentProps<typeof Card>{
-    title: string;
-    titleIcon: ReactNode;
-    centerText: string;
-    bottomText: string;
-};
 
-const FinanceCard = ({item, ...props}:{item:Partial<FinanceCardProps>}) => {
+const FinanceCard = ({item, ...props}:{item:Partial<CardProps>}) => {
 
   return (
     <Card {...props} >

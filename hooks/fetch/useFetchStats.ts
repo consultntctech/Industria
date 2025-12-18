@@ -1,9 +1,11 @@
-import { IStats } from "@/types/Types"
+import { IStats, ITransactCount, ITransactMontly } from "@/types/Types"
 import { useFetchProductions } from "./useFetchProductions"
 import { useFetchPackages } from "./useFetchPackages";
 import { useFetchSales } from "./useFetchSales";
 import { useFetchOrders } from "./useFetchOrders";
 import { useFetchReturns } from "./useFetchReturns";
+import { getMonthlyTransactionCounts, getMonthlyTransactionSummary } from "@/lib/actions/stats.action";
+import { useQuery } from "@tanstack/react-query";
 
 export const useFetchStats = () => {
     const {productions} = useFetchProductions();
@@ -48,4 +50,47 @@ export const useFetchStats = () => {
         totalPackagingAmount: pkAmount,
     }
     return {stats};
+}
+
+
+
+export const useFetchTransactMonthly = (month?:number, year?:number, type?:"quantity" | "price") => {
+    const fetchStats = async():Promise<ITransactMontly | null> => {
+        try {
+            const res = await getMonthlyTransactionSummary(month, year, type);
+            const data = res.payload as ITransactMontly;
+            return data;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+
+    const {data:transactMontly, isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['transactMontly', month, year, type],
+        queryFn: fetchStats,
+    })
+    return {transactMontly, isPending, refetch, isSuccess}
+}
+
+
+
+export const useFetchMonthlyTransactionCounts = () => {
+    const fetchMonthlyTransactionCounts = async ():Promise<ITransactCount | null> => {
+        try {
+            const res = await getMonthlyTransactionCounts();
+            const data = res.payload as ITransactCount;
+            return data;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+  
+  
+  const {data:transactCount, isPending, refetch, isSuccess} = useQuery({
+    queryKey: ['monthlyTransactionCounts'],
+    queryFn: fetchMonthlyTransactionCounts,
+  })
+  return {transactCount, isPending, refetch, isSuccess}
 }
