@@ -136,10 +136,21 @@ export async function getOrdersGroupedByMonth(): Promise<IResponse> {
     try {
         await connectDB();
 
+        const now = new Date();
+
+        // First day of month, 5 months ago (inclusive)
+        const startDate = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+        // Last moment of current month
+        const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
         const orders = await Order.aggregate([
             {
                 $match: {
-                    price: { $ne: null }
+                    price: { $ne: null },
+                    createdAt: {
+                        $gte: startDate,
+                        $lte: endDate
+                    }
                 }
             },
             {
@@ -150,39 +161,37 @@ export async function getOrdersGroupedByMonth(): Promise<IResponse> {
                     },
                     quantity: { $sum: "$price" }
                 }
-            },
-            {
-                $sort: {
-                    "_id.year": 1,
-                    "_id.month": 1
-                }
-            },
-            {
-                $project: {
-                    _id: 0,
-                    month: {
-                        $dateToString: {
-                            format: "%b",
-                            date: {
-                                $dateFromParts: {
-                                    year: "$_id.year",
-                                    month: "$_id.month",
-                                    day: 1
-                                }
-                            }
-                        }
-                    },
-                    quantity: 1
-                }
             }
         ]);
 
-        return respond('Orders fetched successfully', false, orders, 200);
+        /* ======================================================
+           BUILD LAST 6 MONTHS + FILL MISSING WITH 0
+        ====================================================== */
+
+        const result: { month: string; quantity: number }[] = [];
+
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const year = date.getFullYear();
+            const monthNumber = date.getMonth() + 1;
+
+            const match = orders.find(
+                o => o._id.year === year && o._id.month === monthNumber
+            );
+
+            result.push({
+                month: `${date.toLocaleString("en-US", { month: "short" })} ${year}`,
+                quantity: match ? match.quantity : 0
+            });
+        }
+
+        return respond("Orders fetched successfully", false, result, 200);
     } catch (error) {
         console.error(error);
-        return respond('Error occurred while fetching orders', true, {}, 500);
+        return respond("Error occurred while fetching orders", true, {}, 500);
     }
 }
+
 
 
 export async function getOrdersQuantityGroupedByMonth(): Promise<IResponse> {

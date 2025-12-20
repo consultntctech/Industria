@@ -1,15 +1,14 @@
 'use client'
-import { useFetchOrdersByMonth } from "@/hooks/fetch/useFetchOrders";
-import { useFetchSalesByMonth } from "@/hooks/fetch/useFetchSales";
+
+import { useFetchOrderAndSalesStats } from "@/hooks/fetch/useFetchStats";
 import { LinearProgress } from "@mui/material";
 import { LineChart } from "@mui/x-charts";
 
 const SalesAndOrdersChart = () => {
-    const {sales, isPending} = useFetchSalesByMonth();
-    const {orders, isPending:ordering} = useFetchOrdersByMonth();
-    const salesAmonunt = sales?.map((item)=>item.quantity)
-    const ordersAmonunt = orders?.map((item)=>item.quantity)
-    const xData = sales?.map(item=>item?.month);
+    const {isPending, orderAndSalesStats} = useFetchOrderAndSalesStats();
+    const salesAmonunt = orderAndSalesStats?.map((item)=>item.sales)
+    const ordersAmonunt = orderAndSalesStats?.map((item)=>item.orders)
+    const xData = orderAndSalesStats?.map(item=>item?.month);
   return (
      <div className='w-full lg:w-[48%] p-6 rounded-2xl shadow-xl flex flex-col gap-4'>
         <div className="flex flex-col gap-1">
@@ -17,7 +16,7 @@ const SalesAndOrdersChart = () => {
             <span className="greyText2">Sales and Orders made in the last 6 months</span>
         </div>
         {
-            (isPending || ordering) ?
+            isPending ?
             <LinearProgress className='w-full' />
             :
             <LineChart

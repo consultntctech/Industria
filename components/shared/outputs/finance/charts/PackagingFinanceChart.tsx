@@ -1,11 +1,12 @@
-import { useFetchSixMonthPackages } from "@/hooks/fetch/useFetchPackages";
+import { useFetchGlobalFinanceStats } from "@/hooks/fetch/useFetchStats";
 import { LinearProgress } from "@mui/material";
 import { BarChart } from "@mui/x-charts";
 
 const PackagingFinanceChart = () => {
-    const {packages, isPending} = useFetchSixMonthPackages();
+    const {globalFinanceStats, isPending} = useFetchGlobalFinanceStats();
+    const packages = globalFinanceStats?.packaging;
     const xData = packages?.map(item=>item?.month);
-    const yData = packages?.map(item=>item?.quantity);
+    const yData = packages?.map(item=>item?.quantity) || [];
 
     // console.log('Productions: ', productions)
     // console.log('X Data: ', yData)
@@ -14,7 +15,7 @@ const PackagingFinanceChart = () => {
 
 
   return (
-    <div className='w-full lg:w-3/7 p-6 rounded-2xl shadow-xl flex flex-col gap-4'>
+    <div className='w-full lg:w-3/7 p-6 rounded-2xl shadow-xl flex flex-col gap-4 border border-slate-200'>
         <span className="semibold" >Packaging Trend (Last 6 Months)</span>
         {
             isPending ? 

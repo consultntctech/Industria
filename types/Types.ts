@@ -47,16 +47,26 @@ export interface ISoldItem {
 
 
 export interface IStats {
-    totalSales?: number;
-    totalSalesAmount?: number;
-    totalOrders?: number;
-    totalOrdersAmount?: number;
-    totalReturns?: number;
-    totalReturnsAmount?: number;
-    totalProductions?: number;
-    totalProductionsAmount?: number;
-    totalPackaging?: number;
-    totalPackagingAmount?: number;
+    sales?: {
+        quantity: number;
+        amount: number;
+    };
+    orders?: {
+        quantity: number;
+        amount: number;
+    };
+    returns?: {
+        quantity: number;
+        amount: number;
+    };
+    production?: {
+        quantity: number;
+        amount: number;
+    };
+    packaging?: {
+        quantity: number;
+        amount: number;
+    };
 }
 
 export interface IOperation {
@@ -75,6 +85,20 @@ export interface ITable {
 export interface IMonthlyStats {
     month: string;
     quantity: number;
+}
+
+export interface IGlobalFinance{
+    sales: IMonthlyStats[];
+    orders: IMonthlyStats[];
+    returns: IMonthlyStats[];
+    production: IMonthlyStats[];
+    packaging: IMonthlyStats[];
+}
+
+export interface IOrderAndSalesStats{
+    month:string;
+    sales: number;
+    orders: number;
 }
 
 
@@ -113,4 +137,27 @@ export interface ITransactCount{
         delayed:IMonthlyStats[];
     };
     return: IMonthlyStats[];
+}
+
+export interface IDailyStats{
+    day:string;
+    quantity: number;
+}
+
+export interface IWeeklyStats{
+    week:string;
+    quantity: number;
+}
+
+export interface IPackageStats{
+    pack:number,
+    daily:IDailyStats[],
+    weekly:IWeeklyStats[],
+}
+
+export type QuanityOrPrice = "quantity" | "price";
+
+export interface IPackagedProducts{
+    product:string,
+    quantity:number,
 }

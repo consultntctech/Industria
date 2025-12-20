@@ -145,3 +145,27 @@ export function normalizeAndGroup(
     normalizedReturns[i],
   ]);
 }
+
+
+
+export function getISOWeek(date: Date): number {
+  const tmp = new Date(date);
+  tmp.setHours(0, 0, 0, 0);
+  tmp.setDate(tmp.getDate() + 3 - ((tmp.getDay() + 6) % 7));
+  const week1 = new Date(tmp.getFullYear(), 0, 4);
+  return (
+    1 +
+    Math.round(
+      ((tmp.getTime() - week1.getTime()) / 86400000 -
+        3 +
+        ((week1.getDay() + 6) % 7)) /
+        7
+    )
+  );
+}
+
+export function getISOWeekYear(date: Date): number {
+  const tmp = new Date(date);
+  tmp.setDate(tmp.getDate() + 3 - ((tmp.getDay() + 6) % 7));
+  return tmp.getFullYear();
+}

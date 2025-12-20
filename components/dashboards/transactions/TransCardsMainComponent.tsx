@@ -2,12 +2,11 @@
 import { useFetchTransactMonthly } from "@/hooks/fetch/useFetchStats";
 import TransCard from "./TransCard";
 import { TransCardsData } from "./TransCardsData"
-import { IYearMonth } from "@/types/Types";
+import { IYearMonth, QuanityOrPrice } from "@/types/Types";
 import { useState } from "react";
 import SearchSelectMonthYear from "@/components/shared/inputs/dropdowns/SearchSelectMonthYear";
 import { LinearProgress } from "@mui/material";
 
-type QuanityOrPrice = "quantity" | "price";
 
 const TransCardsMainComponent = () => {
     const [monthYear, setMonthYear] = useState<IYearMonth | null>(null);
@@ -15,6 +14,7 @@ const TransCardsMainComponent = () => {
     const {transactMontly, isPending} = useFetchTransactMonthly( monthYear?.id, monthYear?.year, type);
     const data = TransCardsData(transactMontly, monthYear?.id, monthYear?.year, type);
 
+    // console.log('Returns: ', transactMontly)
     // console.log('monthyear: ', monthYear)
     // console.log('Transactions: ', transactMontly)
     // console.log('Type: ', type)
@@ -27,7 +27,7 @@ const TransCardsMainComponent = () => {
             :
             <>
                 <div className="flex flex-col gap-5 w-full">
-                    <span className="semibold">Orders & Returns (count of product quantity)</span>
+                    <span className="semibold">Orders & Returns {type === 'quantity'? '(count of product quantity)' : '(price of products)'}</span>
                     <div className="flex self-end flex-col sm:flex-row items-start sm:items-center gap-2.5">
                         <SearchSelectMonthYear setSelect={setMonthYear} width={150} />
                         <select onChange={(e)=>setType(e.target.value as QuanityOrPrice)} className={`outline-none border-1 border-gray-300 rounded px-4 py-[0.45rem]`}  >

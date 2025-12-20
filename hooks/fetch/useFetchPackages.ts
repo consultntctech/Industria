@@ -1,6 +1,6 @@
-import { getApprovedPackages, getLastSixMonthsPackages, getPackages } from "@/lib/actions/package.action";
+import { getApprovedPackages, getLastSixMonthsPackages, getPackagedProductStats, getPackages, getPackageStats } from "@/lib/actions/package.action";
 import { IPackage } from "@/lib/models/package.model";
-import { IMonthlyStats } from "@/types/Types";
+import { IMonthlyStats, IPackagedProducts, IPackageStats, QuanityOrPrice } from "@/types/Types";
 import { useQuery } from "@tanstack/react-query";
 
 export const useFetchPackages = () => {
@@ -61,4 +61,45 @@ export const useFetchSixMonthPackages = () => {
     queryFn: fetchPackages,
   })
   return {packages, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchPackageStats = (type: 'quantity' | 'price'='quantity') => {
+    const fetchStats = async ():Promise<IPackageStats | null> => {
+        try {
+            const res = await getPackageStats(type);
+            const data = res.payload as IPackageStats;
+            return data;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+
+    const {data:stats, isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['allPackageStats', type],
+        queryFn: fetchStats,
+    })
+    return {stats, isPending, refetch, isSuccess}
+}
+
+
+
+export const useFetchPackagedProductStats = (type:QuanityOrPrice = "quantity") => {
+    const fetchStats = async ():Promise<IPackagedProducts[]> => {
+        try {
+            const res = await getPackagedProductStats(type);
+            const data = res.payload as IPackagedProducts[];
+            return data;
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+  
+  const {data:stats, isPending, refetch, isSuccess} = useQuery({
+    queryKey: ['packagedProductStats', type],
+    queryFn: fetchStats,
+  })
+  return {stats, isPending, refetch, isSuccess}
 }
