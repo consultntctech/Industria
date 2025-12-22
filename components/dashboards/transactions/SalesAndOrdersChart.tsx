@@ -10,7 +10,7 @@ const SalesAndOrdersChart = () => {
     const ordersAmonunt = orderAndSalesStats?.map((item)=>item.orders)
     const xData = orderAndSalesStats?.map(item=>item?.month);
   return (
-     <div className='w-full lg:w-[48%] p-6 rounded-2xl shadow-xl flex flex-col gap-4'>
+     <div className='w-9/10 lg:w-[48%] p-6 rounded-2xl shadow-xl flex flex-col gap-4'>
         <div className="flex flex-col gap-1">
             <span className="semibold" >Monthly Sales Performance (Last 6 Months)</span>
             <span className="greyText2">Sales and Orders made in the last 6 months</span>

@@ -30,7 +30,7 @@ const FinanceComp = () => {
         </div>
       }
 
-      <div className="flex flex-row flex-wrap gap-8 w-full">
+      <div className="flex flex-col items-center sm:flex-row flex-wrap gap-8 w-full">
         <ProductionFinanceChart />
         <PackagingFinanceChart />
         <TransactionFinanceChart />

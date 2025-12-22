@@ -20,7 +20,7 @@ const DistPieChart = ({type}:DistPieChartProps) => {
     const data = stats?.map(item=>({label:item?.product, value:item?.quantity})) || [];
 
   return (
-    <div className="flex flex-col gap-4 p-2.5 shadow border border-slate-200 flex-1 rounded-2xl" >
+    <div className="flex w-[86vw] md:w-full flex-col gap-4 p-2.5 shadow border border-slate-200 flex-1 rounded-2xl" >
         <span className="semibold">Packages Beakdown by Product Type</span>
         {
             (isPending) ?

@@ -9,7 +9,7 @@ const ReturnsTransChart = () => {
     const yData = returns?.map(item=>item?.quantity);
     const xData = returns?.map(item=>item?.month);
   return (
-     <div className='w-full lg:w-[48%] p-6 rounded-2xl shadow-xl flex flex-col gap-4'>
+     <div className='w-9/10 lg:w-[48%] p-6 rounded-2xl shadow-xl flex flex-col gap-4'>
         <div className="flex flex-col gap-1">
             <span className="semibold" >Returns Counts (Last 6 Months)</span>
             <span className="greyText2">Number of Returns made in the last 6 months</span>

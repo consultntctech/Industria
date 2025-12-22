@@ -5,6 +5,7 @@ import DistChartContent from "./DistChartContent"
 import { useState } from "react";
 import { QuanityOrPrice } from "@/types/Types";
 import { useFetchPackageStats } from "@/hooks/fetch/useFetchPackages";
+import DisDashTable from "./DisDashTable";
 
 const DistDashboard = () => {
     const [type, setType] = useState<QuanityOrPrice>("quantity");
@@ -25,6 +26,7 @@ const DistDashboard = () => {
 
         <div className="flex flex-col gap-8 w-full">
           <DistChartContent stats={stats} isPending={isPending} type={type} />
+          <DisDashTable />
         </div>
     </div>
   )
