@@ -33,13 +33,13 @@ const PackageMiniTable = () => {
                     <DataGrid
                         loading={isPending}
                         getRowId={(row:IPackage)=>row._id}
-                        rows={packages}
+                        rows={packages?.slice(0, 10)}
                         columns={PackagesMiniColumns()}
                         initialState={{ 
                             pagination: { paginationModel },
                             
                          }}
-                        pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
+                        pageSizeOptions={[5, 10]}
                         // checkboxSelection
                         className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                         sx={{ border: 0 }}

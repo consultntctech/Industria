@@ -20,7 +20,7 @@ const OrdersPieChart = () => {
     ]
 
   return (
-    <div className='w-9/10 lg:w-[48%] p-6 rounded-2xl shadow-xl flex flex-col gap-4'>
+    <div className='w-[86vw] lg:w-[48%] p-6 rounded-2xl shadow-xl flex flex-col gap-4'>
         <div className="flex flex-col gap-1">
             <span className="semibold" >All-time Order Records (Count of line items)</span>
             <span className="greyText2">An overview of all-time Sales Orders and their status</span>

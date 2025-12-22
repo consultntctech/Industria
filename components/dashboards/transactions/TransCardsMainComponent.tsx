@@ -20,22 +20,22 @@ const TransCardsMainComponent = () => {
     // console.log('Type: ', type)
 
   return (
-    <div className="flex flex-col gap-2.5 border border-slate-200 shadow p-4 rounded-xl">
+    <div className="flex w-[86vw] sm:w-full flex-col gap-2.5 border border-slate-200 shadow p-4 rounded-xl">
+        <div className="flex flex-col gap-5 w-full">
+            <span className="semibold">Orders & Returns {type === 'quantity'? '(count of product quantity)' : '(price of products)'}</span>
+            <div className="flex self-end flex-col sm:flex-row items-start sm:items-center gap-2.5">
+                <SearchSelectMonthYear setSelect={setMonthYear} width={150} />
+                <select onChange={(e)=>setType(e.target.value as QuanityOrPrice)} className={`outline-none border-1 border-gray-300 rounded px-4 py-[0.45rem]`}  >
+                    <option  value="quantity">Quantity</option>
+                    <option value="price">Value</option>
+                </select>
+            </div>
+        </div>
         {
             isPending ?
             <LinearProgress className='w-full' />
             :
             <>
-                <div className="flex flex-col gap-5 w-full">
-                    <span className="semibold">Orders & Returns {type === 'quantity'? '(count of product quantity)' : '(price of products)'}</span>
-                    <div className="flex self-end flex-col sm:flex-row items-start sm:items-center gap-2.5">
-                        <SearchSelectMonthYear setSelect={setMonthYear} width={150} />
-                        <select onChange={(e)=>setType(e.target.value as QuanityOrPrice)} className={`outline-none border-1 border-gray-300 rounded px-4 py-[0.45rem]`}  >
-                            <option  value="quantity">Quantity</option>
-                            <option value="price">Value</option>
-                        </select>
-                    </div>
-                </div>
                 <div className="w-full flex flex-row items-center flex-wrap gap-4 justify-between" >
                     {
                         data.map((item, index)=>(

@@ -3,7 +3,7 @@ import { CardProps } from "@/types/Types"
 
 const TransCard = ({ item, ...props }: { item: Partial<CardProps> }) => {
   return (
-    <Card className="w-full sm:w-52 h-28 p-4 gap-3" {...props} >
+    <Card className="sm:w-52 h-28 p-4 gap-3" {...props} >
             <div className="flex flex-row justify-between items-center w-full">
                 <span className="smallText2" >{item.title}</span>
                 {item.titleIcon}

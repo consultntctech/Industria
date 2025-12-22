@@ -13,7 +13,7 @@ const TransDashboard = () => {
         </div>
         <TransCardsMainComponent />
 
-        <div className="flex flex-row flex-wrap gap-8 w-full lg:justify-between">
+        <div className="flex flex-col lg:flex-row flex-wrap gap-8 w-full lg:justify-between">
           <SalesAndOrdersChart />
           <OrdersPieChart />
           <ReturnsTransChart />
