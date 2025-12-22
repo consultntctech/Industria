@@ -6,7 +6,7 @@ type CardProps = {
 } & ComponentProps<"div">;
 const Card = ({children, className, ...props}:CardProps) => {
   return (
-    <div {...props}  className={twMerge(`p-8 shadow rounded-xl w-60 md:w-72 h-44 flex justify-between flex-col gap-5 ${className}`)} >{children}</div>
+    <div {...props}  className={twMerge(`p-8 shadow rounded-xl w-72 h-44 flex justify-between flex-col gap-5 ${className}`)} >{children}</div>
   )
 }
 
