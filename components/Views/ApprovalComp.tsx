@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import  { useState } from 'react'
 import CustomTabs from '../misc/CustomTabs'
 import ProdApprovalTable from '../tables/approvals/ProdApprovalTable';
 import PackApprovalTable from '../tables/packages/PackApprovalTable';

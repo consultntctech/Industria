@@ -4,7 +4,7 @@ import { ISales } from '@/lib/models/sales.model';
 import { IOrganization } from '@/lib/models/org.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 import { ILineItem } from '@/lib/models/lineitem.model';
 import { ICustomer } from '@/lib/models/customer.model';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';

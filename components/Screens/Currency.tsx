@@ -1,4 +1,3 @@
-import React from 'react'
 import Title from '../misc/Title'
 import CurrencyComp from '../Views/CurrencyComp'
 

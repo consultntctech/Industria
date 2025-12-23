@@ -38,7 +38,7 @@ const TransCardsMainComponent = () => {
             <>
                 <div className="w-full flex flex-row items-center flex-wrap gap-4 justify-between" >
                     {
-                        data.map((item, index)=>(
+                        data?.map((item, index)=>(
                             <TransCard key={index} item={item} />
                         ))
                     }

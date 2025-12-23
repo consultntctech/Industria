@@ -1,6 +1,6 @@
-import { getLastSixMonthsProductions, getProductions } from "@/lib/actions/production.action";
+import { getLastSixMonthsProductions, getProductions, getProductionStats } from "@/lib/actions/production.action";
 import { IProduction } from "@/lib/models/production.model";
-import { IMonthlyStats } from "@/types/Types";
+import { IMonthlyStats, IProductionStats } from "@/types/Types";
 import { useQuery } from "@tanstack/react-query";
 
 export const useFetchProductions = () => {
@@ -45,4 +45,25 @@ export const useFetchSixMonthProductions = () => {
     queryFn: fetchProductions,
   })
   return {productions, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchProductionStats = () => {
+    const fetchProductionStats = async ():Promise<IProductionStats | null> => {
+        try {
+            const res = await getProductionStats();
+            const data = res.payload as IProductionStats;
+            return data;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+
+    const {data:productionStats, isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['productionStats'],
+        queryFn: fetchProductionStats
+    })
+
+    return {productionStats, isPending, refetch, isSuccess}
 }

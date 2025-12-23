@@ -5,7 +5,7 @@ import { IProduction } from '@/lib/models/production.model';
 import { IUser } from '@/lib/models/user.model';
 import { Tooltip } from '@mui/material';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction, useState } from 'react'
+import  { Dispatch, SetStateAction, useState } from 'react'
 import { FaPenToSquare } from 'react-icons/fa6';
 import InputDetailsModal from './InputDetailsModal';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';

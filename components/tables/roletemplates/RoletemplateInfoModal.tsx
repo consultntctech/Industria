@@ -7,7 +7,7 @@ import { IRole } from '@/lib/models/role.model';
 import { IRoleTemplate } from '@/lib/models/roletemplate.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction } from 'react'
+import  { Dispatch, SetStateAction } from 'react'
 
 type RoletemplateInfoModalProps = {
     infoMode:boolean,

@@ -1,4 +1,3 @@
-import React from 'react'
 import LoginComp from '../Views/LoginComp'
 
 const Login = () => {

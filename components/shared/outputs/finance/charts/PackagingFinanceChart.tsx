@@ -15,7 +15,7 @@ const PackagingFinanceChart = () => {
 
 
   return (
-    <div className='w-9/10 lg:w-3/7 p-6 rounded-2xl shadow-xl flex flex-col gap-4 border border-slate-200'>
+    <div className='w-[86vw] lg:w-3/7 p-6 rounded-2xl shadow-xl flex flex-col gap-4 border border-slate-200'>
         <span className="semibold" >Packaging Trend (Last 6 Months)</span>
         {
             isPending ? 

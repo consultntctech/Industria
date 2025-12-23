@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import  { useState } from 'react'
 import UsersComp from '../Views/Users.view'
 import { IoMdAddCircle } from 'react-icons/io';
 import { useSettings } from '@/config/useSettings';

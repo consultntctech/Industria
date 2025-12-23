@@ -4,7 +4,7 @@ import { useFetchRawMaterialsBySupplier } from '@/hooks/fetch/useRMaterials';
 import { ISupplier } from '@/lib/models/supplier.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 
 type SuppliersInfoModalProps = {
     infoMode:boolean,

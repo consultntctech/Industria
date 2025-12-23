@@ -4,7 +4,7 @@ import { IOrganization } from '@/lib/models/org.model';
 import { IGood } from '@/lib/models/good.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction } from 'react'
+import  { Dispatch, SetStateAction } from 'react'
 import { IProduction } from '@/lib/models/production.model';
 import { IProduct } from '@/lib/models/product.model';
 // import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';

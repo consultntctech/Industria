@@ -1,6 +1,6 @@
 'use client'
 import LoadingDots from '@/components/misc/LoadingDots';
-import React, { ComponentProps } from 'react'
+import  { ComponentProps } from 'react'
 
 type LoginButtonProps = {
     text:string;

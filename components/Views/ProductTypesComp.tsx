@@ -1,4 +1,4 @@
-import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react";
+import { Activity, ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
 import { FaChevronUp } from "react-icons/fa";
@@ -27,12 +27,21 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
     const [data, setData] = useState<Partial<IProduct>>({type:'Raw Material'});
     const [category, setCategory] = useState<string>('');
     const [suppliers, setSuppliers] = useState<string[]>([]);
+    const [showSuppliers, setShowSuppliers] = useState(true);
     const {user} = useAuth();
 
     const {refetch} = useFetchProducts();
 
     const savedSuppliers = currentProduct?.suppliers as ISupplier[];
     const savedCategory = currentProduct?.category as ICategory;
+
+    useEffect(()=>{
+        if(data?.type === 'Finished Good'){
+            setShowSuppliers(false);
+        }else{
+            setShowSuppliers(true);
+        }
+    }, [data?.type])
 
     useEffect(() => {
         if(currentProduct){
@@ -110,6 +119,8 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
         }
     }
 
+    // console.log('Is visible: ', openNew && data?.type === 'Raw Material')
+
   return (
     <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
       
@@ -148,13 +159,15 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
           <div className="flex gap-4 flex-col w-full justify-between">
             <div className="flex flex-col gap-4 w-full">
               <InputWithLabel defaultValue={data?.uom} onChange={onChange} name="uom"  placeholder="eg. kg, set, dozen, pair" label="Unit of measure" className="w-full" />
-              {
-                data.type === 'Raw Material' && openNew &&
-                <GenericLabel
-                  label="Select suppliers"
-                  input={<SearchSelectMultipleSuppliers value={savedSuppliers} setSelection={setSuppliers} />}
-                />
-              }
+              <Activity mode={(showSuppliers) ? 'visible' : 'hidden'} >
+                {
+                  openNew &&
+                  <GenericLabel
+                    label="Select suppliers"
+                    input={<SearchSelectMultipleSuppliers value={savedSuppliers} setSelection={setSuppliers} />}
+                  />
+                }
+              </Activity>
               <TextAreaWithLabel defaultValue={data?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
             </div>
             <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentProduct ? "Update" : "Submit"} className="w-full mt-4" />

@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import  { useState } from 'react'
 import StorageComp from '../Views/StorageComp'
 import TopContent from '../misc/TopContent'
 import StorageTable from '../tables/storage/StorageTable'

@@ -3,7 +3,7 @@ import { getSession } from "./lib/session";
 
 const publicRoutes = ['/', '/forgot', '/reset'];
 
-export default async function middleware(req:NextRequest){
+export default async function proxy(req:NextRequest){
     const path = req.nextUrl.pathname;
     const isProtectedRoute = path.startsWith('/dashboard');
     const isPublicRoute = publicRoutes.includes(path);

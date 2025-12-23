@@ -66,7 +66,7 @@ const NewPackageComp = () => {
     
        
     useEffect(() => {
-        const price = packagingMaterial.reduce((sum, material) => {
+        const price = packagingMaterial?.reduce((sum, material) => {
             const item = packItems.find(ing => ing.materialId === material._id);
             const qUsed = item?.quantity || 0;
             return sum + (material.unitPrice * qUsed);

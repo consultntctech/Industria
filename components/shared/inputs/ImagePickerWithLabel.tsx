@@ -1,4 +1,4 @@
-import React, { ComponentProps } from 'react'
+import  { ComponentProps } from 'react'
 // import TextInput from './TextInput'
 import ImagePicker from './ImagePicker';
 

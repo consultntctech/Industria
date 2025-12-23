@@ -4,7 +4,6 @@ import { useAuth } from '@/hooks/useAuth'
 import { destroySession } from '@/lib/session'
 import Image from 'next/image'
 import Link from 'next/link'
-import React from 'react'
 import { FiLogOut } from 'react-icons/fi'
 
 export const Header = () => {

@@ -8,7 +8,7 @@ import { IRMaterial } from '@/lib/models/rmaterial.mode';
 import { ISupplier } from '@/lib/models/supplier.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction } from 'react'
+import  { Dispatch, SetStateAction } from 'react'
 
 type ProductInfoModalProps = {
     infoMode:boolean,

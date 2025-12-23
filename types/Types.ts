@@ -161,3 +161,16 @@ export interface IPackagedProducts{
     product:string,
     quantity:number,
 }
+
+
+export interface IProductionStats{
+    input: number;
+    output: number;
+    lossPercent: number; //lossQuantity/inputQuantity * 100  round to 2 decimal places
+    efficiencyPercent: number; //outputQuantity/inputQuantity * 100  round to 2 decimal places
+    outputTrend:{
+        month: string;
+        efficiencyPercent: number; //outputQuantity/inputQuantity * 100  round to 2 decimal places
+        xEfficiencyPercent: number; //xQuantity/inputQuantity * 100  round to 2 decimal places
+    }[];
+}

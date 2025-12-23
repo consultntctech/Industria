@@ -6,9 +6,9 @@ import { LineChart } from "@mui/x-charts";
 
 const SalesAndOrdersChart = () => {
     const {isPending, orderAndSalesStats} = useFetchOrderAndSalesStats();
-    const salesAmonunt = orderAndSalesStats?.map((item)=>item.sales)
-    const ordersAmonunt = orderAndSalesStats?.map((item)=>item.orders)
-    const xData = orderAndSalesStats?.map(item=>item?.month);
+    const salesAmonunt = orderAndSalesStats?.map((item)=>item.sales) || []
+    const ordersAmonunt = orderAndSalesStats?.map((item)=>item.orders) || []
+    const xData = orderAndSalesStats?.map(item=>item?.month) || [];
   return (
      <div className='w-[86vw] lg:w-[48%] p-6 rounded-2xl shadow-xl flex flex-col gap-4'>
         <div className="flex flex-col gap-1">

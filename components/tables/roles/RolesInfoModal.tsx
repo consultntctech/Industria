@@ -6,7 +6,7 @@ import { IOrganization } from '@/lib/models/org.model';
 import { IRole } from '@/lib/models/role.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction } from 'react'
+import  { Dispatch, SetStateAction } from 'react'
 
 type RolesInfoModalProps = {
     infoMode:boolean,

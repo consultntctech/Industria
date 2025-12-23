@@ -9,7 +9,7 @@ import { IGoodsPopulate, IPackage } from '@/lib/models/package.model';
 import { IStorage } from '@/lib/models/storage.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction } from 'react'
+import  { Dispatch, SetStateAction } from 'react'
 
 type PackageInfoModalProps = {
     infoMode:boolean,

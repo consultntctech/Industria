@@ -3,7 +3,7 @@ import { formatTimestamp } from '@/functions/dates';
 import { IOrganization } from '@/lib/models/org.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction } from 'react'
+import  { Dispatch, SetStateAction } from 'react'
 import { ICustomer } from '@/lib/models/customer.model';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { IOrder } from '@/lib/models/order.model';

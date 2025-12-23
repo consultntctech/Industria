@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import  { useState } from 'react'
 import Title from '../misc/Title'
 import { IoMdAddCircle } from 'react-icons/io'
 import ProdCatComp from '../Views/ProdCatComp';

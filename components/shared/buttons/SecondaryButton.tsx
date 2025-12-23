@@ -1,7 +1,7 @@
 'use client'
 import LoadingDots from '@/components/misc/LoadingDots';
 import { useSettings } from '@/config/useSettings';
-import React, { ComponentProps } from 'react'
+import  { ComponentProps } from 'react'
 
 type SecondaryButtonProps = {
     text:string;

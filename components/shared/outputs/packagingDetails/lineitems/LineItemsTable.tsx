@@ -2,7 +2,7 @@
 import { Paper } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { enqueueSnackbar } from 'notistack'
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import {  useFetchLineItemsByPackage } from '@/hooks/fetch/useFetchLineItems'
 import LineItemsInfoModal from './LineItemsInfoModal'

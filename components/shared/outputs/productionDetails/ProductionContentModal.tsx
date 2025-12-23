@@ -119,6 +119,8 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
         })
     }
 
+    const inputQuantity = ingredients?.reduce((acc, cur)=> acc + cur.qUsed, 0);
+
   const handleClose = ()=>{
     setOpenNew(false);
     // setOpenItem(false);
@@ -137,7 +139,7 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
                      quantity: ing.qUsed
                  })),
                 //  proditems: proditems?.map(item=>item._id),
-                 inputQuantity: rawMaterials?.length,
+                 inputQuantity
              }
              
            const res = await updateProductionIngredients(prodData);

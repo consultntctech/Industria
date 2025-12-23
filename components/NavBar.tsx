@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import  { useState } from 'react'
 import NavToggler from './misc/NavToggler'
 import NavBarContent from './misc/NavBarContent'
 

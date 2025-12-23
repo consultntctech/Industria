@@ -69,6 +69,7 @@ const NewProductionComp = () => {
         setProductionCost(Number(value));
     }
 
+    const inputQuantity = ingredients?.reduce((acc, cur)=> acc + cur.qUsed, 0);
     // alert(totalPrice + totalProd);
 
     useEffect(() => {
@@ -104,7 +105,7 @@ const NewProductionComp = () => {
                     quantity: ing.qUsed
                 })),
                 // proditems: proditems?.map(item=>item._id),
-                inputQuantity: rawMaterials?.length,
+                inputQuantity,
             }
             
           const res = await createProduction(prodData);

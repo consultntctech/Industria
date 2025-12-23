@@ -11,7 +11,7 @@ import { IUser } from '@/lib/models/user.model';
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import Link from 'next/link';
 import { enqueueSnackbar } from 'notistack';
-import React, { Dispatch, SetStateAction,  useState } from 'react'
+import  { Dispatch, SetStateAction,  useState } from 'react'
 import { FaChevronUp } from 'react-icons/fa';
 import { IoIosClose } from 'react-icons/io';
 import '@/styles/customscroll.css'

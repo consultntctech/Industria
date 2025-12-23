@@ -1,6 +1,6 @@
 'use server'
 
-import { IResponse } from "@/types/Types";
+import {  IResponse } from "@/types/Types";
 import Production, { IProduction, ProdIngredient } from "../models/production.model";
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
@@ -311,6 +311,173 @@ export async function getLastSixMonthsProductions(): Promise<IResponse> {
         );
     }
 }
+
+
+
+
+export async function getProductionStats(): Promise<IResponse> {
+  try {
+    await connectDB();
+
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth() - 6, 1);
+
+    const result = await Production.aggregate([
+      {
+        $match: {
+          status: "Approved",
+          createdAt: { $gte: start, $lte: now },
+        },
+      },
+      {
+        $facet: {
+          /* ================= TOTAL STATS ================= */
+          totals: [
+            {
+              $group: {
+                _id: null,
+                totalInput: {
+                  $sum: { $sum: "$ingredients.quantity" },
+                },
+                totalOutput: {
+                  $sum: { $ifNull: ["$outputQuantity", 0] },
+                },
+                totalLoss: {
+                  $sum: { $ifNull: ["$lossQuantity", 0] },
+                },
+              },
+            },
+          ],
+
+          /* ================= MONTHLY TREND ================= */
+          monthly: [
+            {
+              $group: {
+                _id: {
+                  year: { $year: "$createdAt" },
+                  month: { $month: "$createdAt" },
+                },
+                input: {
+                  $sum: { $sum: "$ingredients.quantity" },
+                },
+                output: {
+                  $sum: { $ifNull: ["$outputQuantity", 0] },
+                },
+                xOutput: {
+                  $sum: { $ifNull: ["$xquantity", 0] },
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                year: "$_id.year",
+                month: "$_id.month",
+                efficiencyPercent: {
+                  $cond: [
+                    { $eq: ["$input", 0] },
+                    0,
+                    {
+                      $round: [
+                        {
+                          $multiply: [
+                            { $divide: ["$output", "$input"] },
+                            100,
+                          ],
+                        },
+                        2,
+                      ],
+                    },
+                  ],
+                },
+                xEfficiencyPercent: {
+                  $cond: [
+                    { $eq: ["$input", 0] },
+                    0,
+                    {
+                      $round: [
+                        {
+                          $multiply: [
+                            { $divide: ["$xOutput", "$input"] },
+                            100,
+                          ],
+                        },
+                        2,
+                      ],
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    ]);
+
+    /* ================= NORMALIZE MONTHS ================= */
+
+    const totals = result[0]?.totals[0] ?? {
+      totalInput: 0,
+      totalOutput: 0,
+      totalLoss: 0,
+    };
+
+    const monthlyMap = new Map<string, any>();
+
+    for (const m of result[0]?.monthly ?? []) {
+      monthlyMap.set(`${m.year}-${m.month}`, m);
+    }
+
+    const outputTrend = [];
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${date.getFullYear()}-${date.getMonth() + 1}`;
+
+      outputTrend.push({
+        month: date.toLocaleString("en-US", {
+          month: "short",
+          year: "numeric",
+        }),
+        efficiencyPercent: monthlyMap.get(key)?.efficiencyPercent ?? 0,
+        xEfficiencyPercent: monthlyMap.get(key)?.xEfficiencyPercent ?? 0,
+      });
+    }
+
+    /* ================= FINAL PAYLOAD ================= */
+
+    const input = totals.totalInput ?? 0;
+    const output = totals.totalOutput ?? 0;
+    const loss = totals.totalLoss ?? 0;
+
+    const payload = {
+      input,
+      output,
+      lossPercent:
+        input === 0 ? 0 : Number(((loss / input) * 100).toFixed(2)),
+      efficiencyPercent:
+        input === 0 ? 0 : Number(((output / input) * 100).toFixed(2)),
+      outputTrend,
+    };
+
+    return respond(
+      "Production statistics calculated successfully",
+      false,
+      payload,
+      200
+    );
+  } catch (error) {
+    console.error(error);
+    return respond(
+      "Error occurred while calculating production statistics",
+      true,
+      {},
+      500
+    );
+  }
+}
+
+
 
 
 

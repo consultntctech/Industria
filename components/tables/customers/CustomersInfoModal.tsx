@@ -4,7 +4,7 @@ import { ICustomer } from '@/lib/models/customer.model';
 import { IOrganization } from '@/lib/models/org.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction } from 'react'
+import  { Dispatch, SetStateAction } from 'react'
 
 type CustomersInfoModalProps = {
     infoMode:boolean,

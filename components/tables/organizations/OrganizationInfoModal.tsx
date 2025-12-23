@@ -3,7 +3,7 @@ import { formatDate } from '@/functions/dates';
 import { IOrganization } from '@/lib/models/org.model';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { Dispatch, SetStateAction } from 'react'
+import  { Dispatch, SetStateAction } from 'react'
 
 type OrganizationInfoModalProps = {
     infoMode:boolean,
