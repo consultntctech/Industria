@@ -10,7 +10,7 @@ import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
 export async function createAlert(data:Partial<IAlert>):Promise<IResponse>{
     try {
-        await connectDB();
+        // await connectDB();
         const alert = await Alert.create(data);
         return respond('Alert created successfully', false, alert, 201);
     } catch (error) {

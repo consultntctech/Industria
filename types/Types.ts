@@ -174,3 +174,23 @@ export interface IProductionStats{
         xEfficiencyPercent: number; //xQuantity/inputQuantity * 100  round to 2 decimal places
     }[];
 }
+
+
+
+export interface IProductStats{
+    name: string;
+    type: IProductType
+    threshold: number;
+    stock: number;
+    outOfStock: number;
+}
+
+
+export type IProductType = 'Raw Material' | 'Finished Good'
+
+
+export interface IProductCardData{
+    name: string;
+    stock: string;
+    threshold: string;
+}

@@ -4,21 +4,188 @@ import { IResponse } from "@/types/Types";
 import Sales, { ISales } from "../models/sales.model";
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
-import LineItem from "../models/lineitem.model";
+import LineItem, { ILineItem } from "../models/lineitem.model";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
+import Alert, { IAlert } from "../models/alert.model";
+import mongoose, { Types } from "mongoose";
+import Product from "../models/product.model";
 
-export async function createSales(data:Partial<ISales>):Promise<IResponse>{
-    try {
-        await connectDB();
-        const newSales = await Sales.create(data);
-        const items = data.products as string[];
-        await LineItem.updateMany({ _id: { $in: items } }, {soldTo: data.customer, status:'Sold' });
-        return respond('Products sold successfully', false, newSales, 201);
-    } catch (error) {
-        console.log(error);
-        return respond('Error occured while creating sales', true, {}, 500);
-    }
+
+interface ILineItemLean {
+  _id: Types.ObjectId;
+  product?: Types.ObjectId;
 }
+
+interface IProductLean {
+  _id: Types.ObjectId;
+  threshold: number;
+}
+
+interface IProductSalesAgg {
+  _id: Types.ObjectId; // productId
+  totalSold: number;
+}
+
+function normalizeLineItemId(
+  value: string | Types.ObjectId | ILineItem
+): Types.ObjectId {
+  if (typeof value === "string") {
+    return new Types.ObjectId(value);
+  }
+
+  if (value instanceof Types.ObjectId) {
+    return value;
+  }
+
+  // populated ILineItem
+  return new Types.ObjectId(value._id);
+}
+
+
+
+export async function createSales(
+  data: Partial<ISales>
+): Promise<IResponse> {
+  try {
+    await connectDB();
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    try {
+      // 1️⃣ Create sales record
+      const newSales = await Sales.create([data], { session });
+
+      const itemIds: Types.ObjectId[] =
+        (data.products ?? []).map(normalizeLineItemId);
+
+
+      if (!itemIds.length) {
+        await session.commitTransaction();
+        session.endSession();
+        return respond("Products sold successfully", false, newSales[0], 201);
+      }
+
+      // 2️⃣ Fetch line items (lean)
+      const lineItems = await LineItem.find(
+        { _id: { $in: itemIds } },
+        { product: 1 }
+      ).session(session).lean<ILineItemLean[]>();
+
+      // 3️⃣ Update line items as sold
+      await LineItem.updateMany(
+        { _id: { $in: itemIds } },
+        { soldTo: data.customer, status: "Sold" },
+        { session }
+      );
+
+      // 4️⃣ Group sold counts per product
+      const soldCountMap = new Map<string, number>();
+      const productIds = new Set<string>();
+
+      for (const item of lineItems) {
+        if (!item.product) continue;
+
+        const productId = item.product.toString();
+        productIds.add(productId);
+        soldCountMap.set(
+          productId,
+          (soldCountMap.get(productId) ?? 0) + 1
+        );
+      }
+
+      if (!productIds.size) {
+        await session.commitTransaction();
+        session.endSession();
+        return respond("Products sold successfully", false, newSales[0], 201);
+      }
+
+      // 5️⃣ Fetch product thresholds
+      const products = await Product.find(
+        { _id: { $in: [...productIds].map(id => new Types.ObjectId(id)) } },
+        { threshold: 1 }
+      ).session(session).lean<IProductLean[]>();
+
+      const productThresholdMap = new Map<string, number>();
+      for (const p of products) {
+        productThresholdMap.set(p._id.toString(), p.threshold);
+      }
+
+      // 6️⃣ Aggregate remaining line items per product
+      const remainingAgg = await LineItem.aggregate<IProductSalesAgg>([
+        {
+          $match: {
+            product: {
+              $in: [...productIds].map(id => new Types.ObjectId(id))
+            },
+            status: { $ne: "Sold" }
+          }
+        },
+        {
+          $group: {
+            _id: "$product",
+            totalSold: { $sum: 1 }
+          }
+        }
+      ]).session(session);
+
+      // 7️⃣ Build alerts
+      const alerts: Partial<IAlert>[] = [];
+
+      for (const row of remainingAgg) {
+        const remaining = row.totalSold;
+        const threshold =
+          productThresholdMap.get(row._id.toString()) ?? 0;
+
+        if (remaining <= threshold) {
+          alerts.push({
+            title: "Product Stock Critical",
+            body: `Remaining items for this product have reached the threshold (${remaining}).`,
+            type: "error",
+            item: row._id,
+            itemModel: "Product",
+            createdBy: data.createdBy,
+            org: data.org
+          });
+        } else if (remaining <= threshold + 5) {
+          alerts.push({
+            title: "Product Stock Warning",
+            body: `Remaining items for this product are running low (${remaining}).`,
+            type: "warning",
+            item: row._id,
+            itemModel: "Product",
+            createdBy: data.createdBy,
+            org: data.org
+          });
+        }
+      }
+
+      if (alerts.length) {
+        await Alert.insertMany(alerts, { session });
+      }
+
+      // 8️⃣ Commit
+      await session.commitTransaction();
+      session.endSession();
+
+      return respond("Products sold successfully", false, newSales[0], 201);
+
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error("Transaction aborted:", message);
+      return respond(message, true, {}, 500);
+    }
+
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Outer error:", message);
+    return respond("Error occured while creating sales", true, {}, 500);
+  }
+}
+
 
 export async function getSales():Promise<IResponse>{
     try {

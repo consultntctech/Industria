@@ -1,6 +1,6 @@
 'use server'
 
-import { IResponse } from "@/types/Types";
+import { IResponse, IProductStats } from "@/types/Types";
 import Product, { IProduct } from "../models/product.model";
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
@@ -85,6 +85,92 @@ export async function getProduct(id: string): Promise<IResponse> {
     return respond("Error occurred retrieving production", true, {}, 500);
   }
 }
+
+
+
+export async function getProductStats(): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const products = await Product.aggregate<IProductStats>([
+            // Lookup raw materials
+            {
+                $lookup: {
+                    from: 'rmaterials', // collection name (plural, lowercase)
+                    localField: '_id',
+                    foreignField: 'product',
+                    as: 'rawMaterials',
+                },
+            },
+
+            // Lookup line items
+            {
+                $lookup: {
+                    from: 'lineitems',
+                    localField: '_id',
+                    foreignField: 'product',
+                    as: 'lineItems',
+                },
+            },
+
+            // Compute stock based on product type
+            {
+                $addFields: {
+                    stock: {
+                        $cond: [
+                            { $eq: ['$type', 'Raw Material'] },
+                            {
+                                $sum: '$rawMaterials.qAccepted',
+                            },
+                            {
+                                $size: {
+                                    $filter: {
+                                        input: '$lineItems',
+                                        as: 'item',
+                                        cond: {
+                                            $not: {
+                                                $in: ['$$item.status', ['Sold', 'Pending']],
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
+            },
+
+            // Compute outOfStock flag
+            {
+                $addFields: {
+                    outOfStock: {
+                        $lte: ['$stock', '$threshold'],
+                    },
+                },
+            },
+
+            // Final shape
+            {
+                $project: {
+                    _id: 0,
+                    name: 1,
+                    type: 1,
+                    threshold: 1,
+                    stock: 1,
+                    outOfStock: 1,
+                },
+            },
+        ]);
+
+        return respond('Product stats fetched successfully', false, products, 200);
+    } catch (error) {
+        console.error(error);
+        return respond('Error occurred while fetching product stats', true, {}, 500);
+    }
+}
+
+
+
 
 export async function deleteProduct(id:string):Promise<IResponse>{
     try {

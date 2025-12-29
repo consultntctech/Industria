@@ -4,72 +4,250 @@ import {  IResponse } from "@/types/Types";
 import Production, { IProduction, ProdIngredient } from "../models/production.model";
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
-import RMaterial from "../models/rmaterial.mode";
+import RMaterial, { IRMaterial } from "../models/rmaterial.mode";
 import mongoose from "mongoose";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import '../models/user.model'
 import '../models/product.model'
 import '../models/batch.model'
+import Alert, { IAlert } from "../models/alert.model";
 
-export async function createProduction(data: Partial<IProduction>): Promise<IResponse> {
+
+import { ClientSession, Types } from 'mongoose';
+import Product from "../models/product.model";
+
+interface IIngredientInput {
+  materialId: Types.ObjectId;
+  quantity: number;
+}
+
+interface IRawMaterialLean {
+  _id: Types.ObjectId;
+  materialName: string;
+  qAccepted: number;
+  product?: Types.ObjectId;
+}
+
+interface IProductLean {
+  _id: Types.ObjectId;
+  threshold: number;
+}
+
+interface IProductStockAgg {
+  _id: Types.ObjectId;
+  totalRemaining: number;
+}
+
+interface IProductionIngredientInput {
+  materialId: string | Types.ObjectId | IRMaterial;
+  quantity: number;
+}
+
+
+export async function createProduction(
+  data: Partial<IProduction>
+): Promise<IResponse> {
   try {
     await connectDB();
 
-    // Start a MongoDB session for transaction
-    const session = await mongoose.startSession();
+    const session: ClientSession = await mongoose.startSession();
     session.startTransaction();
 
     try {
-      // 1️⃣ Create the production record
+      // 1️⃣ Create production
       const [newProduction] = await Production.create([data], { session });
 
-      // 2️⃣ Deduct ingredient quantities from raw materials
-      for (const ingredient of data.ingredients || []) {
-        const materialId = ingredient.materialId;
-        const quantityUsed = Number(ingredient.quantity) || 0;
+      const ingredients: IIngredientInput[] = (data.ingredients ?? []) as IIngredientInput[];
 
-        if (!materialId || quantityUsed <= 0) continue;
+      if (!ingredients.length) {
+        await session.commitTransaction();
+        session.endSession();
+        return respond("Production created successfully", false, newProduction, 201);
+      }
 
-        const material = await RMaterial.findById(materialId).session(session);
+      // 2️⃣ Map material usage
+      const materialUsageMap = new Map<string, number>();
+
+      for (const ing of ingredients) {
+        if (!ing.materialId || ing.quantity <= 0) continue;
+
+        const key = ing.materialId.toString();
+        materialUsageMap.set(key, (materialUsageMap.get(key) ?? 0) + ing.quantity);
+      }
+
+      const materialIds = [...materialUsageMap.keys()].map(
+        id => new Types.ObjectId(id)
+      );
+
+      // 3️⃣ Fetch raw materials
+      const rawMaterials = await RMaterial.find(
+        { _id: { $in: materialIds } },
+        { materialName: 1, qAccepted: 1, product: 1 }
+      ).session(session).lean<IRawMaterialLean[]>();
+
+      const rawMaterialMap = new Map<string, IRawMaterialLean>();
+      const productIds = new Set<string>();
+
+      for (const mat of rawMaterials) {
+        rawMaterialMap.set(mat._id.toString(), mat);
+        if (mat.product) productIds.add(mat.product.toString());
+      }
+
+      // 4️⃣ Validate stock & prepare bulk updates
+      const bulkOps: {
+        updateOne: {
+          filter: { _id: Types.ObjectId };
+          update: { $inc: { qAccepted: number } };
+        };
+      }[] = [];
+
+      for (const [materialId, quantityUsed] of materialUsageMap.entries()) {
+        const material = rawMaterialMap.get(materialId);
 
         if (!material) {
           throw new Error(`Raw material not found: ${materialId}`);
         }
 
-        // Ensure we don’t go below zero
         if (material.qAccepted < quantityUsed) {
           throw new Error(
             `Insufficient stock for ${material.materialName}. Available: ${material.qAccepted}, Required: ${quantityUsed}`
           );
         }
 
-        // Update qAccepted (reduce by quantity used)
-        await RMaterial.findByIdAndUpdate(
-          materialId,
-          { $inc: { qAccepted: -quantityUsed } },
-          { session }
-        );
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: new Types.ObjectId(materialId) },
+            update: { $inc: { qAccepted: -quantityUsed } }
+          }
+        });
+
+        // Update local copy for alerts
+        material.qAccepted -= quantityUsed;
       }
 
-      // 3️⃣ Commit the transaction if all updates succeed
+      if (bulkOps.length) {
+        await RMaterial.bulkWrite(bulkOps, { session });
+      }
+
+      // 5️⃣ Fetch products (thresholds)
+      const products = await Product.find(
+        { _id: { $in: [...productIds].map(id => new Types.ObjectId(id)) } },
+        { threshold: 1 }
+      ).session(session).lean<IProductLean[]>();
+
+      const productThresholdMap = new Map<string, number>();
+      for (const p of products) {
+        productThresholdMap.set(p._id.toString(), p.threshold);
+      }
+
+      // 6️⃣ Aggregate remaining qAccepted per product
+      const productStockAgg = await RMaterial.aggregate<IProductStockAgg>([
+        {
+          $match: {
+            product: {
+              $in: [...productIds].map(id => new Types.ObjectId(id))
+            }
+          }
+        },
+        {
+          $group: {
+            _id: "$product",
+            totalRemaining: { $sum: "$qAccepted" }
+          }
+        }
+      ]).session(session);
+
+      const productRemainingMap = new Map<string, number>();
+      for (const row of productStockAgg) {
+        productRemainingMap.set(row._id.toString(), row.totalRemaining);
+      }
+
+      // 7️⃣ Build alerts
+      const alerts: Partial<IAlert>[] = [];
+
+      // 🔔 Product-level alerts
+      for (const [productId, remaining] of productRemainingMap.entries()) {
+        const threshold = productThresholdMap.get(productId) ?? 0;
+
+        if (remaining <= threshold) {
+          alerts.push({
+            title: "Product Stock Critical",
+            body: `Total remaining raw materials have reached the threshold (${remaining}).`,
+            type: "error",
+            item: new Types.ObjectId(productId),
+            itemModel: "Product",
+            createdBy: data.createdBy,
+            org: data.org
+          });
+        } else if (remaining <= threshold + 5) {
+          alerts.push({
+            title: "Product Stock Warning",
+            body: `Total remaining raw materials are low (${remaining}).`,
+            type: "warning",
+            item: new Types.ObjectId(productId),
+            itemModel: "Product",
+            createdBy: data.createdBy,
+            org: data.org
+          });
+        }
+      }
+
+      // 🔔 Raw-material-level alerts
+      for (const material of rawMaterials) {
+        const threshold =
+          material.product
+            ? productThresholdMap.get(material.product.toString()) ?? 0
+            : 0;
+
+        if (material.qAccepted <= threshold) {
+          alerts.push({
+            title: "Raw Material Stock Critical",
+            body: `${material.materialName} has reached its threshold (${material.qAccepted}).`,
+            type: "error",
+            item: material._id,
+            itemModel: "RMaterial",
+            createdBy: data.createdBy,
+            org: data.org
+          });
+        } else if (material.qAccepted <= threshold + 5) {
+          alerts.push({
+            title: "Raw Material Stock Warning",
+            body: `${material.materialName} is running low (${material.qAccepted}).`,
+            type: "warning",
+            item: material._id,
+            itemModel: "RMaterial",
+            createdBy: data.createdBy,
+            org: data.org
+          });
+        }
+      }
+
+      if (alerts.length) {
+        await Alert.insertMany(alerts, { session });
+      }
+
+      // 8️⃣ Commit
       await session.commitTransaction();
       session.endSession();
 
       return respond("Production created successfully", false, newProduction, 201);
 
-    } catch (err: any) {
-      // Roll back all changes if an error occurs
+    } catch (err) {
       await session.abortTransaction();
       session.endSession();
-      console.error("Transaction aborted:", err.message);
-      return respond(err.message || "Error occurred while creating production", true, {}, 500);
+
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error("Transaction aborted:", message);
+      return respond(message, true, {}, 500);
     }
 
-  } catch (error: any) {
-    console.error("Database connection or outer error:", error.message);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Outer error:", message);
     return respond("Error occurred while creating production", true, {}, 500);
   }
 }
+
 
 export async function updateProductionIngredients(
   data: Partial<IProduction>
@@ -86,75 +264,213 @@ export async function updateProductionIngredients(
     session.startTransaction();
 
     try {
-      // 1️⃣ Fetch the current production
-      const existingProduction = await Production.findById(productionId).session(session);
+      // 1️⃣ Fetch existing production
+      const existingProduction = await Production.findById(productionId)
+        .session(session);
+
       if (!existingProduction) {
         await session.abortTransaction();
         session.endSession();
         return respond("Production not found", true, {}, 404);
       }
 
-      // 2️⃣ Simplify: we only care about old and new ingredients as { materialId: string, quantity: number }
-     const oldIngredients: ProdIngredient[] = existingProduction.ingredients.map((i:ProdIngredient) => ({
-      materialId: i.materialId.toString(),
-      quantity: i.quantity,
-    }));
-
-
-      const newIngredients:ProdIngredient[] = (data.ingredients || []).map((i) => ({
-        materialId: i.materialId.toString(),
-        quantity: i.quantity,
+      // 2️⃣ Normalize ingredients
+      const oldIngredients: ProdIngredient[] =
+        existingProduction.ingredients.map((i: IProductionIngredientInput) => ({
+          materialId:
+            typeof i.materialId === "string"
+              ? i.materialId
+              : i.materialId instanceof Types.ObjectId
+                ? i.materialId.toString()
+                : i.materialId._id.toString(),
+          quantity: i.quantity
       }));
 
-      // 3️⃣ Build quick-lookup maps
-      const oldMap = new Map(oldIngredients.map((i:ProdIngredient) => [i.materialId, i.quantity]));
-      const newMap = new Map(newIngredients.map((i) => [i.materialId, i.quantity]));
 
-      // 4️⃣ Compute net changes (new - old)
+      const newIngredients: ProdIngredient[] =
+        (data.ingredients ?? []).map((i: IProductionIngredientInput) => ({
+          materialId:
+            typeof i.materialId === "string"
+              ? i.materialId
+              : i.materialId instanceof Types.ObjectId
+                ? i.materialId.toString()
+                : i.materialId._id.toString(),
+          quantity: i.quantity
+      }));
+
+
+      // 3️⃣ Build lookup maps
+      const oldMap = new Map<string, number>(
+        oldIngredients.map(i => [i.materialId, i.quantity])
+      );
+      const newMap = new Map<string, number>(
+        newIngredients.map(i => [i.materialId, i.quantity])
+      );
+
+      // 4️⃣ Compute net changes
       const allIds = new Set([...oldMap.keys(), ...newMap.keys()]);
       const netChanges = new Map<string, number>();
 
       for (const id of allIds) {
         const oldQty = oldMap.get(id) ?? 0;
-        const newQty = newMap.get(id as string) ?? 0;
+        const newQty = newMap.get(id) ?? 0;
         const diff = newQty - oldQty;
         if (diff !== 0) netChanges.set(id, diff);
       }
 
-      // 5️⃣ Validate sufficient stock before reductions
+      if (!netChanges.size) {
+        await session.commitTransaction();
+        session.endSession();
+        return respond("No changes detected", false, existingProduction, 200);
+      }
+
+      const materialIds = [...netChanges.keys()].map(
+        id => new Types.ObjectId(id)
+      );
+
+      // 5️⃣ Fetch raw materials
+      const rawMaterials = await RMaterial.find(
+        { _id: { $in: materialIds } },
+        { materialName: 1, qAccepted: 1, product: 1 }
+      ).session(session).lean<IRawMaterialLean[]>();
+
+      const rawMaterialMap = new Map<string, IRawMaterialLean>();
+      const productIds = new Set<string>();
+
+      for (const mat of rawMaterials) {
+        rawMaterialMap.set(mat._id.toString(), mat);
+        if (mat.product) productIds.add(mat.product.toString());
+      }
+
+      // 6️⃣ Validate stock & prepare updates
+      const bulkOps: {
+        updateOne: {
+          filter: { _id: Types.ObjectId };
+          update: { $inc: { qAccepted: number } };
+        };
+      }[] = [];
+
       for (const [materialId, diff] of netChanges.entries()) {
-        if (diff > 0) {
-          const material = await RMaterial.findById(materialId).session(session);
-          if (!material) {
-            throw new Error(`Raw material not found: ${materialId}`);
+        const material = rawMaterialMap.get(materialId);
+        if (!material) {
+          throw new Error(`Raw material not found: ${materialId}`);
+        }
+
+        if (diff > 0 && material.qAccepted < diff) {
+          throw new Error(
+            `Insufficient stock for ${material.materialName}. Available: ${material.qAccepted}, Required: ${diff}`
+          );
+        }
+
+        bulkOps.push({
+          updateOne: {
+            filter: { _id: new Types.ObjectId(materialId) },
+            update: { $inc: { qAccepted: -diff } }
           }
-          if (material.qAccepted < diff) {
-            throw new Error(
-              `Insufficient stock for ${material.materialName}. Available: ${material.qAccepted}, Required: ${diff}`
-            );
+        });
+
+        // update local copy
+        material.qAccepted -= diff;
+      }
+
+      await RMaterial.bulkWrite(bulkOps, { session });
+
+      // 7️⃣ Fetch product thresholds
+      const products = await Product.find(
+        { _id: { $in: [...productIds].map(id => new Types.ObjectId(id)) } },
+        { threshold: 1 }
+      ).session(session).lean<IProductLean[]>();
+
+      const productThresholdMap = new Map<string, number>();
+      for (const p of products) {
+        productThresholdMap.set(p._id.toString(), p.threshold);
+      }
+
+      // 8️⃣ Aggregate remaining stock per product
+      const productStockAgg = await RMaterial.aggregate<IProductStockAgg>([
+        {
+          $match: {
+            product: {
+              $in: [...productIds].map(id => new Types.ObjectId(id))
+            }
           }
+        },
+        {
+          $group: {
+            _id: "$product",
+            totalRemaining: { $sum: "$qAccepted" }
+          }
+        }
+      ]).session(session);
+
+      const alerts: Partial<IAlert>[] = [];
+
+      // 🔔 Product-level alerts
+      for (const row of productStockAgg) {
+        const remaining = row.totalRemaining;
+        const threshold = productThresholdMap.get(row._id.toString()) ?? 0;
+
+        if (remaining <= threshold) {
+          alerts.push({
+            title: "Product Stock Critical",
+            body: `Total remaining raw materials have reached the threshold (${remaining}).`,
+            type: "error",
+            item: row._id,
+            itemModel: "Product",
+            createdBy: data.createdBy,
+            org: data.org
+          });
+        } else if (remaining <= threshold + 5) {
+          alerts.push({
+            title: "Product Stock Warning",
+            body: `Total remaining raw materials are low (${remaining}).`,
+            type: "warning",
+            item: row._id,
+            itemModel: "Product",
+            createdBy: data.createdBy,
+            org: data.org
+          });
         }
       }
 
-      // 6️⃣ Apply stock updates
-      for (const [materialId, diff] of netChanges.entries()) {
-        // Positive diff = more material used → decrease qAccepted
-        // Negative diff = less material used or removed → increase qAccepted
-        await RMaterial.findByIdAndUpdate(
-          materialId,
-          { $inc: { qAccepted: -diff } },
-          { session }
-        );
+      // 🔔 Raw-material-level alerts
+      for (const material of rawMaterials) {
+        const threshold =
+          material.product
+            ? productThresholdMap.get(material.product.toString()) ?? 0
+            : 0;
+
+        if (material.qAccepted <= threshold) {
+          alerts.push({
+            title: "Raw Material Stock Critical",
+            body: `${material.materialName} has reached its threshold (${material.qAccepted}).`,
+            type: "error",
+            item: material._id,
+            itemModel: "RMaterial",
+            createdBy: data.createdBy,
+            org: data.org
+          });
+        } else if (material.qAccepted <= threshold + 5) {
+          alerts.push({
+            title: "Raw Material Stock Warning",
+            body: `${material.materialName} is running low (${material.qAccepted}).`,
+            type: "warning",
+            item: material._id,
+            itemModel: "RMaterial",
+            createdBy: data.createdBy,
+            org: data.org
+          });
+        }
       }
 
-      // 7️⃣ Update the production document
-      const newData ={
-        ...data,
-        ingredients: newIngredients,
+      if (alerts.length) {
+        await Alert.insertMany(alerts, { session });
       }
+
+      // 9️⃣ Update production
       const updatedProduction = await Production.findByIdAndUpdate(
         productionId,
-        newData,
+        { ...data, ingredients: newIngredients },
         { new: true, session }
       );
 
@@ -162,17 +478,23 @@ export async function updateProductionIngredients(
       session.endSession();
 
       return respond("Production updated successfully", false, updatedProduction, 200);
+
     } catch (err) {
       await session.abortTransaction();
       session.endSession();
-      console.error("Transaction aborted:", (err as Error).message);
-      return respond((err as Error).message, true, {}, 500);
+
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error("Transaction aborted:", message);
+      return respond(message, true, {}, 500);
     }
+
   } catch (error) {
-    console.error("Database connection or outer error:", (error as Error).message);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("Outer error:", message);
     return respond("Error occurred while updating production", true, {}, 500);
   }
 }
+
 
 
 export async function getProductions():Promise<IResponse>{

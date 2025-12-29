@@ -1,5 +1,6 @@
-import { getProducts } from "@/lib/actions/product.action";
+import { getProducts, getProductStats } from "@/lib/actions/product.action";
 import { IProduct } from "@/lib/models/product.model";
+import { IProductStats } from "@/types/Types";
 import { useQuery } from "@tanstack/react-query";
 
 export const useFetchProducts = (type?:'Raw Material'|'Finished Good'|'Packaging') => {
@@ -21,4 +22,25 @@ export const useFetchProducts = (type?:'Raw Material'|'Finished Good'|'Packaging
     })
 
     return {products, isPending, refetch, isSuccess}
+}
+
+
+
+export const useFetchProductStats = () =>{
+    const fetchStats = async():Promise<IProductStats[]>=>{
+        try {
+            const res = await getProductStats();
+            return res.payload as IProductStats[];
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+    
+    const {data:stats=[], isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['productStats'],
+        queryFn: fetchStats,
+    })
+    
+    return {stats, isPending, refetch, isSuccess}
 }
