@@ -194,3 +194,20 @@ export interface IProductCardData{
     stock: string;
     threshold: string;
 }
+
+
+export interface IDashboardStats{
+    rawMaterials: number;
+    productionOutput: number;
+    rejectedPercent: number; //1 decimal place
+    ordersInProgress: number; //status: Pending
+    sales: number;
+    returns: number;
+    ordersFulfilled: number;
+    ordersDelayed: number;
+    rawMaterialsValue: number;
+    inventory: {month: string; rawMaterial:number, finishedGood:number}[];
+    rejection: {week:string, rawMaterial:number, production:number}[];
+    production:{day:string, quantity:number}[]
+    orderFulfillmentStatus: number; //1 decimal place
+}

@@ -1,7 +1,7 @@
-import DashboardComp from '@/components/Views/DashboardComp'
+import MainDashboard from '@/components/dashboards/main/MainDashboard'
 
 export default function Dashboard (){
   return (
-    <DashboardComp/>
+    <MainDashboard/>
   )
 }

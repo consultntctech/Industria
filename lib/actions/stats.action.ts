@@ -1,6 +1,6 @@
 'use server';
 
-import { IGlobalFinance, IMonthlyStats, IOrderAndSalesStats, IResponse, IStats, ITransactCount, ITransactMontly } from "@/types/Types";
+import { IDashboardStats, IGlobalFinance, IMonthlyStats, IOrderAndSalesStats, IResponse, IStats, ITransactCount, ITransactMontly } from "@/types/Types";
 import { respond } from "../misc";
 import Returns, { IReturns } from "../models/returns.model";
 import Sales, { ISales } from "../models/sales.model";
@@ -9,6 +9,9 @@ import { connectDB } from "../mongoose";
 import { Model } from "mongoose";
 import Production, { IProduction } from "../models/production.model";
 import Package, { IPackage } from "../models/package.model";
+import RMaterial from "../models/rmaterial.mode";
+import LineItem from "../models/lineitem.model";
+import { getLast7Days, getLast7Months, getLast7Weeks } from "@/functions/dates";
 
 type CollectionKey = keyof IStats;
 
@@ -536,3 +539,290 @@ export async function getGlobalFinanceStats(): Promise<IResponse> {
         return respond("Error occurred while fetching global finance stats", true, {}, 500);
     }
 }
+
+
+
+export async function getDashboardStats(): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        /* ================= RAW MATERIALS ================= */
+        const rawMaterialAgg = await RMaterial.aggregate<{
+            totalAccepted: number;
+            totalValue: number;
+        }>([
+            { $match: { qAccepted: { $gt: 0 } } },
+            {
+                $group: {
+                    _id: null,
+                    totalAccepted: { $sum: '$qAccepted' },
+                    totalValue: { $sum: '$price' },
+                },
+            },
+        ]);
+
+        const rawMaterials = rawMaterialAgg[0]?.totalAccepted ?? 0;
+        const rawMaterialsValue = rawMaterialAgg[0]?.totalValue ?? 0;
+
+        /* ================= APPROVED PRODUCTIONS ================= */
+        const approvedProductions = await Production.find(
+            { status: 'Approved' },
+            { ingredients: 1, rejQuantity: 1 }
+        ).lean<{
+            ingredients?: { quantity: number }[];
+            rejQuantity?: number;
+        }[]>();
+
+        let totalInputQty = 0;
+        let totalRejectedQty = 0;
+
+        approvedProductions.forEach(p => {
+            const inputQty =
+                p.ingredients?.reduce<number>(
+                    (acc, cur) => acc + cur.quantity,
+                    0
+                ) ?? 0;
+
+            totalInputQty += inputQty;
+            totalRejectedQty += p.rejQuantity ?? 0;
+        });
+
+        const rejectedPercent =
+            totalInputQty > 0
+                ? Number(((totalRejectedQty / totalInputQty) * 100).toFixed(1))
+                : 0;
+
+        /* ================= LINE ITEMS OUTPUT ================= */
+        const productionOutput = await LineItem.countDocuments({
+            status: { $in: ['Available', 'Returned'] },
+        });
+
+        /* ================= ORDERS ================= */
+        const [
+            ordersInProgress,
+            ordersFulfilled,
+            ordersDelayed,
+            totalOrders,
+            fulfilledThisMonth,
+        ] = await Promise.all([
+            Order.countDocuments({ status: 'Pending' }),
+            Order.countDocuments({ status: 'Fulfilled' }),
+            Order.countDocuments({
+                status: { $ne: 'Fulfilled' },
+                deadline: { $lt: new Date().toISOString() },
+            }),
+            Order.countDocuments({}),
+            Order.countDocuments({
+                status: 'Fulfilled',
+                fulfilledAt: {
+                    $gte: new Date(
+                        new Date().getFullYear(),
+                        new Date().getMonth(),
+                        1
+                    ).toISOString(),
+                },
+            }),
+        ]);
+
+        const orderFulfillmentStatus =
+            totalOrders > 0
+                ? Number(((fulfilledThisMonth / totalOrders) * 100).toFixed(1))
+                : 0;
+
+        /* ================= SALES & RETURNS ================= */
+        const salesAgg = await Sales.aggregate<{ _id: null; total: number }>([
+            { $group: { _id: null, total: { $sum: '$price' } } },
+        ]);
+
+        const returnsAgg = await Returns.aggregate<{ _id: null; total: number }>([
+            { $group: { _id: null, total: { $sum: '$price' } } },
+        ]);
+
+        const sales = salesAgg[0]?.total ?? 0;
+        const returns = returnsAgg[0]?.total ?? 0;
+
+        /* ================= INVENTORY (LAST 7 MONTHS) ================= */
+        const months = getLast7Months();
+
+        const rawInv = await RMaterial.aggregate<{ _id: string; value: number }>([
+            {
+                $project: {
+                    key: {
+                        $concat: [
+                            { $toString: { $year: '$dateReceived' } },
+                            '-',
+                            { $toString: { $month: '$dateReceived' } },
+                        ],
+                    },
+                    qReceived: 1,
+                },
+            },
+            { $group: { _id: '$key', value: { $sum: '$qReceived' } } },
+        ]);
+
+        const finishedInv = await LineItem.aggregate<{ _id: string; value: number }>([
+            { $match: { status: { $ne: 'Pending' } } },
+            {
+                $project: {
+                    key: {
+                        $concat: [
+                            { $toString: { $year: '$createdAt' } },
+                            '-',
+                            { $toString: { $month: '$createdAt' } },
+                        ],
+                    },
+                },
+            },
+            { $group: { _id: '$key', value: { $sum: 1 } } },
+        ]);
+
+        const inventory = months.map(m => ({
+            month: m.label,
+            rawMaterial: rawInv.find(r => r._id === m.key)?.value ?? 0,
+            finishedGood: finishedInv.find(f => f._id === m.key)?.value ?? 0,
+        }));
+
+        /* ================= REJECTION (LAST 7 WEEKS) ================= */
+        const weeks = getLast7Weeks();
+
+        const rawRej = await RMaterial.aggregate<{
+            _id: string;
+            value: number;
+        }>([
+            {
+                $project: {
+                    week: {
+                        $concat: [
+                            { $toString: { $isoWeekYear: '$dateReceived' } },
+                            'W',
+                            { $toString: { $isoWeek: '$dateReceived' } },
+                        ],
+                    },
+                    qRejected: 1,
+                },
+            },
+            {
+                $group: {
+                    _id: '$week',
+                    value: { $sum: '$qRejected' },
+                },
+            },
+        ]);
+
+
+        const prodRej = await Production.aggregate<{
+            _id: string;
+            value: number;
+        }>([
+            { $match: { status: 'Approved' } },
+            {
+                $project: {
+                    week: {
+                        $concat: [
+                            { $toString: { $isoWeekYear: '$createdAt' } },
+                            'W',
+                            { $toString: { $isoWeek: '$createdAt' } },
+                        ],
+                    },
+                    rejQuantity: 1,
+                },
+            },
+            {
+                $group: {
+                    _id: '$week',
+                    value: { $sum: '$rejQuantity' },
+                },
+            },
+        ]);
+
+
+        const rejection = weeks.map(w => ({
+            week: w,
+            rawMaterial: rawRej.find(r => r._id === w)?.value ?? 0,
+            production: prodRej.find(p => p._id === w)?.value ?? 0,
+        }));
+
+
+        /* ================= PRODUCTION (LAST 7 DAYS) ================= */
+        // const days = getLast7Days();
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
+
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
+        sevenDaysAgo.setHours(0, 0, 0, 0);
+
+
+        const prodDays = await Production.aggregate<{
+            _id: string;
+            value: number;
+        }>([
+            {
+                $match: {
+                    status: 'Approved',
+                    updatedAt: {
+                        $gte: sevenDaysAgo,
+                        $lte: today,
+                    },
+                },
+            },
+            {
+                $project: {
+                    day: {
+                        $dateToString: {
+                            format: '%Y-%m-%d',
+                            date: '$updatedAt',
+                        },
+                    },
+                    outputQuantity: 1,
+                },
+            },
+            {
+                $group: {
+                    _id: '$day',
+                    value: { $sum: '$outputQuantity' },
+                },
+            },
+        ]);
+
+        const days = getLast7Days(); // ['Sun', 'Mon', ...]
+        const dayKeys: string[] = [];
+
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            dayKeys.push(d.toISOString().slice(0, 10)); // YYYY-MM-DD
+        }
+
+
+        const production = dayKeys.map((key, idx) => ({
+            day: days[idx],
+            quantity: prodDays.find(p => p._id === key)?.value ?? 0,
+        }));
+
+
+        /* ================= FINAL PAYLOAD ================= */
+        const payload: IDashboardStats = {
+            rawMaterials,
+            productionOutput,
+            rejectedPercent,
+            ordersInProgress,
+            sales,
+            returns,
+            ordersFulfilled,
+            ordersDelayed,
+            rawMaterialsValue,
+            inventory,
+            rejection,
+            production,
+            orderFulfillmentStatus,
+        };
+
+        return respond('Dashboard stats fetched successfully', false, payload, 200);
+    } catch (error) {
+        console.error(error);
+        return respond('Error fetching dashboard stats', true, {}, 500);
+    }
+}
+
+

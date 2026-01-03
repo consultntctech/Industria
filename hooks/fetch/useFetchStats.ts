@@ -1,5 +1,5 @@
-import { IGlobalFinance, IOrderAndSalesStats, IStats, ITransactCount, ITransactMontly } from "@/types/Types"
-import { getGlobalFinanceStats, getMonthlyTransactionCounts, getMonthlyTransactionSummary, getOrderAndSalesStats, getStats } from "@/lib/actions/stats.action";
+import { IDashboardStats, IGlobalFinance, IOrderAndSalesStats, IStats, ITransactCount, ITransactMontly } from "@/types/Types"
+import { getDashboardStats, getGlobalFinanceStats, getMonthlyTransactionCounts, getMonthlyTransactionSummary, getOrderAndSalesStats, getStats } from "@/lib/actions/stats.action";
 import { useQuery } from "@tanstack/react-query";
 
 export const useFetchStats = () => {
@@ -107,4 +107,27 @@ export const useFetchGlobalFinanceStats = () => {
     queryFn: fetchGlobalFinanceStats,
   })
   return {globalFinanceStats, isPending, refetch, isSuccess}
+}
+
+
+
+export const useFetchDashboardStats = () => {
+    const fetchDashboardStats = async ():Promise<IDashboardStats | null> => {
+        try {
+            const res = await getDashboardStats();
+            const data = res.payload as IDashboardStats;
+            return data;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+  
+  
+  
+  const {data:dashboardStats, isPending, refetch, isSuccess} = useQuery({
+    queryKey: ['dashboardStats'],
+    queryFn: fetchDashboardStats,
+  })
+  return {dashboardStats, isPending, refetch, isSuccess}
 }

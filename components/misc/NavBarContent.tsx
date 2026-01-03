@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { NavLinks } from "@/Data/NavLinks";
 import { INavBarItem } from "@/types/NavBar.types";
 import { FaChevronUp, FaChevronDown } from "react-icons/fa";
+import { flattenNav } from "@/functions/helpers";
 
 type NavBarContentProps = {
   isNavOpen: boolean;
@@ -21,30 +22,25 @@ const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
 
   // 🧭 Update active item based on current route
   useEffect(() => {
-    let found: INavBarItem | null = null;
-    let parentId: string | null = null;
+    const flat = flattenNav(links);
 
-    for (const item of links) {
-      if (pathname.startsWith(item?.link!)) {
-        found = item;
-        break;
-      }
-      if (item.subMenu) {
-        for (const sub of item.subMenu) {
-          if (pathname?.startsWith(sub?.link!)) {
-            found = sub;
-            parentId = item.id;
-            break;
-          }
-        }
-      }
-    }
+    const match = flat
+      .filter(({ item }) =>
+        item.link === "/dashboard"
+          ? pathname === "/dashboard"
+          : pathname.startsWith(item.link!)
+      )
+      .sort(
+        (a, b) =>
+          (b.item.link?.length ?? 0) - (a.item.link?.length ?? 0)
+      )[0];
 
-    if (found) {
-      setCurrentItem(found);
-      setOpenSubMenuId(parentId);
+    if (match) {
+      setCurrentItem(match.item);
+      setOpenSubMenuId(match.parentId);
     }
   }, [pathname, links]);
+
 
   const handleTopLevelClick = (item: INavBarItem) => {
     setCurrentItem(item);

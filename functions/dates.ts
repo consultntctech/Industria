@@ -23,3 +23,66 @@ export function formatTimestamp(ts: string): string {
 
   return `${mm}/${dd}/${yy} ${hours}:${minutes} ${ampm}`;
 }
+
+
+
+
+
+export function getLast7Months(): { key: string; label: string }[] {
+    const months: { key: string; label: string }[] = [];
+    const now = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const month = d.toLocaleString('en', { month: 'short' });
+        const year = d.getFullYear();
+        months.push({
+            key: `${year}-${d.getMonth() + 1}`,
+            label: `${month} ${year}`,
+        });
+    }
+    return months;
+}
+
+export function getLast7Weeks(): string[] {
+    const weeks: string[] = [];
+    const now = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i * 7);
+
+        // ISO week calculation
+        const temp = new Date(d);
+        temp.setHours(0, 0, 0, 0);
+        temp.setDate(temp.getDate() + 3 - ((temp.getDay() + 6) % 7));
+
+        const isoYear = temp.getFullYear();
+        const week1 = new Date(isoYear, 0, 4);
+        const isoWeek =
+            1 +
+            Math.round(
+                ((temp.getTime() - week1.getTime()) / 86400000 -
+                    3 +
+                    ((week1.getDay() + 6) % 7)) /
+                    7
+            );
+
+        weeks.push(`${isoYear}W${isoWeek}`);
+    }
+
+    return weeks;
+}
+
+
+export function getLast7Days(): string[] {
+    const days: string[] = [];
+    const now = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+        const d = new Date(now);
+        d.setDate(d.getDate() - i);
+        days.push(d.toLocaleString('en', { weekday: 'short' }));
+    }
+    return days;
+}

@@ -3,6 +3,7 @@ import { ILineItem } from "@/lib/models/lineitem.model";
 import { IOrder } from "@/lib/models/order.model";
 import { IProduct } from "@/lib/models/product.model";
 import { IRole } from "@/lib/models/role.model";
+import { INavBarItem } from "@/types/NavBar.types";
 import { IOperation, ISoldItem } from "@/types/Types";
 
 export function generatePassword(length: number): string {
@@ -169,3 +170,28 @@ export function getISOWeekYear(date: Date): number {
   tmp.setDate(tmp.getDate() + 3 - ((tmp.getDay() + 6) % 7));
   return tmp.getFullYear();
 }
+
+
+
+type FlatNavItem = {
+  item: INavBarItem;
+  parentId: string | null;
+};
+
+export const flattenNav = (links: INavBarItem[]): FlatNavItem[] => {
+  const result: FlatNavItem[] = [];
+
+  for (const item of links) {
+    if (item.link) {
+      result.push({ item, parentId: null });
+    }
+
+    if (item.subMenu) {
+      for (const sub of item.subMenu) {
+        result.push({ item: sub, parentId: item.id });
+      }
+    }
+  }
+
+  return result;
+};

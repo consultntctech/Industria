@@ -1,5 +1,5 @@
-import { getProducts, getProductStats } from "@/lib/actions/product.action";
-import { IProduct } from "@/lib/models/product.model";
+import { getAllProductsWithStock, getProducts, getProductStats } from "@/lib/actions/product.action";
+import { IProduct, IProductWithStock } from "@/lib/models/product.model";
 import { IProductStats } from "@/types/Types";
 import { useQuery } from "@tanstack/react-query";
 
@@ -43,4 +43,25 @@ export const useFetchProductStats = () =>{
     })
     
     return {stats, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchProductsWithStock = () => {
+    const fetchProducts = async():Promise<IProductWithStock[]>=>{
+        try {
+            const res = await getAllProductsWithStock();
+            const products = res.payload as IProductWithStock[];
+            return products.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+  const {data:products=[], isPending, refetch, isSuccess} = useQuery({
+    queryKey: ['productswithstock'],
+    queryFn: fetchProducts,
+  })
+
+  return {products, isPending, refetch, isSuccess}
 }

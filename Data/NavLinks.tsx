@@ -23,7 +23,7 @@ export const NavLinks = (): INavBarItem[] => {
       id: "1",
       title: "Dashboard",
       icon: <LuLayoutDashboard />,
-      link: "/dashboard/dashboard",
+      link: "/dashboard",
     },
     {
       id: "2",

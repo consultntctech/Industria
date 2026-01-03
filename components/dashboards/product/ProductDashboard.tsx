@@ -3,6 +3,7 @@ import Title from "@/components/misc/Title"
 import ProductBarChart from "./ProductBarChart"
 import { useFetchProductStats } from "@/hooks/fetch/useFetchProducts";
 import ProductLowStockCard from "./ProductLowStockCard";
+import ProductDashTable from "./ProductDashTable";
 
 const ProductDashboard = () => {
     
@@ -13,6 +14,7 @@ const ProductDashboard = () => {
         <Title title="Products Dashboard" isLink={false}/>
         <ProductBarChart isPending={isPending} stats={stats} />
         <ProductLowStockCard isPending={isPending} stats={stats} />
+        <ProductDashTable />
     </div>
   )
 }

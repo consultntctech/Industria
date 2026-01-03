@@ -5,6 +5,11 @@ import { ICategory } from "./category.model";
 import { ISupplier } from "./supplier.model";
 import ProdApproval from "./prodapproval.model";
 
+export interface IProductWithStock extends IProduct {
+    stock: number;
+    outOfStock: boolean;
+}
+
 export interface IProduct extends Document {
     _id: string;
     name: string;

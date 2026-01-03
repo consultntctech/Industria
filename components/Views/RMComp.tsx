@@ -138,6 +138,8 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
         }
     }
 
+    const price = ((data?.unitPrice! * data.qReceived!) - (data.discount! - data?.charges!)) || 0;
+
   return (
      <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
       
@@ -196,7 +198,12 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
               }
               <InputWithLabel defaultValue={currentMaterial?.charges} onChange={onChange} name="charges"  type="number" min={0} placeholder="eg. 20" label="Addtional Charges" className="w-full" />
               <InputWithLabel defaultValue={currentMaterial?.discount} onChange={onChange} name="discount"  type="number" min={0} placeholder="eg. 20" label="Discount" className="w-full" />
-              <InputWithLabel defaultValue={data?.price || 0} readOnly  name="price"  type="number"  label="Total cost" className="w-full" />
+              {
+                // currentMaterial ? 
+                // <InputWithLabel defaultValue={data?.price || 0} readOnly  name="price"  type="number"  label="Total cost" className="w-full" />
+                // :
+                <InputWithLabel value={price} readOnly  name="price"  type="number"  label="Total cost" className="w-full" />
+              }
               <TextAreaWithLabel defaultValue={currentMaterial?.note} name="note" onChange={onChange} placeholder="enter note" label="Note" className="w-full" />
             </div>
             <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentMaterial ? "Update" : "Submit"} className="w-full mt-4" />

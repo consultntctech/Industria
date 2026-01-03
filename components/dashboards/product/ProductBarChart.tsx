@@ -19,7 +19,7 @@ const ProductBarChart = ({stats, isPending}:ProductBarChartProps) => {
     <div className="flex w-[86vw] md:w-full flex-col gap-4 p-2.5 shadow  flex-2 rounded-2xl" >
         <div className="flex flex-col md:flex-row gap-2 md:justify-between">
             <div className="flex flex-col gap-1 items-center md:items-start">
-                <span className="semibold">Daily Packaging Trend</span>
+                <span className="semibold">Stocks (By Product)</span>
                 <span className="greyText2">Overview of products stocks</span>
             </div>
 
