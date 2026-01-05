@@ -86,3 +86,18 @@ export function getLast7Days(): string[] {
     }
     return days;
 }
+
+
+export async function hasPassedOneHour(
+  input: Date | string
+): Promise<boolean> {
+  const date =
+    input instanceof Date ? input : new Date(input);
+
+  if (isNaN(date.getTime())) {
+    throw new Error('Invalid date input');
+  }
+
+  const ONE_HOUR_MS = 60 * 60 * 1000;
+  return Date.now() - date.getTime() >= ONE_HOUR_MS;
+}

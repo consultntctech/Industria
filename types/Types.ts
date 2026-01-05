@@ -211,3 +211,9 @@ export interface IDashboardStats{
     production:{day:string, quantity:number}[]
     orderFulfillmentStatus: number; //1 decimal place
 }
+
+
+export interface IResetPayload{
+    email: string;
+    expires: Date | string;
+}

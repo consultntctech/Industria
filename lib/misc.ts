@@ -1,5 +1,5 @@
 import { IResponse } from "@/types/Types"
-import { getWelcomeEmailHTML, WelcomeEmailParams } from "@/utils/emailtemplate";
+import { getWelcomeEmailHTML, renderPasswordResetEmail, WelcomeEmailParams } from "@/utils/emailtemplate";
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 
@@ -33,6 +33,17 @@ export const comparePassword = async(text:string, hash:string):Promise<boolean>=
 }
 
 
+ const transporter = nodemailer.createTransport({
+    // host: process.env.SMTP_HOST || "smtp.gmail.com",
+    // port: Number(process.env.SMTP_PORT) || 587,
+    // secure: false,
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER!,
+      pass: process.env.GMAIL_PASS!,
+    },
+  });
+
 
 
 export interface SendWelcomeEmailOptions extends WelcomeEmailParams {
@@ -60,16 +71,7 @@ export async function sendWelcomeEmail({
   });
 
   
-  const transporter = nodemailer.createTransport({
-    // host: process.env.SMTP_HOST || "smtp.gmail.com",
-    // port: Number(process.env.SMTP_PORT) || 587,
-    // secure: false,
-    service: 'gmail',
-    auth: {
-      user: process.env.GMAIL_USER!,
-      pass: process.env.GMAIL_PASS!,
-    },
-  });
+ 
 
   // console.log(process.env.GMAIL_USER, process.env.GMAIL_PASS)
 
@@ -81,4 +83,21 @@ export async function sendWelcomeEmail({
   });
 
   console.log(`✅ Welcome email sent to ${to}`);
+}
+
+
+
+export async function sendPasswordResetEmail(
+  to: string,
+  token: string
+) {
+  const resetUrl =
+    `https://industra-app.vercel.app/reset-password?token=${token}`;
+
+  await transporter.sendMail({
+    from: `"Industra" <${process.env.SMTP_FROM}>`,
+    to,
+    subject: 'Reset your Industra password',
+    html: renderPasswordResetEmail({ resetUrl })
+  });
 }

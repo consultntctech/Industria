@@ -148,6 +148,27 @@ export async function changePassword(data:IUser):Promise<IResponse>{
 }
 
 
+export async function changePasswordByEmail(email:string, newPassword:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const user = await User.findOne({ email: email.toLowerCase() })
+        if (!user) {
+            return respond('No user found with that email', true, {}, 400);
+        }
+        const hashedPassword = await encryptPassword(newPassword);
+        const updatedUser = await User.findByIdAndUpdate(user._id, {password:hashedPassword}, {new: true});
+        const userData:Partial<IUser> = {
+            ...updatedUser, password: ''
+        }
+        return respond('Password changed successfully. Go back to the login page to login.', false, userData, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while changing password', true, {}, 500);
+    }
+}
+
+
+
 export async function loginUser(data:Partial<IUser>):Promise<IResponse>{
     try {
         await connectDB();

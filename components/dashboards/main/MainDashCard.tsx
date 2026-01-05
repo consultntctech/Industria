@@ -1,6 +1,6 @@
 import Card from "@/components/misc/Card"
 import { CardProps } from "@/types/Types"
-import { twMerge } from "tailwind-merge"
+// import { twMerge } from "tailwind-merge"
 
 const MainDashCard = ({ item, ...props }: { item: Partial<CardProps> }) => {
   return (
@@ -14,7 +14,7 @@ const MainDashCard = ({ item, ...props }: { item: Partial<CardProps> }) => {
             <span className="subtitle">{item?.centerText}</span>
         </div>
         <div className="flex w-full">
-            <span className={twMerge("greyText2", 'text-green-600')}>{item?.bottomText}</span>
+            <span style={{color:'darkgreen'}} className={'greyText2'}>{item?.bottomText}</span>
         </div>
     </Card>
   )

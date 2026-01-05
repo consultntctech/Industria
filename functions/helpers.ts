@@ -195,3 +195,55 @@ export const flattenNav = (links: INavBarItem[]): FlatNavItem[] => {
 
   return result;
 };
+
+
+
+type PasswordResetResult = {
+  error: boolean;
+  message: string;
+};
+
+export function validatePasswordReset(
+  password: string,
+  password1: string
+): PasswordResetResult {
+  if (!password || !password1) {
+    return {
+      error: true,
+      message: 'Password fields are required'
+    };
+  }
+
+  if (password !== password1) {
+    return {
+      error: true,
+      message: 'Passwords do not match'
+    };
+  }
+
+  if (password.length < 8) {
+    return {
+      error: true,
+      message: 'Password must be at least 8 characters long'
+    };
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    return {
+      error: true,
+      message: 'Password must contain at least one uppercase letter'
+    };
+  }
+
+  if (!/[0-9]/.test(password)) {
+    return {
+      error: true,
+      message: 'Password must contain at least one number'
+    };
+  }
+
+  return {
+    error: false,
+    message: 'Password is valid'
+  };
+}

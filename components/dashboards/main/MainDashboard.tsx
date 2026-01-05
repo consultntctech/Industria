@@ -16,7 +16,7 @@ const MainDashboard = () => {
         </div>
         <MainDashCardMainComponent stats={dashboardStats} isPending={isPending} />
 
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-7">
           <span className="subtitle" >Operational Insights</span>
           <div className="flex flex-col w-full gap-6">
             <DashInventoryLineChart stats={dashboardStats} isPending={isPending} />

@@ -1,0 +1,1 @@
+export const resetKey = new TextEncoder().encode(process.env.FORGOT_JWT!);

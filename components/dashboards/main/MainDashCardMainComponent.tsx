@@ -21,7 +21,7 @@ const MainDashCardMainComponent = ({ stats, isPending }: MainDashCardMainCompone
             <LinearProgress className='w-full' />
             :
             <>
-                <div className="w-full flex flex-row items-center flex-wrap gap-4 md:justify-between" >
+                <div className="w-full flex flex-row items-center flex-wrap gap-4 justify-between" >
                     {
                         data?.map((item, index)=>(
                             <MainDashCard key={index} item={item} />

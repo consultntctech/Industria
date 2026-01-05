@@ -33,3 +33,29 @@ export function getWelcomeEmailHTML(params: WelcomeEmailParams): string {
 
   return html;
 }
+
+
+
+
+
+type PasswordResetTemplateParams = {
+  resetUrl: string;
+};
+
+export function renderPasswordResetEmail({
+  resetUrl
+}: PasswordResetTemplateParams): string {
+  const templatePath = path.join(
+    process.cwd(),
+    'emails',
+    'password-reset.html'
+  );
+
+  let html = fs.readFileSync(templatePath, 'utf8');
+
+  html = html
+    .replace(/{{RESET_URL}}/g, resetUrl)
+    .replace(/{{YEAR}}/g, new Date().getFullYear().toString());
+
+  return html;
+}
