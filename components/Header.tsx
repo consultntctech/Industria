@@ -26,7 +26,7 @@ export const Header = () => {
           <FiLogOut />
           Logout
         </div>
-        <Link href='/profile'>
+        <Link href='/dashboard/config/profile'>
           <Image className='rounded-full' src={user?.photo || imageLink} alt="profile-pic" width={30} height={30} />
         </Link>
       </div>

@@ -12,7 +12,7 @@ import { validatePasswordReset } from '@/functions/helpers'
 // import { IForgot } from '@/lib/models/forgot.model'
 import { useFetchUserReset } from '@/hooks/fetch/useFetchUsers'
 
-type PasswordProps = {
+export type PasswordProps = {
     password: string;
     password1: string;
 }

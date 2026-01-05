@@ -1,6 +1,7 @@
 import { INavBarItem } from "@/types/NavBar.types";
 import { BsCartPlus } from "react-icons/bs";
 import { CiBag1, CiCircleCheck } from "react-icons/ci";
+import { FaRegUser } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import { GoPeople } from "react-icons/go";
 import { GrAlert, GrShieldSecurity } from "react-icons/gr";
@@ -116,6 +117,7 @@ export const NavLinks = (): INavBarItem[] => {
         // { id: "102", title: "Serial No.", icon: <TbLine />, link: "/dashboard/config/serial-no" },
         { id: "103", title: "Org Settings", icon: <RiStackshareLine />, link: "/dashboard/config/org-settings" },
         { id: "104", title: "Currency", icon: <HiOutlineCurrencyDollar />, link: "/dashboard/config/currency" },
+        { id: "105", title: "User Account", icon: <FaRegUser />, link: "/dashboard/config/profile" },
       ],
     },
 

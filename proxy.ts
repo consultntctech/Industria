@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "./lib/session";
 
-const publicRoutes = ['/', '/forgot', '/reset'];
+const publicRoutes = ['/', '/forgot', '/reset-password'];
 
 export default async function proxy(req:NextRequest){
     const path = req.nextUrl.pathname;

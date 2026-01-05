@@ -7,6 +7,7 @@ import { generatePassword } from '@/functions/helpers';
 import Organization from '../models/org.model';
 import { verifyOrgAccess } from '../middleware/verifyOrgAccess';
 import '../models/role.model'
+import Forgot from '../models/forgot.model';
 
 
 export async function createUser(data:Partial<IUser>):Promise<IResponse>{
@@ -89,6 +90,21 @@ export async function updateUser(data:Partial<IUser>):Promise<IResponse>{
     }
 }
 
+export async function updateUserV2(data:Partial<IUser>):Promise<IResponse>{
+    try {
+        await connectDB();
+        const updatedUser = await User.findByIdAndUpdate(data._id, data, { new: true });
+        const sessionData:Partial<IUser> = {
+            ...updatedUser?._doc, password:''
+        }
+
+        return respond('User updated successfully', false, sessionData, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while updating user', true, {}, 500);
+    }
+}
+
 
 export async function AssignRolesToUsers(userIds: string[], roleIds: string[]): Promise<IResponse> {
   try {
@@ -98,6 +114,7 @@ export async function AssignRolesToUsers(userIds: string[], roleIds: string[]): 
       { _id: { $in: userIds } },
       { $addToSet: { roles: { $each: roleIds } } }
     );
+
 
     return respond('Roles assigned successfully', false, updatedUser, 200);
   } catch (error) {
@@ -132,10 +149,13 @@ export async function deleteUser(id:string):Promise<IResponse>{
     }
 }
 
-export async function changePassword(data:IUser):Promise<IResponse>{
+export async function changePassword(data:Partial<IUser>):Promise<IResponse> {
     try {
         await connectDB();
-        const hashedPassword = await encryptPassword(data.password);
+        if(!data?.password){
+            return respond('Password is required', true, {}, 400);
+        }
+        const hashedPassword = await encryptPassword(data?.password);
         const updatedUser = await User.findByIdAndUpdate(data._id, {password:hashedPassword}, {new: true});
         const userData:Partial<IUser> = {
             ...updatedUser, password: ''
@@ -157,6 +177,7 @@ export async function changePasswordByEmail(email:string, newPassword:string):Pr
         }
         const hashedPassword = await encryptPassword(newPassword);
         await User.findByIdAndUpdate(user._id, {password:hashedPassword}, {new: true});
+        await Forgot.deleteOne({email});
         
         return respond('Password changed successfully. Use the new password to login.', false, {}, 200);
     } catch (error) {
@@ -187,3 +208,4 @@ export async function loginUser(data:Partial<IUser>):Promise<IResponse>{
         return respond('Error occured while logging in user', true, {}, 500);
     }
 }
+

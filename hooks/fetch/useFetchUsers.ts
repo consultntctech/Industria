@@ -1,10 +1,11 @@
 import { getForgotByToken } from "@/lib/actions/forgot.action";
-import { getUsers } from "@/lib/actions/user.action";
+import { getUser, getUsers } from "@/lib/actions/user.action";
 import { IForgot } from "@/lib/models/forgot.model";
 import { IUser } from "@/lib/models/user.model";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { enqueueSnackbar } from "notistack";
+import { useAuth } from "../useAuth";
 
 export const useFetchUsers = () => {
     const fetchUsers = async():Promise<IUser[]>=>{
@@ -55,4 +56,26 @@ export const useFetchUserReset = () =>{
         queryFn: fetchUserReset,
     })
     return {forgot, isPending, refetch}
+}
+
+
+export const useFetchUserProfile = () => {
+    const {user} = useAuth();
+    const fetchUserProfile = async():Promise<IUser|null>=>{
+        try {
+            if(!user) return null;
+            const res = await getUser(user._id);
+            return res.payload as IUser;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+
+    const {data:userProfile, isPending, refetch} = useQuery({
+        queryKey: ['userProfile'],
+        queryFn: fetchUserProfile,
+        enabled: !!user,
+    })
+    return {userProfile, isPending, refetch}
 }
