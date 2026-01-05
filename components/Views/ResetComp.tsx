@@ -3,13 +3,14 @@ import Image from 'next/image'
 import React, { useRef, useState } from 'react'
 import TextInput from '../shared/inputs/TextInput'
 import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { enqueueSnackbar } from 'notistack'
 import { changePasswordByEmail } from '@/lib/actions/user.action'
 import LoginButton from '../shared/buttons/LoginButton'
 import { validatePasswordReset } from '@/functions/helpers'
-import { getForgotByToken } from '@/lib/actions/forgot.action'
-import { IForgot } from '@/lib/models/forgot.model'
+// import { getForgotByToken } from '@/lib/actions/forgot.action'
+// import { IForgot } from '@/lib/models/forgot.model'
+import { useFetchUserReset } from '@/hooks/fetch/useFetchUsers'
 
 type PasswordProps = {
     password: string;
@@ -23,35 +24,30 @@ const ResetComp = () => {
     const formRef = useRef<HTMLFormElement>(null);
     const router = useRouter();
 
+    const {forgot} = useFetchUserReset();
+
     const handleOnchange = (e:React.ChangeEvent<HTMLInputElement>)=>{
         setData((pre)=>({
             ...pre, [e.target.name]: e.target.value
         }))
     }
-
-    const searchParams = useSearchParams();
-    const token = searchParams.get('token') || '';
+;
 
     const handleSubmit = async(e:React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
         setLoading(true);
         try {
-            if(!token){
+            if(!forgot){
                 enqueueSnackbar('No request received for this operation', {variant:'error'});
                 return;
-            };
+            }
             const valid = validatePasswordReset(data?.password, data?.password1);
             if(valid.error){
                 enqueueSnackbar(valid.message, {variant:'error'});
                 return;
             }
-            const res = await getForgotByToken(token);
-            if(res.error){
-                enqueueSnackbar(res.message, {variant:'error'});
-                return;
-            }
-            const forgot = res.payload as IForgot;
-            const resetRes = await changePasswordByEmail(forgot.email, data.password);
+            
+            const resetRes = await changePasswordByEmail(forgot?.email, data.password);
             enqueueSnackbar(resetRes.message, {variant:resetRes.error?'error':'success'});
             if(!resetRes.error){
                 formRef.current?.reset();
@@ -59,7 +55,7 @@ const ResetComp = () => {
             }
         } catch (error) {
             console.log(error);
-            enqueueSnackbar('Error occured while restting password', {variant:'error'});
+            enqueueSnackbar('Error occured while resetting password', {variant:'error'});
         }finally{
             setLoading(false);
         }

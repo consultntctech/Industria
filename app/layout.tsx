@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { SnackProvider } from "./dashboard/providers/providers";
+import Providers, { SnackProvider } from "./dashboard/providers/providers";
 import { Suspense } from "react";
 
 const geistSans = Geist({
@@ -29,11 +29,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <SnackProvider>
-          <Suspense>
-            {children}
-          </Suspense>
-        </SnackProvider>
+        <Providers>
+          <SnackProvider>
+            <Suspense>
+              {children}
+            </Suspense>
+          </SnackProvider>
+        </Providers>
       </body>
     </html>
   );

@@ -65,10 +65,11 @@ export async function getForgotByToken(token:string):Promise<IResponse>{
         if(!user){
             return respond('Invalid or expired token', true, {}, 404);
         }
-        return respond('Forgot request valid', false, {forgot}, 200);
+        await Forgot.deleteOne({token});
+        return respond('Forgot request valid', false, forgot, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while creating forgot', true, {}, 500);
+        return respond('Error occured validating token', true, {}, 500);
     }
 }
 

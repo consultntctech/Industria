@@ -156,13 +156,11 @@ export async function changePasswordByEmail(email:string, newPassword:string):Pr
             return respond('No user found with that email', true, {}, 400);
         }
         const hashedPassword = await encryptPassword(newPassword);
-        const updatedUser = await User.findByIdAndUpdate(user._id, {password:hashedPassword}, {new: true});
-        const userData:Partial<IUser> = {
-            ...updatedUser, password: ''
-        }
-        return respond('Password changed successfully. Go back to the login page to login.', false, userData, 200);
+        await User.findByIdAndUpdate(user._id, {password:hashedPassword}, {new: true});
+        
+        return respond('Password changed successfully. Use the new password to login.', false, {}, 200);
     } catch (error) {
-        console.log(error);
+        // console.log(error);
         return respond('Error occured while changing password', true, {}, 500);
     }
 }
