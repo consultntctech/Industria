@@ -105,12 +105,12 @@ export const GoodColumns = (
             }
         },
     
-        {
-            field: 'threshold',
-            headerName: 'Threshold',
-            width:100,
-            headerAlign: 'center',
-        },
+        // {
+        //     field: 'threshold',
+        //     headerName: 'Threshold',
+        //     width:100,
+        //     headerAlign: 'center',
+        // },
         {
             field: 'description',
             headerName: 'Description',

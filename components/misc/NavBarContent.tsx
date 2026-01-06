@@ -6,13 +6,19 @@ import { NavLinks } from "@/Data/NavLinks";
 import { INavBarItem } from "@/types/NavBar.types";
 import { FaChevronUp, FaChevronDown } from "react-icons/fa";
 import { flattenNav } from "@/functions/helpers";
+import { useAuth } from "@/hooks/useAuth";
+import { filterNavLinks } from "@/Data/roles/permissions";
 
 type NavBarContentProps = {
   isNavOpen: boolean;
 };
 
 const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
-  const links = useMemo(() => NavLinks(), []);
+  const { user } = useAuth();
+  const links = useMemo(
+  () => filterNavLinks(user, NavLinks()),
+  [user]
+);
   const pathname = usePathname();
 
   const [currentItem, setCurrentItem] = useState<INavBarItem | null>(links?.[0] ?? null);

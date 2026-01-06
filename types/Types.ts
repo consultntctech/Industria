@@ -1,4 +1,6 @@
 import Card from "@/components/misc/Card";
+import { IRole } from "@/lib/models/role.model";
+import { Types } from "mongoose";
 import { ComponentProps, ReactNode } from "react";
 
 export interface IResponse {
@@ -16,7 +18,7 @@ export interface ISession {
     email: string;
     photo: string;
     password:string;
-    roles: string[];
+    roles: string[] | Types.ObjectId[] | IRole[];
     description: string;
     org: string
     expires?: Date;
@@ -217,3 +219,11 @@ export interface IResetPayload{
     email: string;
     expires: Date | string;
 }
+
+
+export type OperationName =
+  | 'READ'
+  | 'CREATE'
+  | 'UPDATE'
+  | 'DELETE'
+  | 'APPROVE';

@@ -7,6 +7,7 @@ import { useState } from "react"
 import { useSettings } from "@/config/useSettings"
 import { IBatch } from "@/lib/models/batch.model"
 import BatchTable from "../tables/batches/BatchTable"
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
 
 const Batches = () => {
     const [openNew, setOpenNew] = useState(false);
@@ -18,8 +19,10 @@ const Batches = () => {
             <Title title="Batches" isLink={false}/>
             <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
         </div>
-        <BatchComp openNew={openNew} setOpenNew={setOpenNew} currentBatch={currentBatch} setCurrentBatch={setCurrentBatch}/>
-        <BatchTable setOpenNew={setOpenNew} currentBatch={currentBatch} setCurrentBatch={setCurrentBatch} />
+        <PermissionGuard tableId={['55']} >
+          <BatchComp openNew={openNew} setOpenNew={setOpenNew} currentBatch={currentBatch} setCurrentBatch={setCurrentBatch}/>
+          <BatchTable setOpenNew={setOpenNew} currentBatch={currentBatch} setCurrentBatch={setCurrentBatch} />
+        </PermissionGuard>
     </div>
   )
 }

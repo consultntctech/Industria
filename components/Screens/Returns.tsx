@@ -1,5 +1,6 @@
 'use client'
 
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
 import Title from "../misc/Title"
 import ReturnsTable from "../tables/returns/ReturnsTable"
 
@@ -10,7 +11,9 @@ const Returns = () => {
         <div className="flex w-full items-center flex-row justify-between">
             <Title title="Returns" isLink={false}/>
         </div>
-        <ReturnsTable/>
+        <PermissionGuard tableId={['83']} >
+          <ReturnsTable/>
+        </PermissionGuard>
     </div>
   )
 }

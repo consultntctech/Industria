@@ -52,7 +52,7 @@ export const TableData:ITable[] = [
         description: 'Production table'
     },
     {
-        id:'87',
+        id:'88',
         name: 'Goods',
         description: 'Goods table'
     },

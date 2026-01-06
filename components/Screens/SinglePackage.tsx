@@ -1,6 +1,7 @@
 import { IPackage } from "@/lib/models/package.model"
 import Title from "../misc/Title"
 import SinglePackageComp from "../Views/SinglePackageComp"
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
 
 type SinglePackageProps = {
     currentPackage:IPackage | null
@@ -16,7 +17,9 @@ const SinglePackage = ({currentPackage}:SinglePackageProps) => {
             <div className="title hidden md:block">/</div>
             <Title className="hidden md:flex" showback={false} title={currentPackage?.name} isLink={false} />
         </div>
-        <SinglePackageComp currentPackage={currentPackage}/>
+        <PermissionGuard tableId={['99']} >
+          <SinglePackageComp currentPackage={currentPackage}/>
+        </PermissionGuard>
     </div>
   )
 }

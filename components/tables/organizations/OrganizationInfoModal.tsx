@@ -27,7 +27,7 @@ const OrganizationInfoModal = ({infoMode, setInfoMode, currentOrganization, setC
             <div className="flex-center w-full">
                 <div className="flex-center w-fit bg-slate-300 rounded-full p-2">
                     <div className="h-20 w-20 relative rounded-full">
-                        <Image fill className='rounded-full' alt='user' src={currentOrganization?.logo} />
+                        <Image fill className='rounded-full' alt='user' src={currentOrganization?.logo || "/images/bird-colorful-gradient-design-vector_343694-2506.jpg"} />
                     </div>
                 </div>
             </div>

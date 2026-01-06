@@ -4,6 +4,7 @@ import Title from '../misc/Title'
 import { IGood } from '@/lib/models/good.model';
 import GoodsComp from '../Views/GoodsComp';
 import GoodTable from '../tables/goods/GoodsTable';
+import { PermissionGuard } from '@/hooks/permissions/PermissionProvider';
 
 const FinishedGoods = () => {
     const [currentGood, setCurrentGood] = useState<IGood | null>(null);
@@ -13,8 +14,10 @@ const FinishedGoods = () => {
         <div className="flex w-full items-center flex-row justify-between">
             <Title title="Finshed Goods" isLink={false}/>
         </div>
-        <GoodsComp openNew={openNew} setOpenNew={setOpenNew} currentGood={currentGood} setCurrentGood={setCurrentGood}/>
-        <GoodTable setOpenNew={setOpenNew} currentGood={currentGood} setCurrentGood={setCurrentGood} />
+        <PermissionGuard tableId={['88']} >
+          <GoodsComp openNew={openNew} setOpenNew={setOpenNew} currentGood={currentGood} setCurrentGood={setCurrentGood}/>
+          <GoodTable setOpenNew={setOpenNew} currentGood={currentGood} setCurrentGood={setCurrentGood} />
+        </PermissionGuard>
     </div>
   )
 }

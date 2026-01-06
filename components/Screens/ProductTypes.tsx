@@ -6,6 +6,7 @@ import Title from "../misc/Title";
 import { IoMdAddCircle } from "react-icons/io";
 import ProductTable from "../tables/products/ProductTable";
 import { IProduct } from "@/lib/models/product.model";
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider";
 
 const ProductTypes = () => {
     const [openNew, setOpenNew] = useState(false);
@@ -17,8 +18,10 @@ const ProductTypes = () => {
             <Title title="Products" isLink={false}/>
             <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
         </div>
-        <ProductTypesComp openNew={openNew} setOpenNew={setOpenNew} currentProduct={currentProduct} setCurrentProduct={setCurrentProduct} />
-        <ProductTable setOpenNew={setOpenNew} currentProduct={currentProduct} setCurrentProduct={setCurrentProduct} />
+        <PermissionGuard tableId={['28']} >
+          <ProductTypesComp openNew={openNew} setOpenNew={setOpenNew} currentProduct={currentProduct} setCurrentProduct={setCurrentProduct} />
+          <ProductTable setOpenNew={setOpenNew} currentProduct={currentProduct} setCurrentProduct={setCurrentProduct} />
+        </PermissionGuard>
     </div>
   )
 }

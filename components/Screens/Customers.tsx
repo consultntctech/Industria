@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useSettings } from "@/config/useSettings";
 import { ICustomer } from "@/lib/models/customer.model";
 import CustomersTable from "../tables/customers/CustomersTable";
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider";
 
 const Customers = () => {
     const [openNew, setOpenNew] = useState(false);
@@ -17,8 +18,10 @@ const Customers = () => {
             <Title title="Customers" isLink={false}/>
             <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
         </div>
-        <CustomerComp openNew={openNew} setOpenNew={setOpenNew} currentCustomer={currentCustomer} setCurrentCustomer={setCurrentCustomer} />
-        <CustomersTable setOpenNew={setOpenNew} currentCustomer={currentCustomer} setCurrentCustomer={setCurrentCustomer} />
+        <PermissionGuard tableId={['33']} >
+          <CustomerComp openNew={openNew} setOpenNew={setOpenNew} currentCustomer={currentCustomer} setCurrentCustomer={setCurrentCustomer} />
+          <CustomersTable setOpenNew={setOpenNew} currentCustomer={currentCustomer} setCurrentCustomer={setCurrentCustomer} />
+        </PermissionGuard>
     </div>
   )
 }

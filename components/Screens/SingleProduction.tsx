@@ -1,6 +1,7 @@
 import { IProduction } from "@/lib/models/production.model"
 import Title from "../misc/Title"
 import SingleProductionComp from "../Views/SingleProductionComp"
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
 
 type SingleProductionProps = {
     production:IProduction | null
@@ -16,7 +17,10 @@ const SingleProduction = ({production}:SingleProductionProps) => {
             <div className="title hidden md:block">/</div>
             <Title className="hidden md:flex" showback={false} title={production?.name} isLink={false} />
         </div>
-        <SingleProductionComp production={production}/>
+        <PermissionGuard tableId={['8']} >
+          <SingleProductionComp production={production}/>
+        </PermissionGuard>
+          
     </div>
   )
 }

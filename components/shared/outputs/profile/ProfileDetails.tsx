@@ -12,6 +12,7 @@ import { updateUserV2 } from "@/lib/actions/user.action";
 import { enqueueSnackbar } from "notistack";
 import { ISession } from "@/types/Types";
 import { createSession } from "@/lib/session";
+// import { useAuth } from "@/hooks/useAuth";
 
 const ProfileDetails = () => {
     const {userProfile, isPending, refetch} = useFetchUserProfile();
@@ -21,6 +22,8 @@ const ProfileDetails = () => {
     const [loading, setLoading] = useState(false);
     const [logo, setLogo] = useState<{url:string, filename:string}>({url:'', filename:''});
 
+    // const {user} = useAuth();
+    // console.log('User: ', user)
 
 
     useEffect(() => {

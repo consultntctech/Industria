@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useSettings } from "@/config/useSettings";
 import SuppliersTable from "../tables/suppliers/SuppliersTable";
 import { ISupplier } from "@/lib/models/supplier.model";
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider";
 
 const Supplier = () => {
     const [openNew, setOpenNew] = useState(false);
@@ -17,8 +18,10 @@ const Supplier = () => {
             <Title title="Suppliers" isLink={false}/>
             <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
         </div>
-        <SupplierComp openNew={openNew} setOpenNew={setOpenNew} currentSupplier={currentSupplier} setCurrentSupplier={setCurrentSupplier} />
-        <SuppliersTable setOpenNew={setOpenNew} currentSupplier={currentSupplier} setCurrentSupplier={setCurrentSupplier} />
+        <PermissionGuard tableId={['41']} >
+          <SupplierComp openNew={openNew} setOpenNew={setOpenNew} currentSupplier={currentSupplier} setCurrentSupplier={setCurrentSupplier} />
+          <SuppliersTable setOpenNew={setOpenNew} currentSupplier={currentSupplier} setCurrentSupplier={setCurrentSupplier} />
+        </PermissionGuard>
     </div>
   )
 }

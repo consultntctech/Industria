@@ -1,4 +1,5 @@
 'use client'
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
 import Title from "../misc/Title"
 import FinanceComp from "../Views/FinanceComp"
 
@@ -8,7 +9,9 @@ const Finance = () => {
         <div className="flex w-full items-center flex-row justify-between">
             <Title title="Finance Overview" isLink={false}/>
         </div>
-        <FinanceComp/>
+        <PermissionGuard tableId={['97']} >
+          <FinanceComp/>
+        </PermissionGuard>
     </div>
   )
 }

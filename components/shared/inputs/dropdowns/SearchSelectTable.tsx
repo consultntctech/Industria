@@ -1,6 +1,8 @@
 // import { useFetchAvailableGoods } from "@/hooks/fetch/useFetchGoods"
 // import { ITable } from "@/lib/models/good.model"
+import { isSystemAdmin } from "@/Data/roles/permissions"
 import { TableData } from "@/Data/roles/table"
+import { useAuth } from "@/hooks/useAuth"
 import { ITable } from "@/types/Types"
 import { Autocomplete, CircularProgress, TextField } from "@mui/material"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
@@ -15,10 +17,18 @@ const SearchSelectTable = ({setSelect, required, value, width}:SearchSelectTable
     // const {goods, isPending} = useFetchAvailableGoods();
     const [search, setSearch] = useState<string>('');
 
+    const {user} = useAuth();
+
+    const gloAdmin:ITable = {
+        id:'15',
+        name: 'Global Admin',
+        description: 'Everything in the organization'
+    }
+
     return(
         <Autocomplete
             disablePortal
-            options={TableData}
+            options={isSystemAdmin(user) ? [gloAdmin, ...TableData]: TableData}
             onChange={(_, item:ITable|null)=>{
                 // console.log(e.target)
                 if(setSelect){

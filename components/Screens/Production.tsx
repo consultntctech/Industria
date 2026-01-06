@@ -6,6 +6,7 @@ import Title from "../misc/Title"
 import { useSettings } from "@/config/useSettings"
 import { useRouter } from "next/navigation"
 import ProductionTable from "../tables/productions/ProductionTable"
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
 
 const Production = () => {
     const {primaryColour} = useSettings();
@@ -23,7 +24,9 @@ const Production = () => {
             </Tooltip>
         </div>
         {/* <ProductionComp/> */}
-        <ProductionTable/>
+        <PermissionGuard tableId={['8']} >
+            <ProductionTable/>
+        </PermissionGuard>
     </div>
   )
 }

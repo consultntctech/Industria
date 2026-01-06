@@ -6,6 +6,7 @@ import { useSettings } from '@/config/useSettings';
 import Title from '../misc/Title';
 import UserTable from '../tables/users/UserTable';
 import { IUser } from '@/lib/models/user.model';
+import { PermissionGuard } from '@/hooks/permissions/PermissionProvider';
 
 const UsersScreen = () => {
     const [currentUser, setCurrentUser] = useState<IUser|null>(null);
@@ -17,8 +18,10 @@ const UsersScreen = () => {
             <Title title="Users" isLink={false}/>
             <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
         </div>
-        <UsersComp currentUser={currentUser} openNew={openNew} setOpenNew={setOpenNew} setCurrentUser={setCurrentUser}/>
-        <UserTable setOpenNew={setOpenNew} currentUser={currentUser} setCurrentUser={setCurrentUser}/>
+        <PermissionGuard tableId={['21']} >
+          <UsersComp currentUser={currentUser} openNew={openNew} setOpenNew={setOpenNew} setCurrentUser={setCurrentUser}/>
+          <UserTable setOpenNew={setOpenNew} currentUser={currentUser} setCurrentUser={setCurrentUser}/>
+        </PermissionGuard>
     </div>
   )
 }

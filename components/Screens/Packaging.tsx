@@ -7,6 +7,7 @@ import { Tooltip } from "@mui/material";
 import { IoMdAddCircle } from "react-icons/io";
 import { useSettings } from "@/config/useSettings";
 import Link from "next/link";
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider";
 
 const Packaging = () => {
   const {primaryColour} = useSettings()
@@ -22,7 +23,9 @@ const Packaging = () => {
             </Link>
         </div>
         {/* <ProductionComp/> */}
-        <PackageTable/>
+        <PermissionGuard tableId={['99']} >
+          <PackageTable/>
+        </PermissionGuard>
     </div>
   )
 }

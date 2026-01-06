@@ -1,4 +1,5 @@
 'use client'
+import { PermissionGuard } from '@/hooks/permissions/PermissionProvider';
 import BatchConfigComp from '../Views/BatchConfigComp';
 // import { IoMdAddCircle } from 'react-icons/io';
 import Title from '../misc/Title';
@@ -13,7 +14,9 @@ const BatchConfig = () => {
             <Title title="Batch-no Configuration" isLink={false}/>
             {/* <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} /> */}
         </div>
-        <BatchConfigComp />
+        <PermissionGuard tableId={['48']} >
+          <BatchConfigComp />
+        </PermissionGuard>
     </div>
   )
 }

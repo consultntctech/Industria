@@ -3,6 +3,7 @@ import  { useState } from 'react'
 import CustomTabs from '../misc/CustomTabs'
 import ProdApprovalTable from '../tables/approvals/ProdApprovalTable';
 import PackApprovalTable from '../tables/packages/PackApprovalTable';
+import { ApprovalGuard } from '@/hooks/permissions/PermissionProvider';
 
 const ApprovalComp = () => {
     const [activeTab, setActiveTab] = useState<string>('first');
@@ -17,11 +18,15 @@ const ApprovalComp = () => {
       />
         {
             activeTab === 'first' &&
-            <ProdApprovalTable/>
+            <ApprovalGuard tableId={['8']} >
+              <ProdApprovalTable/>
+            </ApprovalGuard>
         }
         {
             activeTab === 'second' &&
-            <PackApprovalTable/>
+            <ApprovalGuard tableId={['99']} >
+              <PackApprovalTable/>
+            </ApprovalGuard>
         }
     </div>
   )

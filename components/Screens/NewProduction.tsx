@@ -1,4 +1,5 @@
 'use client'
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
 import Title from "../misc/Title"
 import NewProductionComp from "../Views/NewProductionComp"
 
@@ -10,7 +11,9 @@ const NewProduction = () => {
             <div className="title">/</div>
             <Title showback={false} title="New" isLink={false} />
         </div>
-        <NewProductionComp/>
+        <PermissionGuard tableId={['8']} >
+          <NewProductionComp/>
+        </PermissionGuard>
     </div>
   )
 }

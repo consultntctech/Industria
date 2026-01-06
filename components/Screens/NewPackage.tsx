@@ -1,3 +1,4 @@
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
 import Title from "../misc/Title"
 import NewPackageComp from "../Views/NewPackageComp"
 
@@ -9,7 +10,9 @@ const NewPackage = () => {
             <div className="title">/</div>
             <Title showback={false} title="New" isLink={false} />
         </div>
-        <NewPackageComp/>
+        <PermissionGuard tableId={['99']} >
+          <NewPackageComp/>
+        </PermissionGuard>
     </div>
   )
 }

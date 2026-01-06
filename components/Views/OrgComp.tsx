@@ -48,13 +48,16 @@ const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganizati
     }))
   }
 
+  // console.log('FormData: ', formData)
+
   const handleSubmit = async(e:FormEvent<HTMLFormElement>)=>{
     e.preventDefault();
     setLoading(true);
     const orgData:Partial<IOrganization> = {
-      ...formData, pcolor:formData.pcolor === '#000000' ? '#0076D1' : formData.pcolor,
-      scolor:formData.scolor === '#000000' ? '#1c80cc' : formData.scolor,
-      tcolor:formData.tcolor === '#000000' ? '#005fa3' : formData.tcolor,
+      ...formData, 
+      pcolor:(formData.pcolor === '#000000' || !formData.pcolor) ? '#0076D1' : formData.pcolor,
+      scolor:(formData.scolor === '#000000' || !formData.scolor) ? '#1c80cc' : formData.scolor,
+      tcolor:(formData.tcolor === '#000000' || !formData.tcolor) ? '#005fa3' : formData.tcolor,
       logo: logo.url
     }
     try {
@@ -100,6 +103,8 @@ const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganizati
   const handleClose = () => {
     setOpenNew(false);
     setCurrentOrganization(null);
+    setFormData({});
+    setLogo({url:'', filename:''});
   }
 
   return (

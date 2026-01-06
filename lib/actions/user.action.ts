@@ -93,7 +93,7 @@ export async function updateUser(data:Partial<IUser>):Promise<IResponse>{
 export async function updateUserV2(data:Partial<IUser>):Promise<IResponse>{
     try {
         await connectDB();
-        const updatedUser = await User.findByIdAndUpdate(data._id, data, { new: true });
+        const updatedUser = await User.findByIdAndUpdate(data._id, data, { new: true }).populate('roles');
         const sessionData:Partial<IUser> = {
             ...updatedUser?._doc, password:''
         }
@@ -191,7 +191,7 @@ export async function changePasswordByEmail(email:string, newPassword:string):Pr
 export async function loginUser(data:Partial<IUser>):Promise<IResponse>{
     try {
         await connectDB();
-        const user = await User.findOne({ email: data.email?.toLowerCase() })
+        const user = await User.findOne({ email: data.email?.toLowerCase() }).populate('roles');
         if (!user) {
             return respond('Invalid credentials', true, {}, 400);
         }

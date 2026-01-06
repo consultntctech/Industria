@@ -1,3 +1,4 @@
+import { PermissionGuard } from '@/hooks/permissions/PermissionProvider'
 import Title from '../misc/Title'
 import CurrencyComp from '../Views/CurrencyComp'
 
@@ -7,7 +8,9 @@ const Currency = () => {
         <div className="flex w-full items-center flex-row justify-between">
             <Title title="Currency Setting" isLink={false}/>
         </div>
-        <CurrencyComp />
+        <PermissionGuard tableId={['48']} >
+          <CurrencyComp />
+        </PermissionGuard>
     </div>
   )
 }

@@ -6,6 +6,7 @@ import ProdCatComp from '../Views/ProdCatComp';
 import { useSettings } from '@/config/useSettings';
 import { ICategory } from '@/lib/models/category.model';
 import CategoryTable from '../tables/categories/CategoryTable';
+import { PermissionGuard } from '@/hooks/permissions/PermissionProvider';
 
 const ProductCats = () => {
     const [openNew, setOpenNew] = useState(false);
@@ -17,8 +18,10 @@ const ProductCats = () => {
             <Title title="Categories" isLink={false}/>
             <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
         </div>
-        <ProdCatComp openNew={openNew} setOpenNew={setOpenNew} currentCategory={currentCategory} setCurrentCategory={setCurrentCategory} />
-        <CategoryTable setCurrentCategory={setCurrentCategory} currentCategory={currentCategory} setOpenNew={setOpenNew} />
+        <PermissionGuard tableId={['32']} >
+          <ProdCatComp openNew={openNew} setOpenNew={setOpenNew} currentCategory={currentCategory} setCurrentCategory={setCurrentCategory} />
+          <CategoryTable setCurrentCategory={setCurrentCategory} currentCategory={currentCategory} setOpenNew={setOpenNew} />
+        </PermissionGuard>
     </div>
   )
 }
