@@ -1,12 +1,12 @@
 'use server';
 
-import { IDashboardStats, IGlobalFinance, IMonthlyStats, IOrderAndSalesStats, IResponse, IStats, ITransactCount, ITransactMontly } from "@/types/Types";
+import { IDashboardStats, IDashStats, IGlobalFinance, IGroupedQuantity, IMonthlyStats, IOrderAndSalesStats, IResponse, IStats, ITransactCount, ITransactMontly } from "@/types/Types";
 import { respond } from "../misc";
 import Returns, { IReturns } from "../models/returns.model";
 import Sales, { ISales } from "../models/sales.model";
 import Order, { IOrder } from "../models/order.model";
 import { connectDB } from "../mongoose";
-import { Model } from "mongoose";
+import { Model, Types } from "mongoose";
 import Production, { IProduction } from "../models/production.model";
 import Package, { IPackage } from "../models/package.model";
 import RMaterial from "../models/rmaterial.mode";
@@ -826,3 +826,101 @@ export async function getDashboardStats(): Promise<IResponse> {
 }
 
 
+
+
+
+
+
+
+export async function getUserDashStats(
+  orgId: string
+): Promise<IResponse> {
+  try {
+    await connectDB();
+
+    const orgObjectId = new Types.ObjectId(orgId);
+
+    /* ---------------- RAW MATERIALS ---------------- */
+    const rawMaterials = await RMaterial.aggregate<IGroupedQuantity>([
+      {
+        $match: {
+          org: orgObjectId,
+        },
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'product',
+          foreignField: '_id',
+          as: 'product',
+        },
+      },
+      { $unwind: '$product' },
+      {
+        $group: {
+          _id: '$product.name',
+          quantity: { $sum: '$qAccepted' },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          product: '$_id',
+          quantity: 1,
+        },
+      },
+    ]);
+
+    /* ---------------- LINE ITEMS ---------------- */
+    const lineitems = await LineItem.aggregate<IGroupedQuantity>([
+      {
+        $match: {
+          org: orgObjectId,
+          status: { $in: ['Available', 'Returned'] },
+        },
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'product',
+          foreignField: '_id',
+          as: 'product',
+        },
+      },
+      { $unwind: '$product' },
+      {
+        $group: {
+          _id: '$product.name',
+          quantity: { $sum: 1 },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          product: '$_id',
+          quantity: 1,
+        },
+      },
+    ]);
+
+    const data: IDashStats = {
+      rawMaterials,
+      lineitems,
+    };
+
+    return respond(
+      'Dashboard stats fetched successfully',
+      false,
+      data,
+      200
+    );
+  } catch (error) {
+    console.error(error);
+    return respond(
+      'Error occurred while fetching dashboard stats',
+      true,
+      {},
+      500
+    );
+  }
+}

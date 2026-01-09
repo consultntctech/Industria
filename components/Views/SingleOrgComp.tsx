@@ -11,6 +11,7 @@ import Image from "next/image";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { LinearProgress } from "@mui/material";
 import { useAuth } from "@/hooks/useAuth";
+import { canUser, isSystemAdmin } from "@/Data/roles/permissions";
 
 type SingleOrgCompProps = {
  currentOrganization: IOrganization | null | undefined;
@@ -26,7 +27,10 @@ const SingleOrgComp = ({currentOrganization, isPending, refetch}:SingleOrgCompPr
 
   const {user} = useAuth();
 
-  const isAdmin = ['68f8c19d786ede7566b3432c'].includes(String(user?.org));
+  const isCreator = canUser(user, '48', 'CREATE');
+  const isEditor = canUser(user, '48', 'UPDATE');
+
+  const isAdmin = isSystemAdmin(user);
 
 
   useEffect(() => {
@@ -128,7 +132,10 @@ const SingleOrgComp = ({currentOrganization, isPending, refetch}:SingleOrgCompPr
                   </div>
                   <TextAreaWithLabel defaultValue={currentOrganization?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                 </div>
-                <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentOrganization ? 'Update' : "Submit"} className="w-full mt-4" />
+                {
+                  (isCreator || isEditor) &&
+                  <PrimaryButton disabled={currentOrganization ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentOrganization ? 'Update' : "Submit"} className="w-full mt-4" />
+                }
               </div>
             </div>
           </>

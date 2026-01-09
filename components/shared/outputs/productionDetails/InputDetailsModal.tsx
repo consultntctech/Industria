@@ -14,6 +14,8 @@ import SearchSelectUsers from "../../inputs/dropdowns/SearchSelectUsers";
 import SearchSelectProducts from "../../inputs/dropdowns/SearchSelectProducts";
 import { IBatch } from "@/lib/models/batch.model";
 import { IUser } from "@/lib/models/user.model";
+import { useAuth } from "@/hooks/useAuth";
+import { canUser } from "@/Data/roles/permissions";
 
 type InputDetailsModalProps = {
     openNew:boolean;
@@ -28,6 +30,8 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
     const [batch, setBatch] = useState<string>('');
     const [productToProduce, setProductToProduce] = useState<IProduct|null>(null);
     const [supervisor, setSupervisor] = useState<IUser | null>(null);
+    const {user} = useAuth();
+    const isEditor = canUser(user, '8', 'UPDATE');
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -107,7 +111,10 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
                         />
                         <InputWithLabel onChange={onChange} defaultValue={production?.xquantity} name="xquantity" required type="number" min={1} placeholder="10" label="Expected output quantity" className="w-full" />
                     </div>
-                    <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                    {
+                        isEditor &&
+                        <PrimaryButton disabled={!isEditor} loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                    }
                 </div>
             </div>
     

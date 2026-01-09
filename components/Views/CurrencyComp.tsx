@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { createCurrency } from "@/lib/actions/currency.action";
 import { enqueueSnackbar } from "notistack";
+import { canUser } from "@/Data/roles/permissions";
 
 const CurrencyComp = () => {
     const [loading, setLoading] = useState(false);
@@ -16,6 +17,8 @@ const CurrencyComp = () => {
     const {user} = useAuth();
 
     const {currency, refetch, currencyLoading} = useCurrencyConfig();
+    const isConfigurer = canUser(user, '48', 'UPDATE');
+    const isConfigAdmin = canUser(user, '48', 'CREATE');
 
     useEffect(() => {
         if(currency){
@@ -71,8 +74,10 @@ const CurrencyComp = () => {
               <div className="flex flex-col lg:flex-row gap-4 items-stretch">
                   <div className="flex gap-4 flex-col w-full">
                   <InputWithLabel required defaultValue={currency?.symbol} onChange={onChange} name="symbol"  placeholder="eg. $" label="Currency symbol" className="w-full" />
-                  
-                  <PrimaryButton loading={loading} type="submit" text={loading?"saving" : "Save"} className="w-fit px-4 mt-4" />
+                  {
+                    (isConfigurer || isConfigAdmin) &&
+                    <PrimaryButton loading={loading} type="submit" text={loading?"saving" : "Save"} className="w-fit px-4 mt-4" />
+                  }
                   </div>
               </div>
             }

@@ -1,6 +1,7 @@
-import { IDashboardStats, IGlobalFinance, IOrderAndSalesStats, IStats, ITransactCount, ITransactMontly } from "@/types/Types"
-import { getDashboardStats, getGlobalFinanceStats, getMonthlyTransactionCounts, getMonthlyTransactionSummary, getOrderAndSalesStats, getStats } from "@/lib/actions/stats.action";
+import { IDashboardStats, IDashStats, IGlobalFinance, IOrderAndSalesStats, IStats, ITransactCount, ITransactMontly } from "@/types/Types"
+import { getDashboardStats, getGlobalFinanceStats, getMonthlyTransactionCounts, getMonthlyTransactionSummary, getOrderAndSalesStats, getStats, getUserDashStats } from "@/lib/actions/stats.action";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../useAuth";
 
 export const useFetchStats = () => {
     const fetchStats = async ():Promise<IStats | null> => {
@@ -128,6 +129,29 @@ export const useFetchDashboardStats = () => {
   const {data:dashboardStats, isPending, refetch, isSuccess} = useQuery({
     queryKey: ['dashboardStats'],
     queryFn: fetchDashboardStats,
+  })
+  return {dashboardStats, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchUserDashboardStats = () => {
+  const {user} = useAuth();
+  const fetchUserDashboardStats = async ():Promise<IDashStats | null> => {
+    try {
+      if(!user?.org) return null;
+      const res = await getUserDashStats(user?.org);
+      const data = res.payload as IDashStats;
+      return data;
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
+  const {data:dashboardStats, isPending, refetch, isSuccess} = useQuery({
+    queryKey: ['dashboardStats', user?.org],
+    queryFn: fetchUserDashboardStats,
+    enabled: !!user?.org,
   })
   return {dashboardStats, isPending, refetch, isSuccess}
 }

@@ -15,6 +15,7 @@ import { useFetchProditem } from "@/hooks/fetch/useFetchProditem";
 import { PACKAGING_CATEGORY, PACKAGING_SUBCATEGORY, TPackagingProcess } from "@/Data/PackagingProcesses";
 import SearchSelectPackagingType from "../shared/inputs/dropdowns/SearchSelectPackagingType";
 import CustomCheckV2 from "../misc/CustomCheckV2";
+import { canUser } from "@/Data/roles/permissions";
 
 type ProdItemCompProps = {
   openNew:boolean;
@@ -35,6 +36,9 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     const {user} = useAuth();
     const {currency} = useCurrencyConfig();
     const {refetch} = useFetchProditem();
+
+    const isCreator = canUser(user, '12', 'CREATE');
+    const isEditor = canUser(user, '12', 'UPDATE');
 
     const savedSuppliers = currentProdItem?.suppliers as unknown as ISupplier[];
 
@@ -186,7 +190,10 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
                           
                           <TextAreaWithLabel defaultValue={currentProdItem?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                         </div>
-                        <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentProdItem ? "Update" : "Submit"} className="w-full mt-4" />
+                        {
+                          (isCreator || isEditor) &&
+                          <PrimaryButton disabled={currentProdItem ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentProdItem ? "Update" : "Submit"} className="w-full mt-4" />
+                        }
                     </div>
                 </div>
             }

@@ -6,18 +6,21 @@ import { useEffect } from "react";
 import { LinearProgress } from "@mui/material";
 import ContentDeniedComp from "@/components/Views/ContentDeniedComp";
 import { useFetchApprove } from "./useFetchApprove";
+import { OperationName } from "@/types/Types";
 
 interface PermissionGuardProps {
   tableId: string[];
+  operation?: OperationName; // optional
   children: React.ReactNode;
 }
 
 export const PermissionGuard = ({
   tableId,
+  operation = 'READ', // default
   children,
 }: PermissionGuardProps) => {
   const router = useRouter();
-  const { canAccess, isLoading } = useFetchRoute(tableId);
+  const { canAccess, isLoading } = useFetchRoute(tableId, operation);
 
   useEffect(() => {
     if (!isLoading && !canAccess) {
@@ -26,11 +29,12 @@ export const PermissionGuard = ({
   }, [isLoading, canAccess, router]);
 
   if (isLoading || !canAccess) {
-    return <LinearProgress className="w-full" />; // or <Spinner />
+    return <LinearProgress className="w-full" />;
   }
 
   return <>{children}</>;
 };
+
 
 
 export const ApprovalGuard = ({

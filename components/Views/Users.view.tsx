@@ -10,6 +10,8 @@ import SearchSelectOrgs from '../shared/inputs/dropdowns/SearchSelectOrgs';
 import GenericLabel from '../shared/inputs/GenericLabel';
 import { IOrganization } from '@/lib/models/org.model';
 import { useFetchUsers } from '@/hooks/fetch/useFetchUsers';
+import { useAuth } from '@/hooks/useAuth';
+import { canUser } from '@/Data/roles/permissions';
 
 
 type UserCompProps = {
@@ -24,6 +26,9 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
     const [formData, setFormData] = useState<Partial<IUser>>({});
     const [org, setOrg] = useState<string>('');
     const {refetch} = useFetchUsers();
+    const {user} = useAuth();
+    const isCreator = canUser(user, '38', 'CREATE');
+    const isEditor = canUser(user, '38', 'UPDATE');
 
     const organization = currentUser?.org as IOrganization;
     const formRef = useRef<HTMLFormElement>(null);
@@ -116,7 +121,10 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
               />
             }
             <TextAreaWithLabel defaultValue={currentUser?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
-            <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentUser ? "Update" : "Submit"} className="w-full mt-4" />
+            {
+              (isCreator || isEditor) &&
+              <PrimaryButton disabled={currentUser ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentUser ? "Update" : "Submit"} className="w-full mt-4" />
+            }
           </div>
         </div>
 

@@ -9,6 +9,7 @@ import { createCustomer, updateCustomer } from "@/lib/actions/customer.action";
 import { useAuth } from "@/hooks/useAuth";
 import { enqueueSnackbar } from "notistack";
 import { useFetchCustomers } from "@/hooks/fetch/useFetchCustomers";
+import { canUser } from "@/Data/roles/permissions";
 
 type CustomerCompProps = {
     openNew:boolean;
@@ -21,9 +22,11 @@ const CustomerComp = ({openNew, setOpenNew, currentCustomer, setCurrentCustomer}
     const [loading, setLoading] = useState(false);
     const [isActive, setIsActive] = useState(true);
     const [data, setData] = useState<Partial<ICustomer>>({});
-
+    
     const {user} = useAuth()
     const {refetch} = useFetchCustomers();
+    const isCustomerCreator = canUser(user, '33', 'CREATE');
+    const isCustomerEditor = canUser(user, '33', 'UPDATE');
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -113,7 +116,10 @@ const CustomerComp = ({openNew, setOpenNew, currentCustomer, setCurrentCustomer}
                         <Switch onChange={(e)=>setIsActive(e.target.checked)} defaultChecked={currentCustomer?.isActive} checked={ isActive} color="primary" />
                     </div>
                 </div>
-                <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentCustomer ? "Update" : "Submit"} className="w-full mt-4" />
+                {
+                    (isCustomerCreator || isCustomerEditor) &&
+                    <PrimaryButton disabled={currentCustomer ? !isCustomerEditor : !isCustomerCreator} loading={loading} type="submit" text={loading?"loading" : currentCustomer ? "Update" : "Submit"} className="w-full mt-4" />
+                }
                 </div>
             </div>
     

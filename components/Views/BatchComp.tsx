@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { createBatch, updateBatch } from "@/lib/actions/batch.action";
 import { useBatches } from "@/hooks/fetch/useBatches";
 import { IBatchConfig } from "@/lib/models/batchconfig.model";
+import { canUser } from "@/Data/roles/permissions";
 
 type BatchCompProps = {
   openNew:boolean;
@@ -30,6 +31,8 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
   const {refetch} = useBatches();
 
   const currentConfig = currentBatch?.config as IBatchConfig;
+  const isBatchCreator = canUser(user, '55', 'CREATE');
+  const isBatchEditor = canUser(user, '55', 'UPDATE');
   // console.log('Current Config: ', currentConfig)
 
 
@@ -142,7 +145,10 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
                     !isConfig &&
                     <InputWithLabel defaultValue={currentBatch?.code} onChange={onChange} name="code" required={!isConfig} placeholder="eg. BATCH00001" label="Batch Code" className="w-full" />
                   }
-                  <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentBatch ? "Update" : "Submit"} className="w-full mt-4" />
+                  {
+                    (isBatchCreator || isBatchEditor) &&
+                    <PrimaryButton disabled={currentBatch ? !isBatchEditor : !isBatchCreator} loading={loading} type="submit" text={loading?"loading" : currentBatch ? "Update" : "Submit"} className={`w-full mt-4`} />
+                  }
                 </div>
                 
             </div>

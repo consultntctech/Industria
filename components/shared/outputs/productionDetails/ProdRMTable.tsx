@@ -7,6 +7,8 @@ import {  IRMaterial, IRMaterialPopulate } from '@/lib/models/rmaterial.mode'
 import { ProdRMColumns } from './ProdRMColumn'
 import { IProduction } from '@/lib/models/production.model'
 import { GoPencil } from 'react-icons/go'
+import { useAuth } from '@/hooks/useAuth'
+import { canUser } from '@/Data/roles/permissions'
 
 type ProdRMTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -17,6 +19,8 @@ type ProdRMTableProps = {
 const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
 
     const materials = production?.ingredients as unknown as IRMaterialPopulate[];
+    const {user} = useAuth();
+    const isEditor = canUser(user, '8', 'UPDATE');
 
 
     // console.log('Materials: ', materials)
@@ -56,7 +60,7 @@ const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
         <div className="flex flex-row items-center gap-6">
             <span className='font-bold text-xl' >Raw Materials</span>
             {
-                !(production?.status === 'Pending Approval' || production?.status === 'Approved') &&
+                !(production?.status === 'Pending Approval' || production?.status === 'Approved') && isEditor &&
                 <Tooltip title="Edit production content">
                     <GoPencil onClick={handleEdit}  className="cursor-pointer text-blue-700" />
                 </Tooltip>

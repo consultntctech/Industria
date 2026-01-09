@@ -227,3 +227,16 @@ export type OperationName =
   | 'UPDATE'
   | 'DELETE'
   | 'APPROVE';
+
+
+
+export interface IDashStats{
+    rawMaterials:IGroupedQuantity[];
+
+    lineitems:IGroupedQuantity[]
+}
+
+export interface IGroupedQuantity {
+  product: string;
+  quantity: number;
+}

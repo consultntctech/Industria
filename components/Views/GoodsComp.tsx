@@ -6,9 +6,11 @@ import ModalContainer from "../shared/outputs/ModalContainer";
 import { useFetchGoods } from "@/hooks/fetch/useFetchGoods";
 import { IoIosClose } from "react-icons/io";
 import { FaChevronUp } from "react-icons/fa";
-import InputWithLabel from "../shared/inputs/InputWithLabel";
+// import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
+import { useAuth } from "@/hooks/useAuth";
+import { canUser } from "@/Data/roles/permissions";
 // import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 
 type GoodsCompProps = {
@@ -24,6 +26,8 @@ const GoodsComp = ({openNew, setOpenNew, currentGood, setCurrentGood}:GoodsCompP
     const [data, setData] = useState<Partial<IGood>>({});
     const formRef = useRef<HTMLFormElement>(null);
     const {refetch} = useFetchGoods();
+    const {user} = useAuth();
+    const isGoodEditor = canUser(user, '88', 'UPDATE');
     // const {currency} = useCurrencyConfig();
 
 
@@ -80,9 +84,12 @@ const GoodsComp = ({openNew, setOpenNew, currentGood, setCurrentGood}:GoodsCompP
                 <div className="flex flex-col lg:flex-row gap-4 items-stretch">
                     <div className="flex gap-4 flex-col w-full">
                     {/* <InputWithLabel type="number" min={0} defaultValue={currentGood?.unitPrice} onChange={onChange} name="unitPrice"  label={currency ? `Unit Price (${currency?.symbol})` : 'Unit Price'} className="w-full" /> */}
-                    <InputWithLabel type="number" min={0} defaultValue={currentGood?.threshold} onChange={onChange} name="threshold"  label="Threshold" className="w-full" />
+                    {/* <InputWithLabel type="number" min={0} defaultValue={currentGood?.threshold} onChange={onChange} name="threshold"  label="Threshold" className="w-full" /> */}
                     <TextAreaWithLabel defaultValue={currentGood?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
-                    <PrimaryButton loading={loading} type="submit" text={loading?"loading" :  "Update"} className="w-full mt-4" />
+                    {
+                        isGoodEditor &&
+                        <PrimaryButton loading={loading} type="submit" text={loading?"loading" :  "Update"} className="w-full mt-4" />
+                    }
                     </div>
 
                 </div>

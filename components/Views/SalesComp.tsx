@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 // import { useFetchSales } from "@/hooks/fetch/useFetchSales";
 import { useQueryClient } from "@tanstack/react-query";
 import SearchSelectBatchesWithLineItems from "../shared/inputs/dropdowns/SearchSelectBatchesWithLineItems";
+import { canUser } from "@/Data/roles/permissions";
 
 type SalesCompProps = {
   openNew:boolean;
@@ -42,6 +43,9 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
     const {currency} = useCurrencyConfig();
 
     const {lineItems:items, isPending} = useFetchAvailableLineItemsByProduct(product?._id as string, batch);
+
+    const isCreator = canUser(user, '82', 'CREATE');
+    const isEditor = canUser(user, '82', 'UPDATE');
     // const {refetch} = useFetchSales();
 
     // console.log('Items: ', items.length)
@@ -207,7 +211,10 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                             <SearchSelectCustomers required={!currentSales} value={savedCustomer} setSelect={setCustomer} />
                             <TextAreaWithLabel defaultValue={currentSales?.narration} name="narration" onChange={onChange} placeholder="enter narration" label="Narration" className="w-full" />
                         </div>
-                        <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentSales ? 'Update': "Proceed"} className="w-full mt-4" />
+                        {
+                            (isCreator || isEditor) &&
+                            <PrimaryButton disabled={currentSales ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentSales ? 'Update': "Proceed"} className="w-full mt-4" />
+                        }
                     </div>
                 </div>
         

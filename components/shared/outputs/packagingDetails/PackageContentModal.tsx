@@ -15,6 +15,8 @@ import  { IProdItem } from '@/lib/models/proditem.model';
 import ProdItemSelector from '@/components/misc/ProdItemSelector';
 import SearchSelectAvMultipleProdItems from '../../inputs/dropdowns/SearchSelectAvMultipleProdItems';
 import { updatePackagingMaterials } from '@/lib/actions/package.action';
+import { useAuth } from '@/hooks/useAuth';
+import { canUser } from '@/Data/roles/permissions';
 // import { arraysEqual } from '@/functions/helpers';
 
 type PackageContentModalProps = {
@@ -31,8 +33,9 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
   const [packagingMaterial, setPackagingMaterial] = useState<IProdItem[]>([]);
   const [packItems, setPackItems] = useState<IQSelector[]>([]);
   const [cost, setCost] = useState<number>(0);
-  
-//
+  const {user} = useAuth();
+  const isEditor = canUser(user, '99', 'UPDATE');
+
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
@@ -190,7 +193,10 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
                             } */}
                             <InputWithLabel value={cost || pack?.cost} onChange={changeCost} name="cost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Packaging cost (${currency?.symbol || ''} ${pack?.cost})`} className="w-full" />
                         </div>
-                        <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                        {
+                            isEditor &&
+                            <PrimaryButton disabled={!isEditor} loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                        }
                     </div>
 
                 </div>

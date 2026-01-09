@@ -15,6 +15,8 @@ import LineItemEditComp from './LineItemEditComp'
 import PrimaryButton from '@/components/shared/buttons/PrimaryButton'
 import DialogueAlertWithInput from '@/components/misc/DialogueAlertWithInput'
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig'
+import { useAuth } from '@/hooks/useAuth'
+import { canUser } from '@/Data/roles/permissions'
 
 type LineItemTableProps = {
     pack:IPackage | null;
@@ -26,6 +28,8 @@ const LineItemsTable = ({ pack}:LineItemTableProps) => {
     const [showPriceAll, setShowPriceAll] = useState(false);
     const [currentLineItem, setCurrentLineItem] = useState<ILineItem | null>(null);
     const [price, setPrice] = useState<string>('');
+    const {user} = useAuth();
+    const isEditor = canUser(user, '99', 'UPDATE');
 
     const {currency} = useCurrencyConfig();
 
@@ -107,7 +111,10 @@ const LineItemsTable = ({ pack}:LineItemTableProps) => {
     <div className='table-main2' >
         <div className="flex items-center justify-between gap-5">
             <span className='font-bold text-xl' >Line Items</span>
+            {
+                isEditor &&
                 <PrimaryButton onClick={()=>setShowPriceAll(true)} text={`Set price for all`} className='px-4 py-1' />
+            }
             {/* <Tooltip title="Set prices all line items">
             </Tooltip> */}
         </div>

@@ -12,6 +12,10 @@ import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 export async function createProduct(data:Partial<IProduct>):Promise<IResponse>{
     try {
         await connectDB();
+        const oldProduct = await Product.findOne({ name: data.name, type:data.type, org: data.org });
+        if (oldProduct) {
+            return respond('Product already exists', true, {}, 400);
+        }
         const product = await Product.create(data);
         return respond('Product created successfully', false, product, 201);
     } catch (error) {
@@ -54,6 +58,10 @@ export async function getProductsByOrg(orgId:string):Promise<IResponse>{
 export async function updateProduct(data:Partial<IProduct>):Promise<IResponse>{
     try {
         await connectDB();
+        const oldProduct = await Product.findOne({ name: data.name, type:data.type, org: data.org });
+        if (oldProduct._id !== data._id) {
+            return respond('Product already exists', true, {}, 400);
+        }
         const updatedProduct = await Product.findByIdAndUpdate(data._id, data, { new: true });
         return respond('Product updated successfully', false, updatedProduct, 200);
     } catch (error) {

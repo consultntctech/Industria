@@ -14,6 +14,7 @@ import { IProduct } from "@/lib/models/product.model";
 import { useAuth } from "@/hooks/useAuth";
 import { IProdApproval } from "@/lib/models/prodapproval.model";
 import { createProdApproval } from "@/lib/actions/prodapproval.action";
+import { canUser } from "@/Data/roles/permissions";
 
 type OutputDetailsProps = {
     production: IProduction | null;
@@ -24,9 +25,13 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
     const [openDialog, setOpenDialog] = useState(false);
     const {primaryColour} = useSettings();
     const {currency} = useCurrencyConfig();
+    const {user} = useAuth();
+
+    const isEditor = canUser(user, '8', 'UPDATE');
+
+
     const productToProduce = production?.productToProduce as IProduct;
     const yieldRate =  ((production?.outputQuantity! / production?.xquantity!) * 100).toFixed(2);
-    const {user} = useAuth();
     const extraCost = production?.extraCost || 0;
     const prodCost = production?.productionCost || 0;
     const totalCost = extraCost + prodCost;
@@ -66,13 +71,16 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
   return (
      <div className="formBox p-3 flex-col gap-4 relative">
         {
-            !(production?.status === 'Pending Approval' || production?.status === 'Completed' || production?.status === 'Approved') &&
+            !(production?.status === 'Pending Approval' || production?.status === 'Completed' || production?.status === 'Approved') && 
             <>
             <div className="flex flex-col gap-1">
                 <span className="title" >Production is still in progress</span>
                 <span className="greyText" >You'll see the output of the production here after it's completed</span>
             </div>
-            <PrimaryButton onClick={()=>setOpenNew(true)} className="w-fit px-3" type="button" text="Complete Production" />
+            {
+                isEditor &&
+                <PrimaryButton onClick={()=>setOpenNew(true)} className="w-fit px-3" type="button" text="Complete Production" />
+            }
             </>
         }
         <OutputDetailsModals production={production} openNew={openNew} setOpenNew={setOpenNew} />

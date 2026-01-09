@@ -11,6 +11,8 @@ import { IGood } from '@/lib/models/good.model';
 import { IStorage } from '@/lib/models/storage.model';
 import PackInputDetailsModal from './PackInputDetailsModal';
 import { IProduction } from '@/lib/models/production.model';
+import { useAuth } from '@/hooks/useAuth';
+import { canUser } from '@/Data/roles/permissions';
 // import { formatDate } from '@/functions/dates';
 
 type PackInputDetailsProps = {
@@ -20,6 +22,8 @@ type PackInputDetailsProps = {
 
 const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
     const [openNew, setOpenNew] = useState(false);
+    const {user} = useAuth();
+    const isEditor = canUser(user, '99', 'UPDATE');
     
     const batch = pack?.batch as IBatch;
     const supervisor = pack?.supervisor as IUser;
@@ -34,7 +38,7 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
   return (
     <div className="formBox p-3 flex-col gap-4 relative">
         {
-            !(pack?.approvalStatus === 'Approved') &&
+            !(pack?.approvalStatus === 'Approved') && isEditor &&
             <Tooltip title="Edit Package Details">
                 <FaPenToSquare onClick={()=>setOpenNew(true)} color={primaryColour} className='cursor-pointer absolute top-1 right-1' />
             </Tooltip>

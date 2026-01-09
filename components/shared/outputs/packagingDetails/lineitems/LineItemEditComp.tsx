@@ -10,6 +10,8 @@ import { IoIosClose } from "react-icons/io";
 import { FaChevronUp } from "react-icons/fa";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { Tooltip } from "@mui/material";
+import { useAuth } from "@/hooks/useAuth";
+import { canUser } from "@/Data/roles/permissions";
 
 
 type LineItemEditCompProps = {
@@ -24,6 +26,8 @@ const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setC
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<ILineItem>>({});
     const formRef = useRef<HTMLFormElement>(null);
+    const {user} = useAuth();
+    const isEditor = canUser(user, '99', 'UPDATE');
 
     const {currency} = useCurrencyConfig();
 
@@ -83,8 +87,8 @@ const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setC
                     <InputWithLabel defaultValue={currentLineItem?.serialNumber} onChange={onChange} name="serialNumber" required placeholder="eg. S1234" label="Serial Number" className="w-full" />
                     <InputWithLabel defaultValue={currentLineItem?.price} onChange={onChange} name="price" required placeholder="eg. S1234" label={`Set price ${currency ? `(${currency?.symbol})`:'' } `} className="w-full" />
                     {
-                        currentLineItem?.status !== 'Sold' &&
-                        <PrimaryButton disabled={currentLineItem?.status === 'Sold'} loading={loading} type="submit" text={loading?"loading" : "Update" } className="w-full mt-4" />
+                        currentLineItem?.status !== 'Sold' && isEditor &&
+                        <PrimaryButton disabled={(currentLineItem?.status === 'Sold') || !isEditor} loading={loading} type="submit" text={loading?"loading" : "Update" } className="w-full mt-4" />
                     }
                     </div>
 

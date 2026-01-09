@@ -17,6 +17,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { createOrder, updateOrder } from "@/lib/actions/order.action";
 import { enqueueSnackbar } from "notistack";
 import { formatDate } from "@/functions/dates";
+import { canUser } from "@/Data/roles/permissions";
 
 
 type OrderCompProps = {
@@ -35,6 +36,8 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
   const {currency} = useCurrencyConfig();
   const utils = useQueryClient();
   const {user} = useAuth();
+  const isCreator = canUser(user, '86', 'CREATE');
+  const isEditor = canUser(user, '86', 'UPDATE');
 
   const savedCustomer = currentOrder?.customer as ICustomer;
   const savedProduct = currentOrder?.product as IProduct;
@@ -131,7 +134,10 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
                       <InputWithLabel defaultValue={formatDate(currentOrder?.deadline)} type="date" onChange={onChange} name="deadline" label="Deadline" />
                       <TextAreaWithLabel defaultValue={currentOrder?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                     </div>
-                    <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentOrder ? 'Update' : "Submit"} className="w-full mt-4" />
+                    {
+                      (isCreator || isEditor) &&
+                      <PrimaryButton disabled={currentOrder ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentOrder ? 'Update' : "Submit"} className="w-full mt-4" />
+                    }
                 </div>
             </div>
     

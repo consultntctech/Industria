@@ -9,6 +9,8 @@ import  { Dispatch, SetStateAction, useState } from 'react'
 import { FaPenToSquare } from 'react-icons/fa6';
 import InputDetailsModal from './InputDetailsModal';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
+import { useAuth } from '@/hooks/useAuth';
+import { canUser } from '@/Data/roles/permissions';
 // import { formatDate } from '@/functions/dates';
 
 type InputDetailsProps = {
@@ -24,10 +26,14 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
     const creator = production?.createdBy as IUser;
     const {primaryColour} = useSettings();
     const {currency} = useCurrencyConfig();
+
+    const {user} = useAuth();
+    const isEditor = canUser(user, '8', 'UPDATE');
+
   return (
     <div className="formBox p-3 flex-col gap-4 relative">
         {
-            !(production?.status === 'Pending Approval' || production?.status === 'Approved') &&
+            !(production?.status === 'Pending Approval' || production?.status === 'Approved') && isEditor &&
             <Tooltip title="Edit Production Details">
                 <FaPenToSquare onClick={()=>setOpenNew(true)} color={primaryColour} className='cursor-pointer absolute top-1 right-1' />
             </Tooltip>

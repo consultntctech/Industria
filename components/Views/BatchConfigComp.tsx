@@ -9,6 +9,7 @@ import { createBatchConfig } from '@/lib/actions/batchconfig.action';
 import { enqueueSnackbar } from 'notistack';
 import { useBatchNoConfig } from '@/hooks/config/useBatchNoConfig';
 import { LinearProgress } from '@mui/material';
+import { canUser } from '@/Data/roles/permissions';
 
 
 const BatchConfigComp = () => {
@@ -16,6 +17,8 @@ const BatchConfigComp = () => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<IBatchConfig>>({});
     const {batchConfig, refetch, batchConfigLoading} = useBatchNoConfig();
+    const isConfigurer = canUser(user, '48', 'UPDATE');
+    const isConfigAdmin = canUser(user, '48', 'CREATE');
 
     useEffect(() => {
       if(batchConfig){
@@ -104,7 +107,10 @@ const BatchConfigComp = () => {
                       data.type === 'Auto-increment' &&
                       <InputWithLabel  onChange={onChange} name="increament" type='number' defaultValue={batchConfig?.increament} min={1} required placeholder="eg. 1" label="Increase by" className="w-full" />
                   }
-                  <PrimaryButton loading={loading} type="submit" text={loading?"saving" : "Save"} className="w-full mt-4" />
+                  {
+                    (isConfigurer || isConfigAdmin) &&
+                    <PrimaryButton loading={loading} type="submit" text={loading?"saving" : "Save"} className="w-full mt-4" />
+                  }
                   </div>
               </div>
             }

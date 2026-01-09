@@ -9,6 +9,8 @@ import TextAreaWithLabel from "../../inputs/TextAreaWithLabel";
 import { updateProduction } from "@/lib/actions/production.action";
 import { enqueueSnackbar } from "notistack";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
+import { useAuth } from "@/hooks/useAuth";
+import { canUser } from "@/Data/roles/permissions";
 
 type OutputDetailsModalsProps = {
     openNew:boolean;
@@ -21,6 +23,8 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
     const [data, setData] = useState<Partial<IProduction>>({});
     const formRef = useRef<HTMLFormElement>(null);
     const {currency} = useCurrencyConfig();
+    const {user} = useAuth();
+    const isEditor = canUser(user, '8', 'UPDATE');
 
     useEffect(() => {
         if(production){
@@ -79,7 +83,10 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
                         <InputWithLabel defaultValue={production?.extraCost} type="number" onChange={onChange} name="extraCost" min={0}  placeholder={`eg. ${currency?.symbol}200`} label={`Extra cost on production ${currency?.symbol}`} className="w-full" />
                         <TextAreaWithLabel defaultValue={production?.notes} name="notes" onChange={onChange} placeholder="enter note" label="Production note" className="w-full" />
                     </div>
-                    <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                    {
+                      isEditor &&
+                      <PrimaryButton disabled={!isEditor} loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                    }
                 </div>
             </div>
     

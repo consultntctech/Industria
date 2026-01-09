@@ -13,6 +13,7 @@ import GenericLabel from "../shared/inputs/GenericLabel";
 import SearchSelectTable from "../shared/inputs/dropdowns/SearchSelectTable";
 import SearchSelectMultipleOperations from "../shared/inputs/dropdowns/SearchSelectMultipleOperations";
 import { useFetchRoles } from "@/hooks/fetch/useFetchRoles";
+import { canUser } from "@/Data/roles/permissions";
 
 type RoleCompProps = {
   openNew:boolean;
@@ -35,6 +36,8 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
     const formRef = useRef<HTMLFormElement>(null);
     const {refetch} = useFetchRoles();
 
+    const isCreator = canUser(user, '27', 'CREATE');
+    const isEditor = canUser(user, '27', 'UPDATE');
 
     
     useEffect(()=>{
@@ -172,7 +175,10 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
                         <div className="flex flex-col gap-4 w-full">
                             <TextAreaWithLabel defaultValue={currentRole?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                         </div>
-                        <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentRole ? "Update" : "Submit"} className="w-full mt-4" />
+                        {
+                            (isCreator || isEditor) &&
+                            <PrimaryButton disabled={currentRole ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentRole ? "Update" : "Submit"} className="w-full mt-4" />
+                        }
                     </div>
                 </div>
         

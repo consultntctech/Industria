@@ -24,6 +24,8 @@ import { IQGSelector } from "@/types/Types";
 import SearchSelectProducts from "../../inputs/dropdowns/SearchSelectProducts";
 import SearchSelectAvMultipleGoods from "../../inputs/dropdowns/SearchSelectAvMultipleGoods";
 import GoodsQSelector from "@/components/misc/GoodsQSelector";
+import { useAuth } from "@/hooks/useAuth";
+import { canUser } from "@/Data/roles/permissions";
 
 type PackInputDetailsModalProps = {
     openNew:boolean;
@@ -44,6 +46,8 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
     const [product, setProduct] = useState<IProduct | null>(null);
     const [newGoods, setNewGoods] = useState<IGood[]>([]);
     const [goodItems, setGoodItems] = useState<IQGSelector[]>([]);
+    const {user} = useAuth();
+    const isEditor = canUser(user, '99', 'UPDATE');
 
     const router = useRouter();
     
@@ -236,7 +240,10 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
                             
                             <TextAreaWithLabel defaultValue={pack?.description}  name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                         </div>
-                        <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                        {
+                            isEditor &&
+                            <PrimaryButton disabled={!isEditor} loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                        }
                     
                     </div>
                 </div>

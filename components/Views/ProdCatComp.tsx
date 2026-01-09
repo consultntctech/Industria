@@ -10,6 +10,7 @@ import { createCategory, updateCategory } from "@/lib/actions/category.action";
 import { enqueueSnackbar } from "notistack";
 import { useAuth } from "@/hooks/useAuth";
 import { useFetchProdCats } from "@/hooks/fetch/useFetchProdCats";
+import { canUser } from "@/Data/roles/permissions";
 
 type ProdCatCompProps = {
   openNew:boolean;
@@ -24,6 +25,8 @@ const ProdCatComp = ({openNew, setOpenNew, currentCategory, setCurrentCategory}:
     const formRef = useRef<HTMLFormElement>(null);
     const {user} = useAuth();
     const {refetch} = useFetchProdCats();
+    const isCreator = canUser(user, '32', 'CREATE');
+    const isEditor = canUser(user, '32', 'UPDATE');
 
 
     useEffect(() => {
@@ -100,7 +103,10 @@ const ProdCatComp = ({openNew, setOpenNew, currentCategory, setCurrentCategory}:
                     <div className="flex gap-4 flex-col w-full">
                     <InputWithLabel defaultValue={currentCategory?.name} onChange={onChange} name="name" required placeholder="eg. flavour, oil" label="Category name" className="w-full" />
                     <TextAreaWithLabel defaultValue={currentCategory?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
-                    <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentCategory ? "Update" : "Submit"} className="w-full mt-4" />
+                    {
+                      (isCreator || isEditor) &&
+                      <PrimaryButton disabled={currentCategory ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentCategory ? "Update" : "Submit"} className="w-full mt-4" />
+                    }
                     </div>
 
                 </div>

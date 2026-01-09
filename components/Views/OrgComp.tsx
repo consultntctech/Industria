@@ -10,6 +10,8 @@ import { enqueueSnackbar } from "notistack";
 import { createOrg, updateOrg } from "@/lib/actions/org.action";
 import Image from "next/image";
 import { useFetchOrgs } from "@/hooks/fetch/useFetchOrgs";
+import { useAuth } from "@/hooks/useAuth";
+import { isSystemAdmin } from "@/Data/roles/permissions";
 
 type OrgCompProps = {
   openNew:boolean;
@@ -23,8 +25,10 @@ const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganizati
   const [logo, setLogo] = useState<{url:string, filename:string}>({url:'', filename:''});
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<IOrganization>>({});
-
   const {refetch} = useFetchOrgs();
+  const {user} = useAuth();
+  const isAdmin = isSystemAdmin(user);
+
 
   useEffect(() => {
     if(currentOrganization){
@@ -153,7 +157,10 @@ const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganizati
               </div>
               <TextAreaWithLabel defaultValue={currentOrganization?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
             </div>
-            <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentOrganization ? 'Update' : "Submit"} className="w-full mt-4" />
+            {
+              isAdmin &&
+              <PrimaryButton disabled={!isAdmin} loading={loading} type="submit" text={loading?"loading" : currentOrganization ? 'Update' : "Submit"} className="w-full mt-4" />
+            }
           </div>
         </div>
 

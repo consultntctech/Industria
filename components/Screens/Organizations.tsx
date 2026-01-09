@@ -7,16 +7,23 @@ import { useState } from "react"
 import { IOrganization } from "@/lib/models/org.model"
 import OrganizationTable from "../tables/organizations/OrganizationTable"
 import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
+import { useAuth } from "@/hooks/useAuth"
+import { isSystemAdmin } from "@/Data/roles/permissions"
 
 const Organizations = () => {
     const [openNew, setOpenNew] = useState(false);
     const [currentOrganization, setCurrentOrganization] = useState<IOrganization | null>(null);
     const {primaryColour} = useSettings();
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
   return (
     <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
         <div className="flex w-full items-center flex-row justify-between">
             <Title title="Organizations" isLink={false}/>
-            <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
+            {
+                isAdmin &&
+              <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
+            }
         </div>
         <PermissionGuard tableId={['100']} >
           <OrgComp currentOrganization={currentOrganization} setCurrentOrganization={setCurrentOrganization} openNew={openNew} setOpenNew={setOpenNew}/>

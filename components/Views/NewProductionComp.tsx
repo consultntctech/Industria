@@ -21,6 +21,7 @@ import { useRouter } from "next/navigation";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import SearchSelectBatchesWithRM from "../shared/inputs/dropdowns/SearchSelectBatchesWithRM";
 import { IUser } from "@/lib/models/user.model";
+import { canUser } from "@/Data/roles/permissions";
 
 const NewProductionComp = () => {
     const [loading, setLoading] = useState(false);
@@ -40,6 +41,8 @@ const NewProductionComp = () => {
     const formRef = useRef<HTMLFormElement>(null);
     const {user} = useAuth();
     const {currency} = useCurrencyConfig();
+
+    const isCreator = canUser(user, '8', 'CREATE');
 
 
 
@@ -194,7 +197,10 @@ const NewProductionComp = () => {
                             /> */}
                             <InputWithLabel value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Production cost ${currency?.symbol}`} className="w-full" />
                         </div>
-                        <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                        {
+                            isCreator &&
+                            <PrimaryButton disabled={!isCreator} loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                        }
                     </div>
                 </div>
             </form>

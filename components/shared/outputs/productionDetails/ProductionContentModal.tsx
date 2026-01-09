@@ -17,6 +17,8 @@ import { IIngredient } from '@/types/Types';
 import {  updateProductionIngredients } from '@/lib/actions/production.action';
 import { enqueueSnackbar } from 'notistack';
 import '@/styles/customscroll.css'
+import { useAuth } from '@/hooks/useAuth';
+import { canUser } from '@/Data/roles/permissions';
 
 type ProductionContentModalProps = {
   openNew:boolean;
@@ -37,6 +39,9 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
 //   const [totalProd, setTotalProd] = useState(0);
   const [productionCost, setProductionCost] = useState(0);
   const [productBatchId, setProductBatchId] = useState<string>('');
+
+  const {user} = useAuth();
+  const isEditor = canUser(user, '8', 'UPDATE');
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
@@ -219,7 +224,10 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
                             } */}
                             <InputWithLabel value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Production cost ${currency?.symbol}`} className="w-full" />
                         </div>
-                        <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                        {
+                            isEditor &&
+                            <PrimaryButton disabled={!isEditor} loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                        }
                     </div>
 
                 </div>

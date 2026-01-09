@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFetchRMaterials } from "@/hooks/fetch/useRMaterials";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { IBatch } from "@/lib/models/batch.model";
+import { canUser } from "@/Data/roles/permissions";
 
 type RMCompProps = {
   openNew:boolean;
@@ -35,6 +36,9 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
 
     const {user} = useAuth();
     const {refetch} = useFetchRMaterials();
+
+    const isCreator = canUser(user, '87', 'CREATE');
+    const isEditor = canUser(user, '87', 'UPDATE');
 
     const formRef = useRef<HTMLFormElement>(null);
     const savedProduct = currentMaterial?.product as IProduct;
@@ -206,7 +210,10 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
               }
               <TextAreaWithLabel defaultValue={currentMaterial?.note} name="note" onChange={onChange} placeholder="enter note" label="Note" className="w-full" />
             </div>
-            <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentMaterial ? "Update" : "Submit"} className="w-full mt-4" />
+            {
+              (isCreator || isEditor) &&
+              <PrimaryButton disabled={currentMaterial ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentMaterial ? "Update" : "Submit"} className="w-full mt-4" />
+            }
           </div>
         </div>
 

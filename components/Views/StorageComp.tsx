@@ -8,6 +8,7 @@ import { IStorage } from "@/lib/models/storage.model";
 import { createStorage, updateStorage } from "@/lib/actions/storage.action";
 import { enqueueSnackbar } from "notistack";
 import { useFetchStorages } from "@/hooks/fetch/useFetchStorages";
+import { canUser } from "@/Data/roles/permissions";
 
 type StorageCompProps = {
   openNew:boolean;
@@ -20,6 +21,8 @@ const StorageComp = ({openNew, setOpenNew, currentStorage, setCurrentStorage}:St
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<IStorage>>({});
     const {user} = useAuth();
+    const isCreator = canUser(user, '77', 'CREATE');
+    const isEditor = canUser(user, '77', 'UPDATE');
 
     const formRef = useRef<HTMLFormElement>(null);
     const {refetch} = useFetchStorages();
@@ -108,7 +111,10 @@ const StorageComp = ({openNew, setOpenNew, currentStorage, setCurrentStorage}:St
                     <div className="flex flex-col gap-4 w-full">
                         <TextAreaWithLabel defaultValue={currentStorage?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                     </div>
-                    <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentStorage ? "Update" : "Submit"} className="w-full mt-4" />
+                    {
+                        (isCreator || isEditor) &&
+                        <PrimaryButton disabled={currentStorage ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentStorage ? "Update" : "Submit"} className="w-full mt-4" />
+                    }
                 </div>
             </div>
     

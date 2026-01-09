@@ -7,6 +7,8 @@ import { GoPencil } from 'react-icons/go'
 import { IProdItem } from '@/lib/models/proditem.model'
 import { IPackage, IProdItemPopulate } from '@/lib/models/package.model'
 import { PackProdItemsColumn } from './PackProdItemsColumn'
+import { canUser } from '@/Data/roles/permissions'
+import { useAuth } from '@/hooks/useAuth'
 
 type PackProdItemsTableProps = {
     // setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -17,6 +19,8 @@ type PackProdItemsTableProps = {
 const PackProdItemsTable = ({ setOpenItem,  pack}:PackProdItemsTableProps) => {
 
     const materials = pack?.packagingMaterial as unknown as IProdItemPopulate[];
+    const {user} = useAuth();
+    const isEditor  = canUser(user, '99', 'UPDATE');
 
 
     // console.log('Materials: ', materials)
@@ -56,7 +60,7 @@ const PackProdItemsTable = ({ setOpenItem,  pack}:PackProdItemsTableProps) => {
         <div className="flex flex-row items-center gap-6">
             <span className='font-bold text-xl' >Packaging Materials</span>
             {
-                pack?.approvalStatus !== 'Approved' &&
+                (pack?.approvalStatus !== 'Approved' ) && isEditor && 
                 <Tooltip title="Edit packaging items">
                     <GoPencil onClick={handleEdit}  className="cursor-pointer text-blue-700" />
                 </Tooltip>

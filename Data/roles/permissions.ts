@@ -48,7 +48,7 @@ export const hasTablePermission = (
 
 
 export const canUser = (
-  user: ISession | null,
+  user: ISession | null | undefined,
   tableId: string,
   operation: OperationName
 ): boolean => {

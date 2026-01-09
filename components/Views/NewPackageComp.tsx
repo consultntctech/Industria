@@ -33,6 +33,7 @@ import SearchSelectProducts from '../shared/inputs/dropdowns/SearchSelectProduct
 import GoodsQSelector from '../misc/GoodsQSelector';
 import SearchSelectAvMultipleGoods from '../shared/inputs/dropdowns/SearchSelectAvMultipleGoods';
 import { IUser } from '@/lib/models/user.model';
+import { canUser } from '@/Data/roles/permissions';
 
 const NewPackageComp = () => {
     const [loading, setLoading] = useState(false);
@@ -54,6 +55,7 @@ const NewPackageComp = () => {
     const {user} = useAuth();
     const router = useRouter();
     const {currency} = useCurrencyConfig();
+    const isCreator = canUser(user, '99', 'CREATE');
 
     // const goodBatch = good?.batch as IBatch;
     
@@ -335,7 +337,10 @@ const NewPackageComp = () => {
                     <InputWithLabel onChange={changeCost}  name="cost" type="number" value={cost} label={currency ? `Packaging cost (${currency.symbol})` : 'Packaging cost'} className="w-full" />
                     <TextAreaWithLabel   name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                 </div>
-                <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                {
+                    isCreator &&
+                    <PrimaryButton disabled={!isCreator} loading={loading} type="submit" text={loading?"loading" : "Submit"} className="w-full mt-4" />
+                }
                
             </div>
         </div>

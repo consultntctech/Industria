@@ -11,7 +11,7 @@ const NewProduction = () => {
             <div className="title">/</div>
             <Title showback={false} title="New" isLink={false} />
         </div>
-        <PermissionGuard tableId={['8']} >
+        <PermissionGuard tableId={['8']} operation="CREATE" >
           <NewProductionComp/>
         </PermissionGuard>
     </div>

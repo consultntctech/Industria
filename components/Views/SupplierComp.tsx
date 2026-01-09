@@ -9,6 +9,7 @@ import { createSupplier, updateSupplier } from "@/lib/actions/supplier.action";
 import { useAuth } from "@/hooks/useAuth";
 import { enqueueSnackbar } from "notistack";
 import { useFetchSuppliers } from "@/hooks/fetch/useFetchSuppliers";
+import { canUser } from "@/Data/roles/permissions";
 
 type SupplierCompProps = {
     openNew:boolean;
@@ -24,6 +25,9 @@ const SupplierComp = ({openNew, setOpenNew, currentSupplier, setCurrentSupplier}
 
     const {user} = useAuth()
     const {refetch} = useFetchSuppliers();
+
+    const isCreator = canUser(user, '41', 'CREATE');
+    const isEditor = canUser(user, '41', 'UPDATE');
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -113,7 +117,10 @@ const SupplierComp = ({openNew, setOpenNew, currentSupplier, setCurrentSupplier}
                         <Switch onChange={(e)=>setIsActive(e.target.checked)} defaultChecked={currentSupplier?.isActive} checked={ isActive} color="primary" />
                     </div>
                 </div>
-                <PrimaryButton loading={loading} type="submit" text={loading?"loading" : currentSupplier ? "Update" : "Submit"} className="w-full mt-4" />
+                {
+                  (isCreator || isEditor) &&
+                  <PrimaryButton disabled={currentSupplier ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentSupplier ? "Update" : "Submit"} className="w-full mt-4" />
+                }
                 </div>
             </div>
     
