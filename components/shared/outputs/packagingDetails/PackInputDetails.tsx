@@ -2,7 +2,6 @@ import { useSettings } from '@/config/useSettings';
 import { IBatch } from '@/lib/models/batch.model';
 import { IUser } from '@/lib/models/user.model';
 import { Tooltip } from '@mui/material';
-import Link from 'next/link';
 import  { Dispatch, SetStateAction, useState } from 'react'
 import { FaPenToSquare } from 'react-icons/fa6';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
@@ -13,6 +12,7 @@ import PackInputDetailsModal from './PackInputDetailsModal';
 import { IProduction } from '@/lib/models/production.model';
 import { useAuth } from '@/hooks/useAuth';
 import { canUser } from '@/Data/roles/permissions';
+import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 // import { formatDate } from '@/functions/dates';
 
 type PackInputDetailsProps = {
@@ -59,9 +59,7 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
               // console.log('Good: ', product)
               return (
                 <span key={index} >
-                  <Link className="" href={`/dashboard/processing/goods?Id=${product?._id}`} >
-                    <span className="text-blue-600 underline" >{item?.quantity} x {product?.name} ({production?.name})</span>
-                  </Link>
+                  <Linker tableId='88' linkStyle="link" spanStyle='text-gray-600 truncate' link={`/dashboard/processing/goods?Id=${product?._id}`} placeholder={`${item?.quantity} x ${product?.name} (${production?.name})`} />
                   {index < products.length -1 && ', '}
                 </span>
               )
@@ -102,15 +100,11 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Storage:</span>
-          <Link className="" href={`/dashboard/storage?Id=${storage?._id}`} >
-            <span className="text-blue-600 underline " >{storage?.name}</span>
-          </Link>
+          <Linker tableId='77' linkStyle="link" spanStyle='text-gray-600 flex-1 md:flex-5' link={`/dashboard/storage?Id=${storage?._id}`} placeholder={storage?.name} />
         </div>
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Batch:</span>
-          <Link className="" href={`/dashboard/products/batches?Id=${batch?._id}`} >
-            <span className="text-blue-600 underline " >{batch?.code}</span>
-          </Link>
+          <Linker tableId='55' spanStyle='text-gray-600 flex-1 md:flex-5' linkStyle="link" link={`/dashboard/products/batches?Id=${batch?._id}`} placeholder={batch?.code} />
         </div>
 
         <div className="flex flex-row items-center gap-4">
@@ -139,16 +133,12 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Started By:</span>
-          <Link className="" href={`/dashboard/users?Id=${creator?._id}`} >
-            <span className="text-blue-600 underline " >{creator?.name}</span>
-          </Link>
+          <Linker tableId='38' linkStyle="link" spanStyle='text-gray-600 flex-1 md:flex-5' link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
         </div>
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Supervised By:</span>
-          <Link className="" href={`/dashboard/users?Id=${supervisor?._id}`} >
-            <span className="text-blue-600 underline " >{supervisor?.name}</span>
-          </Link>
+          <Linker tableId='38' linkStyle="link" spanStyle='text-gray-600 flex-1 md:flex-5' link={`/dashboard/users?Id=${supervisor?._id}`} placeholder={supervisor?.name} />
         </div>
 
       </div>

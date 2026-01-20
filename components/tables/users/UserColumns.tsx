@@ -1,18 +1,22 @@
+import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
+import { isGlobalAdmin } from "@/Data/roles/permissions";
 import { formatDate } from "@/functions/dates";
+import { useAuth } from "@/hooks/useAuth";
 import { IOrganization } from "@/lib/models/org.model";
+import { IRole } from "@/lib/models/role.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Image from "next/image";
 import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import { IoTrashBinOutline } from "react-icons/io5";
+import { Activity } from "react";
 
 export const UserColoumns = (
     handleInfo: (user:IUser)=>void,
     handleEdit: (user:IUser)=>void,
     handleDelete: (user:IUser)=>void,
 ):GridColDef[]=>{
+    const {user} = useAuth();
+    const isGlobal = isGlobalAdmin(user?.roles as IRole[]);
 
     return [
         {
@@ -67,7 +71,7 @@ export const UserColoumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} tableId="100" placeholder={org?.name} />
                 )
             }
         },
@@ -104,18 +108,17 @@ export const UserColoumns = (
         disableExport: true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
+            const row = params?.row as IUser;
+            const isG = isGlobalAdmin(row?.roles as IRole[]);
+            const canSeeActions = !isG || isGlobal;
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View User">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit User">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Delete User">
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    <Viewer tableId="38" onClick={()=>handleInfo(params?.row)} tip="View user" />
+                    <Activity mode={canSeeActions ? 'visible' : 'hidden' } >
+                        <Editor tableId="38" onClick={()=>handleEdit(params?.row)} tip="Edit user" />
+                        <Deleter tableId="38" onClick={()=>handleDelete(params?.row)} tip="Delete user" />
+                    </Activity>
                 </div>
             )
         },

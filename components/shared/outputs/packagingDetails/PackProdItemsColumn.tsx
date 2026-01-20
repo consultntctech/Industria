@@ -1,7 +1,7 @@
+import { Linker } from "@/components/PermisionHelpers/PermisionHelpers";
 import { IProdItemPopulate } from "@/lib/models/package.model";
 import { IProdItem } from "@/lib/models/proditem.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
 
 export const PackProdItemsColumn = (
 ):GridColDef[]=>{
@@ -25,7 +25,7 @@ export const PackProdItemsColumn = (
             renderCell: (params:GridRenderCellParams)=>{
                 const product = params?.row?.materialId as IProdItem;
                 return (
-                    <Link href={`/dashboard/distribution/packaging-materials?Id=${product?._id}`} className="link" >{product?.materialName}</Link>
+                    <Linker tableId="12" link={`/dashboard/distribution/packaging-materials?Id=${product?._id}`} placeholder={product?.materialName} />
                 )
             }
         },

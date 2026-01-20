@@ -610,6 +610,75 @@ export async function getLastSixMonthsPackages(): Promise<IResponse> {
 }
 
 
+export async function getLastSixMonthsPackagesByOrg(org:string): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+        sixMonthsAgo.setHours(0, 0, 0, 0);
+
+        const packages = await Package.aggregate([
+            {
+                $match: {
+                    org,
+                    createdAt: { $gte: sixMonthsAgo },
+                    quantity: { $ne: null }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    quantity: { $sum: "$quantity" }
+                }
+            },
+            {
+                $sort: {
+                    "_id.year": 1,
+                    "_id.month": 1
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    month: {
+                        $dateToString: {
+                            format: "%b",
+                            date: {
+                                $dateFromParts: {
+                                    year: "$_id.year",
+                                    month: "$_id.month",
+                                    day: 1
+                                }
+                            }
+                        }
+                    },
+                    quantity: 1
+                }
+            }
+        ]);
+
+        return respond(
+            'Packages found successfully',
+            false,
+            packages,
+            200
+        );
+    } catch (error) {
+        console.error(error);
+        return respond(
+            'Error occurred while fetching packages',
+            true,
+            {},
+            500
+        );
+    }
+}
+
+
 
 
 export async function getPackageStats(
@@ -828,6 +897,225 @@ export async function getPackageStats(
 }
 
 
+export async function getPackageStatsByOrg(
+  org: string,
+  type: "quantity" | "price" = "quantity"
+): Promise<IResponse> {
+  try {
+    await connectDB();
+
+    const now = new Date();
+
+    /* ======================================================
+       DATE RANGES
+    ====================================================== */
+
+    const last7DaysStart = new Date(now);
+    last7DaysStart.setDate(now.getDate() - 6);
+    last7DaysStart.setHours(0, 0, 0, 0);
+
+    const last7WeeksStart = new Date(now);
+    last7WeeksStart.setDate(now.getDate() - 49);
+
+    /* ======================================================
+       1️⃣ PACKAGES WITH ALL LINE ITEMS = PENDING
+    ====================================================== */
+
+    const pendingPackagesAgg = await LineItem.aggregate([
+      {
+        $group: {
+          _id: "$package",
+          statuses: { $addToSet: "$status" },
+
+          // 👇 status-aware price calculation
+          totalPrice: {
+            $sum: {
+              $cond: [
+                { $in: ["$status", ["Available", "Returned"]] },
+                "$price",
+                0
+              ]
+            }
+          }
+        }
+      },
+      {
+        // At least one Available or Returned item
+        $match: {
+          statuses: { $in: ["Available", "Returned"] },
+          org
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          value:
+            type === "quantity"
+              ? { $sum: 1 }            // count packages
+              : { $sum: "$totalPrice" } // sum market value only
+        }
+      }
+    ]);
+
+
+
+    const pack =
+      pendingPackagesAgg.length > 0 ? pendingPackagesAgg[0].value : 0;
+
+    /* ======================================================
+       2️⃣ DAILY PACKAGES (LAST 7 DAYS — ZERO FILLED)
+    ====================================================== */
+
+    const dailyAgg = await Package.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: last7DaysStart },
+          org
+        }
+      },
+      {
+        $lookup: {
+          from: "lineitems",
+          localField: "_id",
+          foreignField: "package",
+          as: "items"
+        }
+      },
+      {
+        $group: {
+          _id: {
+            date: {
+              $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+            },
+            dayOfWeek: { $dayOfWeek: "$createdAt" }
+          },
+          quantity:
+            type === "quantity"
+              ? { $sum: 1 }
+              : { $sum: { $sum: "$items.price" } }
+        }
+      }
+    ]);
+
+    // Build last 7 days reference
+    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+    const daily: IDailyStats[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(last7DaysStart);
+      d.setDate(d.getDate() + i);
+
+      const dayName = dayNames[d.getDay()];
+      const dateKey = d.toISOString().slice(0, 10);
+
+      const found = dailyAgg.find(x => x._id.date === dateKey);
+
+      daily.push({
+        day: dayName,
+        quantity: found ? found.quantity : 0
+      });
+    }
+
+    /* ======================================================
+       3️⃣ WEEKLY PACKAGES (LAST 7 WEEKS — ZERO FILLED)
+    ====================================================== */
+
+    const weeklyAgg = await Package.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: last7WeeksStart }, org
+        }
+      },
+      {
+        $lookup: {
+          from: "lineitems",
+          localField: "_id",
+          foreignField: "package",
+          as: "items"
+        }
+      },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: {
+            year: { $isoWeekYear: "$createdAt" },
+            week: { $isoWeek: "$createdAt" }
+          },
+
+          quantity:
+            type === "quantity"
+              ? { $addToSet: "$_id" } // unique packages
+              : {
+                  $sum: {
+                    $cond: [
+                      { $ne: ["$items.status", "Pending"] },
+                      "$items.price",
+                      0
+                    ]
+                  }
+                }
+        }
+      },
+      {
+        // normalize quantity count
+        $project: {
+          quantity:
+            type === "quantity"
+              ? { $size: "$quantity" }
+              : "$quantity"
+        }
+      }
+    ]);
+
+
+    // Build last 7 weeks reference
+    const weekly: IWeeklyStats[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now);
+      d.setDate(d.getDate() - i * 7);
+
+      const year = getISOWeekYear(d);
+      const week = getISOWeek(d);
+      const key = `W${week} ${year}`;
+
+      const found = weeklyAgg.find(
+        x => x._id.week === week && x._id.year === year
+      );
+
+      weekly.push({
+        week: key,
+        quantity: found ? found.quantity : 0
+      });
+    }
+
+    /* ======================================================
+       FINAL PAYLOAD
+    ====================================================== */
+
+    const payload: IPackageStats = {
+      pack,
+      daily,
+      weekly
+    };
+
+    return respond(
+      "Package stats fetched successfully",
+      false,
+      payload,
+      200
+    );
+  } catch (error) {
+    console.error(error);
+    return respond(
+      "Error occurred while fetching package stats",
+      true,
+      {},
+      500
+    );
+  }
+}
+
+
 
 export async function getPackagedProductStats(
   type: "quantity" | "price" = "quantity"
@@ -846,6 +1134,68 @@ export async function getPackagedProductStats(
           status: { $in: ["Available", "Returned"] },
           package: { $ne: null },
           product: { $ne: null },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            package: "$package",
+            product: "$product",
+          },
+          price: { $sum: "$price" },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.product",
+          quantity: valueField,
+        },
+      },
+      {
+        $lookup: {
+          from: "products",
+          localField: "_id",
+          foreignField: "_id",
+          as: "product",
+        },
+      },
+      { $unwind: "$product" },
+      {
+        $project: {
+          _id: 0,
+          product: "$product.name",
+          quantity: 1,
+        },
+      },
+    ]);
+
+    return respond("Packaged product stats fetched successfully", false, stats, 200);
+  } catch (error) {
+    console.error(error);
+    return respond("Error occurred while fetching packaged product stats", true, [], 500);
+  }
+}
+
+
+export async function getPackagedProductStatsByOrg(
+  org: string,
+  type: "quantity" | "price" = "quantity"
+): Promise<IResponse> {
+  try {
+    await connectDB();
+
+    const valueField =
+      type === "quantity"
+        ? { $sum: 1 }
+        : { $sum: "$price" };
+
+    const stats = await LineItem.aggregate([
+      {
+        $match: {
+          status: { $in: ["Available", "Returned"] },
+          package: { $ne: null },
+          product: { $ne: null },
+          org
         },
       },
       {

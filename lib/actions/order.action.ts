@@ -193,6 +193,67 @@ export async function getOrdersGroupedByMonth(): Promise<IResponse> {
 }
 
 
+export async function getOrdersByOrgGroupedByMonth(org:string): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const now = new Date();
+
+        // First day of month, 5 months ago (inclusive)
+        const startDate = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+        // Last moment of current month
+        const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+        const orders = await Order.aggregate([
+            {
+                $match: {
+                    price: { $ne: null }, org,
+                    createdAt: {
+                        $gte: startDate,
+                        $lte: endDate
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    quantity: { $sum: "$price" }
+                }
+            }
+        ]);
+
+        /* ======================================================
+           BUILD LAST 6 MONTHS + FILL MISSING WITH 0
+        ====================================================== */
+
+        const result: { month: string; quantity: number }[] = [];
+
+        for (let i = 5; i >= 0; i--) {
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            const year = date.getFullYear();
+            const monthNumber = date.getMonth() + 1;
+
+            const match = orders.find(
+                o => o._id.year === year && o._id.month === monthNumber
+            );
+
+            result.push({
+                month: `${date.toLocaleString("en-US", { month: "short" })} ${year}`,
+                quantity: match ? match.quantity : 0
+            });
+        }
+
+        return respond("Orders fetched successfully", false, result, 200);
+    } catch (error) {
+        console.error(error);
+        return respond("Error occurred while fetching orders", true, {}, 500);
+    }
+}
+
+
 
 export async function getOrdersQuantityGroupedByMonth(): Promise<IResponse> {
     try {
@@ -202,6 +263,59 @@ export async function getOrdersQuantityGroupedByMonth(): Promise<IResponse> {
             {
                 $match: {
                     quantity: { $ne: null }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    quantity: { $sum: "$quantity" }
+                }
+            },
+            {
+                $sort: {
+                    "_id.year": 1,
+                    "_id.month": 1
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    month: {
+                        $dateToString: {
+                            format: "%b",
+                            date: {
+                                $dateFromParts: {
+                                    year: "$_id.year",
+                                    month: "$_id.month",
+                                    day: 1
+                                }
+                            }
+                        }
+                    },
+                    quantity: 1
+                }
+            }
+        ]);
+
+        return respond('Orders quantity fetched successfully', false, orders, 200);
+    } catch (error) {
+        console.error(error);
+        return respond('Error occurred while fetching orders quantity', true, {}, 500);
+    }
+}
+
+
+export async function getOrdersByOrgQuantityGroupedByMonth(org:string): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const orders = await Order.aggregate([
+            {
+                $match: {
+                    quantity: { $ne: null }, org
                 }
             },
             {
@@ -262,6 +376,61 @@ export const getOrderStats = async (): Promise<IResponse> => {
 
             // Delayed orders (deadline < today AND not fulfilled)
             Order.countDocuments({
+                status: { $ne: 'Fulfilled' },
+                deadline: { $exists: true, $ne: null },
+                $expr: {
+                    $lt: [
+                        {
+                            $dateFromString: {
+                                dateString: "$deadline"
+                            }
+                        },
+                        today
+                    ]
+                }
+            })
+        ]);
+
+        const orderStats: IOrderStats = {
+            pending,
+            fulfilled,
+            delayed
+        };
+
+        return respond(
+            'Order stats fetched successfully',
+            false,
+            orderStats,
+            200
+        );
+    } catch (error) {
+        console.error(error);
+        return respond(
+            'Error occurred while fetching order stats',
+            true,
+            {},
+            500
+        );
+    }
+};
+
+
+export const getOrderStatsByOrg = async (org:string): Promise<IResponse> => {
+    try {
+        await connectDB();
+
+        const today = new Date();
+
+        const [pending, fulfilled, delayed] = await Promise.all([
+            // Pending orders
+            Order.countDocuments({ status: 'Pending', org }),
+
+            // Fulfilled orders
+            Order.countDocuments({ status: 'Fulfilled', org }),
+
+            // Delayed orders (deadline < today AND not fulfilled)
+            Order.countDocuments({
+                org,
                 status: { $ne: 'Fulfilled' },
                 deadline: { $exists: true, $ne: null },
                 $expr: {

@@ -21,6 +21,7 @@ import { enqueueSnackbar } from "notistack";
 import { Dispatch,  SetStateAction, useEffect, useRef, useState } from "react";
 import { FaChevronUp } from "react-icons/fa";
 import '@/styles/customscroll.css'
+import { canUser } from "@/Data/roles/permissions";
 
 type OrdersFulfillCompModalProps = {
     currentOrder: IOrder | null;
@@ -46,6 +47,7 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
     const {currency} = useCurrencyConfig();
     const utils = useQueryClient();
     const {user} = useAuth();
+    const isEditor = canUser(user, '86', 'UPDATE');
     const customer = currentOrder?.customer as ICustomer;
 
     const formRef = useRef<HTMLFormElement>(null);
@@ -172,7 +174,10 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
                 <div className="flex flex-col gap-4 w-full">
                     <TextAreaWithLabel name="narration" onChange={onChange} placeholder="enter narration" label="Narration" className="w-full" />
                 </div>
-                <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Proceed"} className="w-full mt-4" />
+                {
+                    isEditor &&
+                    <PrimaryButton disabled={!isEditor} loading={loading} type="submit" text={loading?"loading" : "Proceed"} className="w-full mt-4" />
+                }
             </div>
         </div>
 

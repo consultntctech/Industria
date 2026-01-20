@@ -1,4 +1,5 @@
 
+import { Approver, Linker } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { IOrganization } from "@/lib/models/org.model";
 import { IPackage } from "@/lib/models/package.model";
@@ -6,10 +7,8 @@ import { IPackApproval } from "@/lib/models/packapproval.model";
 // import { IPackApproval } from "@/lib/models/prodapproval.model";
 // import { IProduction } from "@/lib/models/production.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
-import { IoSettingsOutline } from "react-icons/io5";
+
 
 export const PackApprovalColumns = (
     handleEdit: (item:IPackApproval)=>void,
@@ -36,7 +35,7 @@ export const PackApprovalColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const pack = params?.row?.package as IPackage;
                 return(
-                    <Link href={`/dashboard/distribution/packaging/${pack?._id}`} className="link" >{pack?.name}</Link>
+                    <Linker link={`/dashboard/distribution/packaging/${pack?._id}`} placeholder={pack?.name} tableId="99" />
                 )
             }
         },
@@ -56,7 +55,7 @@ export const PackApprovalColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
                 )
             }
         },
@@ -75,7 +74,7 @@ export const PackApprovalColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.approver as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
                 )
             }
         },
@@ -125,7 +124,7 @@ export const PackApprovalColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
                 )
             }
         },
@@ -167,10 +166,7 @@ export const PackApprovalColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                <Tooltip title="Take action">
-                    <IoSettingsOutline onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                </Tooltip>
-                    
+                    <Approver tip="Take action" tableId="99" onClick={()=>handleEdit(params?.row)} />
                 </div>
             )
         },

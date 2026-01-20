@@ -43,7 +43,7 @@ export async function getOrg(id:string):Promise<IResponse>{
         if(!org){
             return respond('Organization not found', true, {}, 404);
         }
-        if(!orgIds.includes(String(user.org))){
+        if(!orgIds.includes(String(user?.org))){
             return respond("You don't have access to this organization", true, {}, 403);
         }
         

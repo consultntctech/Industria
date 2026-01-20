@@ -9,7 +9,6 @@ import { useAuth } from '@/hooks/useAuth';
 
 import { IUser } from '@/lib/models/user.model';
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
-import Link from 'next/link';
 import { enqueueSnackbar } from 'notistack';
 import  { Dispatch, SetStateAction,  useState } from 'react'
 import { FaChevronUp } from 'react-icons/fa';
@@ -23,6 +22,7 @@ import { updatePackApproval } from '@/lib/actions/packapproval.action';
 import { updatePackageV2 } from '@/lib/actions/package.action';
 import { IPackApproval } from '@/lib/models/packapproval.model';
 import { publishLineItemsForPackage } from '@/lib/actions/lineitem.action';
+import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 // import { IBatch } from '@/lib/models/batch.model';
 
 type ApprovalsApprovalInfoModalProps = {
@@ -129,15 +129,11 @@ const ApprovalsApprovalInfoModal = ({openNew, refetch, setOpenNew, currentApprov
                     <div className="flex gap-4 flex-col w-full">
                         <div className="flex flex-row items-center gap-4">
                             <span className="truncate w-1/2 md:w-1/5" >Package:</span>
-                            <Link className="" href={`/dashboard/distribution/packaging/${pack?._id}`} >
-                            <span className="text-blue-600 underline " >{pack?.name}</span>
-                            </Link>
+                            <Linker tableId='99' linkStyle="mtext link" spanStyle='mtext' link={`/dashboard/distribution/packaging/${pack?._id}`} placeholder={pack?.name} />
                         </div>
                         <div className="flex flex-row items-center gap-4">
                             <span className="truncate w-1/2 md:w-1/5" >Submitted By:</span>
-                            <Link className="" href={`/dashboard/users?Id=${creator?._id}`} >
-                            <span className="text-blue-600 underline " >{creator?.name}</span>
-                            </Link>
+                            <Linker tableId='38' linkStyle="mtext link" spanStyle='mtext' link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
                         </div>
                         <div className="flex flex-row items-start gap-4">
                             <span className="truncate w-1/2 md:w-1/5" >Submitted On:</span>
@@ -153,10 +149,7 @@ const ApprovalsApprovalInfoModal = ({openNew, refetch, setOpenNew, currentApprov
                             <>
                             <div className="flex flex-row items-center gap-4">
                                 <span className="truncate w-1/2 md:w-1/5" >Action Taken By:</span>
-                                    
-                                    <Link className="" href={`/dashboard/users?Id=${approver?._id}`} >
-                                        <span className="text-blue-600 underline " >{approver?.name}</span>
-                                    </Link>
+                                <Linker tableId='38' linkStyle="mtext link" link={`/dashboard/users?Id=${approver?._id}`} placeholder={approver?.name} />                                        
                             </div>
                             <div className="flex flex-row items-start gap-4">
                                 <span className="truncate w-1/2 md:w-1/5" >Action Taken On:</span>

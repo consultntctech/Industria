@@ -4,13 +4,14 @@ import { IProduct } from '@/lib/models/product.model';
 import { IProduction } from '@/lib/models/production.model';
 import { IUser } from '@/lib/models/user.model';
 import { Tooltip } from '@mui/material';
-import Link from 'next/link';
 import  { Dispatch, SetStateAction, useState } from 'react'
 import { FaPenToSquare } from 'react-icons/fa6';
 import InputDetailsModal from './InputDetailsModal';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { useAuth } from '@/hooks/useAuth';
 import { canUser } from '@/Data/roles/permissions';
+import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { enqueueSnackbar } from 'notistack';
 // import { formatDate } from '@/functions/dates';
 
 type InputDetailsProps = {
@@ -29,6 +30,15 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
 
     const {user} = useAuth();
     const isEditor = canUser(user, '8', 'UPDATE');
+    const isRawReader = canUser(user, '87', 'READ');
+
+    const handleClickOnRawMaterials = ()=>{
+      if(isRawReader){
+        setActiveTab('second');
+      }else{
+        enqueueSnackbar('You do not have permission to view raw materials', {variant:'error'});
+      }
+    }
 
   return (
     <div className="formBox p-3 flex-col gap-4 relative">
@@ -45,9 +55,7 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
         </div>
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Product to produce:</span>
-          <Link className="" href={`/dashboard/products/types?Id=${productToProduce?._id}`} >
-            <span className="text-blue-600 underline " >{productToProduce?.name}</span>
-          </Link>
+          <Linker tableId='28' linkStyle="link" spanStyle='text-gray-600 flex-1 md:flex-5' link={`/dashboard/products/types?Id=${productToProduce?._id}`} placeholder={productToProduce?.name} />
         </div>
 
         <div className="flex flex-row items-center gap-4">
@@ -57,14 +65,12 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Batch:</span>
-          <Link className="" href={`/dashboard/products/batches?Id=${batch?._id}`} >
-            <span className="text-blue-600 underline " >{batch?.code}</span>
-          </Link>
+          <Linker linkStyle="link" link={`/dashboard/products/batches?Id=${batch?._id}`} placeholder={batch?.code} tableId='55' spanStyle='text-gray-600 flex-1 md:flex-5' />
         </div>
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Raw Materials:</span>
-          <span onClick={()=>setActiveTab('second')}  className="text-blue-600 underline cursor-pointer" >{production?.ingredients?.length}</span>
+          <span onClick={handleClickOnRawMaterials}  className="text-blue-600 underline cursor-pointer" >{production?.ingredients?.length}</span>
         </div>
 {/* 
         <div className="flex flex-row items-center gap-4">
@@ -85,16 +91,12 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Started By:</span>
-          <Link className="" href={`/dashboard/users?Id=${creator?._id}`} >
-            <span className="text-blue-600 underline " >{creator?.name}</span>
-          </Link>
+          <Linker linkStyle="link" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId='38' spanStyle='text-gray-600 flex-1 md:flex-5' />
         </div>
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Supervised By:</span>
-          <Link className="" href={`/dashboard/users?Id=${supervisor?._id}`} >
-            <span className="text-blue-600 underline " >{supervisor?.name}</span>
-          </Link>
+          <Linker linkStyle="link" link={`/dashboard/users?Id=${supervisor?._id}`} placeholder={supervisor?.name} tableId='38' spanStyle='text-gray-600 flex-1 md:flex-5' />
         </div>
 
       </div>

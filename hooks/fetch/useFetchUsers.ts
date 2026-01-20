@@ -1,18 +1,24 @@
 import { getForgotByToken } from "@/lib/actions/forgot.action";
-import { getUser, getUsers } from "@/lib/actions/user.action";
+import { getUser, getUsers, getUsersByOrg } from "@/lib/actions/user.action";
 import { IForgot } from "@/lib/models/forgot.model";
 import { IUser } from "@/lib/models/user.model";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { enqueueSnackbar } from "notistack";
 import { useAuth } from "../useAuth";
+import { isSystemAdmin } from "@/Data/roles/permissions";
 
 export const useFetchUsers = () => {
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     const fetchUsers = async():Promise<IUser[]>=>{
         try {
-            const res = await getUsers();
+            if(!user) return [];
+            const res = isAdmin ? await getUsers() : await getUsersByOrg(user?.org);
             const users = res.payload as IUser[];
-            return users;
+            return users
+            ?.filter((u) => u._id !== user?._id)
+            ?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {
             console.log(error);
             return [];
@@ -22,6 +28,7 @@ export const useFetchUsers = () => {
     const {data:users=[], isPending, refetch} = useQuery({
         queryKey: ['users'],
         queryFn: fetchUsers,
+        enabled: !!user
     })
 
     return {users, isPending, refetch}

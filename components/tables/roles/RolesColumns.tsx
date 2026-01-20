@@ -2,14 +2,10 @@ import { formatDate } from "@/functions/dates";
 import { IRole } from "@/lib/models/role.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import { IoTrashBinOutline } from "react-icons/io5";
 import { TableData } from "@/Data/roles/table";
 import { IOperation } from "@/types/Types";
-import { PiRadioButtonBold } from "react-icons/pi";
+import { Assigner, Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 
 export const RolesColumns = (
     handleInfo: (role:IRole)=>void,
@@ -89,7 +85,7 @@ export const RolesColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
                 )
             }
         },
@@ -110,7 +106,7 @@ export const RolesColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker tableId="38" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
                 )
             }
         },
@@ -151,18 +147,10 @@ export const RolesColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View role">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit role">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Assign role">
-                        <PiRadioButtonBold onClick={()=>handleAssign(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Delete role">
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    <Viewer tableId="27" tip="View role" onClick={()=>handleInfo(params?.row)} />
+                    <Editor tableId="27" tip="Edit role" onClick={()=>handleEdit(params?.row)} />
+                    <Assigner tableId="38" tip="Assign role" onClick={()=>handleAssign(params?.row)} />
+                    <Deleter tableId="27" tip="Delete role" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

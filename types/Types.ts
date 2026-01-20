@@ -240,3 +240,9 @@ export interface IGroupedQuantity {
   product: string;
   quantity: number;
 }
+
+
+export interface ITablePermision {
+    tableId: string;
+    operation?: OperationName
+}

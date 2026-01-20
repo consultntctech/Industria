@@ -1,6 +1,9 @@
+import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
+import { isSystemAdmin } from '@/Data/roles/permissions';
 import { formatDate } from '@/functions/dates';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
+import { useAuth } from '@/hooks/useAuth';
 import { IBatch } from '@/lib/models/batch.model';
 import { IGood } from '@/lib/models/good.model';
 import { IOrganization } from '@/lib/models/org.model';
@@ -29,6 +32,9 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
     const storage = currentPackage?.storage as IStorage;
     const approver = currentPackage?.approvedBy as IUser;
 
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
+
     const {currency} = useCurrencyConfig();
 
     const handleClose = ()=>{
@@ -43,7 +49,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
 
             <div className="flex flex-col">
                 <span className="mlabel">Name</span>
-                <Link  href={`/dashboard/distribution/packaging/${currentPackage?._id}`} className="mtext link">{currentPackage?.name}</Link>
+                <Linker tableId='99' link={`/dashboard/distribution/packaging/${currentPackage?._id}`} spanStyle='mtext' linkStyle="mtext link" placeholder={currentPackage?.name} />
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Type</span>
@@ -51,7 +57,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Finished Good</span>
-                <Link  href={`/dashboard/processing/goods?Id=${product?._id}`} className="mtext link">{product?.name}</Link>
+                <Linker tableId='88' link={`/dashboard/processing/goods?Id=${product?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={product?.name} />
             </div>
             
             <div className="flex flex-col">
@@ -60,7 +66,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Batch</span>
-                <Link  href={`/dashboard/products/batches?Id=${batch?._id}`} className="mtext link">{batch?.code}</Link>
+                <Linker tableId='28' link={`/dashboard/products/batches?Id=${batch?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={batch?.code} />
             </div>
             {/* {
                 proditems?.length > 0 &&
@@ -97,7 +103,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Storage</span>
-                <Link  href={`/dashboard/storage?Id=${storage?._id}`} className="mtext link">{storage?.name}</Link>
+                <Linker tableId='77' link={`/dashboard/storage?Id=${storage?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={storage?.name} />
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Quality Status</span>
@@ -119,7 +125,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
                 currentPackage?.approvalStatus !== 'Pending' &&
                 <div className="flex flex-col">
                     <span className="mlabel">Approved By</span>
-                    <Link href={`/dashboard/users?Id=${approver?._id}`} className="mtext link">{approver?.name || 'None'}</Link>
+                    <Linker link={`/dashboard/users?Id=${approver?._id}`} placeholder={approver?.name || 'None'} tableId="38" linkStyle='mtext link' spanStyle='mtext' />
                 </div>
             }
             {
@@ -140,18 +146,21 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
                     <span className="mtext">{formatDate(currentPackage?.updatedAt)}</span>
                 </div>
             }
-            <div className="flex flex-col">
-                <span className="mlabel">Organization</span>
-                <Link href={`/dashboard/organizations?Id=${organization?._id}`} className="mtext link">{organization?.name || 'None'}</Link>
-            </div>
+            {
+                isAdmin &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Organization</span>
+                    <Link href={`/dashboard/organizations?Id=${organization?._id}`} className="mtext link">{organization?.name || 'None'}</Link>
+                </div>
+            }
 
             <div className="flex flex-col">
                 <span className="mlabel">Started By</span>
-                <Link href={`/dashboard/users?Id=${creator?._id}`} className="mtext link">{creator?.name || 'None'}</Link>
+                <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name || 'None'} tableId="38" linkStyle='mtext link' spanStyle='mtext' />
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Supervised By</span>
-                <Link href={`/dashboard/users?Id=${supervisor?._id}`} className="mtext link">{supervisor?.name || 'None'}</Link>
+                <Linker link={`/dashboard/users?Id=${supervisor?._id}`} linkStyle='mtext link' spanStyle='mtext' placeholder={supervisor?.name || 'None'} tableId="38" />
             </div>
         </div>
     </InfoModalContainer>

@@ -227,6 +227,8 @@ export async function getBatchesWithGoods(): Promise<IResponse> {
 }
 
 
+
+
 export async function getBatchesWithGoodsByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();

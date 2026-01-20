@@ -27,7 +27,7 @@ const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setC
     const [data, setData] = useState<Partial<ILineItem>>({});
     const formRef = useRef<HTMLFormElement>(null);
     const {user} = useAuth();
-    const isEditor = canUser(user, '99', 'UPDATE');
+    const isEditor = canUser(user, '44', 'UPDATE');
 
     const {currency} = useCurrencyConfig();
 

@@ -1,14 +1,11 @@
+import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { ICategory } from "@/lib/models/category.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IProduct } from "@/lib/models/product.model";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import { IoTrashBinOutline } from "react-icons/io5";
 
 export const ProductColumns = (
     handleInfo: (user:IProduct)=>void,
@@ -45,7 +42,7 @@ export const ProductColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const category = params?.row?.category as ICategory;
                 return (
-                    <Link href={`/dashboard/products/categories?Id=${category?._id}`} className="link" >{category?.name}</Link>
+                    <Linker link={`/dashboard/products/categories?Id=${category?._id}`} placeholder={category?.name} tableId="32" />
                 )
             }
         },
@@ -69,9 +66,7 @@ export const ProductColumns = (
                     <div className="flex flex-row items-center gap-1 flex-wrap">
                     {suppliers?.map((item, index) => (
                         <span key={item?._id}>
-                        <Link href={`/dashboard/suppliers?Id=${item?._id}`} className="link">
-                            {item?.name}
-                        </Link>
+                        <Linker link={`/dashboard/suppliers?Id=${item?._id}`} placeholder={item?.name} tableId="41" />
                         {index < suppliers.length - 1 && ', '}
                         </span>
                     ))}
@@ -112,7 +107,7 @@ export const ProductColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
                 )
             }
         },
@@ -155,7 +150,7 @@ export const ProductColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
                 )
             }
         },
@@ -171,15 +166,9 @@ export const ProductColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View product">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit product">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Delete product">
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    <Viewer tableId="28" tip="View product" onClick={()=>handleInfo(params?.row)} />
+                    <Editor tableId="28" tip="Edit product" onClick={()=>handleEdit(params?.row)} />
+                    <Deleter tableId="28" tip="Delete product" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

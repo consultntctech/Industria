@@ -1,3 +1,4 @@
+import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IOrganization } from "@/lib/models/org.model";
@@ -5,11 +6,8 @@ import { IProdItem } from "@/lib/models/proditem.model";
 import { IProduct } from "@/lib/models/product.model";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import { IoTrashBinOutline } from "react-icons/io5";
+
 
 export const ProdItemColumns = (
     handleInfo: (user:IProdItem)=>void,
@@ -132,10 +130,8 @@ export const ProdItemColumns = (
                     <div className="flex flex-row items-center gap-1 flex-wrap">
                     {suppliers?.map((item, index) => (
                         <span key={item?._id}>
-                        <Link href={`/dashboard/suppliers?Id=${item?._id}`} className="link">
-                            {item?.name}
-                        </Link>
-                        {index < suppliers.length - 1 && ', '}
+                            <Linker placeholder={item?.name} link={`/dashboard/suppliers?Id=${item?._id}`} tableId="41" />
+                            {index < suppliers.length - 1 && ', '}
                         </span>
                     ))}
                     </div>
@@ -166,7 +162,7 @@ export const ProdItemColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
                 )
             }
         },
@@ -209,7 +205,7 @@ export const ProdItemColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
                 )
             }
         },
@@ -225,15 +221,9 @@ export const ProdItemColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View item">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit item">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Delete item">
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    <Viewer tableId="12" tip="View item" onClick={()=>handleInfo(params?.row)} />
+                    <Editor tableId="12" tip="Edit item" onClick={()=>handleEdit(params?.row)} />
+                    <Deleter tableId="12" tip="Delete item" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

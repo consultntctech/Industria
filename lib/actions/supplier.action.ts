@@ -44,6 +44,19 @@ export const getProductSuppliers = async(id:string):Promise<IResponse>=>{
     }
 }
 
+
+export const getProductSuppliersByOrg = async( org:string, _id:string):Promise<IResponse>=>{
+    try {
+        await connectDB();
+        const product = await Product.findOne({ _id, org }).populate('suppliers');
+        const suppliers = product.suppliers as ISupplier[];
+        return respond('Suppliers found successfully', false, suppliers, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching suppliers', true, {}, 500);
+    }
+}
+
 export async function getSuppliersByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();

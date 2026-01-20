@@ -1,3 +1,4 @@
+import { Editor, Linker, Redoer, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import {  formatTimestamp } from "@/functions/dates";
 import { getProductCounts } from "@/functions/helpers";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
@@ -6,11 +7,8 @@ import { ILineItem } from "@/lib/models/lineitem.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { ISales } from "@/lib/models/sales.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import { LiaUndoAltSolid } from "react-icons/lia";
+
 
 export const SalesColoumns = (
     handleInfo: (sale:ISales)=>void,
@@ -47,7 +45,7 @@ export const SalesColoumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const customer = params?.row?.customer as ICustomer;
                 return (
-                    <Link key={customer?._id} href={`/dashboard/distribution/customers?Id=${customer?._id}`} className="link" >{customer?.name}</Link>
+                    <Linker tableId="33" link={`/dashboard/distribution/customers?Id=${customer?._id}`} placeholder={customer?.name} />
                 )
             }
         },
@@ -75,9 +73,7 @@ export const SalesColoumns = (
                     <div className="flex flex-row items-center gap-1 flex-wrap">
                     {items?.map((item, index) => (
                         <span key={item?.id}>
-                        <Link href={`/dashboard/products/types?Id=${item?.id}`} className="link">
-                          {item?.quantity} x {item?.name}
-                        </Link>
+                        <Linker tableId="28" link={`/dashboard/products/types?Id=${item?.id}`} placeholder={`${item?.quantity} x ${item?.name}`} />
                         {index < items.length - 1 && ', '}
                         </span>
                     ))}
@@ -122,7 +118,7 @@ export const SalesColoumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
                 )
             }
         },
@@ -143,7 +139,7 @@ export const SalesColoumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker tableId="38" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
                 )
             }
         },
@@ -173,15 +169,9 @@ export const SalesColoumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View sale">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit sale">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Return sale">
-                        <LiaUndoAltSolid  onClick={()=>handleRefund(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
+                    <Viewer tableId="82" tip="View sale" onClick={()=>handleInfo(params?.row)} />
+                    <Editor tableId="82" tip="Edit sale" onClick={()=>handleEdit(params?.row)} />
+                    <Redoer tableId="82" tip="Return sale" onClick={()=>handleRefund(params?.row)} />
                 </div>
             )
         },

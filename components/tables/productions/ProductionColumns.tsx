@@ -1,3 +1,4 @@
+import { Deleter, Linker } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
@@ -5,10 +6,8 @@ import { IOrganization } from "@/lib/models/org.model";
 import { IProduct } from "@/lib/models/product.model";
 import { IProduction } from "@/lib/models/production.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
-import { IoOpenOutline, IoTrashBinOutline } from "react-icons/io5";
+
 
 export const ProductionColumns = (
     handleDelete: (item:IProduction)=>void,
@@ -29,7 +28,7 @@ export const ProductionColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const production = params?.row as IProduction;
                 return (
-                    <Link href={`/dashboard/processing/production/${production?._id}`} className="link" >{production?.name}</Link>
+                    <Linker tableId="8" link={`/dashboard/processing/production/${production?._id}`} placeholder={production?.name}  />
                 )
             }
         },
@@ -50,7 +49,7 @@ export const ProductionColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const batch = params?.row?.batch as IBatch;
                 return (
-                    <Link href={`/dashboard/products/batches?Id=${batch?._id}`} className="link" >{batch?.code}</Link>
+                    <Linker tableId="55" link={`/dashboard/products/batches?Id=${batch?._id}`} placeholder={batch?.code}  />
                 )
             }
         },
@@ -70,7 +69,7 @@ export const ProductionColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const product = params?.row?.productToProduce as IProduct;
                 return (
-                    <Link href={`/dashboard/products/types?Id=${product?._id}`} className="link" >{product?.name}</Link>
+                    <Linker link={`/dashboard/products/types?Id=${product?._id}`} placeholder={product?.name} tableId="28" />
                 )
             }
         },
@@ -121,7 +120,7 @@ export const ProductionColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
                 )
             }
         },
@@ -164,7 +163,7 @@ export const ProductionColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
                 )
             }
         },
@@ -181,15 +180,12 @@ export const ProductionColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View production">
+                    {/* <Tooltip title="View production">
                         <Link href={`/dashboard/processing/production/${params.row?._id}`} >
                             <IoOpenOutline className="cursor-pointer text-blue-700" />
                         </Link>
-                    </Tooltip>
-                    
-                    <Tooltip title="Delete production">
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    </Tooltip> */}
+                    <Deleter tip="Delete production" tableId="8" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

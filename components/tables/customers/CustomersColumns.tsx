@@ -1,12 +1,10 @@
+import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { ICustomer } from "@/lib/models/customer.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import { IoTrashBinOutline } from "react-icons/io5";
 
 export const CustomersColoumns = (
     handleInfo: (customer:ICustomer)=>void,
@@ -26,7 +24,7 @@ export const CustomersColoumns = (
             headerName: 'Email',
             width:170,
             renderCell: (params:GridRenderCellParams)=>(
-                <Link target="_blank" href={`mailto:${params?.row?.email}`}  className="link">{params.row?.email}</Link>
+                <Linker target="_blank" tableId="33" link={`mailto:${params?.row?.email}`} placeholder={params.row?.email} />
             )
         },
 
@@ -74,7 +72,7 @@ export const CustomersColoumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker tableId="100" link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} />
                 )
             }
         },
@@ -135,15 +133,9 @@ export const CustomersColoumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View customer">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit customer">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Delete customer">
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    <Viewer tableId="33" tip="View customer" onClick={()=>handleInfo(params?.row)} />
+                    <Editor tableId="33" tip="Edit customer" onClick={()=>handleEdit(params?.row)} />
+                    <Deleter tableId="33" tip="Delete customer" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

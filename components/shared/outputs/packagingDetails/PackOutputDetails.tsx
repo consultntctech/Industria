@@ -5,8 +5,8 @@ import { IPackage } from "@/lib/models/package.model";
 // import { Tooltip } from "@mui/material";
 import { formatDate } from "@/functions/dates";
 // import PackOutputDetailsModals from "./PackOutputDetailsModals";
-import Link from "next/link";
 import { IUser } from "@/lib/models/user.model";
+import { Linker } from "@/components/PermisionHelpers/PermisionHelpers";
 
 type PackOutputDetailsProps = {
     pack: IPackage | null;
@@ -62,9 +62,7 @@ const PackOutputDetails = ({pack}:PackOutputDetailsProps) => {
                     pack?.approvalStatus !== 'Pending' &&
                     <div className="flex flex-row items-center gap-4">
                         <span className="truncate w-1/2 md:w-1/5" >Reviewer:</span>
-                        <Link className="" href={`/dashboard/users?Id=${reviewer?._id}`} >
-                            <span className="text-blue-600 underline " >{reviewer?.name}</span>
-                        </Link>
+                        <Linker tableId="38" placeholder={reviewer?.name} spanStyle="text-gray-600 flex-1 md:flex-5" linkStyle="link" link={`/dashboard/users?Id=${reviewer?._id}`} />
                     </div>
                 }
                 

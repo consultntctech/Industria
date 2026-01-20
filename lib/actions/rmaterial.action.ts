@@ -89,6 +89,22 @@ export async function getAvailableRMaterialsByBatch(batchId:string):Promise<IRes
 }
 
 
+export async function getAvailableRMaterialsByBatchByOrg(org:string, batchId:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const materials = await RMaterial.find({org, batch: batchId, qAccepted: { $gt: 0 } })
+        .populate('product', 'name')
+        .populate('batch', 'code')
+        .lean() as unknown as IRMaterial[];
+        console.log('Raw Materials: ', materials.length);
+        return respond('Raw Materials found successfully', false, materials, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching Raw Materials', true, {}, 500);
+    }
+}
+
+
 export async function getRMaterialsByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
@@ -110,6 +126,23 @@ export async function getRawMaterialsBySupplier(supplierId:string):Promise<IResp
     try {
         await connectDB();
         const materials = await RMaterial.find({ supplier: supplierId })
+        .populate('product')
+        .populate('supplier')
+        .populate('batch')
+        .populate('createdBy')
+        .populate('org') as unknown as IRMaterial[];
+        return respond('Raw Materials found successfully', false, materials, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching Raw Materials', true, {}, 500);
+    }
+}
+
+
+export async function getRawMaterialsBySupplierByOrg(org:string, supplierId:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const materials = await RMaterial.find({org, supplier: supplierId })
         .populate('product')
         .populate('supplier')
         .populate('batch')

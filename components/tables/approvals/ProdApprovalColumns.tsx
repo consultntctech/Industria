@@ -1,13 +1,12 @@
 
+import { Approver, Linker } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { IOrganization } from "@/lib/models/org.model";
 import { IProdApproval } from "@/lib/models/prodapproval.model";
 import { IProduction } from "@/lib/models/production.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
-import { IoSettingsOutline } from "react-icons/io5";
 
 export const ProdApprovalColumns = (
     handleEdit: (user:IProdApproval)=>void,
@@ -54,7 +53,7 @@ export const ProdApprovalColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker tableId="38" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
                 )
             }
         },
@@ -73,7 +72,7 @@ export const ProdApprovalColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.approver as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker tableId="38" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
                 )
             }
         },
@@ -123,7 +122,7 @@ export const ProdApprovalColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker tableId="100" link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} />
                 )
             }
         },
@@ -165,10 +164,7 @@ export const ProdApprovalColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                <Tooltip title="Take action">
-                    <IoSettingsOutline onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                </Tooltip>
-                    
+                    <Approver tip="Take Action" tableId="8" onClick={()=>handleEdit(params?.row)} />    
                 </div>
             )
         },

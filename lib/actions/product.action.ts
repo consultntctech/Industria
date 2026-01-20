@@ -178,12 +178,207 @@ export async function getProductStats(): Promise<IResponse> {
 }
 
 
+export async function getProductStatsByOrg(org:string): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const products = await Product.aggregate<IProductStats>([
+            {
+                $match: { org }
+            },
+            // Lookup raw materials
+            {
+                $lookup: {
+                    from: 'rmaterials', // collection name (plural, lowercase)
+                    localField: '_id',
+                    foreignField: 'product',
+                    as: 'rawMaterials',
+                },
+            },
+
+            // Lookup line items
+            {
+                $lookup: {
+                    from: 'lineitems',
+                    localField: '_id',
+                    foreignField: 'product',
+                    as: 'lineItems',
+                },
+            },
+
+            // Compute stock based on product type
+            {
+                $addFields: {
+                    stock: {
+                        $cond: [
+                            { $eq: ['$type', 'Raw Material'] },
+                            {
+                                $sum: '$rawMaterials.qAccepted',
+                            },
+                            {
+                                $size: {
+                                    $filter: {
+                                        input: '$lineItems',
+                                        as: 'item',
+                                        cond: {
+                                            $not: {
+                                                $in: ['$$item.status', ['Sold', 'Pending']],
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
+            },
+
+            // Compute outOfStock flag
+            {
+                $addFields: {
+                    outOfStock: {
+                        $lte: ['$stock', '$threshold'],
+                    },
+                },
+            },
+
+            // Final shape
+            {
+                $project: {
+                    _id: 0,
+                    name: 1,
+                    type: 1,
+                    threshold: 1,
+                    stock: 1,
+                    outOfStock: 1,
+                },
+            },
+        ]);
+
+        return respond('Product stats fetched successfully', false, products, 200);
+    } catch (error) {
+        console.error(error);
+        return respond('Error occurred while fetching product stats', true, {}, 500);
+    }
+}
+
+
 
 export async function getAllProductsWithStock(): Promise<IResponse> {
     try {
         await connectDB();
 
         const products = await Product.aggregate<IProductWithStock>([
+            // 🔹 Populate category
+            {
+                $lookup: {
+                    from: 'categories',
+                    localField: 'category',
+                    foreignField: '_id',
+                    as: 'category',
+                },
+            },
+            {
+                $unwind: {
+                    path: '$category',
+                    preserveNullAndEmptyArrays: true,
+                },
+            },
+
+            // 🔹 Join raw materials
+            {
+                $lookup: {
+                    from: 'rmaterials',
+                    localField: '_id',
+                    foreignField: 'product',
+                    as: 'rawMaterials',
+                },
+            },
+
+            // 🔹 Join line items
+            {
+                $lookup: {
+                    from: 'lineitems',
+                    localField: '_id',
+                    foreignField: 'product',
+                    as: 'lineItems',
+                },
+            },
+
+            // 🔹 Calculate stock
+            {
+                $addFields: {
+                    stock: {
+                        $cond: [
+                            { $eq: ['$type', 'Raw Material'] },
+                            {
+                                $sum: '$rawMaterials.qAccepted',
+                            },
+                            {
+                                $size: {
+                                    $filter: {
+                                        input: '$lineItems',
+                                        as: 'item',
+                                        cond: {
+                                            $not: {
+                                                $in: ['$$item.status', ['Sold', 'Pending']],
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
+            },
+
+            // 🔹 Determine out-of-stock
+            {
+                $addFields: {
+                    outOfStock: {
+                        $lte: ['$stock', '$threshold'],
+                    },
+                },
+            },
+
+            // 🔹 Final projection
+            {
+                $project: {
+                    rawMaterials: 0,
+                    lineItems: 0,
+                    'category.createdAt': 0,
+                    'category.updatedAt': 0,
+                    'category.__v': 0,
+                },
+            },
+        ]);
+
+        return respond(
+            'Products fetched successfully',
+            false,
+            products,
+            200
+        );
+    } catch (error) {
+        console.error(error);
+        return respond(
+            'Error occurred while fetching products',
+            true,
+            {},
+            500
+        );
+    }
+}
+
+
+export async function getAllProductsWithStockByOrg(org:string): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const products = await Product.aggregate<IProductWithStock>([
+            {
+                $match: {org: org}
+            },
             // 🔹 Populate category
             {
                 $lookup: {

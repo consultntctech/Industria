@@ -1,12 +1,16 @@
-import { getAvailableRMaterialsByBatch, getRawMaterialsBySupplier, getRMaterials } from "@/lib/actions/rmaterial.action";
+import { getAvailableRMaterialsByBatch, getAvailableRMaterialsByBatchByOrg, getRawMaterialsBySupplier, getRawMaterialsBySupplierByOrg, getRMaterials, getRMaterialsByOrg } from "@/lib/actions/rmaterial.action";
 import { IRMaterial } from "@/lib/models/rmaterial.mode";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../useAuth";
+import { isSystemAdmin } from "@/Data/roles/permissions";
 
 export const useFetchAvailableRMaterialsByBatch = (batchId:string) => {
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     const fetchAvailableRMaterialsByBatch = async ():Promise<IRMaterial[]> => {
         try {
-            if (!batchId) return [];
-            const res = await getAvailableRMaterialsByBatch(batchId);
+            if (!batchId || !user) return [];
+            const res = isAdmin ? await getAvailableRMaterialsByBatch(batchId) : await getAvailableRMaterialsByBatchByOrg(user?.org, batchId);
             const data = res.payload as IRMaterial[];
             return data;
         
@@ -19,7 +23,7 @@ export const useFetchAvailableRMaterialsByBatch = (batchId:string) => {
     const {data:materials=[], isPending, refetch, isSuccess} = useQuery({
         queryKey: ['availableMaterials', batchId],
         queryFn: fetchAvailableRMaterialsByBatch,
-        enabled: !!batchId,
+        enabled: !!batchId && !!user,
     })
 
     return {materials, isPending, refetch, isSuccess}
@@ -28,9 +32,12 @@ export const useFetchAvailableRMaterialsByBatch = (batchId:string) => {
 
 
 export const useFetchRMaterials = () => {
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     const fetchRMaterials = async ():Promise<IRMaterial[]> => {
         try {
-            const res = await getRMaterials();
+            if (!user) return [];
+            const res = isAdmin ? await getRMaterials() : await getRMaterialsByOrg(user?.org);
             const data = res.payload as IRMaterial[];
             return data.sort((a, b) => new Date(b?.createdAt)!.getTime() - new Date(a?.createdAt)!.getTime());
         
@@ -44,7 +51,7 @@ export const useFetchRMaterials = () => {
     const {data:materials=[], isPending, refetch, isSuccess} = useQuery({
         queryKey: ['materials'],
         queryFn: fetchRMaterials,
-        enabled: true,
+        enabled: !!user,
     })
 
     return {materials, isPending, refetch, isSuccess}
@@ -53,10 +60,12 @@ export const useFetchRMaterials = () => {
 
 
 export const useFetchRawMaterialsBySupplier = (supplierId:string) => {
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     const fetchRawMaterialsBySupplier = async ():Promise<IRMaterial[]> => {
         try {
-            if (!supplierId) return [];
-            const res = await getRawMaterialsBySupplier(supplierId);
+            if (!supplierId || !user) return [];
+            const res = isAdmin ? await getRawMaterialsBySupplier(supplierId) : await getRawMaterialsBySupplierByOrg(user?.org, supplierId);
             const data = res.payload as IRMaterial[];
             return data;
         
@@ -68,7 +77,7 @@ export const useFetchRawMaterialsBySupplier = (supplierId:string) => {
     const {data:materials=[], isPending, refetch, isSuccess} = useQuery({
         queryKey: ['rawMaterials', supplierId],
         queryFn: fetchRawMaterialsBySupplier,
-        enabled: !!supplierId,
+        enabled: !!supplierId && !!user,
     })
     return {materials, isPending, refetch, isSuccess}
 }

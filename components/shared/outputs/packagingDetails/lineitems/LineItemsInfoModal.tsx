@@ -10,6 +10,9 @@ import { IBatch } from '@/lib/models/batch.model';
 import { ILineItem } from '@/lib/models/lineitem.model';
 import { IPackage } from '@/lib/models/package.model';
 import { IGood } from '@/lib/models/good.model';
+import { useAuth } from '@/hooks/useAuth';
+import { isSystemAdmin } from '@/Data/roles/permissions';
+import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 
 type LineItemsInfoModalProps = {
     infoMode:boolean,
@@ -26,6 +29,9 @@ const LineItemsInfoModal = ({infoMode, setInfoMode, currentLineItem, setCurrentL
     const good = currentLineItem?.good as IGood;
     const batch = currentLineItem?.batch as IBatch;
     const {currency} = useCurrencyConfig();
+
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
 
     const handleClose = ()=>{
         setInfoMode(false);
@@ -76,14 +82,17 @@ const LineItemsInfoModal = ({infoMode, setInfoMode, currentLineItem, setCurrentL
                 <span className="mlabel">Created</span>
                 <span className="mtext">{formatDate(currentLineItem?.createdAt)}</span>
             </div>
-            <div className="flex flex-col">
-                <span className="mlabel">Organization</span>
-                <Link href={`/dashboard/organizations?Id=${organization?._id}`} className="mtext link">{organization?.name || 'None'}</Link>
-            </div>
+            {
+                isAdmin &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Organization</span>
+                    <Link href={`/dashboard/organizations?Id=${organization?._id}`} className="mtext link">{organization?.name || 'None'}</Link>
+                </div>
+            }
 
             <div className="flex flex-col">
                 <span className="mlabel">Created By</span>
-                <Link href={`/dashboard/users?Id=${creator?._id}`} className="mtext link">{creator?.name || 'None'}</Link>
+                <Linker tableId='38' link={`/dashboard/users?Id=${creator?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={creator?.name || 'None'} />
             </div>
         </div>
     </InfoModalContainer>

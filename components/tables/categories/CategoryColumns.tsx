@@ -1,12 +1,10 @@
+import { Deleter, Editor, Linker } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { ICategory } from "@/lib/models/category.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
-import {  GoPencil } from "react-icons/go";
-import { IoTrashBinOutline } from "react-icons/io5";
+
 
 export const CategoryColumns = (
     handleEdit: (category:ICategory)=>void,
@@ -45,7 +43,7 @@ export const CategoryColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const orga = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${orga?._id}`} className="link" >{orga?.name}</Link>
+                    <Linker tableId="100" link={`/dashboard/organizations?Id=${orga?._id}`} placeholder={orga?.name} />
                 )
             }
         },
@@ -64,7 +62,7 @@ export const CategoryColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker tableId="38" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
                 )
             }
         },
@@ -104,12 +102,8 @@ export const CategoryColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="Edit category">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Delete category">
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    <Editor tableId="32" tip="Edit category" onClick={()=>handleEdit(params?.row)} />
+                    <Deleter tableId="32" tip="Delete category" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

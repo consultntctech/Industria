@@ -1,3 +1,4 @@
+import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
 import { formatDate } from '@/functions/dates';
 import { useFetchRawMaterialsBySupplier } from '@/hooks/fetch/useRMaterials';
@@ -72,7 +73,7 @@ const SuppliersInfoModal = ({infoMode, setInfoMode, currentSupplier, setCurrentS
             </div>
              <div className="flex flex-col">
                 <span className="mlabel">Created By</span>
-                <Link href={`/dashboard/users?Id=${creator?._id}`} className="mtext link">{creator?.name || 'None'}</Link>
+                <Linker link={`/dashboard/users?Id=${creator?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={creator?.name || 'None'} tableId="38" />
             </div>
         </div>
     </InfoModalContainer>

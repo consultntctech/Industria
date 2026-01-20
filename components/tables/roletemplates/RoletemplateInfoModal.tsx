@@ -1,6 +1,9 @@
+import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
+import { isSystemAdmin } from '@/Data/roles/permissions';
 // import { TableData } from '@/Data/roles/table';
 import { formatDate } from '@/functions/dates';
+import { useAuth } from '@/hooks/useAuth';
 // import { getRoleTitles } from '@/functions/helpers';
 import { IOrganization } from '@/lib/models/org.model';
 import { IRole } from '@/lib/models/role.model';
@@ -19,6 +22,8 @@ type RoletemplateInfoModalProps = {
 const RoletemplateInfoModal = ({infoMode, setInfoMode, currentRoletemplate, setCurrentRoletemplate}:RoletemplateInfoModalProps) => {
     const creator = currentRoletemplate?.createdBy as IUser;
     const org = currentRoletemplate?.org as IOrganization;
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     // const titles = getRoleTitles(currentRoletemplate);
     // const table = TableData.find(t=>t.id===currentRoletemplate?.permissions?.tableid);
     // console.log('Creator:', creator);
@@ -44,8 +49,7 @@ const RoletemplateInfoModal = ({infoMode, setInfoMode, currentRoletemplate, setC
                 <div className="flex flex-col gap-2.5">
                     {
                         roles.map((role, index)=>(
-                            <Link key={index} href={`/dashboard/roles?Id=${role?._id}`} className="link">{role?.name}</Link>
-                            
+                            <Linker tableId='27' key={index} link={`/dashboard/roles?Id=${role?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={role?.name} />
                         ))
                     }
                 </div>
@@ -62,12 +66,15 @@ const RoletemplateInfoModal = ({infoMode, setInfoMode, currentRoletemplate, setC
             </div>
              <div className="flex flex-col">
                 <span className="mlabel">Created By</span>
-                <Link href={`/dashboard/users?Id=${creator?._id}`} className="mtext link">{creator?.name || 'None'}</Link>
+                <Linker tableId='38' link={`/dashboard/users?Id=${creator?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={creator?.name || 'None'} />
             </div>
-             <div className="flex flex-col">
-                <span className="mlabel">Organization</span>
-                <Link href={`/dashboard/organization?Id=${org?._id}`} className="mtext link">{org?.name || 'None'}</Link>
-            </div>
+            {
+                isAdmin &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Organization</span>
+                    <Link href={`/dashboard/organization?Id=${org?._id}`} className="mtext link">{org?.name || 'None'}</Link>
+                </div>
+            }
         </div>
     </InfoModalContainer>
   )

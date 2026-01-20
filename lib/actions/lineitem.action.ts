@@ -177,6 +177,24 @@ export async function getLineItemsByPackage (packageId: string): Promise<IRespon
 }
 
 
+export async function getLineItemsByPackageAndOrg (packageId: string, org:string): Promise<IResponse> {
+    try {
+        await connectDB();
+        const lineItems = await LineItem.find({ package: packageId, org })
+        .populate('product')
+        .populate('good')
+        .populate('package')
+        .populate('createdBy')
+        .populate('batch')
+        .populate('org').lean() as unknown as ILineItem[];
+        return respond('Line items found successfully', false, lineItems, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching line items', true, {}, 500);
+    }
+}
+
+
 export async function getLineItemsByOrg (org: string): Promise<IResponse> {
     try {
         await connectDB();

@@ -1,3 +1,4 @@
+import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { IBatch } from "@/lib/models/batch.model";
 import { IOrganization } from "@/lib/models/org.model";
@@ -5,11 +6,8 @@ import { IProduct } from "@/lib/models/product.model";
 import { IRMaterial } from "@/lib/models/rmaterial.mode";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import { IoTrashBinOutline } from "react-icons/io5";
+
 
 export const RMaterialColumns = (
     handleInfo: (item:IRMaterial)=>void,
@@ -40,7 +38,7 @@ export const RMaterialColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const product = params?.row?.product as IProduct;
                 return (
-                    <Link href={`/dashboard/products/types?Id=${product?._id}`} className="link" >{product?.name}</Link>
+                    <Linker tableId="28" link={`/dashboard/products/types?Id=${product?._id}`} placeholder={product?.name} />
                 )
             }
         },
@@ -59,7 +57,7 @@ export const RMaterialColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const supplier = params?.row?.supplier as ISupplier;
                 return (
-                    <Link href={`/dashboard/suppliers?Id=${supplier?._id}`} className="link" >{supplier?.name}</Link>
+                    <Linker link={`/dashboard/suppliers?Id=${supplier?._id}`} placeholder={supplier?.name} tableId="41" />
                 )
             }
         },
@@ -78,7 +76,7 @@ export const RMaterialColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const batch = params?.row?.batch as IBatch;
                 return (
-                    <Link href={`/dashboard/products/batches?Id=${batch?._id}`} className="link" >{batch?.code}</Link>
+                    <Linker link={`/dashboard/products/batches?Id=${batch?._id}`} placeholder={batch?.code} tableId="55" />
                 )
             }
         },
@@ -178,7 +176,7 @@ export const RMaterialColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
                 )
             }
         },
@@ -221,7 +219,7 @@ export const RMaterialColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
                 )
             }
         },
@@ -237,15 +235,9 @@ export const RMaterialColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View raw material">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit raw material">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Delete raw material">
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    <Viewer tableId="87" tip="View raw material" onClick={()=>handleInfo(params?.row)} />
+                    <Editor tableId="87" tip="Edit raw material" onClick={()=>handleEdit(params?.row)} />
+                    <Deleter tableId="87" tip="Delete raw material" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

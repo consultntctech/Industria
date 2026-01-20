@@ -1,8 +1,8 @@
+import { Linker } from "@/components/PermisionHelpers/PermisionHelpers";
 import { IBatch } from "@/lib/models/batch.model";
 import { IProduct } from "@/lib/models/product.model";
 import { IRMaterial, IRMaterialPopulate } from "@/lib/models/rmaterial.mode";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
 
 export const ProdRMColumns = (
 ):GridColDef[]=>{
@@ -41,7 +41,7 @@ export const ProdRMColumns = (
                 const material = params?.row?.materialId as IRMaterial;
                 const product = material?.product as IProduct;
                 return (
-                    <Link href={`/dashboard/products/types?Id=${product?._id}`} className="link" >{product?.name}</Link>
+                    <Linker tableId="28" link={`/dashboard/products/types?Id=${product?._id}`} placeholder={product?.name} />
                 )
             }
         },
@@ -63,7 +63,7 @@ export const ProdRMColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const batch = params?.row?.materialId?.batch as IBatch;
                 return (
-                    <Link href={`/dashboard/products/batches?Id=${batch?._id}`} className="link" >{batch?.code}</Link>
+                    <Linker tableId="55" link={`/dashboard/products/batches?Id=${batch?._id}`} placeholder={batch?.code} />
                 )
             }
         },

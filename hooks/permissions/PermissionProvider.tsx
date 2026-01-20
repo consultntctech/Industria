@@ -20,10 +20,10 @@ export const PermissionGuard = ({
   children,
 }: PermissionGuardProps) => {
   const router = useRouter();
-  const { canAccess, isLoading } = useFetchRoute(tableId, operation);
+  const { canAccess, isLoading, isSuccess } = useFetchRoute(tableId, operation);
 
   useEffect(() => {
-    if (!isLoading && !canAccess) {
+    if (isSuccess && !canAccess) {
       router.replace('/dashboard/denied');
     }
   }, [isLoading, canAccess, router]);
@@ -47,7 +47,7 @@ export const ApprovalGuard = ({
     return <LinearProgress className="w-full" />;
   }
 
-  if (!canAccess && isSuccess) {
+  if (isSuccess && !canAccess) {
     return <ContentDeniedComp />;
   }
 

@@ -1,12 +1,17 @@
-import { getLastSixMonthsProductions, getProductions, getProductionStats } from "@/lib/actions/production.action";
+import { getLastSixMonthsProductions, getLastSixMonthsProductionsByOrg, getProductions, getProductionsByOrg, getProductionStats, getProductionStatsByOrg } from "@/lib/actions/production.action";
 import { IProduction } from "@/lib/models/production.model";
 import { IMonthlyStats, IProductionStats } from "@/types/Types";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "../useAuth";
+import { isSystemAdmin } from "@/Data/roles/permissions";
 
 export const useFetchProductions = () => {
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     const fetchProductions = async ():Promise<IProduction[]> => {
         try {
-            const res = await getProductions();
+            if(!user) return [];
+            const res = isAdmin ? await getProductions() : await getProductionsByOrg(user?.org);
             const data = res.payload as IProduction[];
             return data.sort((a, b) => new Date(b?.createdAt)!.getTime() - new Date(a?.createdAt)!.getTime());
         
@@ -20,7 +25,7 @@ export const useFetchProductions = () => {
     const {data:productions=[], isPending, refetch, isSuccess} = useQuery({
         queryKey: ['productions'],
         queryFn: fetchProductions,
-        enabled: true,
+        enabled: !!user,
     })
 
     return {productions, isPending, refetch, isSuccess}
@@ -29,9 +34,12 @@ export const useFetchProductions = () => {
 
 
 export const useFetchSixMonthProductions = () => {
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     const fetchProductions = async ():Promise<IMonthlyStats[]> => {
         try {
-            const res = await getLastSixMonthsProductions();
+            if(!user) return [];
+            const res = isAdmin ? await getLastSixMonthsProductions() : await getLastSixMonthsProductionsByOrg(user?.org);
             const data = res.payload as IMonthlyStats[];
             return data;
         } catch (error) {
@@ -43,15 +51,19 @@ export const useFetchSixMonthProductions = () => {
   const {data:productions=[], isPending, refetch, isSuccess} = useQuery({
     queryKey: ['sixmonthsproductions'],
     queryFn: fetchProductions,
+    enabled: !!user
   })
   return {productions, isPending, refetch, isSuccess}
 }
 
 
 export const useFetchProductionStats = () => {
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     const fetchProductionStats = async ():Promise<IProductionStats | null> => {
         try {
-            const res = await getProductionStats();
+            if(!user) return null;
+            const res = isAdmin ? await getProductionStats() : await getProductionStatsByOrg(user?.org);
             const data = res.payload as IProductionStats;
             return data;
         } catch (error) {
@@ -62,7 +74,8 @@ export const useFetchProductionStats = () => {
 
     const {data:productionStats, isPending, refetch, isSuccess} = useQuery({
         queryKey: ['productionStats'],
-        queryFn: fetchProductionStats
+        queryFn: fetchProductionStats,
+        enabled: !!user
     })
 
     return {productionStats, isPending, refetch, isSuccess}

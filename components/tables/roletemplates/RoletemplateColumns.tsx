@@ -1,14 +1,10 @@
 import { formatDate } from "@/functions/dates";
 import { IOrganization } from "@/lib/models/org.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import { IoTrashBinOutline } from "react-icons/io5";
-import { PiRadioButtonBold } from "react-icons/pi";
 import { IRoleTemplate } from "@/lib/models/roletemplate.model";
 import { IRole } from "@/lib/models/role.model";
+import { Assigner, Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 
 export const RoletemplateColumns = (
     handleInfo: (role:IRoleTemplate)=>void,
@@ -44,7 +40,7 @@ export const RoletemplateColumns = (
                     <div className="flex flex-wrap gap-2 flex-row">
                         {roles?.map((op, index)=>(
                             <span key={index} >
-                                <Link  className="link" href={`/dashboard/roles?Id=${op._id}`}>{op.name}</Link>
+                                <Linker tableId="27" link={`/dashboard/roles?Id=${op._id}`} placeholder={op?.name} />
                                 {index < roles.length - 1 && ', '}
                             </span>
                         ))}
@@ -74,7 +70,7 @@ export const RoletemplateColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
                 )
             }
         },
@@ -95,7 +91,7 @@ export const RoletemplateColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
                 )
             }
         },
@@ -136,18 +132,10 @@ export const RoletemplateColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View template">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit template">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Assign template">
-                        <PiRadioButtonBold onClick={()=>handleAssign(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Delete template">
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    <Viewer tableId="23" tip="View template" onClick={()=>handleInfo(params?.row)} />
+                    <Editor tableId="23" tip="Edit template" onClick={()=>handleEdit(params?.row)} />
+                    <Assigner tableId="38" tip="Assign template" onClick={()=>handleAssign(params?.row)} />
+                    <Deleter tableId="23" tip="Delete template" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

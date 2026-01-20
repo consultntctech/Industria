@@ -1,6 +1,9 @@
+import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
+import { isSystemAdmin } from '@/Data/roles/permissions';
 import { formatDate } from '@/functions/dates';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
+import { useAuth } from '@/hooks/useAuth';
 import { IBatch } from '@/lib/models/batch.model';
 import { IOrganization } from '@/lib/models/org.model';
 import { IProduct } from '@/lib/models/product.model';
@@ -18,6 +21,8 @@ type ProductInfoModalProps = {
 }
 
 const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMaterial}:ProductInfoModalProps) => {
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     const organization = currentMaterial?.org as IOrganization;
     const batch = currentMaterial?.batch as IBatch;
     const creator = currentMaterial?.createdBy as IUser;
@@ -43,17 +48,17 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
 
             <div className="flex flex-col">
                 <span className="mlabel">Product</span>
-                <Link  href={`/dashboard/products/types?Id=${product?._id}`} className="mtext link">{product?.name}</Link>
+                <Linker  link={`/dashboard/products/types?Id=${product?._id}`} linkStyle="mtext link" spanStyle='mtext' tableId="28" placeholder={product?.name} />
             </div>
 
             <div className="flex flex-col">
                 <span className="mlabel">Batch</span>
-                <Link  href={`/dashboard/products/batches?Id=${batch?._id}`} className="mtext link">{batch?.code}</Link>
+                <Linker  link={`/dashboard/products/batches?Id=${batch?._id}`} linkStyle="mtext link" spanStyle='mtext' tableId="55" placeholder={batch?.code} />
             </div>
 
             <div className="flex flex-col">
                 <span className="mlabel">Supplier</span>
-                <Link  href={`/dashboard/suppliers?Id=${supplier?._id}`} className="mtext link">{supplier?.name}</Link>
+                <Linker  link={`/dashboard/suppliers?Id=${supplier?._id}`} linkStyle="mtext link" spanStyle='mtext' tableId="41" placeholder={supplier?.name} />
             </div>
             
             
@@ -108,14 +113,17 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
                 <span className="mlabel">Created</span>
                 <span className="mtext">{formatDate(currentMaterial?.createdAt)}</span>
             </div>
-            <div className="flex flex-col">
-                <span className="mlabel">Organization</span>
-                <Link href={`/dashboard/organizations?Id=${organization?._id}`} className="mtext link">{organization?.name || 'None'}</Link>
-            </div>
+            {
+                isAdmin &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Organization</span>
+                    <Link href={`/dashboard/organizations?Id=${organization?._id}`} className="mtext link">{organization?.name || 'None'}</Link>
+                </div>
+            }
 
             <div className="flex flex-col">
                 <span className="mlabel">Created By</span>
-                <Link href={`/dashboard/users?Id=${creator?._id}`} className="mtext link">{creator?.name || 'None'}</Link>
+                <Linker tableId='38' link={`/dashboard/users?Id=${creator?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={creator?.name || 'None'} />
             </div>
         </div>
     </InfoModalContainer>

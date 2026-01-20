@@ -1,7 +1,10 @@
 import CustomTabs from '@/components/misc/CustomTabs';
 import DialogueAlet from '@/components/misc/DialogueAlet';
+import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
+import { isGlobalAdmin, isSystemAdmin } from '@/Data/roles/permissions';
 import { formatDate } from '@/functions/dates';
+import { useAuth } from '@/hooks/useAuth';
 import { updateUser } from '@/lib/actions/user.action';
 import { IOrganization } from '@/lib/models/org.model';
 import { IRole } from '@/lib/models/role.model';
@@ -28,6 +31,12 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
     const [roles, setRoles] = useState<IRole[]>([]);
     const userRoles = currentUser?.roles as IRole[];
     const [showDialog, setShowDialog] = useState(false);
+
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
+    const isGlobal = isGlobalAdmin(user?.roles as IRole[]);
+    const isG = isGlobalAdmin(currentUser?.roles as IRole[]);
+    const canSeeActions = !isG || isGlobal;
 
     useEffect(()=>{
         if(currentUser){
@@ -102,10 +111,13 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
                     <span className="mtext">{currentUser?.address || 'None'}</span>
                 </div>
                 
-                <div className="flex flex-col">
-                    <span className="mlabel">Organization</span>
-                    <Link href={`/dashboard/organizations?Id=${organization?._id}`} className="mtext link">{organization?.name || 'None'}</Link>
-                </div>
+                {
+                    isAdmin &&
+                    <div className="flex flex-col">
+                        <span className="mlabel">Organization</span>
+                        <Link href={`/dashboard/organizations?Id=${organization?._id}`} className="mtext link">{organization?.name || 'None'}</Link>
+                    </div>
+                }
                 <div className="flex flex-col">
                     <span className="mlabel">Description</span>
                     <span className="mtext">{currentUser?.description || 'None'}</span>
@@ -121,28 +133,35 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
             <div className="flex flex-col mt-8">
                 <span className="mlabel">Roles</span>
                 {
-                    roles?.length > 0 ?
-                    <div className="flex flex-col gap-2.5">
+                    canSeeActions ? 
+                    <>
                     {
-                        roles.map((role, index)=>(
-                            <div key={index}  className="flex flex-row justify-between gap-4 items-center">
-                                <Link href={`/dashboard/roles?Id=${role?._id}`}  className="link">{role.name}</Link>
-                                <div onClick={()=>handleRemove(role)}  className="flex-center p-1 rounded-full bg-slate-400 cursor-pointer">
-                                    <IoClose />
+                        roles?.length > 0 ?
+                        <div className="flex flex-col gap-2.5">
+                        {
+                            roles.map((role, index)=>(
+                                <div key={index}  className="flex flex-row justify-between gap-4 items-center">
+                                    <Linker tableId='27' link={`/dashboard/roles?Id=${role?._id}`}  linkStyle="link mtext" spanStyle='mtext' placeholder={role?.name} />
+                                    <div onClick={()=>handleRemove(role)}  className="flex-center p-1 rounded-full bg-slate-400 cursor-pointer">
+                                        <IoClose />
+                                    </div>
                                 </div>
-                            </div>
-                        ))
+                            ))
+                        }
+                        </div>
+                        :
+                        <span className="mtext">None</span>
                     }
-                    </div>
+                    {
+                        showButton &&
+                        <div className="flex-center w-full mt-6 gap-4">
+                            <button onClick={()=>setShowDialog(true)}  className='w-full py-0.5 border border-blue-400 rounded-2xl hover:bg-blue-200 cursor-pointer' >Save</button>
+                            <button onClick={handleCancel} className='w-full py-0.5 border border-slate-400 rounded-2xl hover:bg-slate-200 cursor-pointer' >Cancel</button>
+                        </div>
+                    }
+                    </>
                     :
-                    <span className="mtext">None</span>
-                }
-                {
-                    showButton &&
-                    <div className="flex-center w-full mt-6 gap-4">
-                        <button onClick={()=>setShowDialog(true)}  className='w-full py-0.5 border border-blue-400 rounded-2xl hover:bg-blue-200 cursor-pointer' >Save</button>
-                        <button onClick={handleCancel} className='w-full py-0.5 border border-slate-400 rounded-2xl hover:bg-slate-200 cursor-pointer' >Cancel</button>
-                    </div>
+                    <span className="mtext">You don't have permission to edit this user's roles</span>
                 }
             </div>
         }

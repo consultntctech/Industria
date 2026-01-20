@@ -9,6 +9,9 @@ import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { IOrder } from '@/lib/models/order.model';
 import { IProduct } from '@/lib/models/product.model';
 import { isDeadlinePast } from '@/functions/helpers';
+import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { useAuth } from '@/hooks/useAuth';
+import { isSystemAdmin } from '@/Data/roles/permissions';
 
 type OrdersInfoModalProps = {
     infoMode:boolean,
@@ -22,7 +25,8 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
     const org = currentOrder?.org as IOrganization;
     const product = currentOrder?.product as IProduct;
     const customer = currentOrder?.customer as ICustomer;
-
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     const {currency} = useCurrencyConfig();
 
     // console.log('Creator:', creator);
@@ -46,7 +50,7 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
             
             <div className="flex flex-col">
                 <span className="mlabel">Product</span>
-                <Link href={`/dashboard/products/types?Id=${product?._id}`} className="mtext link">{product?.name}</Link>
+                <Linker tableId='28' linkStyle="mtext link" spanStyle='mtext' placeholder={product?.name} link={`/dashboard/products/types?Id=${product?._id}`} />
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Quantity</span>
@@ -76,12 +80,15 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
             
             <div className="flex flex-col">
                 <span className="mlabel">Sales Personnel</span>
-                <Link href={`/dashboard/users?Id=${creator?._id}`} className="mtext link">{creator?.name || 'None'}</Link>
+                <Linker tableId='38' placeholder={creator?.name || 'None'} link={`/dashboard/users?Id=${creator?._id}`} spanStyle='mtext' linkStyle="mtext link" />
             </div>
-             <div className="flex flex-col">
-                <span className="mlabel">Organization</span>
-                <Link href={`/dashboard/organization?Id=${org?._id}`} className="mtext link">{org?.name || 'None'}</Link>
-            </div>
+            {
+                isAdmin &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Organization</span>
+                    <Link href={`/dashboard/organization?Id=${org?._id}`} className="mtext link">{org?.name || 'None'}</Link>
+                </div>
+            }
         </div>
     </InfoModalContainer>
   )

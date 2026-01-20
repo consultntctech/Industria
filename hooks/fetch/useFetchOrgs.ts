@@ -2,10 +2,14 @@ import { getOrg, getOrgs } from "@/lib/actions/org.action";
 import { IOrganization } from "@/lib/models/org.model"
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
+import { isSystemAdmin } from "@/Data/roles/permissions";
 
 export const useFetchOrgs = ()=>{
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     const fetchOrgs = async():Promise<IOrganization[]>=>{
         try {
+            if(!isAdmin) return [];
             const res = await getOrgs();
             const orgs = res.payload as IOrganization[];
             return orgs;
@@ -18,6 +22,7 @@ export const useFetchOrgs = ()=>{
     const {data:orgs=[], isPending, refetch, isSuccess} = useQuery({
         queryKey: ['orgs'],
         queryFn: fetchOrgs,
+        enabled: isAdmin
     })
 
     return {orgs, isPending, refetch, isSuccess}

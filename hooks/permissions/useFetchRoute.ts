@@ -26,13 +26,13 @@ export const useFetchRoute = (
     );
   };
 
-  const { data = false, isLoading } = useQuery({
+  const { data = false, isLoading, isSuccess } = useQuery({
     queryKey: ['route-permission', user?._id, tableIds, operation],
     queryFn: hasPermission,
     enabled: Boolean(user),
     staleTime: Infinity,
   });
 
-  return { canAccess: data, isLoading };
+  return { canAccess: data, isLoading, isSuccess };
 };
 

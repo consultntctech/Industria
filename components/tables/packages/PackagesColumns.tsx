@@ -1,4 +1,5 @@
 
+import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
@@ -7,11 +8,8 @@ import { IPackage } from "@/lib/models/package.model";
 // import { IProdItem } from "@/lib/models/proditem.model";
 import { IStorage } from "@/lib/models/storage.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import {  IoTrashBinOutline } from "react-icons/io5";
+
 
 export const PackagesColumns = (
     handleInfo: (item:IPackage)=>void,
@@ -30,7 +28,7 @@ export const PackagesColumns = (
             renderCell: (param:GridRenderCellParams)=>{
                 const pack = param.row;
                 return(
-                    <Link className="link" href={`/dashboard/distribution/packaging/${pack?._id}`} >{pack?.name}</Link>
+                    <Linker link={`/dashboard/distribution/packaging/${pack?._id}`} placeholder={pack?.name} tableId="99" />
                 )
             }
         },
@@ -80,7 +78,7 @@ export const PackagesColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const batch = params?.row?.batch as IBatch;
                 return (
-                    <Link href={`/dashboard/products/batches?Id=${batch?._id}`} className="link" >{batch?.code}</Link>
+                    <Linker link={`/dashboard/products/batches?Id=${batch?._id}`} placeholder={batch?.code} tableId="55" />
                 )
             }
         },
@@ -110,7 +108,7 @@ export const PackagesColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const storage = params?.row?.storage as IStorage;
                 return (
-                    <Link href={`/dashboard/storage?Id=${storage?._id}`} className="link" >{storage?.name}</Link>
+                    <Linker link={`/dashboard/storage?Id=${storage?._id}`} placeholder={storage?.name} tableId="77" />
                 )
             }
         },
@@ -136,7 +134,7 @@ export const PackagesColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.approver as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
                 )
             }
         },
@@ -185,7 +183,7 @@ export const PackagesColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
                 )
             }
         },
@@ -204,7 +202,7 @@ export const PackagesColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const supervisor = params?.row?.supervisor as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${supervisor?._id}`} className="link" >{supervisor?.name}</Link>
+                    <Linker link={`/dashboard/users?Id=${supervisor?._id}`} placeholder={supervisor?.name} tableId="38" />
                 )
             }
         },
@@ -224,7 +222,7 @@ export const PackagesColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
                 )
             }
         },
@@ -266,15 +264,9 @@ export const PackagesColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View package">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit package">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Delete package">
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    <Viewer tableId="99" tip="View package" onClick={()=>handleInfo(params?.row)} />
+                    <Editor tableId="99" tip="Edit package" onClick={()=>handleEdit(params?.row)} />
+                    <Deleter tableId="99" tip="Delete package" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

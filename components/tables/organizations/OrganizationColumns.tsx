@@ -1,12 +1,10 @@
+import { Deleter, Editor, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { IOrganization } from "@/lib/models/org.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Image from "next/image";
 import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import { IoTrashBinOutline } from "react-icons/io5";
 
 export const OrganizationColumns = (
     handleInfo: (org:IOrganization)=>void,
@@ -112,15 +110,9 @@ export const OrganizationColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View organization">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit organization">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Delete organization">
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    <Viewer tableId="100" tip="View organization" onClick={()=>handleInfo(params?.row)} />
+                    <Editor tableId="100" tip="Edit organization" onClick={()=>handleEdit(params?.row)} />
+                    <Deleter tableId="100" tip="Delete organization" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

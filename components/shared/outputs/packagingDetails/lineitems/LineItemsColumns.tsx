@@ -1,3 +1,4 @@
+import { Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
@@ -7,10 +8,8 @@ import { IOrganization } from "@/lib/models/org.model";
 import { IPackage } from "@/lib/models/package.model";
 import { IProduct } from "@/lib/models/product.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
 
 export const LineItemsColumns = (
     handleInfo: (item:ILineItem)=>void,
@@ -92,7 +91,7 @@ export const LineItemsColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const good = params.row?.good as IGood;
                 return (
-                    <Link href={`/dashboard/processing/goods?Id=${good?._id}`} className="link" >{good?.name}</Link>
+                    <Linker tableId="88" link={`/dashboard/processing/goods?Id=${good?._id}`} placeholder={good?.name} />
                 )
             }
         },
@@ -123,7 +122,7 @@ export const LineItemsColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const pack = params?.row?.pack as IPackage;
                 return (
-                    <Link href={`/dashboard/distribution/packaging/${pack?._id}`} className="link" >{pack?.name}</Link>
+                    <Linker tableId="99" link={`/dashboard/distribution/packaging/${pack?._id}`} placeholder={pack?.name} />
                 )
             }
         },
@@ -144,7 +143,7 @@ export const LineItemsColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker tableId="100" link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} />
                 )
             }
         },
@@ -187,7 +186,7 @@ export const LineItemsColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker tableId="38" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
                 )
             }
         },
@@ -204,12 +203,8 @@ export const LineItemsColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View item">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit item">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
+                    <Viewer tableId="44" onClick={()=>handleInfo(params?.row)} tip="View item" />
+                    <Editor tableId="44" onClick={()=>handleEdit(params?.row)} tip="Edit item" />
                 </div>
             )
         },

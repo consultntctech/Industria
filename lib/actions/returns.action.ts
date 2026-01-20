@@ -258,6 +258,60 @@ export async function getReturnsGroupedByMonth(): Promise<IResponse> {
 }
 
 
+export async function getReturnsGroupedByMonthByOrg(org:string): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const returns = await Returns.aggregate([
+            {
+                $match: {
+                    org,
+                    price: { $ne: null }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    quantity: { $sum: "$price" }
+                }
+            },
+            {
+                $sort: {
+                    "_id.year": 1,
+                    "_id.month": 1
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    month: {
+                        $dateToString: {
+                            format: "%b",
+                            date: {
+                                $dateFromParts: {
+                                    year: "$_id.year",
+                                    month: "$_id.month",
+                                    day: 1
+                                }
+                            }
+                        }
+                    },
+                    quantity: 1
+                }
+            }
+        ]);
+
+        return respond('Returns fetched successfully', false, returns, 200);
+    } catch (error) {
+        console.error(error);
+        return respond('Error occurred while fetching returns', true, {}, 500);
+    }
+}
+
+
 
 export async function getReturnsQuantityGroupedByMonth(): Promise<IResponse> {
     try {
@@ -266,6 +320,60 @@ export async function getReturnsQuantityGroupedByMonth(): Promise<IResponse> {
         const returns = await Returns.aggregate([
             {
                 $match: {
+                    quantity: { $ne: null }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    quantity: { $sum: "$quantity" }
+                }
+            },
+            {
+                $sort: {
+                    "_id.year": 1,
+                    "_id.month": 1
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    month: {
+                        $dateToString: {
+                            format: "%b",
+                            date: {
+                                $dateFromParts: {
+                                    year: "$_id.year",
+                                    month: "$_id.month",
+                                    day: 1
+                                }
+                            }
+                        }
+                    },
+                    quantity: 1
+                }
+            }
+        ]);
+
+        return respond('Returns quantity fetched successfully', false, returns, 200);
+    } catch (error) {
+        console.error(error);
+        return respond('Error occurred while fetching returns quantity', true, {}, 500);
+    }
+}
+
+
+export async function getReturnsQuantityGroupedByMonthByOrg(org:string): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const returns = await Returns.aggregate([
+            {
+                $match: {
+                    org,
                     quantity: { $ne: null }
                 }
             },

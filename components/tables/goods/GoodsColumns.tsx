@@ -1,3 +1,4 @@
+import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 // import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
@@ -6,11 +7,7 @@ import { IOrganization } from "@/lib/models/org.model";
 import { IProduct } from "@/lib/models/product.model";
 import { IProduction } from "@/lib/models/production.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import { IoTrashBinOutline } from "react-icons/io5";
 
 export const GoodColumns = (
     handleInfo: (user:IGood)=>void,
@@ -47,7 +44,7 @@ export const GoodColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const batch = params?.row?.batch as IBatch;
                 return (
-                    <Link href={`/dashboard/products/batches?Id=${batch?._id}`} className="link" >{batch?.code}</Link>
+                    <Linker tableId="55" link={`/dashboard/products/batches?Id=${batch?._id}`} placeholder={batch?.code}  />
                 )
             }
         },
@@ -70,7 +67,7 @@ export const GoodColumns = (
                 const production = params?.row?.production as IProduction;
                 const product = production?.productToProduce as IProduct;
                 return (
-                    <Link href={`/dashboard/products/types?Id=${product?._id}`} className="link" >{product?.name}</Link>
+                    <Linker tableId="28" link={`/dashboard/products/types?Id=${product?._id}`} placeholder={product?.name}  />
                 )
             }
         },
@@ -100,7 +97,7 @@ export const GoodColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const production = params?.row?.production as IProduction;
                 return (
-                    <Link href={`/dashboard/processing/production/${production?._id}`} className="link" >{production?.name}</Link>
+                    <Linker tableId="8" link={`/dashboard/processing/production/${production?._id}`} placeholder={production?.name}  />
                 )
             }
         },
@@ -132,7 +129,7 @@ export const GoodColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker tableId="100" link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name}  />
                 )
             }
         },
@@ -175,7 +172,7 @@ export const GoodColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker tableId="38" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
                 )
             }
         },
@@ -192,15 +189,9 @@ export const GoodColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View Goods">
-                        <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit Goods">
-                        <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
-                    <Tooltip title="Delete Goods">
-                        <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    <Viewer tableId="88" tip="View Goods" onClick={()=>handleInfo(params?.row)} />
+                    <Editor tableId="88" tip="Edit Goods" onClick={()=>handleEdit(params?.row)} />
+                    <Deleter tableId="88" tip="Delete Goods" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

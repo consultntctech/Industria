@@ -1,3 +1,4 @@
+import { Deleter, Editor, Fulfiller, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import {  formatDate } from "@/functions/dates";
 import { isDeadlinePast } from "@/functions/helpers";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
@@ -6,12 +7,7 @@ import { IOrder } from "@/lib/models/order.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IProduct } from "@/lib/models/product.model";
 import { IUser } from "@/lib/models/user.model";
-import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Link from "next/link";
-import { GoInfo, GoPencil } from "react-icons/go";
-import { IoMdCheckmarkCircleOutline } from "react-icons/io";
-import { IoTrashBinOutline } from "react-icons/io5";
 
 export const OrdersColumns = (
     handleInfo: (item:IOrder)=>void,
@@ -39,7 +35,7 @@ export const OrdersColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const customer = params?.row?.customer as ICustomer;
                 return (
-                    <Link key={customer?._id} href={`/dashboard/distribution/customers?Id=${customer?._id}`} className="link" >{customer?.name}</Link>
+                    <Linker link={`/dashboard/distribution/customers?Id=${customer?._id}`} placeholder={customer?.name} tableId="33" />
                 )
             }
         },
@@ -58,7 +54,7 @@ export const OrdersColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const product = params?.row?.product as IProduct;
                 return (
-                    <Link href={`/dashboard/products/types?Id=${product?._id}`} className="link" >{product?.name}</Link>
+                    <Linker link={`/dashboard/products/types?Id=${product?._id}`} tableId="28" placeholder={product?.name} />
                 )
             }
         },
@@ -128,7 +124,7 @@ export const OrdersColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const org = params?.row?.org as IOrganization;
                 return (
-                    <Link href={`/dashboard/organizations?Id=${org?._id}`} className="link" >{org?.name}</Link>
+                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
                 )
             }
         },
@@ -149,7 +145,7 @@ export const OrdersColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
                 )
             }
         },
@@ -189,21 +185,14 @@ export const OrdersColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Tooltip title="View order">
-                     <GoInfo onClick={()=>handleInfo(params?.row)}  className="cursor-pointer text-green-700" />
-                    </Tooltip>
-                    <Tooltip title="Edit order">
-                     <GoPencil onClick={()=>handleEdit(params?.row)}  className="cursor-pointer text-blue-700" />
-                    </Tooltip>
+                    <Viewer onClick={()=>handleInfo(params?.row)} tableId="86" tip="View order" />
+                    <Editor onClick={()=>handleEdit(params?.row)}  tableId="86" tip="Edit order" />
+                   
                     {
                         params?.row?.status === 'Pending' &&
-                        <Tooltip title="Fulfill order">
-                            <IoMdCheckmarkCircleOutline onClick={()=>handleFulfill(params?.row)}  className="cursor-pointer text-blue-700" />
-                        </Tooltip>
+                        <Fulfiller onClick={()=>handleFulfill(params?.row)}  tableId="86" tip="Fulfill order" />
                     }
-                    <Tooltip title="Delete order">
-                     <IoTrashBinOutline onClick={()=>handleDelete(params?.row)}  className="cursor-pointer text-red-700" />
-                    </Tooltip>
+                    <Deleter onClick={()=>handleDelete(params?.row)}  tableId="86" tip="Delete order" />
                 </div>
             )
         },
