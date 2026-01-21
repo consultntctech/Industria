@@ -18,7 +18,9 @@ export const Header = () => {
     <header style={{backgroundColor:primaryColour}} className='w-full p-2 flex flex-row justify-between items-center' >
       <Link className='flex flex-row gap-2' href='/dashboard'>
         <Image className='rounded-full' src={logo} alt="logo" width={35} height={30} />
-        <span className='title text-white' >{appName}</span>
+        <span className="title text-white max-w-[10ch] truncate md:max-w-[10ch] lg:max-w-none lg:whitespace-normal">{appName}</span>
+
+        {/* <span className='title text-white' >{appName}</span> */}
       </Link>
 
       <div className="flex flex-row items-center justify-between gap-2 md:gap-6">
