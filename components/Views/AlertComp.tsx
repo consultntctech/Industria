@@ -17,8 +17,8 @@ const AlertComp = () => {
         <div className="flex flex-row items-start gap-2 self-end w-fit">
             <span className="greyText">Display variant:</span>
             <select onChange={(e)=>setVariant(e.target.value as variantProps)} className="w-fit px-2 py-1 rounded border border-slate-300 outline-0" >
-                <option value="standard">Standard</option>
                 <option value="filled">Filled</option>
+                <option value="standard">Standard</option>
                 <option value="outlined">Outlined</option>
             </select>
         </div>
