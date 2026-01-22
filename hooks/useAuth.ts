@@ -31,8 +31,8 @@ export const useUpdatedUser = ()=>{
         try {
             if(!user) return null;
             const res = await updateUserRoles(user?._id);
-            enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             if(!res.error){
+                enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
                 return res.payload as ISession;
             }else{
                 return null;
