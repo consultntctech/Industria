@@ -9,6 +9,7 @@ export interface IUser extends Document {
     phone: string;
     email: string;
     photo: string;
+    hasRequestedUpdate?: boolean;
     password:string;
     roles: string[] | Types.ObjectId[] | IRole[];
     description: string;
@@ -21,6 +22,7 @@ const UserSchema = new Schema<IUser>({
     name: { type: String, required: true },
     address: { type: String, required: false },
     phone: { type: String, required: false },
+    hasRequestedUpdate: { type: Boolean, default: false },
     email: { type: String, required: true, unique:true },
     photo: {type:String, default:'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80'},
     password: String,

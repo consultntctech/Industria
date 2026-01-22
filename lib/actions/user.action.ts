@@ -1,5 +1,5 @@
 "use server";
-import { IResponse } from '@/types/Types';
+import { IResponse, ISession } from '@/types/Types';
 import { connectDB } from '../mongoose';
 import { comparePassword, encryptPassword, respond, sendWelcomeEmail } from '../misc';
 import User, { IUser } from '../models/user.model';
@@ -8,6 +8,7 @@ import Organization from '../models/org.model';
 import { verifyOrgAccess } from '../middleware/verifyOrgAccess';
 import '../models/role.model'
 import Forgot from '../models/forgot.model';
+import { createSession, destroySession } from '../session';
 
 
 export async function createUser(data:Partial<IUser>):Promise<IResponse>{
@@ -112,7 +113,7 @@ export async function AssignRolesToUsers(userIds: string[], roleIds: string[]): 
 
     const updatedUser = await User.updateMany(
       { _id: { $in: userIds } },
-      { $addToSet: { roles: { $each: roleIds } } }
+      { $addToSet: { roles: { $each: roleIds } }, hasRequestedUpdate: true },
     );
 
 
@@ -209,3 +210,28 @@ export async function loginUser(data:Partial<IUser>):Promise<IResponse>{
     }
 }
 
+
+export async function updateUserRoles(id:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const user = await User.findById(id).populate('roles').lean() as unknown as IUser;
+        // console.log('User: ', user)
+        if(!user){
+            await destroySession();
+            return respond('User not found', true, {}, 404);
+        }
+        if(!user?.hasRequestedUpdate){
+            return respond('User has not requested update', true, {}, 400);
+        }
+        
+        const sessionData = {
+            ...user, password:''
+        } as ISession;
+        await createSession(sessionData);
+        await User.findByIdAndUpdate(user._id, {hasRequestedUpdate:false}, {new: true});
+        return respond('Received permission update', false, sessionData, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while updating user', true, {}, 500);
+    }
+}

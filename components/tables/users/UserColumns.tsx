@@ -59,7 +59,7 @@ export const UserColoumns = (
         {
             field:'org',
             headerName: 'Organization',
-            width:170,
+            width:140,
             valueFormatter: (_, row:IUser)=>{
                 const org = row?.org as IOrganization;
                 return org ? org.name : '';

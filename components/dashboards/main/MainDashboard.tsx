@@ -18,8 +18,8 @@ const MainDashboard = () => {
     <PermissionGuard tableId= {['0']} >
       <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
           <div className="flex flex-col">
-              <Title title="Dashboard Overview" isLink={false}/>
-              <span className="greyText ml-12">Comprehensive insights into manufacturing operations</span>
+              <Title showback={false} title="Dashboard Overview" isLink={false}/>
+              <span className="greyText">Comprehensive insights into manufacturing operations</span>
           </div>
           {
             finance &&

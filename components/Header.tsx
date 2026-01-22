@@ -1,6 +1,6 @@
 'use client'
 import { useSettings } from '@/config/useSettings'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth, useUpdatedUser } from '@/hooks/useAuth'
 import { destroySession } from '@/lib/session'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -11,6 +11,8 @@ export const Header = () => {
 
   const {primaryColour, appName, tertiaryColour, logo, isPending} = useSettings();
   const {user} = useAuth();
+  useUpdatedUser();
+  // console.log('Loading: ', updateLoading)
 
   if(isPending) return null
 
