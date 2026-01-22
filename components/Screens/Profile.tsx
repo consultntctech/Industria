@@ -8,7 +8,7 @@ const Profile = () => {
         <div className="flex w-full items-center flex-row justify-between">
             <Title title="Account Setting" isLink={false}/>
         </div>
-        <PermissionGuard tableId={['8']} >
+        <PermissionGuard tableId={['0']} >
           <ProfileComp />
         </PermissionGuard>
     </div>
