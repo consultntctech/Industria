@@ -21,7 +21,7 @@ const SuppliersInfoModal = ({infoMode, setInfoMode, currentSupplier, setCurrentS
     const rejected = materials?.reduce((acc, material) => acc + material?.qRejected, 0);
 
     const accepted = quantity - rejected;
-    const percentage = Math.round((accepted / quantity) * 100);
+    const percentage = Math.round((accepted / quantity) * 100) || 0;
 
     // console.log('Creator:', creator);
     const handleClose = ()=>{

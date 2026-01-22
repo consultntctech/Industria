@@ -230,7 +230,7 @@ export async function updateUserRoles(id:string):Promise<IResponse>{
         } as ISession;
         await createSession(sessionData);
         await User.findByIdAndUpdate(user._id, {hasRequestedUpdate:false}, {new: true});
-        return respond('Received permission update, kindly refresh the screen', false, sessionData, 200);
+        return respond('Received permission update, you may need to refresh the page to take effect', false, sessionData, 200);
     } catch (error) {
         console.log(error);
         return respond('Error occured while updating user', true, {}, 500);
