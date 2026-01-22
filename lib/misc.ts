@@ -54,6 +54,7 @@ export async function sendWelcomeEmail({
   to,
   companyName,
   companyInitials,
+  companyLogo,
   userName,
   userEmail,
   password,
@@ -63,6 +64,7 @@ export async function sendWelcomeEmail({
   const html = getWelcomeEmailHTML({
     companyName,
     companyInitials,
+    companyLogo,
     userName,
     userEmail,
     password,

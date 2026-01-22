@@ -31,11 +31,12 @@ export async function createUser(data:Partial<IUser>):Promise<IResponse>{
             to: data.email!,
             companyName: 'Industra',
             companyInitials: 'Industra',
+            companyLogo: org?.logo || 'https://thumbs.dreamstime.com/b/real-estate-logo-home-house-simple-design-vector-icons-135196436.jpg',
             userName: data.name!,
             userEmail: data.email!,
             password: password,
             appUrl: 'https://industra-app.vercel.app/',
-            supportEmail: org?.email || 'annan@consultntctech.com',
+            supportEmail: org?.email || 'CCHelpDesk@consultntctech.com'?.toLowerCase(),
         });
         return respond('User created successfully', false, newUser, 201);
     } catch (error) {
@@ -229,7 +230,7 @@ export async function updateUserRoles(id:string):Promise<IResponse>{
         } as ISession;
         await createSession(sessionData);
         await User.findByIdAndUpdate(user._id, {hasRequestedUpdate:false}, {new: true});
-        return respond('Received permission update', false, sessionData, 200);
+        return respond('Received permission update, kindly refresh the screen', false, sessionData, 200);
     } catch (error) {
         console.log(error);
         return respond('Error occured while updating user', true, {}, 500);

@@ -4,6 +4,7 @@ import path from "path";
 export interface WelcomeEmailParams {
   companyName: string;
   companyInitials?: string;
+  companyLogo:string;
   userName: string;
   userEmail: string;
   password: string;
@@ -17,8 +18,10 @@ export function getWelcomeEmailHTML(params: WelcomeEmailParams): string {
   let html = fs.readFileSync(templatePath, "utf8");
 
   const replacements: Record<string, string> = {
+
     "{{companyName}}": params.companyName,
     "{{companyInitials}}": params.companyInitials ?? params.companyName[0],
+    "{{companyLogo}}": params?.companyLogo,
     "{{userName}}": params.userName,
     "{{userEmail}}": params.userEmail,
     "{{password}}": params.password,
