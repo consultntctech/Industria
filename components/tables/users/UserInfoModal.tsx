@@ -58,7 +58,8 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
         try {
             const userData:Partial<IUser> = {
                 ...currentUser,
-                roles
+                roles,
+                hasRequestedUpdate:true
             }
             const res = await updateUser(userData);
             enqueueSnackbar(res.message, {variant: res?.error ? 'error':'success'});
