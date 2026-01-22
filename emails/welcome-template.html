@@ -20,9 +20,9 @@
                 <tr>
                   <td style="vertical-align:middle;">
                     <!-- Logo / Company -->
-                    <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="display:flex; flex-direction:row; align-items:center;gap:12px;">
                       <div style="width:44px;height:44px;border-radius:8px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-weight:700;">
-                        <img src={{companyLogo}} alt="logo" style="max-width:100%;height:auto;" />
+                        <img src={{companyLogo}} alt="logo" style="max-width:100%; border-radius:4px; height:auto;" />
                         {{companyInitials}}
                       </div>
                       <div>
@@ -49,7 +49,7 @@
               </p>
 
               <!-- Credentials box -->
-              <div style="margin:20px 0;padding:16px;border-radius:10px;background:#f8fafc;border:1px solid #e6eef8;display:flex;align-items:center;justify-content:space-between;gap:36px;">
+              <div style="margin:20px 0;padding:16px;border-radius:10px;background:#f8fafc;border:1px solid #e6eef8;display:flex; flex-direction:row; align-items:center;justify-content:space-between;gap:36px;">
                 <div>
                   <div style="font-size:12px;color:#64748b;margin-bottom:6px;">Email</div>
                   <div style="font-size:15px;color:#0f172a;font-weight:600;">{{userEmail}}</div>
