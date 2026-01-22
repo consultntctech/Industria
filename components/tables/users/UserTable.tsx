@@ -9,6 +9,8 @@ import  { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { UserColoumns } from './UserColumns'
 import UserInfoModal from './UserInfoModal'
 import { useSearchParams } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
+import { isSystemAdmin } from '@/Data/roles/permissions'
 
 type UserTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -19,7 +21,8 @@ type UserTableProps = {
 const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => {
     const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
-
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     const {users, isPending, refetch} = useFetchUsers();
     const searchParams = useSearchParams();
     const userId = searchParams.get("Id");
@@ -117,7 +120,7 @@ const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => 
                             pagination: { paginationModel },
                             columns:{
                                 columnVisibilityModel:{
-                                  org:false,
+                                  org:isAdmin,
                                   createdAt:false,
                                   updatedAt:false,
                                 }

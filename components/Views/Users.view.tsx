@@ -11,7 +11,7 @@ import GenericLabel from '../shared/inputs/GenericLabel';
 import { IOrganization } from '@/lib/models/org.model';
 import { useFetchUsers } from '@/hooks/fetch/useFetchUsers';
 import { useAuth } from '@/hooks/useAuth';
-import { canUser } from '@/Data/roles/permissions';
+import { canUser, isSystemAdmin } from '@/Data/roles/permissions';
 
 
 type UserCompProps = {
@@ -27,6 +27,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
     const [org, setOrg] = useState<string>('');
     const {refetch} = useFetchUsers();
     const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
     const isCreator = canUser(user, '38', 'CREATE');
     const isEditor = canUser(user, '38', 'UPDATE');
 
@@ -59,7 +60,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
         setLoading(true);
         
         try {
-          const res = await createUser({...formData, org});
+          const res = await createUser({...formData, org:isAdmin ? org : user?.org});
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
           if(!res.error){
               formRef.current?.reset();
@@ -114,7 +115,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
 
           <div className="flex gap-4 flex-col w-full justify-between">
             {
-              openNew &&
+              openNew && isAdmin &&
               <GenericLabel
                 label='Select organization'
                 input={<SearchSelectOrgs value={organization}  setOrgId={setOrg} required={!!currentUser} />}
