@@ -114,7 +114,7 @@ export const Deleter =({tableId, operation='DELETE', tip, className, ...props}:V
                 <IoTrashBinOutline {...props}   className={twMerge('cursor-pointer text-red-700', className)} />
             </Tooltip>
             :
-            <span>None</span>
+            null
         }
         </>
     )
