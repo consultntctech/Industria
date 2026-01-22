@@ -7,6 +7,7 @@ import { connectDB } from "../mongoose";
 import '../models/user.model'
 import '../models/org.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
+import User from "../models/user.model";
 
 export async function createRole(data:Partial<IRole>):Promise<IResponse>{
     try {
@@ -52,6 +53,7 @@ export async function updateRole(data:Partial<IRole>):Promise<IResponse>{
     try {
         await connectDB();
         const updatedRole = await Role.findByIdAndUpdate(data._id, data, { new: true });
+        await User.updateMany({role:data._id}, {hasRequestedUpdate:true});
         return respond('Role updated successfully', false, updatedRole, 200);
     } catch (error) {
         console.log(error);
