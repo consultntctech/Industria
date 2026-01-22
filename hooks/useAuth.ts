@@ -47,7 +47,7 @@ export const useUpdatedUser = ()=>{
         queryKey: ['userpermisions', user?._id],
         queryFn: fetchPermision,
         enabled: !!user,
-        refetchInterval: 60_000,
+        refetchInterval: 30_000,
         refetchIntervalInBackground: true,
     })
 
