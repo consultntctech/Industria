@@ -53,7 +53,7 @@ export async function updateRole(data:Partial<IRole>):Promise<IResponse>{
     try {
         await connectDB();
         const updatedRole = await Role.findByIdAndUpdate(data._id, data, { new: true });
-        await User.updateMany({role:data._id}, {hasRequestedUpdate:true});
+        await User.updateMany({roles:data._id}, {hasRequestedUpdate:true});
         return respond('Role updated successfully', false, updatedRole, 200);
     } catch (error) {
         console.log(error);
