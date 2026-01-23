@@ -55,7 +55,7 @@ const RoletemplateAssignModal = ({currentRoletemplate,  setCurrentRoletemplate, 
                 Select a user to assign this role to
             </DialogContentText>
             <form onSubmit={agreeClick} id="role-template-component-form">
-                <SearchSelectMultipleUsers showMe={false} width={280} setSelection={setUsers} />
+                <SearchSelectMultipleUsers showMe={false} showAdmins={false} width={280} setSelection={setUsers} />
             </form>
         </DialogContent>
         <DialogActions>

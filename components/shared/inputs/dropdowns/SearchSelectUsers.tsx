@@ -9,10 +9,11 @@ type SearchSelectUsersProps = {
     value?: IUser | null,
     width?: number,
     required?:boolean,
-    showMe?:boolean
+    showMe?:boolean,
+    showAdmins?:boolean
 }
-const SearchSelectUsers = ({setSelect, required, showMe, value, width}:SearchSelectUsersProps) => {
-    const {users, isPending} = useFetchUsers(showMe);
+const SearchSelectUsers = ({setSelect, required, showMe, showAdmins, value, width}:SearchSelectUsersProps) => {
+    const {users, isPending} = useFetchUsers(showMe, showAdmins);
     const [search, setSearch] = useState<string>('');
 
 
