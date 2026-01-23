@@ -189,24 +189,24 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
             }
             <InputWithLabel defaultValue={currentMaterial?.yield} onChange={onChange} name="yield"  type="number" min={1} placeholder="eg. 2" label="Expected yield rate" className="w-full" />
             <InputWithLabel defaultValue={currentMaterial? formatDate(currentMaterial?.dateReceived) : today()} onChange={onChange} max={today()} name="dateReceived" type="date" required={!currentMaterial} label="Date received" className="w-full" />
-            <InputWithLabel defaultValue={currentMaterial?.unitPrice} onChange={onChange} name="unitPrice"  type="number" min={0} placeholder="eg. 25" label="Enter unit price" className="w-full" />
-            <InputWithLabel defaultValue={currentMaterial?.qReceived} onChange={onChange} name="qReceived" required type="number" min={0} placeholder="eg. 1000" label="Quantity received" className="w-full" />
+            <InputWithLabel step={0.0001} defaultValue={currentMaterial?.unitPrice} onChange={onChange} name="unitPrice"  type="number" min={0} placeholder="eg. 25" label="Enter unit price" className="w-full" />
+            <InputWithLabel step={0.0001} defaultValue={currentMaterial?.qReceived} onChange={onChange} name="qReceived" required type="number" min={0} placeholder="eg. 1000" label="Quantity received" className="w-full" />
           </div>
 
           <div className="flex gap-4 flex-col w-full justify-between">
             <div className="flex flex-col gap-4 w-full">
-            <InputWithLabel onChange={onChange} defaultValue={currentMaterial?.qReceived || 0} name="qRejected" type="number" min={0} placeholder="eg. 50" label="Quantity rejected" className="w-full" />
+            <InputWithLabel step={0.0001} onChange={onChange} defaultValue={currentMaterial?.qReceived || 0} name="qRejected" type="number" min={0} placeholder="eg. 50" label="Quantity rejected" className="w-full" />
               {
                   showReason &&
                   <TextAreaWithLabel defaultValue={currentMaterial?.reason} name="reason" onChange={onChange} placeholder="enter reason for rejection (if any)" label="Reason for rejection" className="w-full" />
               }
-              <InputWithLabel defaultValue={currentMaterial?.charges} onChange={onChange} name="charges"  type="number" min={0} placeholder="eg. 20" label="Addtional Charges" className="w-full" />
-              <InputWithLabel defaultValue={currentMaterial?.discount} onChange={onChange} name="discount"  type="number" min={0} placeholder="eg. 20" label="Discount" className="w-full" />
+              <InputWithLabel step={0.0001} defaultValue={currentMaterial?.charges} onChange={onChange} name="charges"  type="number" min={0} placeholder="eg. 20" label="Addtional Charges" className="w-full" />
+              <InputWithLabel step={0.0001} defaultValue={currentMaterial?.discount} onChange={onChange} name="discount"  type="number" min={0} placeholder="eg. 20" label="Discount" className="w-full" />
               {
                 // currentMaterial ? 
-                // <InputWithLabel defaultValue={data?.price || 0} readOnly  name="price"  type="number"  label="Total cost" className="w-full" />
+                // <InputWithLabel step={0.0001} defaultValue={data?.price || 0} readOnly  name="price"  type="number"  label="Total cost" className="w-full" />
                 // :
-                <InputWithLabel value={price} readOnly  name="price"  type="number"  label="Total cost" className="w-full" />
+                <InputWithLabel step={0.0001} value={price} readOnly  name="price"  type="number"  label="Total cost" className="w-full" />
               }
               <TextAreaWithLabel defaultValue={currentMaterial?.note} name="note" onChange={onChange} placeholder="enter note" label="Note" className="w-full" />
             </div>
