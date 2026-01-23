@@ -59,7 +59,8 @@ export async function updateProduct(data:Partial<IProduct>):Promise<IResponse>{
     try {
         await connectDB();
         const oldProduct = await Product.findOne({ name: data.name, type:data.type, org: data.org });
-        if (oldProduct._id !== data._id) {
+        // console.log(oldProduct?._id?.toString(), data._id);
+        if (oldProduct?._id?.toString() !== data._id) {
             return respond('Product already exists', true, {}, 400);
         }
         const updatedProduct = await Product.findByIdAndUpdate(data._id, data, { new: true });

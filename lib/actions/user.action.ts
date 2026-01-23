@@ -118,13 +118,34 @@ export async function updateUser(data: Partial<IUser>): Promise<IResponse> {
 export async function updateUserV2(data: Partial<IUser>): Promise<IResponse> {
   try {
     await connectDB();
-    const updatedUser = await User.findByIdAndUpdate(data._id, data, {
+    const user = await User.findByIdAndUpdate(data._id, data, {
       new: true,
     }).populate("roles");
-    const sessionData: Partial<IUser> = {
-      ...updatedUser?._doc,
-      password: "",
-    };
+    
+      const sessionRoles: ISessionRole[] = (user?.roles ?? [])
+      .filter(isRole) // filter only populated IRole objects
+      .flatMap((role: IRole) =>
+          role.permissions
+          ? [
+              {
+                  tableid: role.permissions.tableid,
+                  operations: role.permissions.operations.map(
+                  (op: { name: string }) => ({ name: op.name })
+                  ),
+              },
+              ]
+          : []
+      );
+
+      // 4️⃣ Create session payload
+      const sessionData: ISession = {
+        _id: user._id.toString(),
+        name: user.name,
+        photo: user?.photo,
+        email: user.email,
+        org: user.org.toString(),
+        roles: sessionRoles,
+      };
 
     return respond("User updated successfully", false, sessionData, 200);
   } catch (error) {
