@@ -52,7 +52,7 @@ const RoleAssignModal = ({currentRole,  setCurrentRole, open, setOpen}:RoleAssig
                 Select a user to assign this role to
             </DialogContentText>
             <form onSubmit={agreeClick} id="role-component-form">
-                <SearchSelectMultipleUsers width={280} setSelection={setUsers} />
+                <SearchSelectMultipleUsers showMe={false} width={280} setSelection={setUsers} />
             </form>
         </DialogContent>
         <DialogActions>

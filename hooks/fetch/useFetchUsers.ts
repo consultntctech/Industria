@@ -8,7 +8,7 @@ import { enqueueSnackbar } from "notistack";
 import { useAuth } from "../useAuth";
 import { isSystemAdmin } from "@/Data/roles/permissions";
 
-export const useFetchUsers = () => {
+export const useFetchUsers = (showMe:boolean=true) => {
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
     const fetchUsers = async():Promise<IUser[]>=>{
@@ -17,7 +17,7 @@ export const useFetchUsers = () => {
             const res = isAdmin ? await getUsers() : await getUsersByOrg(user?.org);
             const users = res.payload as IUser[];
             return users
-            ?.filter((u) => u._id !== user?._id)
+            ?.filter((u) => showMe ? true : u._id !== user?._id)
             ?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {
             console.log(error);
@@ -26,7 +26,7 @@ export const useFetchUsers = () => {
     }
 
     const {data:users=[], isPending, refetch} = useQuery({
-        queryKey: ['users'],
+        queryKey: ['users', showMe],
         queryFn: fetchUsers,
         enabled: !!user
     })

@@ -23,7 +23,7 @@ const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => 
     const [showDelete, setShowDelete] = useState(false);
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
-    const {users, isPending, refetch} = useFetchUsers();
+    const {users, isPending, refetch} = useFetchUsers(false);
     const searchParams = useSearchParams();
     const userId = searchParams.get("Id");
 
