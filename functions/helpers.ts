@@ -1,4 +1,4 @@
-import { TableData } from "@/Data/roles/table";
+// import { TableData } from "@/Data/roles/table";
 import { ILineItem } from "@/lib/models/lineitem.model";
 import { IOrder } from "@/lib/models/order.model";
 import { IProduct } from "@/lib/models/product.model";
@@ -119,10 +119,10 @@ export function compareLastTwoOrders(orders: number[]): string {
 
 export const getRoleTitles = (role:IRole|null):string[]=>{
   if(!role) return [];
-  const table = TableData.find(t=>t.id===role.permissions?.tableid);
+  // const table = TableData.find(t=>t.id===role.permissions?.tableid);
   const operations = role.permissions?.operations as IOperation[];
   // console.log('Operations: ', operations)
-  return operations.map(op=>`${table?.name} ${op.title}`);
+  return operations.map(op=>`${op.title}`);
 }
 
 
