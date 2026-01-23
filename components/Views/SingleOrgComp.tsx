@@ -115,7 +115,7 @@ const SingleOrgComp = ({currentOrganization, isPending, refetch}:SingleOrgCompPr
                 <InputWithLabel defaultValue={currentOrganization?.phone} onChange={onChange} name="phone"  placeholder="enter phone" label="Phone" className="w-full" />
                 <InputWithLabel readOnly={!isAdmin} defaultValue={currentOrganization?.email} onChange={onChange} name="email" type="email" placeholder="enter email" label="Email" className="w-full" />
                 <InputWithLabel defaultValue={currentOrganization?.website} onChange={onChange} name="website" placeholder="enter URL" label="Website" className="w-full" />
-                <InputWithLabel defaultValue={currentOrganization?.appName} onChange={onChange} name="appName" placeholder="enter a custom name for this app" label="App name" className="w-full" />
+                {/* <InputWithLabel defaultValue={currentOrganization?.appName} onChange={onChange} name="appName" placeholder="enter a custom name for this app" label="App name" className="w-full" /> */}
               </div>
 
               <div className="flex gap-4 flex-col w-full justify-between">

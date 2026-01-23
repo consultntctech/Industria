@@ -9,7 +9,7 @@ import { FiLogOut } from 'react-icons/fi'
 export const Header = () => {
   const imageLink =  "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80";
 
-  const {primaryColour, appName, tertiaryColour, logo, isPending} = useSettings();
+  const {primaryColour,  tertiaryColour, logo, isPending} = useSettings();
   const {user} = useAuth();
   useUpdatedUser();
   // console.log('Loading: ', updateLoading)
@@ -20,7 +20,7 @@ export const Header = () => {
     <header style={{backgroundColor:primaryColour}} className='w-full p-2 flex flex-row justify-between items-center' >
       <Link className='flex flex-row gap-2' href='/dashboard'>
         <Image className='rounded-full' src={logo} alt="logo" width={35} height={30} />
-        <span className="title text-white max-w-[10ch] truncate md:max-w-[10ch] lg:max-w-none lg:whitespace-normal">{appName}</span>
+        <span className="title text-white max-w-[10ch] truncate md:max-w-[10ch] lg:max-w-none lg:whitespace-normal">Industra</span>
 
         {/* <span className='title text-white' >{appName}</span> */}
       </Link>

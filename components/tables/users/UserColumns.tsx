@@ -1,10 +1,11 @@
 import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
-import { isGlobalAdmin } from "@/Data/roles/permissions";
+import { isDbGlobalAdmin, isGlobalAdmin, isSystemAdmin } from "@/Data/roles/permissions";
 import { formatDate } from "@/functions/dates";
 import { useAuth } from "@/hooks/useAuth";
 import { IOrganization } from "@/lib/models/org.model";
 import { IRole } from "@/lib/models/role.model";
 import { IUser } from "@/lib/models/user.model";
+// import { ISessionRole } from "@/types/Types";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Image from "next/image";
 import Link from "next/link";
@@ -16,7 +17,8 @@ export const UserColoumns = (
     handleDelete: (user:IUser)=>void,
 ):GridColDef[]=>{
     const {user} = useAuth();
-    const isGlobal = isGlobalAdmin(user?.roles as IRole[]);
+    const isGlobal = isGlobalAdmin(user?.roles);
+    const isAdmin = isSystemAdmin(user);
 
     return [
         {
@@ -109,8 +111,8 @@ export const UserColoumns = (
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
             const row = params?.row as IUser;
-            const isG = isGlobalAdmin(row?.roles as IRole[]);
-            const canSeeActions = !isG || isGlobal;
+            const isG = isDbGlobalAdmin(row?.roles as IRole[]);
+            const canSeeActions = (isGlobal || isAdmin) || !isG;
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">

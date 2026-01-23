@@ -1,20 +1,17 @@
-import { IRole } from "@/lib/models/role.model";
 import { globalAdminTableId, publicTableId, systemAdminOnlyTableId, systemAdminOrgId } from "../constants";
-import { ISession, OperationName } from "@/types/Types";
+import { ISession, ISessionRole, OperationName } from "@/types/Types";
 import { INavBarItem } from "@/types/NavBar.types";
+import { IRole } from "@/lib/models/role.model";
+import { Types } from "mongoose";
 
 export const normalizeRoles = (
   roles?: ISession['roles']
-): IRole[] => {
+): ISessionRole[] => {
   if (!Array.isArray(roles)) return [];
-
-  return roles.filter(
-    (role): role is IRole =>
-      typeof role === 'object' &&
-      role !== null &&
-      'permissions' in role
-  );
+  return roles;
 };
+
+
 
 
 
@@ -23,27 +20,41 @@ export const isSystemAdmin = (user?: ISession | null | undefined): boolean => {
   return String(user.org) === systemAdminOrgId;
 };
 
+export const isDbGlobalAdmin = (roles?: IRole[] | string[] | Types.ObjectId[]): boolean => {
+  if (!roles?.length) return false;
 
-export const isGlobalAdmin = (roles?: IRole[]): boolean => {
+  // If roles are populated objects
+  if (typeof roles[0] === 'object' && 'permissions' in roles[0]) {
+    return (roles as IRole[]).some(
+      role => role.permissions?.tableid === globalAdminTableId
+    );
+  }
+
+  // If roles are just IDs (string/ObjectId) → cannot tell, assume false
+  return false;
+};
+
+
+export const isGlobalAdmin = (roles?: ISessionRole[]): boolean => {
   if (!roles?.length) return false;
 
   return roles.some(
-    role => role.permissions?.tableid === globalAdminTableId
+    role => role.tableid === globalAdminTableId
   );
 };
 
 
-
 export const hasTablePermission = (
-  roles: IRole[],
+  roles: ISessionRole[],
   tableId: string,
   operation: OperationName
 ): boolean => {
   return roles.some(role =>
-    role.permissions?.tableid === tableId &&
-    role.permissions?.operations?.some(op => op.name === operation)
+    role.tableid === tableId &&
+    role.operations.some(op => op.name === operation)
   );
 };
+
 
 
 
@@ -65,6 +76,7 @@ export const canUser = (
   // 3️⃣ Explicit permission
   return hasTablePermission(roles, tableId, operation);
 };
+
 
 
 

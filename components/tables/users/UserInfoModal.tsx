@@ -2,7 +2,7 @@ import CustomTabs from '@/components/misc/CustomTabs';
 import DialogueAlet from '@/components/misc/DialogueAlet';
 import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
-import { isGlobalAdmin, isSystemAdmin } from '@/Data/roles/permissions';
+import { isDbGlobalAdmin, isGlobalAdmin, isSystemAdmin } from '@/Data/roles/permissions';
 import { formatDate } from '@/functions/dates';
 import { useAuth } from '@/hooks/useAuth';
 import { updateUser } from '@/lib/actions/user.action';
@@ -34,9 +34,9 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
 
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
-    const isGlobal = isGlobalAdmin(user?.roles as IRole[]);
-    const isG = isGlobalAdmin(currentUser?.roles as IRole[]);
-    const canSeeActions = !isG || isGlobal;
+    const isGlobal = isGlobalAdmin(user?.roles);
+    const isG = isDbGlobalAdmin(currentUser?.roles);
+    const canSeeActions = (isGlobal || isAdmin) || !isG;
 
     useEffect(()=>{
         if(currentUser){

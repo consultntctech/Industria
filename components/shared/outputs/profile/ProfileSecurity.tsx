@@ -29,7 +29,7 @@ const ProfileSecurity = () => {
                 enqueueSnackbar(valid.message, {variant:'error'});
                 return
             }
-            const updatedData:Partial<IUser> = {...user, password:data?.password};
+            const updatedData = {...user, password:data?.password} as unknown as Partial<IUser>;
             const res = await changePassword(updatedData);
             enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
             if(!res.error){

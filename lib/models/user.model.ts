@@ -1,8 +1,8 @@
-import { Document, model, models, Schema, Types } from "mongoose";
+import {  model, models, Schema, Types } from "mongoose";
 import { IOrganization } from "./org.model";
 import { IRole } from "./role.model";
 
-export interface IUser extends Document {
+export interface IUser {
     _id: string;
     name: string;
     address: string;

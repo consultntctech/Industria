@@ -1,6 +1,6 @@
 import Card from "@/components/misc/Card";
-import { IRole } from "@/lib/models/role.model";
-import { Types } from "mongoose";
+// import { IRole } from "@/lib/models/role.model";
+// import { Types } from "mongoose";
 import { ComponentProps, ReactNode } from "react";
 
 export interface IResponse {
@@ -10,19 +10,6 @@ export interface IResponse {
     code?: number;
 }
 
-export interface ISession {
-    _id: string;
-    name: string;
-    address: string;
-    phone: string;
-    email: string;
-    photo: string;
-    password:string;
-    roles: string[] | Types.ObjectId[] | IRole[];
-    description: string;
-    org: string
-    expires?: Date;
-}
 
 export interface IIngredient {
     materialId: string;
@@ -221,23 +208,17 @@ export interface IResetPayload{
 }
 
 
-export type OperationName =
-  | 'READ'
-  | 'CREATE'
-  | 'UPDATE'
-  | 'DELETE'
-  | 'APPROVE';
 
 
 
 export interface IDashStats{
     rawMaterials:IGroupedQuantity[];
-
+    
     lineitems:IGroupedQuantity[]
 }
 
 export interface IGroupedQuantity {
-  product: string;
+    product: string;
   quantity: number;
 }
 
@@ -245,4 +226,29 @@ export interface IGroupedQuantity {
 export interface ITablePermision {
     tableId: string;
     operation?: OperationName
+}
+
+
+export interface ISessionRole {
+    tableid: string;
+    operations: { name: OperationName }[];
+}
+
+export type OperationName =
+| 'READ'
+| 'CREATE'
+| 'UPDATE'
+| 'DELETE'
+  | 'APPROVE';
+
+
+
+export interface ISession {
+  _id: string;
+  name: string;
+  email: string;
+  org: string;
+  photo: string;
+  roles: ISessionRole[];
+  expires?: Date;
 }

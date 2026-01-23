@@ -3,8 +3,7 @@
 import { isGlobalAdmin, isSystemAdmin } from "@/Data/roles/permissions"
 import { TableData } from "@/Data/roles/table"
 import { useAuth } from "@/hooks/useAuth"
-import { IRole } from "@/lib/models/role.model"
-import { ITable } from "@/types/Types"
+import { ISessionRole, ITable } from "@/types/Types"
 import { Autocomplete, CircularProgress, TextField } from "@mui/material"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
@@ -20,7 +19,7 @@ const SearchSelectTable = ({setSelect, required, value, width}:SearchSelectTable
 
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
-    const isGlobal = isGlobalAdmin(user?.roles as IRole[]);
+    const isGlobal = isGlobalAdmin(user?.roles as ISessionRole[]);
     const admin = isAdmin || isGlobal;
 
     const gloAdmin:ITable = {

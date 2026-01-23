@@ -60,12 +60,14 @@ export async function updateSession(){
     })
 }
 
-export async function getSession():Promise<ISession|null>{
-    const session = (await cookies()).get('session')?.value;
-    if(!session) return null;
-    const payload = await decryptSession(session) as unknown as ISession;
-    return payload;
+export async function getSession(): Promise<ISession | null> {
+  const session = (await cookies()).get('session')?.value;
+  if (!session) return null;
+
+  const payload = await decryptSession(session);
+  return payload as unknown as ISession;
 }
+
 
 export async function destroySession(){
     const cookieStore = await cookies();

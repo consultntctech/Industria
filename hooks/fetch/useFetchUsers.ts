@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { enqueueSnackbar } from "notistack";
 import { useAuth } from "../useAuth";
-import { isGlobalAdmin, isSystemAdmin } from "@/Data/roles/permissions";
+import { isDbGlobalAdmin, isSystemAdmin } from "@/Data/roles/permissions";
 import { IRole } from "@/lib/models/role.model";
 
 export const useFetchUsers = (showMe:boolean=true, showAdmins:boolean=true) => {
@@ -20,7 +20,7 @@ export const useFetchUsers = (showMe:boolean=true, showAdmins:boolean=true) => {
             return users
             .filter((u)=>{
                 if (showAdmins) return true;
-                return !isGlobalAdmin(u.roles as IRole[]);
+                return !isDbGlobalAdmin(u.roles as IRole[]);
             })
             ?.filter((u) => showMe ? true : u._id !== user?._id)
             ?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
