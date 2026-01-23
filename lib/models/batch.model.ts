@@ -19,7 +19,7 @@ export interface IBatch extends Document {
 
 const BatchSchema = new Schema<IBatch>({
     code: String,
-    type: String,
+    type: { type: String, default: 'Raw Material' },
     configType: String,
     isConfig: { type: Boolean, required: true },
     config: { type: Schema.Types.ObjectId, ref: 'BatchConfig', required: false },

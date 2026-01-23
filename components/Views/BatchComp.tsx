@@ -80,7 +80,7 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
     setLoading(true);
     
     try {
-      const res = await updateBatch({...data});
+      const res = await updateBatch({...data, isConfig});
       enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
       if(!res.error){
         formRef.current?.reset();
@@ -131,16 +131,19 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
                     />
                     
                   }
-                  <GenericLabel 
-                    label='Generate for'
-                    input={
-                      <select defaultValue={currentBatch?.type} onChange={onSelectChange} name="type" className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
-                        <option  value="Raw Material">Raw Material</option>
-                        <option value="Finished Good">Finished Good</option>
-                        <option value="Packaging">Packaging</option>
-                    </select>
-                    }
-                  />
+                  {
+                    openNew &&
+                    <GenericLabel 
+                      label='Generate for'
+                      input={
+                        <select defaultValue={currentBatch?.type} onChange={onSelectChange} name="type" className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
+                          <option  value="Raw Material">Raw Material</option>
+                          <option value="Finished Good">Finished Good</option>
+                          <option value="Packaging">Packaging</option>
+                      </select>
+                      }
+                    />
+                  }
                   {
                     !isConfig &&
                     <InputWithLabel defaultValue={currentBatch?.code} onChange={onChange} name="code" required={!isConfig} placeholder="eg. BATCH00001" label="Batch Code" className="w-full" />
