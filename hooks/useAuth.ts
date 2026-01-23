@@ -32,7 +32,7 @@ export const useUpdatedUser = ()=>{
             if(!user) return null;
             const res = await updateUserRoles(user?._id);
             if(!res.error){
-                enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
+                enqueueSnackbar(res.message, {variant:res.error?'error':'success', autoHideDuration:30_000});
                 return res.payload as ISession;
             }else{
                 return null;

@@ -42,7 +42,7 @@ export const useFetchUserReset = () =>{
     const fetchUserReset = async():Promise<IForgot|null>=>{
         try {
             if(!token) {
-                enqueueSnackbar('No request received for this operation', {variant:'error'});
+                enqueueSnackbar('No request received for this operation', {variant:'error', autoHideDuration:30_000});
                 return null;
             };
             const getUserReset = await getForgotByToken(token?.toString());
