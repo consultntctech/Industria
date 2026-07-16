@@ -120,6 +120,19 @@ export const RMaterialColumns = (
             width:110,
         },
         {
+            field: 'weight',
+            headerName: 'Weight',
+            width:110,
+            valueFormatter:(_, row:IRMaterial)=>{
+                const product = row?.product as IProduct;
+                return `${row?.weight || 0} ${product?.uom || 'units'}`
+            },
+            valueGetter:(_, row:IRMaterial)=>{
+                const product = row?.product as IProduct;
+                return `${row?.weight || 0} ${product?.uom || 'units'}`
+            }
+        },
+        {
             field: 'charges',
             headerName: 'Extra Charges',
             width:110,

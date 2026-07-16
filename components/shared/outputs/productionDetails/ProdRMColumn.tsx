@@ -73,6 +73,21 @@ export const ProdRMColumns = (
             headerName: 'Quantity',
             width:100,
         },
+        {
+            field: 'weight',
+            headerName: 'Weight',
+            width:100,
+            valueFormatter: (_, row:IRMaterialPopulate)=>{
+                const material = row?.materialId as IRMaterial;
+                const product = material?.product as IProduct;
+                return `${row?.weight} ${product?.uom || 'units'}`
+            },
+            valueGetter: (_, row:IRMaterialPopulate)=>{
+                const material = row?.materialId as IRMaterial;
+                const product = material?.product as IProduct;
+                return `${row?.weight} ${product?.uom || 'units'}`
+            },
+        },
         
     ]
 }

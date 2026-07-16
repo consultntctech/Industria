@@ -125,6 +125,7 @@ const RMaterialTable = ({setOpenNew, currentMaterial, setCurrentMaterial}:RMater
                                   note: false,
                                   createdBy:false,
                                   createdAt:false,
+                                  dateReceived:false,
                                   updatedAt:false,
                                   qReceived: false,
                                   qRejected: false,

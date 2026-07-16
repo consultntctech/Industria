@@ -102,6 +102,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
           const rmData:Partial<IRMaterial> = {
             ...data, product: product?._id, supplier, batch, createdBy:user?._id, org:user?.org
           }
+          // console.log('Data: ', rmData)
           const res = await createRMaterial(rmData);
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
           if(!res.error){
@@ -122,12 +123,15 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
         setLoading(true);
         
         try {
-          const res = await updateRMaterial({
+          const resData = {
             ...data, 
             supplier: supplier || savedSupplier?._id,
             batch: batch || savedBatch?._id,
             product: product?._id || savedProduct?._id,
-          });
+          }
+          // console.log('Raw Data: ', resData)
+          const res = await updateRMaterial(resData);
+          // console.log('Res: ', res)
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
           if(!res.error){
               formRef?.current?.reset();
@@ -208,6 +212,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
                 // :
                 <InputWithLabel step={0.0001} value={price} readOnly  name="price"  type="number"  label="Total cost" className="w-full" />
               }
+              <InputWithLabel onChange={onChange} step={0.0001} defaultValue={currentMaterial?.weight || 0} required={!currentMaterial}  name="weight"  type="number"  label="Total weight" className="w-full" />
               <TextAreaWithLabel defaultValue={currentMaterial?.note} name="note" onChange={onChange} placeholder="enter note" label="Note" className="w-full" />
             </div>
             {

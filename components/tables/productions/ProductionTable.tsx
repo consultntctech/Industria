@@ -36,6 +36,7 @@ const ProductionTable = () => {
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             if(!res.error){
                 refetch();
+                handleClose();
             }
         } catch (error) {
             console.log(error);

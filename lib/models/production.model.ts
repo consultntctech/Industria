@@ -11,6 +11,13 @@ import ProdApproval from "./prodapproval.model";
 export interface ProdIngredient{
     materialId: string
     quantity: number;
+    weight: number;
+}
+
+export interface IIngredientInProduction {
+    materialId: string | Types.ObjectId | IRMaterial;
+    quantity: number;
+    weight: number;
 }
 
 export interface IProduction extends Document {
@@ -20,10 +27,7 @@ export interface IProduction extends Document {
     batch: string | Types.ObjectId | IBatch;
     productToProduce: string | Types.ObjectId | IProduct;
     status:string;
-    ingredients: {
-        materialId: string | Types.ObjectId | IRMaterial;
-        quantity: number;
-    }[];
+    ingredients: IIngredientInProduction[];
     proditems?: string[] | Types.ObjectId[] | IProdItem[];
     inputQuantity: number;
     outputQuantity?: number;
@@ -50,6 +54,7 @@ const ProductionSchema = new Schema<IProduction>({
     ingredients: [{
         materialId: { type: Schema.Types.ObjectId, ref: 'RMaterial', required: true },
         quantity: { type: Number, required: true },
+        weight: { type: Number, required: false },
     }],
     proditems: [{ type: Schema.Types.ObjectId, ref: 'ProdItem', required: false }],
     inputQuantity: { type: Number, required: true },

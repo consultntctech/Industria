@@ -20,6 +20,7 @@ export interface IRMaterial extends Document {
     unitPrice:number;
     charges: number;
     discount: number;
+    weight: number;
     price: number;
     yield: number;
     reason: string;
@@ -32,6 +33,7 @@ export interface IRMaterial extends Document {
 export interface IRMaterialPopulate extends IRMaterial {
     quantity: number;
     materialId: string | Types.ObjectId | IRMaterial;
+    weight: number;
 }
 
 const RMaterialSchema = new Schema<IRMaterial>({
@@ -50,6 +52,7 @@ const RMaterialSchema = new Schema<IRMaterial>({
     discount: { type: Number, required: false },
     price: { type: Number, required: true },
     yield: { type: Number, required: false },
+    weight: { type: Number, required: false },
     reason: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

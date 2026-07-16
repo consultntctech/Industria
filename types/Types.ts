@@ -14,6 +14,7 @@ export interface IResponse {
 export interface IIngredient {
     materialId: string;
     qUsed: number;
+    weight: number;
 }
 
 export interface IQSelector {

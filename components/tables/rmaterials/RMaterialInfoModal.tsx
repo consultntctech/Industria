@@ -91,6 +91,10 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
                 <span className="mtext">{currency?.symbol}{currentMaterial?.charges}</span>
             </div>
             <div className="flex flex-col">
+                <span className="mlabel">Weight</span>
+                <span className="mtext">{currentMaterial?.weight || 0} {product?.uom || 'units'}</span>
+            </div>
+            <div className="flex flex-col">
                 <span className="mlabel">Price Paid</span>
                 <span className="mtext">{currency?.symbol}{currentMaterial?.price}</span>
             </div>

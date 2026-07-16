@@ -41,6 +41,7 @@ interface IProductStockAgg {
 interface IProductionIngredientInput {
   materialId: string | Types.ObjectId | IRMaterial;
   quantity: number;
+  weight?: number;
 }
 
 
@@ -283,7 +284,8 @@ export async function updateProductionIngredients(
               : i.materialId instanceof Types.ObjectId
                 ? i.materialId.toString()
                 : i.materialId._id.toString(),
-          quantity: i.quantity
+          quantity: i.quantity,
+          weight: i.weight || 0
       }));
 
 
@@ -295,30 +297,39 @@ export async function updateProductionIngredients(
               : i.materialId instanceof Types.ObjectId
                 ? i.materialId.toString()
                 : i.materialId._id.toString(),
-          quantity: i.quantity
+          quantity: i.quantity,
+          weight: i.weight || 0
       }));
 
 
       // 3️⃣ Build lookup maps
-      const oldMap = new Map<string, number>(
-        oldIngredients.map(i => [i.materialId, i.quantity])
+      const oldMap = new Map<string, { quantity: number; weight: number }>(
+        oldIngredients.map(i => [i.materialId, { quantity: i.quantity, weight: i.weight }])
       );
-      const newMap = new Map<string, number>(
-        newIngredients.map(i => [i.materialId, i.quantity])
+      const newMap = new Map<string, { quantity: number; weight: number }>(
+        newIngredients.map(i => [i.materialId, { quantity: i.quantity, weight: i.weight }])
       );
 
       // 4️⃣ Compute net changes
       const allIds = new Set([...oldMap.keys(), ...newMap.keys()]);
-      const netChanges = new Map<string, number>();
+      const netChanges = new Map<string, number>(); // quantity diffs only — drives stock adjustment
+      let hasAnyChange = false;
 
       for (const id of allIds) {
-        const oldQty = oldMap.get(id) ?? 0;
-        const newQty = newMap.get(id) ?? 0;
-        const diff = newQty - oldQty;
-        if (diff !== 0) netChanges.set(id, diff);
+        const oldVal = oldMap.get(id) ?? { quantity: 0, weight: 0 };
+        const newVal = newMap.get(id) ?? { quantity: 0, weight: 0 };
+
+        const qtyDiff = newVal.quantity - oldVal.quantity;
+        if (qtyDiff !== 0) {
+          netChanges.set(id, qtyDiff);
+          hasAnyChange = true;
+        }
+        if (newVal.weight !== oldVal.weight) {
+          hasAnyChange = true; // weight-only change still counts as a real change
+        }
       }
 
-      if (!netChanges.size) {
+      if (!hasAnyChange) {
         await session.commitTransaction();
         session.endSession();
         return respond("No changes detected", false, existingProduction, 200);
@@ -470,7 +481,13 @@ export async function updateProductionIngredients(
       // 9️⃣ Update production
       const updatedProduction = await Production.findByIdAndUpdate(
         productionId,
-        { ...data, ingredients: newIngredients },
+        { 
+          ...data, 
+          ingredients: newIngredients.map(ing => ({
+            ...ing,
+            weight: ing.weight
+          }))
+        },
         { new: true, session }
       );
 

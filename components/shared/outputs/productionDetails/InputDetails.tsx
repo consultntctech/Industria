@@ -72,6 +72,11 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
           <span className="truncate w-1/2 md:w-1/5" >Raw Materials:</span>
           <span onClick={handleClickOnRawMaterials}  className="text-blue-600 underline cursor-pointer" >{production?.ingredients?.length}</span>
         </div>
+
+        <div className="flex flex-row items-center gap-4">
+          <span className="truncate w-1/2 md:w-1/5" >Total Input Weight:</span>
+          <span className="text-gray-600 flex-1 md:flex-5" >{production?.ingredients?.reduce((sum, ing) => sum + (ing.weight || 0), 0).toFixed(2)} units</span>
+        </div>
 {/* 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Production Materials:</span>

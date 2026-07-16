@@ -22,6 +22,8 @@ const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
     const {user} = useAuth();
     const isEditor = canUser(user, '8', 'UPDATE');
 
+    // console.log('Materials: ', materials);
+
 
     // console.log('Materials: ', materials)
 

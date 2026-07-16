@@ -36,6 +36,7 @@ const NewProductionComp = () => {
     const [totalPrice, setTotalPrice] = useState(0);
     // const [totalProd, setTotalProd] = useState(0);
     const [productionCost, setProductionCost] = useState(0);
+    const [userOverrodeCost, setUserOverrodeCost] = useState(false);
 
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
@@ -43,8 +44,6 @@ const NewProductionComp = () => {
     const {currency} = useCurrencyConfig();
 
     const isCreator = canUser(user, '8', 'CREATE');
-
-
 
     useEffect(() => {
         const price = rawMaterials.reduce((sum, material) => {
@@ -62,17 +61,21 @@ const NewProductionComp = () => {
 //         setTotalProd(prod);
 //     }, [proditems]);
 
-    // console.log('Total Price: ', totalPrice);
+    // Calculate production cost only if user hasn't overridden
     useEffect(() => {
-        setProductionCost(totalPrice);
-    }, [totalPrice]);
+        if (!userOverrodeCost) {
+            const extraCost = data.extraCost || 0;
+            setProductionCost(totalPrice + extraCost);
+        }
+    }, [totalPrice, userOverrodeCost, data.extraCost]);
  
     const onchangeProdCost = (e:React.ChangeEvent<HTMLInputElement>)=>{
         const {value} = e.target;
         setProductionCost(Number(value));
+        setUserOverrodeCost(true);
     }
 
-    const inputQuantity = ingredients?.reduce((acc, cur)=> acc + cur.qUsed, 0);
+    const inputQuantity = ingredients?.reduce((acc, cur)=> acc + (cur.qUsed || 0), 0);
     // alert(totalPrice + totalProd);
 
     useEffect(() => {
@@ -105,10 +108,12 @@ const NewProductionComp = () => {
                 supervisor: supervisor?._id,
                 ingredients: ingredients.map(ing=>({
                     materialId: ing.materialId,
-                    quantity: ing.qUsed
+                    quantity: ing.qUsed,
+                    weight: ing.weight
                 })),
                 // proditems: proditems?.map(item=>item._id),
                 inputQuantity,
+                productionCost
             }
             
           const res = await createProduction(prodData);
@@ -126,16 +131,31 @@ const NewProductionComp = () => {
         }
     }
     const onChangeInput = (e:React.ChangeEvent<HTMLInputElement>)=>{
-        const {id, value} = e.target;
-        const qty = parseInt(value, 10) || 0;
-        setIngredients(pre=>{
-            const existing = pre.find(ing=>ing.materialId === id);
-            if(existing){
-                return pre.map(ing=>ing.materialId === id ? {...ing, qUsed: qty} : ing);
-            }else{
-                return [...pre, {materialId:id, qUsed: qty}];
-            }
-        })
+        const { value, name} = e.target;
+        
+        if (name.startsWith('qty-')) {
+            const materialId = name.replace('qty-', '');
+            const qty = parseInt(value, 10) || 0;
+            setIngredients(pre=>{
+                const existing = pre.find(ing=>ing.materialId === materialId);
+                if(existing){
+                    return pre.map(ing=>ing.materialId === materialId ? {...ing, qUsed: qty} : ing);
+                }else{
+                    return [...pre, {materialId, qUsed: qty, weight: 0}];
+                }
+            })
+        } else if (name.startsWith('wt-')) {
+            const materialId = name.replace('wt-', '');
+            const weightVal = parseFloat(value) || 0;
+            setIngredients(pre=>{
+                const existing = pre.find(ing=>ing.materialId === materialId);
+                if(existing){
+                    return pre.map(ing=>ing.materialId === materialId ? {...ing, weight: weightVal} : ing);
+                }else{
+                    return [...pre, {materialId, qUsed: 0, weight: weightVal}];
+                }
+            })
+        }
     }
 
     // console.log('Ingredients: ', ingredients)
@@ -184,9 +204,20 @@ const NewProductionComp = () => {
                                     <span className="subtitle text-gray-500 gap-2" >Raw Materials</span>
                                     <div className="flex flex-row flex-wrap items-center gap-2">
                                         {
-                                            rawMaterials.map((material, index)=>
-                                                <RMQSelector key={index} material={material} inputId={material?._id} onChangeInput={onChangeInput} name={material?.materialName} />
-                                            )
+                                            rawMaterials.map((material, index)=>{
+                                                const ingredient = ingredients.find(ing => ing.materialId === material._id);
+                                                return (
+                                                <RMQSelector 
+                                                    key={index} 
+                                                    material={material} 
+                                                    inputId={material?._id} 
+                                                    onChangeInput={onChangeInput} 
+                                                    name={material?.materialName}
+                                                    quantity={ingredient?.qUsed}
+                                                    weight={ingredient?.weight}
+                                                />
+                                                )
+                                            })
                                         }
                                     </div>
                                 </div>

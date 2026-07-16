@@ -31,7 +31,7 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
 
 
     const productToProduce = production?.productToProduce as IProduct;
-    const yieldRate =  ((production?.outputQuantity! / production?.xquantity!) * 100).toFixed(2);
+    const yieldRate =  (((production?.outputQuantity||0) / (production?.xquantity||0)) * 100).toFixed(2);
     const extraCost = production?.extraCost || 0;
     const prodCost = production?.productionCost || 0;
     const totalCost = extraCost + prodCost;
@@ -146,7 +146,7 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
                         <span className="text-gray-600 flex-1 md:flex-5" >{production?.reviewNotes || 'None'}</span>
                     </div>
                     {
-                        !(production?.status === 'Pending Approval' || production?.status === 'Approved') &&
+                        !(production?.status === 'Pending Approval' || production?.status === 'Approved') && production?.status === 'Completed' &&
                         <div className="flex w-full justify-end flex-row">
                             <PrimaryButton onClick={()=>setOpenDialog(true)} className="w-fit px-3" type="button" text="Submit for Approval" />
                         </div>

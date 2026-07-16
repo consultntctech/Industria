@@ -8,17 +8,18 @@ import SearchSelectBatches from '../../inputs/dropdowns/SearchSelectBatches';
 import SearchSelectAvMultipleRMaterials from '../../inputs/dropdowns/SearchSelectAvMultipleRMaterials';
 import RMQSelector from '@/components/misc/RMQSelector';
 // import SearchSelectMultipleProdItems from '../../inputs/dropdowns/SearchSelectMultipleProdItems';
-import InputWithLabel from '../../inputs/InputWithLabel';
+// import InputWithLabel from '../../inputs/InputWithLabel';
 import PrimaryButton from '../../buttons/PrimaryButton';
-import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
+// import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { IRMaterial } from '@/lib/models/rmaterial.mode';
 // import { IProdItem } from '@/lib/models/proditem.model';
 import { IIngredient } from '@/types/Types';
 import {  updateProductionIngredients } from '@/lib/actions/production.action';
 import { enqueueSnackbar } from 'notistack';
-import '@/styles/customscroll.css'
 import { useAuth } from '@/hooks/useAuth';
 import { canUser } from '@/Data/roles/permissions';
+import { IBatch } from '@/lib/models/batch.model';
+import '@/styles/customscroll.css'
 
 type ProductionContentModalProps = {
   openNew:boolean;
@@ -30,31 +31,33 @@ type ProductionContentModalProps = {
 
 const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionContentModalProps) => {
   const [loading, setLoading] = React.useState(false);
-  const [data, setData] = React.useState<Partial<IProduction>>({});
+//   const [data, setData] = React.useState<Partial<IProduction>>({});
   const [rawMaterials, setRawMaterials] = useState<IRMaterial[]>([]);
   const [oldRawMaterials, setOldRawMaterials] = useState<IRMaterial[]>([]);
   const [ingredients, setIngredients] = useState<IIngredient[]>([]);
 //   const [proditems, setProditems] = useState<IProdItem[]>([]);
-  const [totalPrice, setTotalPrice] = useState(0);
+//   const [totalPrice, setTotalPrice] = useState(0);
 //   const [totalProd, setTotalProd] = useState(0);
-  const [productionCost, setProductionCost] = useState(0);
+//   const [productionCost, setProductionCost] = useState(0);
   const [productBatchId, setProductBatchId] = useState<string>('');
 
   const {user} = useAuth();
   const isEditor = canUser(user, '8', 'UPDATE');
+  const batch = production?.batch as IBatch;
 
   const formRef = React.useRef<HTMLFormElement>(null);
 
-    const {currency} = useCurrencyConfig();
+    
     // const savedProditems = production?.proditems as unknown as IProdItem[];
 
 
     useEffect(()=>{
         if(production){
-            setData({...production});
+            // setData({...production});
              const formattedIngredients: IIngredient[] = production?.ingredients?.map((ing) => ({
                 materialId: (ing.materialId as IRMaterial)._id,
                 qUsed: ing.quantity,
+                weight: ing.weight || 0,
             }));
 
             // console.log('Ingrediets: ', formattedIngredients)
@@ -67,17 +70,18 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
 
             setRawMaterials(mats);
             setOldRawMaterials(mats);
+            // setProductionCost(production.productionCost || 0);
         }
     }, [production])
 
-    useEffect(() => {
-        const price = rawMaterials.reduce((sum, material) => {
-            const ingredient = ingredients.find(ing => ing.materialId === material._id);
-            const qUsed = ingredient?.qUsed || 0;
-            return sum + (material.unitPrice * qUsed);
-        }, 0);
-        setTotalPrice(price);
-    }, [rawMaterials, ingredients]);
+    // useEffect(() => {
+    //     const price = rawMaterials.reduce((sum, material) => {
+    //         const ingredient = ingredients.find(ing => ing.materialId === material._id);
+    //         const qUsed = ingredient?.qUsed || 0;
+    //         return sum + (material.unitPrice * qUsed);
+    //     }, 0);
+    //     setTotalPrice(price);
+    // }, [rawMaterials, ingredients]);
 
 //    useEffect(() => {
 //         const prod = proditems.reduce((sum, item) => {
@@ -86,42 +90,48 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
 //         setTotalProd(prod);
 //     }, [proditems]);
 
-    // console.log('Total Price: ', totalPrice);
-    useEffect(() => {
-        setProductionCost(totalPrice);
-    }, [totalPrice]);
- 
-    const onchangeProdCost = (e:React.ChangeEvent<HTMLInputElement>)=>{
-        const {value} = e.target;
-        setProductionCost(Number(value));
-    }
-
-    // alert(totalPrice + totalProd);
+    // const onchangeProdCost = (e:React.ChangeEvent<HTMLInputElement>)=>{
+    //     const {value} = e.target;
+    //     setProductionCost(Number(value));
+    // }
 
     useEffect(() => {
         if (rawMaterials.length === 0) return;
         const validIds = new Set(rawMaterials.map(rm => rm._id));
         
-        const extraCost = production?.extraCost || 0;
         setIngredients(prev => prev.filter(ing => validIds.has(ing.materialId)));
-        setData(pre=>({
-            ...pre,
-            productionCost: productionCost + extraCost
-        }));
-    }, [rawMaterials, totalPrice, totalPrice]);
+        // setData(pre=>({
+        //     ...pre,
+        //     productionCost
+        // }));
+    }, [rawMaterials]);
 
-   
     const onChangeInput = (e:React.ChangeEvent<HTMLInputElement>)=>{
-        const {id, value} = e.target;
-        const qty = parseInt(value, 10) || 0;
-        setIngredients(pre=>{
-            const existing = pre.find(ing=>ing.materialId === id);
-            if(existing){
-                return pre.map(ing=>ing.materialId === id ? {...ing, qUsed: qty} : ing);
-            }else{
-                return [...pre, {materialId:id, qUsed: qty}];
-            }
-        })
+        const {value, name} = e.target;
+        
+        if (name.startsWith('qty-')) {
+            const materialId = name.replace('qty-', '');
+            const qty = parseInt(value, 10) || 0;
+            setIngredients(pre=>{
+                const existing = pre.find(ing=>ing.materialId === materialId);
+                if(existing){
+                    return pre.map(ing=>ing.materialId === materialId ? {...ing, qUsed: qty} : ing);
+                }else{
+                    return [...pre, {materialId, qUsed: qty, weight: 0}];
+                }
+            })
+        } else if (name.startsWith('wt-')) {
+            const materialId = name.replace('wt-', '');
+            const weightVal = parseFloat(value) || 0;
+            setIngredients(pre=>{
+                const existing = pre.find(ing=>ing.materialId === materialId);
+                if(existing){
+                    return pre.map(ing=>ing.materialId === materialId ? {...ing, weight: weightVal} : ing);
+                }else{
+                    return [...pre, {materialId, qUsed: 0, weight: weightVal}];
+                }
+            })
+        }
     }
 
     const inputQuantity = ingredients?.reduce((acc, cur)=> acc + cur.qUsed, 0);
@@ -136,17 +146,16 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
          setLoading(true);
          
          try {
-             const prodData:Partial<IProduction> = {
-                 ...data,
-                 status: production?.status === 'New' ? 'New' : production?.status === 'Completed' ? 'Completed' : 'In Progress',
-                 ingredients: ingredients.map(ing=>({
-                     materialId: ing.materialId,
-                     quantity: ing.qUsed
-                 })),
-                //  proditems: proditems?.map(item=>item._id),
-                 inputQuantity
-             }
-             
+              const prodData:Partial<IProduction> = {
+                  ...production,
+                  ingredients: ingredients.map(ing=>({
+                      materialId: ing.materialId,
+                      quantity: ing.qUsed,
+                      weight: ing.weight
+                  })),
+                  inputQuantity
+              }
+             console.log('Prod Data', prodData)
            const res = await updateProductionIngredients(prodData);
            enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
            if(!res.error){
@@ -165,8 +174,14 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
 
      const getQuantity = (material:IRMaterial)=>{
          const ingredient = ingredients.find(ing => ing.materialId === material._id);
-        //  console.log('Ingredient: ', ingredient)
+        //  console.log('Ingredient: ', ingredient')
          return ingredient?.qUsed || 0;
+     }
+
+     const getWeight = (material:IRMaterial)=>{
+         const ingredient = ingredients.find(ing => ing.materialId === material._id);
+        //  console.log('Ingredient: ', ingredient')
+         return ingredient?.weight || 0;
      }
 
     //  console.log('Raw Materials: ', ingredients)
@@ -188,7 +203,7 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
                                 <>
                                     <GenericLabel
                                         label="Pick a batch to select raw materials"
-                                        input={<SearchSelectBatches type="Raw Material" setSelect={setProductBatchId} />}
+                                        input={<SearchSelectBatches value={batch} type="Raw Material" setSelect={setProductBatchId} />}
                                     />
                                     
                                     <GenericLabel
@@ -205,7 +220,7 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
                                                     rawMaterials.map((material, index)=>{
                                                         const qty = getQuantity(material);
                                                         return (
-                                                            <RMQSelector key={index} material={material} inputId={material?._id} onChangeInput={onChangeInput} name={material?.materialName} quantity={qty} />
+                                                            <RMQSelector key={index} weight={getWeight(material)} material={material} inputId={material?._id} onChangeInput={onChangeInput} name={material?.materialName} quantity={qty} />
                                                         )
                                                     }
                                                     )
@@ -222,7 +237,7 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
                                     input={<SearchSelectMultipleProdItems value={proditems} setSelection={setProditems} />}
                                 />
                             } */}
-                            <InputWithLabel value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Production cost ${currency?.symbol}`} className="w-full" />
+                            {/* <InputWithLabel value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Production cost ${currency?.symbol}`} className="w-full" /> */}
                         </div>
                         {
                             isEditor &&

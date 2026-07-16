@@ -16,6 +16,7 @@ import { IBatch } from "@/lib/models/batch.model";
 import { IUser } from "@/lib/models/user.model";
 import { useAuth } from "@/hooks/useAuth";
 import { canUser } from "@/Data/roles/permissions";
+import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 
 type InputDetailsModalProps = {
     openNew:boolean;
@@ -24,6 +25,7 @@ type InputDetailsModalProps = {
 }
 
 const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalProps) => {
+    const {currency} = useCurrencyConfig();
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<IProduction>>({});
 
@@ -110,6 +112,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
                             input={<SearchSelectProducts value={productToProd} type="Finished Good" required={true} setSelect={setProductToProduce} />}
                         />
                         <InputWithLabel onChange={onChange} defaultValue={production?.xquantity} name="xquantity" required type="number" min={1} placeholder="10" label="Expected output quantity" className="w-full" />
+                        <InputWithLabel defaultValue={production?.productionCost} onChange={onChange} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Production cost ${currency?.symbol}`} className="w-full" />
                     </div>
                     {
                         isEditor &&
