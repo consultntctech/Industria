@@ -8,18 +8,16 @@ import { useSettings } from "@/config/useSettings"
 import { IBatch } from "@/lib/models/batch.model"
 import BatchTable from "../tables/batches/BatchTable"
 import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
-import { useAuth } from "@/hooks/useAuth"
-import { canUser } from "@/Data/roles/permissions"
+import {  useCanUser } from "@/hooks/useAuth"
 
 const Batches = () => {
     const [openNew, setOpenNew] = useState(false);
     const [currentBatch, setCurrentBatch] = useState<IBatch | null>(null);
     const {primaryColour} = useSettings();
-    const {user} = useAuth();
-    const isBatchAdmin = canUser(user, '55', 'CREATE');
+    const isBatchAdmin = useCanUser('55', 'CREATE');
   return (
-    <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
-        <div className="flex w-full items-center flex-row justify-between">
+    <div className="flex flex-col w-full gap-8 ml-4 md:ml-4">
+        <div className="flex flex-row items-center justify-between w-full">
             <Title title="Batches" isLink={false}/>
             {
                 isBatchAdmin &&

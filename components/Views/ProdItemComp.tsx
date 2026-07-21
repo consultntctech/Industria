@@ -15,7 +15,7 @@ import { useFetchProditem } from "@/hooks/fetch/useFetchProditem";
 import { PACKAGING_CATEGORY, PACKAGING_SUBCATEGORY, TPackagingProcess } from "@/Data/PackagingProcesses";
 import SearchSelectPackagingType from "../shared/inputs/dropdowns/SearchSelectPackagingType";
 import CustomCheckV2 from "../misc/CustomCheckV2";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 type ProdItemCompProps = {
   openNew:boolean;
@@ -37,8 +37,8 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     const {currency} = useCurrencyConfig();
     const {refetch} = useFetchProditem();
 
-    const isCreator = canUser(user, '12', 'CREATE');
-    const isEditor = canUser(user, '12', 'UPDATE');
+    const isCreator = useCanUser('12', 'CREATE');
+    const isEditor = useCanUser('12', 'UPDATE');
 
     const savedSuppliers = currentProdItem?.suppliers as unknown as ISupplier[];
 

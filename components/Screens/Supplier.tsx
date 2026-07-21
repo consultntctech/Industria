@@ -7,15 +7,13 @@ import { useSettings } from "@/config/useSettings";
 import SuppliersTable from "../tables/suppliers/SuppliersTable";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { PermissionGuard } from "@/hooks/permissions/PermissionProvider";
-import { useAuth } from "@/hooks/useAuth";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 const Supplier = () => {
     const [openNew, setOpenNew] = useState(false);
     const [currentSupplier, setCurrentSupplier] = useState<ISupplier | null>(null);
     const {primaryColour} = useSettings();
-    const {user} = useAuth();
-    const isCreator = canUser(user, '41', 'CREATE');
+    const isCreator = useCanUser('41', 'CREATE');
   return (
     <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
         <div className="flex w-full items-center flex-row justify-between">

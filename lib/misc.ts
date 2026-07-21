@@ -83,7 +83,7 @@ export async function sendWelcomeEmail({
     subject: `Welcome to ${companyName}!`,
     html,
   });
-
+  // console.log('Email Response: ', emailRes.response)
   console.log(`✅ Welcome email sent to ${to}`);
 }
 

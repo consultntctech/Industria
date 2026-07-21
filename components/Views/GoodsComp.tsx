@@ -9,8 +9,7 @@ import { FaChevronUp } from "react-icons/fa";
 // import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
-import { useAuth } from "@/hooks/useAuth";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 // import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 
 type GoodsCompProps = {
@@ -26,8 +25,7 @@ const GoodsComp = ({openNew, setOpenNew, currentGood, setCurrentGood}:GoodsCompP
     const [data, setData] = useState<Partial<IGood>>({});
     const formRef = useRef<HTMLFormElement>(null);
     const {refetch} = useFetchGoods();
-    const {user} = useAuth();
-    const isGoodEditor = canUser(user, '88', 'UPDATE');
+    const isGoodEditor = useCanUser('88', 'UPDATE');
     // const {currency} = useCurrencyConfig();
 
 

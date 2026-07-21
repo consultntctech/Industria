@@ -1,6 +1,6 @@
 'use client'
 import { useSettings } from '@/config/useSettings'
-import { useAuth, useUpdatedUser } from '@/hooks/useAuth'
+import { useAuth } from '@/hooks/useAuth'
 import { destroySession } from '@/lib/session'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -11,22 +11,22 @@ export const Header = () => {
 
   const {primaryColour,  tertiaryColour, logo, isPending} = useSettings();
   const {user} = useAuth();
-  useUpdatedUser();
+  // useUpdatedUser();
   // console.log('Loading: ', updateLoading)
 
   if(isPending) return null
 
   return (
-    <header style={{backgroundColor:primaryColour}} className='w-full p-2 flex flex-row justify-between items-center' >
+    <header style={{backgroundColor:primaryColour}} className='flex flex-row items-center justify-between w-full p-2' >
       <Link className='flex flex-row gap-2' href='/dashboard'>
         <Image className='rounded-full' src={logo} alt="logo" width={35} height={30} />
         <span className="title text-white max-w-[10ch] truncate md:max-w-[10ch] lg:max-w-none lg:whitespace-normal">Industra</span>
 
-        {/* <span className='title text-white' >{appName}</span> */}
+        {/* <span className='text-white title' >{appName}</span> */}
       </Link>
 
       <div className="flex flex-row items-center justify-between gap-2 md:gap-6">
-        <div style={{backgroundColor:tertiaryColour || '#66ADE3'}} onClick={destroySession} className="flex flex-row text-white items-center gap-1 px-3 py-1 rounded cursor-pointer">
+        <div style={{backgroundColor:tertiaryColour || '#66ADE3'}} onClick={destroySession} className="flex flex-row items-center gap-1 px-3 py-1 text-white rounded cursor-pointer">
           <FiLogOut />
           Logout
         </div>

@@ -14,7 +14,7 @@ import { IProduct } from "@/lib/models/product.model";
 import { useAuth } from "@/hooks/useAuth";
 import { IProdApproval } from "@/lib/models/prodapproval.model";
 import { createProdApproval } from "@/lib/actions/prodapproval.action";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 type OutputDetailsProps = {
     production: IProduction | null;
@@ -27,7 +27,7 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
     const {currency} = useCurrencyConfig();
     const {user} = useAuth();
 
-    const isEditor = canUser(user, '8', 'UPDATE');
+    const isEditor = useCanUser('8', 'UPDATE');
 
 
     const productToProduce = production?.productToProduce as IProduct;

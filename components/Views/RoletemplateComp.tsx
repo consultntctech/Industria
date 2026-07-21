@@ -11,7 +11,7 @@ import { IRole } from "@/lib/models/role.model";
 import { createRoleTemplate, updateRoleTemplate } from "@/lib/actions/roletemplate.action";
 import { useFetchRoleTemplates } from "@/hooks/fetch/useFetchRoletemplates";
 import SearchSelectAvMultipleRoleTemplates from "../shared/inputs/dropdowns/SearchSelectAvMultipleRoleTemplates";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 type RoletemplateCompProps = {
   openNew:boolean;
@@ -32,8 +32,8 @@ const RoletemplateComp = ({openNew, setOpenNew, currentRoletemplate, setCurrentR
     const formRef = useRef<HTMLFormElement>(null);
     const {refetch} = useFetchRoleTemplates();
 
-    const isCreator = canUser(user, '23', 'CREATE');
-    const isEditor = canUser(user, '23', 'UPDATE');
+    const isCreator = useCanUser('23', 'CREATE');
+    const isEditor = useCanUser('23', 'UPDATE');
 
 
     

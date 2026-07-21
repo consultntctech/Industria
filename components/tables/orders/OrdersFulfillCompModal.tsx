@@ -21,7 +21,7 @@ import { enqueueSnackbar } from "notistack";
 import { Dispatch,  SetStateAction, useEffect, useRef, useState } from "react";
 import { FaChevronUp } from "react-icons/fa";
 import '@/styles/customscroll.css'
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 type OrdersFulfillCompModalProps = {
     currentOrder: IOrder | null;
@@ -47,7 +47,7 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
     const {currency} = useCurrencyConfig();
     const utils = useQueryClient();
     const {user} = useAuth();
-    const isEditor = canUser(user, '86', 'UPDATE');
+    const isEditor = useCanUser('86', 'UPDATE');
     const customer = currentOrder?.customer as ICustomer;
 
     const formRef = useRef<HTMLFormElement>(null);

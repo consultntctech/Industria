@@ -1,5 +1,5 @@
 "use server";
-import { IResponse, ISession, ISessionRole, OperationName } from "@/types/Types";
+import { IResponse, ISession } from "@/types/Types";
 import { connectDB } from "../mongoose";
 import {
   comparePassword,
@@ -13,13 +13,13 @@ import Organization from "../models/org.model";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import "../models/role.model";
 import Forgot from "../models/forgot.model";
-import { createSession, destroySession } from "../session";
-import { IRole } from "../models/role.model";
+// import { createSession, destroySession } from "../session";
+// import { IRole } from "../models/role.model";
 
 
-function isRole(obj: unknown): obj is IRole {
-  return !!obj && typeof obj === 'object' && 'permissions' in obj;
-}
+// function isRole(obj: unknown): obj is IRole {
+//   return !!obj && typeof obj === 'object' && 'permissions' in obj;
+// }
 
 
 export async function createUser(data: Partial<IUser>): Promise<IResponse> {
@@ -54,7 +54,7 @@ export async function createUser(data: Partial<IUser>): Promise<IResponse> {
       supportEmail:
         org?.email || "CCHelpDesk@consultntctech.com"?.toLowerCase(),
     });
-    return respond("User created successfully", false, newUser, 201);
+    return respond("User created successfully. Have the user check their inbox/spam folder for the welcome email", false, newUser, 201);
   } catch (error) {
     console.log(error);
     return respond("Error occured while creating user", true, {}, 500);
@@ -118,34 +118,15 @@ export async function updateUser(data: Partial<IUser>): Promise<IResponse> {
 export async function updateUserV2(data: Partial<IUser>): Promise<IResponse> {
   try {
     await connectDB();
-    const user = await User.findByIdAndUpdate(data._id, data, {
-      new: true,
-    }).populate("roles");
-    
-      const sessionRoles: ISessionRole[] = (user?.roles ?? [])
-      .filter(isRole) // filter only populated IRole objects
-      .flatMap((role: IRole) =>
-          role.permissions
-          ? [
-              {
-                  tableid: role.permissions.tableid,
-                  operations: role.permissions.operations.map(
-                  (op: { name: string }) => ({ name: op.name })
-                  ),
-              },
-              ]
-          : []
-      );
+    const user = await User.findByIdAndUpdate(data._id, data, { new: true });
 
-      // 4️⃣ Create session payload
-      const sessionData: ISession = {
-        _id: user._id.toString(),
-        name: user.name,
-        photo: user?.photo,
-        email: user.email,
-        org: user.org.toString(),
-        roles: sessionRoles,
-      };
+    const sessionData: ISession = {
+      _id: user._id.toString(),
+      name: user.name,
+      photo: user?.photo,
+      email: user.email,
+      org: user.org.toString(),
+    };
 
     return respond("User updated successfully", false, sessionData, 200);
   } catch (error) {
@@ -253,48 +234,20 @@ export async function changePasswordByEmail(
 export async function loginUser(data: Partial<IUser>): Promise<IResponse> {
   try {
     await connectDB();
+    const user = await User.findOne({ email: data.email?.toLowerCase() });
+    if (!user) return respond("Invalid credentials", true, {}, 400);
 
-    // 1️⃣ Find user by email and populate roles
-    const user = await User.findOne({
-      email: data.email?.toLowerCase(),
-    }).populate("roles");
-
-    if (!user) {
-      return respond("Invalid credentials", true, {}, 400);
-    }
-
-    // 2️⃣ Verify password
     const isMatch = await comparePassword(data.password!, user.password);
-    if (!isMatch) {
-      return respond("Invalid credentials", true, {}, 400);
-    }
+    if (!isMatch) return respond("Invalid credentials", true, {}, 400);
 
-    const sessionRoles: ISessionRole[] = (user?.roles ?? [])
-    .filter(isRole) // filter only populated IRole objects
-    .flatMap((role: IRole) =>
-        role.permissions
-        ? [
-            {
-                tableid: role.permissions.tableid,
-                operations: role.permissions.operations.map(
-                (op: { name: string }) => ({ name: op.name })
-                ),
-            },
-            ]
-        : []
-    );
-
-    // 4️⃣ Create session payload
     const sessionData: ISession = {
       _id: user._id.toString(),
       name: user.name,
       photo: user?.photo,
       email: user.email,
       org: user.org.toString(),
-      roles: sessionRoles,
     };
 
-    // 5️⃣ Return session-ready data
     return respond("Logged in successfully", false, sessionData, 200);
   } catch (error) {
     console.log(error);
@@ -302,66 +255,66 @@ export async function loginUser(data: Partial<IUser>): Promise<IResponse> {
   }
 }
 
-export async function updateUserRoles(id: string): Promise<IResponse> {
-  try {
-    await connectDB();
+// export async function updateUserRoles(id: string): Promise<IResponse> {
+//   try {
+//     await connectDB();
 
-    const user = (await User.findById(id).populate("roles").lean()) as unknown as IUser;
+//     const user = (await User.findById(id).populate("roles").lean()) as unknown as IUser;
 
-    if (!user) {
-      await destroySession();
-      return respond("User not found", true, {}, 404);
-    }
+//     if (!user) {
+//       await destroySession();
+//       return respond("User not found", true, {}, 404);
+//     }
 
-    if (!user.hasRequestedUpdate) {
-      return respond("User has not requested update", true, {}, 400);
-    }
+//     if (!user.hasRequestedUpdate) {
+//       return respond("User has not requested update", true, {}, 400);
+//     }
 
-    // 🔑 Flatten permissions safely without `any`
-    const sessionRoles: ISessionRole[] = (user.roles ?? [])
-    .filter(isRole)
-    .flatMap((role: IRole) =>
-        role.permissions
-        ? [
-            {
-                tableid: role.permissions.tableid,
-                operations: role.permissions.operations
-                .map((op: { name: string }) => {
-                    // ✅ Only include valid OperationName values
-                    if (['READ', 'CREATE', 'UPDATE', 'DELETE', 'APPROVE'].includes(op.name)) {
-                    return { name: op.name as OperationName };
-                    }
-                    return null; // skip invalid
-                })
-                .filter((o): o is { name: OperationName } => o !== null),
-            },
-            ]
-        : []
-    );
+//     // 🔑 Flatten permissions safely without `any`
+//     const sessionRoles: ISessionRole[] = (user.roles ?? [])
+//     .filter(isRole)
+//     .flatMap((role: IRole) =>
+//         role.permissions
+//         ? [
+//             {
+//                 tableid: role.permissions.tableid,
+//                 operations: role.permissions.operations
+//                 .map((op: { name: string }) => {
+//                     // ✅ Only include valid OperationName values
+//                     if (['READ', 'CREATE', 'UPDATE', 'DELETE', 'APPROVE'].includes(op.name)) {
+//                     return { name: op.name as OperationName };
+//                     }
+//                     return null; // skip invalid
+//                 })
+//                 .filter((o): o is { name: OperationName } => o !== null),
+//             },
+//             ]
+//         : []
+//     );
 
 
-    // ✅ Safe session payload
-    const sessionData: ISession = {
-      _id: user._id.toString(),
-      name: user.name,
-      email: user.email,
-      photo: user.photo,
-      org: user.org.toString(),
-      roles: sessionRoles,
-    };
+//     // ✅ Safe session payload
+//     const sessionData: ISession = {
+//       _id: user._id.toString(),
+//       name: user.name,
+//       email: user.email,
+//       photo: user.photo,
+//       org: user.org.toString(),
+//       roles: sessionRoles,
+//     };
 
-    await createSession(sessionData);
+//     await createSession(sessionData);
 
-    // Update flag
-    await User.findByIdAndUpdate(
-      user._id,
-      { hasRequestedUpdate: false },
-      { new: true }
-    );
+//     // Update flag
+//     await User.findByIdAndUpdate(
+//       user._id,
+//       { hasRequestedUpdate: false },
+//       { new: true }
+//     );
 
-    return respond("Permissions updated", false, sessionData, 200);
-  } catch (error) {
-    console.log(error);
-    return respond("Error occurred while updating user", true, {}, 500);
-  }
-}
+//     return respond("Permissions updated", false, sessionData, 200);
+//   } catch (error) {
+//     console.log(error);
+//     return respond("Error occurred while updating user", true, {}, 500);
+//   }
+// }

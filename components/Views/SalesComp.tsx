@@ -22,7 +22,7 @@ import { useRouter } from "next/navigation";
 // import { useFetchSales } from "@/hooks/fetch/useFetchSales";
 import { useQueryClient } from "@tanstack/react-query";
 import SearchSelectBatchesWithLineItems from "../shared/inputs/dropdowns/SearchSelectBatchesWithLineItems";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 type SalesCompProps = {
   openNew:boolean;
@@ -44,8 +44,8 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
 
     const {lineItems:items, isPending} = useFetchAvailableLineItemsByProduct(product?._id as string, batch);
 
-    const isCreator = canUser(user, '82', 'CREATE');
-    const isEditor = canUser(user, '82', 'UPDATE');
+    const isCreator = useCanUser('82', 'CREATE');
+    const isEditor = useCanUser('82', 'UPDATE');
     // const {refetch} = useFetchSales();
 
     // console.log('Items: ', items.length)

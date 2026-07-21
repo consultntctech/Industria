@@ -15,8 +15,7 @@ import LineItemEditComp from './LineItemEditComp'
 import PrimaryButton from '@/components/shared/buttons/PrimaryButton'
 import DialogueAlertWithInput from '@/components/misc/DialogueAlertWithInput'
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig'
-import { useAuth } from '@/hooks/useAuth'
-import { canUser } from '@/Data/roles/permissions'
+import { useCanUser } from '@/hooks/useAuth';
 
 type LineItemTableProps = {
     pack:IPackage | null;
@@ -28,8 +27,7 @@ const LineItemsTable = ({ pack}:LineItemTableProps) => {
     const [showPriceAll, setShowPriceAll] = useState(false);
     const [currentLineItem, setCurrentLineItem] = useState<ILineItem | null>(null);
     const [price, setPrice] = useState<string>('');
-    const {user} = useAuth();
-    const isEditor = canUser(user, '99', 'UPDATE');
+    const isEditor = useCanUser('99', 'UPDATE');
 
     const {currency} = useCurrencyConfig();
 

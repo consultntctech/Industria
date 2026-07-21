@@ -1,4 +1,4 @@
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useCanUser } from '@/hooks/useAuth';
 import  { ChangeEvent, FormEvent,  useEffect, useRef, useState } from 'react'
 import InputWithLabel from '../shared/inputs/InputWithLabel';
 import PrimaryButton from '../shared/buttons/PrimaryButton';
@@ -9,7 +9,6 @@ import { createBatchConfig } from '@/lib/actions/batchconfig.action';
 import { enqueueSnackbar } from 'notistack';
 import { useBatchNoConfig } from '@/hooks/config/useBatchNoConfig';
 import { LinearProgress } from '@mui/material';
-import { canUser } from '@/Data/roles/permissions';
 
 
 const BatchConfigComp = () => {
@@ -17,8 +16,8 @@ const BatchConfigComp = () => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<IBatchConfig>>({});
     const {batchConfig, refetch, batchConfigLoading} = useBatchNoConfig();
-    const isConfigurer = canUser(user, '48', 'UPDATE');
-    const isConfigAdmin = canUser(user, '48', 'CREATE');
+    const isConfigurer = useCanUser('48', 'UPDATE');
+    const isConfigAdmin = useCanUser('48', 'CREATE');
 
     useEffect(() => {
       if(batchConfig){

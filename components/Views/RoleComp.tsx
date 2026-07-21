@@ -13,7 +13,7 @@ import GenericLabel from "../shared/inputs/GenericLabel";
 import SearchSelectTable from "../shared/inputs/dropdowns/SearchSelectTable";
 import SearchSelectMultipleOperations from "../shared/inputs/dropdowns/SearchSelectMultipleOperations";
 import { useFetchRoles } from "@/hooks/fetch/useFetchRoles";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 type RoleCompProps = {
   openNew:boolean;
@@ -36,8 +36,8 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
     const formRef = useRef<HTMLFormElement>(null);
     const {refetch} = useFetchRoles();
 
-    const isCreator = canUser(user, '27', 'CREATE');
-    const isEditor = canUser(user, '27', 'UPDATE');
+    const isCreator = useCanUser('27', 'CREATE');
+    const isEditor = useCanUser('27', 'UPDATE');
 
     
     useEffect(()=>{

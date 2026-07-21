@@ -10,8 +10,8 @@ import SearchSelectOrgs from '../shared/inputs/dropdowns/SearchSelectOrgs';
 import GenericLabel from '../shared/inputs/GenericLabel';
 import { IOrganization } from '@/lib/models/org.model';
 import { useFetchUsers } from '@/hooks/fetch/useFetchUsers';
-import { useAuth } from '@/hooks/useAuth';
-import { canUser, isSystemAdmin } from '@/Data/roles/permissions';
+import { useAuth, useCanUser } from '@/hooks/useAuth';
+import {  isSystemAdmin } from '@/Data/roles/permissions';
 
 
 type UserCompProps = {
@@ -28,8 +28,8 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
     const {refetch} = useFetchUsers();
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
-    const isCreator = canUser(user, '38', 'CREATE');
-    const isEditor = canUser(user, '38', 'UPDATE');
+    const isCreator = useCanUser('38', 'CREATE');
+    const isEditor = useCanUser('38', 'UPDATE');
 
     const organization = currentUser?.org as IOrganization;
     const formRef = useRef<HTMLFormElement>(null);
@@ -42,8 +42,6 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
     useEffect(() => {
         if(currentUser){
             setFormData({...currentUser, org:organization?._id});// Set form data when currentUser changes
-        }else{
-            setFormData({});// Reset form data when currentUser is null
         }
     }, [currentUser])
    
@@ -51,6 +49,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
         setOpenNew(false);
         setCurrentUser(null);
         setOrg('');
+        formRef.current?.reset();
         setFormData({});
     }
     
@@ -61,7 +60,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
         
         try {
           const res = await createUser({...formData, org:isAdmin ? org : user?.org});
-          enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
+          enqueueSnackbar(res.message, {variant:res.error ? 'error':'success', autoHideDuration:9000});
           if(!res.error){
               formRef.current?.reset();
               setOpenNew(false);

@@ -1,6 +1,6 @@
 'use client';
 import { PACKAGING_PROCESSES, TPackagingProcess } from '@/Data/PackagingProcesses';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useCanUser } from '@/hooks/useAuth';
 import { createPackage } from '@/lib/actions/package.action';
 import { createPackApproval } from '@/lib/actions/packapproval.action';
 import { IBatch } from '@/lib/models/batch.model';
@@ -33,7 +33,6 @@ import SearchSelectProducts from '../shared/inputs/dropdowns/SearchSelectProduct
 import GoodsQSelector from '../misc/GoodsQSelector';
 import SearchSelectAvMultipleGoods from '../shared/inputs/dropdowns/SearchSelectAvMultipleGoods';
 import { IUser } from '@/lib/models/user.model';
-import { canUser } from '@/Data/roles/permissions';
 
 const NewPackageComp = () => {
     const [loading, setLoading] = useState(false);
@@ -55,7 +54,7 @@ const NewPackageComp = () => {
     const {user} = useAuth();
     const router = useRouter();
     const {currency} = useCurrencyConfig();
-    const isCreator = canUser(user, '99', 'CREATE');
+    const isCreator = useCanUser('99', 'CREATE');
 
     // const goodBatch = good?.batch as IBatch;
     

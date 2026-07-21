@@ -7,18 +7,16 @@ import { useSettings } from "@/config/useSettings";
 import { ICustomer } from "@/lib/models/customer.model";
 import CustomersTable from "../tables/customers/CustomersTable";
 import { PermissionGuard } from "@/hooks/permissions/PermissionProvider";
-import { useAuth } from "@/hooks/useAuth";
-import { canUser } from "@/Data/roles/permissions";
+import { useCanUser } from "@/hooks/useAuth";
 
 const Customers = () => {
     const [openNew, setOpenNew] = useState(false);
     const [currentCustomer, setCurrentCustomer] = useState<ICustomer | null>(null);
     const {primaryColour} = useSettings();
-    const {user} = useAuth();
-    const isCreator = canUser(user, '33', 'CREATE');
+    const isCreator = useCanUser( '33', 'CREATE');
   return (
-    <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
-        <div className="flex w-full items-center flex-row justify-between">
+    <div className="flex flex-col w-full gap-8 ml-4 md:ml-4">
+        <div className="flex flex-row items-center justify-between w-full">
             <Title title="Customers" isLink={false}/>
             {
                 isCreator &&

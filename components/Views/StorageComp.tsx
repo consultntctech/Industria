@@ -1,4 +1,4 @@
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, useCanUser } from "@/hooks/useAuth";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
@@ -8,7 +8,6 @@ import { IStorage } from "@/lib/models/storage.model";
 import { createStorage, updateStorage } from "@/lib/actions/storage.action";
 import { enqueueSnackbar } from "notistack";
 import { useFetchStorages } from "@/hooks/fetch/useFetchStorages";
-import { canUser } from "@/Data/roles/permissions";
 
 type StorageCompProps = {
   openNew:boolean;
@@ -21,8 +20,8 @@ const StorageComp = ({openNew, setOpenNew, currentStorage, setCurrentStorage}:St
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<IStorage>>({});
     const {user} = useAuth();
-    const isCreator = canUser(user, '77', 'CREATE');
-    const isEditor = canUser(user, '77', 'UPDATE');
+    const isCreator = useCanUser('77', 'CREATE');
+    const isEditor = useCanUser('77', 'UPDATE');
 
     const formRef = useRef<HTMLFormElement>(null);
     const {refetch} = useFetchStorages();

@@ -10,9 +10,8 @@ import { IGood } from '@/lib/models/good.model';
 import { IStorage } from '@/lib/models/storage.model';
 import PackInputDetailsModal from './PackInputDetailsModal';
 import { IProduction } from '@/lib/models/production.model';
-import { useAuth } from '@/hooks/useAuth';
-import { canUser } from '@/Data/roles/permissions';
 import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { useCanUser } from '@/hooks/useAuth';
 // import { formatDate } from '@/functions/dates';
 
 type PackInputDetailsProps = {
@@ -22,8 +21,7 @@ type PackInputDetailsProps = {
 
 const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
     const [openNew, setOpenNew] = useState(false);
-    const {user} = useAuth();
-    const isEditor = canUser(user, '99', 'UPDATE');
+    const isEditor = useCanUser('99', 'UPDATE');
     
     const batch = pack?.batch as IBatch;
     const supervisor = pack?.supervisor as IUser;

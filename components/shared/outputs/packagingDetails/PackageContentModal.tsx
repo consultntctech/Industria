@@ -15,8 +15,7 @@ import  { IProdItem } from '@/lib/models/proditem.model';
 import ProdItemSelector from '@/components/misc/ProdItemSelector';
 import SearchSelectAvMultipleProdItems from '../../inputs/dropdowns/SearchSelectAvMultipleProdItems';
 import { updatePackagingMaterials } from '@/lib/actions/package.action';
-import { useAuth } from '@/hooks/useAuth';
-import { canUser } from '@/Data/roles/permissions';
+import { useCanUser } from '@/hooks/useAuth';
 // import { arraysEqual } from '@/functions/helpers';
 
 type PackageContentModalProps = {
@@ -33,8 +32,7 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
   const [packagingMaterial, setPackagingMaterial] = useState<IProdItem[]>([]);
   const [packItems, setPackItems] = useState<IQSelector[]>([]);
   const [cost, setCost] = useState<number>(0);
-  const {user} = useAuth();
-  const isEditor = canUser(user, '99', 'UPDATE');
+  const isEditor = useCanUser('99', 'UPDATE');
 
 
   const formRef = React.useRef<HTMLFormElement>(null);

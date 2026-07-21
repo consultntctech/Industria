@@ -16,7 +16,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFetchRMaterials } from "@/hooks/fetch/useRMaterials";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { IBatch } from "@/lib/models/batch.model";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 type RMCompProps = {
   openNew:boolean;
@@ -37,8 +37,8 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
     const {user} = useAuth();
     const {refetch} = useFetchRMaterials();
 
-    const isCreator = canUser(user, '87', 'CREATE');
-    const isEditor = canUser(user, '87', 'UPDATE');
+    const isCreator = useCanUser('87', 'CREATE');
+    const isEditor = useCanUser('87', 'UPDATE');
 
     const formRef = useRef<HTMLFormElement>(null);
     const savedProduct = currentMaterial?.product as IProduct;

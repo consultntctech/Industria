@@ -1,7 +1,7 @@
 import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
-import { isDbGlobalAdmin, isGlobalAdmin, isSystemAdmin } from "@/Data/roles/permissions";
+import { isDbGlobalAdmin,  isSystemAdmin } from "@/Data/roles/permissions";
 import { formatDate } from "@/functions/dates";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, useIsGlobalAdmin } from "@/hooks/useAuth";
 import { IOrganization } from "@/lib/models/org.model";
 import { IRole } from "@/lib/models/role.model";
 import { IUser } from "@/lib/models/user.model";
@@ -17,7 +17,7 @@ export const UserColoumns = (
     handleDelete: (user:IUser)=>void,
 ):GridColDef[]=>{
     const {user} = useAuth();
-    const isGlobal = isGlobalAdmin(user?.roles);
+    const isGlobal = useIsGlobalAdmin();
     const isAdmin = isSystemAdmin(user);
 
     return [
@@ -28,8 +28,8 @@ export const UserColoumns = (
             disableExport:true,
             filterable:false,
             renderCell: (params:GridRenderCellParams)=>(
-                <div className="mt-1 relative flex-row h-full items-center pb-2 flex">
-                    <Image alt="member" height={30} width={30}  objectFit="cover"  className="rounded-full object-cover" src={params.row?.photo} />
+                <div className="relative flex flex-row items-center h-full pb-2 mt-1">
+                    <Image alt="member" height={30} width={30}  objectFit="cover"  className="object-cover rounded-full" src={params.row?.photo} />
                 </div>
             )
         },
@@ -115,7 +115,7 @@ export const UserColoumns = (
             const canSeeActions = (isGlobal || isAdmin) || !isG;
             // console.log(params.row?.id)
             return(
-                <div className="h-full flex-center gap-3">
+                <div className="h-full gap-3 flex-center">
                     <Viewer tableId="38" onClick={()=>handleInfo(params?.row)} tip="View user" />
                     <Activity mode={canSeeActions ? 'visible' : 'hidden' } >
                         <Editor tableId="38" onClick={()=>handleEdit(params?.row)} tip="Edit user" />

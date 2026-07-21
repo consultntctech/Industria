@@ -250,6 +250,6 @@ export interface ISession {
   email: string;
   org: string;
   photo: string;
-  roles: ISessionRole[];
+//   roles: ISessionRole[];
   expires?: Date;
 }

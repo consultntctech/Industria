@@ -14,8 +14,7 @@ import SearchSelectUsers from "../../inputs/dropdowns/SearchSelectUsers";
 import SearchSelectProducts from "../../inputs/dropdowns/SearchSelectProducts";
 import { IBatch } from "@/lib/models/batch.model";
 import { IUser } from "@/lib/models/user.model";
-import { useAuth } from "@/hooks/useAuth";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 
 type InputDetailsModalProps = {
@@ -32,8 +31,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
     const [batch, setBatch] = useState<string>('');
     const [productToProduce, setProductToProduce] = useState<IProduct|null>(null);
     const [supervisor, setSupervisor] = useState<IUser | null>(null);
-    const {user} = useAuth();
-    const isEditor = canUser(user, '8', 'UPDATE');
+    const isEditor = useCanUser('8', 'UPDATE');
 
     const formRef = useRef<HTMLFormElement>(null);
 

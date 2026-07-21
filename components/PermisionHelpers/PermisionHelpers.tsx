@@ -1,5 +1,4 @@
-import { canUser } from "@/Data/roles/permissions"
-import { useAuth } from "@/hooks/useAuth"
+import {  useCanUser } from "@/hooks/useAuth"
 import { ITablePermision } from "@/types/Types";
 import { Tooltip } from "@mui/material";
 import { Url } from "next/dist/shared/lib/router/router";
@@ -25,8 +24,8 @@ type ViewerProps = {
 } & ITablePermision & ComponentProps<'svg'>
 
 export const Linker =({tableId, link, placeholder, operation='READ', linkStyle, spanStyle, target}:LinkerProps)=>{
-    const {user} = useAuth();
-    const isViewer = canUser(user, tableId, operation);
+    
+    const isViewer = useCanUser(tableId, operation);
 
     return(
         <>
@@ -42,8 +41,7 @@ export const Linker =({tableId, link, placeholder, operation='READ', linkStyle, 
 
 
 export const Viewer =({tableId, operation='READ', tip, className, ...props}:ViewerProps)=>{
-        const {user} = useAuth();
-        const isViewer = canUser(user, tableId, operation);
+        const isViewer = useCanUser(tableId, operation);
 
 
     return(
@@ -62,8 +60,7 @@ export const Viewer =({tableId, operation='READ', tip, className, ...props}:View
 
 
 export const Editor =({tableId, operation='UPDATE', tip, className, ...props}:ViewerProps)=>{
-        const {user} = useAuth();
-        const editor = canUser(user, tableId, operation);
+        const editor = useCanUser(tableId, operation);
 
 
     return(
@@ -82,8 +79,7 @@ export const Editor =({tableId, operation='UPDATE', tip, className, ...props}:Vi
 
 
 export const Fulfiller =({tableId, operation='UPDATE', tip, className, ...props}:ViewerProps)=>{
-        const {user} = useAuth();
-        const editor = canUser(user, tableId, operation);
+        const editor = useCanUser(tableId, operation);
 
 
     return(
@@ -102,8 +98,7 @@ export const Fulfiller =({tableId, operation='UPDATE', tip, className, ...props}
 
 
 export const Deleter =({tableId, operation='DELETE', tip, className, ...props}:ViewerProps)=>{
-        const {user} = useAuth();
-        const deleter = canUser(user, tableId, operation);
+        const deleter = useCanUser(tableId, operation);
 
 
     return(
@@ -122,8 +117,7 @@ export const Deleter =({tableId, operation='DELETE', tip, className, ...props}:V
 
 
 export const Approver =({tableId, operation='APPROVE', tip, className, ...props}:ViewerProps)=>{
-        const {user} = useAuth();
-        const approver = canUser(user, tableId, operation);
+        const approver = useCanUser(tableId, operation);
 
 
     return(
@@ -142,8 +136,7 @@ export const Approver =({tableId, operation='APPROVE', tip, className, ...props}
 
 
 export const Redoer =({tableId, operation='UPDATE', tip, className, ...props}:ViewerProps)=>{
-        const {user} = useAuth();
-        const redoer = canUser(user, tableId, operation);
+        const redoer = useCanUser(tableId, operation);
 
 
     return(
@@ -162,8 +155,7 @@ export const Redoer =({tableId, operation='UPDATE', tip, className, ...props}:Vi
 
 
 export const Undoer =({tableId, operation='UPDATE', tip, className, ...props}:ViewerProps)=>{
-        const {user} = useAuth();
-        const under = canUser(user, tableId, operation);
+        const under = useCanUser(tableId, operation);
 
 
     return(
@@ -182,8 +174,7 @@ export const Undoer =({tableId, operation='UPDATE', tip, className, ...props}:Vi
 
 
 export const Assigner =({tableId, operation='UPDATE', tip, className, ...props}:ViewerProps)=>{
-        const {user} = useAuth();
-        const under = canUser(user, tableId, operation);
+        const under = useCanUser(tableId, operation);
 
 
     return(

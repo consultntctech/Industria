@@ -9,8 +9,7 @@ import TextAreaWithLabel from "../../inputs/TextAreaWithLabel";
 import { updateProduction } from "@/lib/actions/production.action";
 import { enqueueSnackbar } from "notistack";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
-import { useAuth } from "@/hooks/useAuth";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 type OutputDetailsModalsProps = {
     openNew:boolean;
@@ -23,8 +22,7 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
     const [data, setData] = useState<Partial<IProduction>>({});
     const formRef = useRef<HTMLFormElement>(null);
     const {currency} = useCurrencyConfig();
-    const {user} = useAuth();
-    const isEditor = canUser(user, '8', 'UPDATE');
+    const isEditor = useCanUser('8', 'UPDATE');
 
     useEffect(() => {
         if(production){

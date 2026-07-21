@@ -8,8 +8,7 @@ import  { Dispatch, SetStateAction, useState } from 'react'
 import { FaPenToSquare } from 'react-icons/fa6';
 import InputDetailsModal from './InputDetailsModal';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
-import { useAuth } from '@/hooks/useAuth';
-import { canUser } from '@/Data/roles/permissions';
+import { useCanUser } from '@/hooks/useAuth';
 import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import { enqueueSnackbar } from 'notistack';
 // import { formatDate } from '@/functions/dates';
@@ -28,9 +27,8 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
     const {primaryColour} = useSettings();
     const {currency} = useCurrencyConfig();
 
-    const {user} = useAuth();
-    const isEditor = canUser(user, '8', 'UPDATE');
-    const isRawReader = canUser(user, '87', 'READ');
+    const isEditor = useCanUser('8', 'UPDATE');
+    const isRawReader = useCanUser('87', 'READ');
 
     const handleClickOnRawMaterials = ()=>{
       if(isRawReader){

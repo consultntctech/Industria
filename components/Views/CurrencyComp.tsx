@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { createCurrency } from "@/lib/actions/currency.action";
 import { enqueueSnackbar } from "notistack";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 const CurrencyComp = () => {
     const [loading, setLoading] = useState(false);
@@ -17,8 +17,8 @@ const CurrencyComp = () => {
     const {user} = useAuth();
 
     const {currency, refetch, currencyLoading} = useCurrencyConfig();
-    const isConfigurer = canUser(user, '48', 'UPDATE');
-    const isConfigAdmin = canUser(user, '48', 'CREATE');
+    const isConfigurer = useCanUser('48', 'UPDATE');
+    const isConfigAdmin = useCanUser('48', 'CREATE');
 
     useEffect(() => {
         if(currency){

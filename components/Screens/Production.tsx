@@ -7,21 +7,19 @@ import { useSettings } from "@/config/useSettings"
 import { useRouter } from "next/navigation"
 import ProductionTable from "../tables/productions/ProductionTable"
 import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
-import { useAuth } from "@/hooks/useAuth"
-import { canUser } from "@/Data/roles/permissions"
+import { useCanUser } from "@/hooks/useAuth"
 
 const Production = () => {
     const {primaryColour} = useSettings();
     const router = useRouter();
-    const {user} = useAuth();
-    const isCreator = canUser(user, '8', 'CREATE');
+    const isCreator = useCanUser('8', 'CREATE');
 
     const handleClick = () => {
         router.push('/dashboard/processing/production/new');
     }
   return (
-    <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
-        <div className="flex w-full items-center flex-row justify-between">
+    <div className="flex flex-col w-full gap-8 ml-4 md:ml-4">
+        <div className="flex flex-row items-center justify-between w-full">
             <Title title="Productions" isLink={false}/>
             {
                 isCreator &&

@@ -10,7 +10,7 @@ import { createCategory, updateCategory } from "@/lib/actions/category.action";
 import { enqueueSnackbar } from "notistack";
 import { useAuth } from "@/hooks/useAuth";
 import { useFetchProdCats } from "@/hooks/fetch/useFetchProdCats";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 type ProdCatCompProps = {
   openNew:boolean;
@@ -25,8 +25,8 @@ const ProdCatComp = ({openNew, setOpenNew, currentCategory, setCurrentCategory}:
     const formRef = useRef<HTMLFormElement>(null);
     const {user} = useAuth();
     const {refetch} = useFetchProdCats();
-    const isCreator = canUser(user, '32', 'CREATE');
-    const isEditor = canUser(user, '32', 'UPDATE');
+    const isCreator = useCanUser('32', 'CREATE');
+    const isEditor = useCanUser('32', 'UPDATE');
 
 
     useEffect(() => {

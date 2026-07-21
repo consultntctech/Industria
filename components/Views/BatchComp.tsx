@@ -8,11 +8,10 @@ import CustomCheck from "../misc/CustomCheck";
 import ModalContainer from "../shared/outputs/ModalContainer";
 import { IBatch } from "@/lib/models/batch.model";
 import { enqueueSnackbar } from "notistack";
-import { useAuth } from "@/hooks/useAuth";
+import {  useCanUser, useAuth } from "@/hooks/useAuth";
 import { createBatch, updateBatch } from "@/lib/actions/batch.action";
 import { useBatches } from "@/hooks/fetch/useBatches";
 import { IBatchConfig } from "@/lib/models/batchconfig.model";
-import { canUser } from "@/Data/roles/permissions";
 
 type BatchCompProps = {
   openNew:boolean;
@@ -31,8 +30,8 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
   const {refetch} = useBatches();
 
   const currentConfig = currentBatch?.config as IBatchConfig;
-  const isBatchCreator = canUser(user, '55', 'CREATE');
-  const isBatchEditor = canUser(user, '55', 'UPDATE');
+  const isBatchCreator = useCanUser('55', 'CREATE');
+  const isBatchEditor = useCanUser('55', 'UPDATE');
   // console.log('Current Config: ', currentConfig)
 
 
@@ -111,14 +110,14 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
   return (
     <ModalContainer open={openNew} handleClose={()=>setOpenNew(false)}>
       <div className={`flex w-[90%] md:w-[50%]`}>
-        <form ref={formRef} onSubmit={currentBatch ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
+        <form ref={formRef} onSubmit={currentBatch ? handleUpdate : handleSubmit}  className="flex-col w-full gap-8 p-4 formBox" >
             <div className="flex flex-col gap-1">
                 <span className="title" >{currentBatch ? 'Edit batch code' : 'Add new batch code'}</span>
                 <span className="greyText" >Batch numbers are used to track your inventory</span>
             </div>
     
-            <div className="flex flex-col lg:flex-row gap-4 items-stretch">
-                <div className="flex gap-4 flex-col w-full">
+            <div className="flex flex-col items-stretch gap-4 lg:flex-row">
+                <div className="flex flex-col w-full gap-4">
                   <div className="flex flex-row items-center gap-4">
                     <span className="smallText">Use a configuration</span>
                     <CustomCheck checked={ isConfig} setChecked={setIsConfig}/>
@@ -156,7 +155,7 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
                 
             </div>
     
-            <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
+            <div className="flex self-end p-2 transition-all border border-gray-200 rounded-full cursor-pointer w-fit hover:bg-gray-100" onClick={handleClose} >
                 <FaChevronUp />
             </div>
         </form>

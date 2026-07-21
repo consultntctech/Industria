@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFetchProducts } from "@/hooks/fetch/useFetchProducts";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { ICategory } from "@/lib/models/category.model";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 // import { ISupplier } from "@/lib/models/supplier.model";
 
 type ProductTypesCompProps = {
@@ -33,8 +33,8 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
 
     const {refetch} = useFetchProducts();
 
-    const isCreator = canUser(user, '28', 'CREATE');
-    const isEditor = canUser(user, '28', 'UPDATE');
+    const isCreator = useCanUser('28', 'CREATE');
+    const isEditor = useCanUser('28', 'UPDATE');
 
     const savedSuppliers = currentProduct?.suppliers as ISupplier[];
     const savedCategory = currentProduct?.category as ICategory;

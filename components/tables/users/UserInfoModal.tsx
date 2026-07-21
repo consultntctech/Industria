@@ -2,9 +2,9 @@ import CustomTabs from '@/components/misc/CustomTabs';
 import DialogueAlet from '@/components/misc/DialogueAlet';
 import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
-import { isDbGlobalAdmin, isGlobalAdmin, isSystemAdmin } from '@/Data/roles/permissions';
+import { isDbGlobalAdmin,  isSystemAdmin } from '@/Data/roles/permissions';
 import { formatDate } from '@/functions/dates';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useIsGlobalAdmin } from '@/hooks/useAuth';
 import { updateUser } from '@/lib/actions/user.action';
 import { IOrganization } from '@/lib/models/org.model';
 import { IRole } from '@/lib/models/role.model';
@@ -34,7 +34,7 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
 
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
-    const isGlobal = isGlobalAdmin(user?.roles);
+    const isGlobal = useIsGlobalAdmin();
     const isG = isDbGlobalAdmin(currentUser?.roles);
     const canSeeActions = (isGlobal || isAdmin) || !isG;
 
@@ -63,6 +63,7 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
             }
             const res = await updateUser(userData);
             enqueueSnackbar(res.message, {variant: res?.error ? 'error':'success'});
+            handleCancel();
             refetch();
             setShowDialog(false);
             handleClose();
@@ -85,11 +86,11 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
         <CustomTabs FirstTabText='Details' activeTab={activeTab} onClickFirstTab={()=>setActiveTab('first')} SecondTabText='Roles' onClickSecondTab={()=>setActiveTab('second')}  showSecondTab={true} />
         {
             activeTab === 'first' &&
-            <div className='flex flex-col gap-4 w-full mt-8' >
+            <div className='flex flex-col w-full gap-4 mt-8' >
 
-                <div className="flex-center w-full">
-                    <div className="flex-center w-fit bg-slate-300 rounded-full p-2">
-                        <div className="h-20 w-20 relative rounded-full">
+                <div className="w-full flex-center">
+                    <div className="p-2 rounded-full flex-center w-fit bg-slate-300">
+                        <div className="relative w-20 h-20 rounded-full">
                             <Image fill className='rounded-full' alt='user' src={currentUser?.photo} />
                         </div>
                     </div>
@@ -141,9 +142,9 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
                         <div className="flex flex-col gap-2.5">
                         {
                             roles.map((role, index)=>(
-                                <div key={index}  className="flex flex-row justify-between gap-4 items-center">
+                                <div key={index}  className="flex flex-row items-center justify-between gap-4">
                                     <Linker tableId='27' link={`/dashboard/roles?Id=${role?._id}`}  linkStyle="link mtext" spanStyle='mtext' placeholder={role?.name} />
-                                    <div onClick={()=>handleRemove(role)}  className="flex-center p-1 rounded-full bg-slate-400 cursor-pointer">
+                                    <div onClick={()=>handleRemove(role)}  className="p-1 rounded-full cursor-pointer flex-center bg-slate-400">
                                         <IoClose />
                                     </div>
                                 </div>
@@ -155,7 +156,7 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
                     }
                     {
                         showButton &&
-                        <div className="flex-center w-full mt-6 gap-4">
+                        <div className="w-full gap-4 mt-6 flex-center">
                             <button onClick={()=>setShowDialog(true)}  className='w-full py-0.5 border border-blue-400 rounded-2xl hover:bg-blue-200 cursor-pointer' >Save</button>
                             <button onClick={handleCancel} className='w-full py-0.5 border border-slate-400 rounded-2xl hover:bg-slate-200 cursor-pointer' >Cancel</button>
                         </div>

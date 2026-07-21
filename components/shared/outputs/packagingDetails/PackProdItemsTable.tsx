@@ -7,8 +7,8 @@ import { GoPencil } from 'react-icons/go'
 import { IProdItem } from '@/lib/models/proditem.model'
 import { IPackage, IProdItemPopulate } from '@/lib/models/package.model'
 import { PackProdItemsColumn } from './PackProdItemsColumn'
-import { canUser } from '@/Data/roles/permissions'
-import { useAuth } from '@/hooks/useAuth'
+import { useCanUser } from '@/hooks/useAuth';
+
 
 type PackProdItemsTableProps = {
     // setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -19,8 +19,7 @@ type PackProdItemsTableProps = {
 const PackProdItemsTable = ({ setOpenItem,  pack}:PackProdItemsTableProps) => {
 
     const materials = pack?.packagingMaterial as unknown as IProdItemPopulate[];
-    const {user} = useAuth();
-    const isEditor  = canUser(user, '99', 'UPDATE');
+    const isEditor  = useCanUser('99', 'UPDATE');
 
 
     // console.log('Materials: ', materials)

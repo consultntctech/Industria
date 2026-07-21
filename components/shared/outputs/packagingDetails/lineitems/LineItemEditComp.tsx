@@ -10,8 +10,7 @@ import { IoIosClose } from "react-icons/io";
 import { FaChevronUp } from "react-icons/fa";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { Tooltip } from "@mui/material";
-import { useAuth } from "@/hooks/useAuth";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 
 type LineItemEditCompProps = {
@@ -26,8 +25,7 @@ const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setC
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<ILineItem>>({});
     const formRef = useRef<HTMLFormElement>(null);
-    const {user} = useAuth();
-    const isEditor = canUser(user, '44', 'UPDATE');
+    const isEditor = useCanUser('44', 'UPDATE');
 
     const {currency} = useCurrencyConfig();
 

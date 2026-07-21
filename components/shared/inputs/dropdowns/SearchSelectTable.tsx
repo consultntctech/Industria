@@ -1,9 +1,10 @@
 // import { useFetchAvailableGoods } from "@/hooks/fetch/useFetchGoods"
 // import { ITable } from "@/lib/models/good.model"
-import { isGlobalAdmin, isSystemAdmin } from "@/Data/roles/permissions"
+import {  isSystemAdmin } from "@/Data/roles/permissions"
 import { TableData } from "@/Data/roles/table"
-import { useAuth } from "@/hooks/useAuth"
-import { ISessionRole, ITable } from "@/types/Types"
+import { useAuth, useIsGlobalAdmin } from "@/hooks/useAuth"
+// import { queryClient } from "@/lib/queryClient";
+import { ITable } from "@/types/Types"
 import { Autocomplete, CircularProgress, TextField } from "@mui/material"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
@@ -16,10 +17,12 @@ type SearchSelectTableProps = {
 const SearchSelectTable = ({setSelect, required, value, width}:SearchSelectTableProps) => {
     // const {goods, isPending} = useFetchAvailableGoods();
     const [search, setSearch] = useState<string>('');
+    const isGlobal = useIsGlobalAdmin();
 
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
-    const isGlobal = isGlobalAdmin(user?.roles as ISessionRole[]);
+    // const roles = queryClient.getQueryData<ISessionRole[]>(['permissions', user?._id]);
+    // const isGlobal = isGlobalAdmin(roles);
     const admin = isAdmin || isGlobal;
 
     const gloAdmin:ITable = {

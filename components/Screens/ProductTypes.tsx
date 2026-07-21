@@ -7,18 +7,16 @@ import { IoMdAddCircle } from "react-icons/io";
 import ProductTable from "../tables/products/ProductTable";
 import { IProduct } from "@/lib/models/product.model";
 import { PermissionGuard } from "@/hooks/permissions/PermissionProvider";
-import { useAuth } from "@/hooks/useAuth";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";
 
 const ProductTypes = () => {
     const [openNew, setOpenNew] = useState(false);
     const [currentProduct, setCurrentProduct] = useState<IProduct | null>(null);
     const {primaryColour} = useSettings();
-    const {user} = useAuth();
-    const isCreator = canUser(user, '28', 'CREATE');
+    const isCreator = useCanUser('28', 'CREATE');
   return (
-    <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
-        <div className="flex w-full items-center flex-row justify-between">
+    <div className="flex flex-col w-full gap-8 ml-4 md:ml-4">
+        <div className="flex flex-row items-center justify-between w-full">
             <Title title="Products" isLink={false}/>
             {
               isCreator &&

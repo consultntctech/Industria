@@ -7,15 +7,13 @@ import Title from '../misc/Title';
 import UserTable from '../tables/users/UserTable';
 import { IUser } from '@/lib/models/user.model';
 import { PermissionGuard } from '@/hooks/permissions/PermissionProvider';
-import { useAuth } from '@/hooks/useAuth';
-import { canUser } from '@/Data/roles/permissions';
+import { useCanUser } from '@/hooks/useAuth';
 
 const UsersScreen = () => {
     const [currentUser, setCurrentUser] = useState<IUser|null>(null);
     const [openNew, setOpenNew] = useState(false);
     const {primaryColour} = useSettings();
-    const {user} = useAuth();
-    const isCreator = canUser(user, '38', 'CREATE');
+    const isCreator = useCanUser('38', 'CREATE');
   return (
      <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
         <div className="flex w-full items-center flex-row justify-between">

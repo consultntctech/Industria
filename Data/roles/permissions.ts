@@ -3,9 +3,11 @@ import { ISession, ISessionRole, OperationName } from "@/types/Types";
 import { INavBarItem } from "@/types/NavBar.types";
 import { IRole } from "@/lib/models/role.model";
 import { Types } from "mongoose";
+import { queryClient } from "@/lib/queryClient";
+
 
 export const normalizeRoles = (
-  roles?: ISession['roles']
+  roles?: ISessionRole[]
 ): ISessionRole[] => {
   if (!Array.isArray(roles)) return [];
   return roles;
@@ -65,15 +67,14 @@ export const canUser = (
 ): boolean => {
   if (!user) return false;
 
-  // 1️⃣ System Admin → everything
   if (isSystemAdmin(user)) return true;
 
-  const roles = normalizeRoles(user.roles);
+  const roles = normalizeRoles(
+    queryClient.getQueryData<ISessionRole[]>(['permissions', user._id])
+  );
 
-  // 2️⃣ Global Admin → everything in org
   if (isGlobalAdmin(roles)) return true;
 
-  // 3️⃣ Explicit permission
   return hasTablePermission(roles, tableId, operation);
 };
 
@@ -82,42 +83,33 @@ export const canUser = (
 
 
 
-
 export const canSeeNavItem = (
   user: ISession | null | undefined,
+  roles: ISessionRole[] | undefined,
   tableids: string[]
 ): boolean => {
   if (!user) return false;
-
-  // 1️⃣ Public route (no permission needed)
   if (tableids.includes(publicTableId)) return true;
-
-  // 2️⃣ System admin only
-  if (tableids.includes(systemAdminOnlyTableId)) {
-    return isSystemAdmin(user);
-  }
-
-  // 3️⃣ System admin override
+  if (tableids.includes(systemAdminOnlyTableId)) return isSystemAdmin(user);
   if (isSystemAdmin(user)) return true;
+  if (isGlobalAdmin(roles)) return true;
 
-  // 4️⃣ At least ONE table must be readable
   return tableids.some(tableId =>
-    canUser(user, tableId, 'READ')
+    hasTablePermission(normalizeRoles(roles), tableId, 'READ')
   );
 };
 
-
-
 export const filterNavLinks = (
   user: ISession | null | undefined,
+  roles: ISessionRole[] | undefined,
   links: INavBarItem[]
 ): INavBarItem[] => {
   return links.reduce<INavBarItem[]>((acc, link) => {
     const filteredSubMenu = link.subMenu
-      ? filterNavLinks(user, link.subMenu)
+      ? filterNavLinks(user, roles, link.subMenu)   // roles passed down here
       : undefined;
 
-    const canSeeParent = canSeeNavItem(user, link.tableids);
+    const canSeeParent = canSeeNavItem(user, roles, link.tableids);
     const hasVisibleChildren = Boolean(filteredSubMenu?.length);
 
     if (!canSeeParent && !hasVisibleChildren) {
@@ -132,4 +124,7 @@ export const filterNavLinks = (
     return acc;
   }, []);
 };
+
+
+
 

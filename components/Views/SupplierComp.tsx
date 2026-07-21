@@ -6,10 +6,9 @@ import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
 import { Switch } from "@mui/material";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { createSupplier, updateSupplier } from "@/lib/actions/supplier.action";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, useCanUser } from "@/hooks/useAuth";
 import { enqueueSnackbar } from "notistack";
 import { useFetchSuppliers } from "@/hooks/fetch/useFetchSuppliers";
-import { canUser } from "@/Data/roles/permissions";
 
 type SupplierCompProps = {
     openNew:boolean;
@@ -26,8 +25,8 @@ const SupplierComp = ({openNew, setOpenNew, currentSupplier, setCurrentSupplier}
     const {user} = useAuth()
     const {refetch} = useFetchSuppliers();
 
-    const isCreator = canUser(user, '41', 'CREATE');
-    const isEditor = canUser(user, '41', 'UPDATE');
+    const isCreator = useCanUser('41', 'CREATE');
+    const isEditor = useCanUser('41', 'UPDATE');
 
     const formRef = useRef<HTMLFormElement>(null);
 

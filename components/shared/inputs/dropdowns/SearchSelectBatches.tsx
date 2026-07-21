@@ -9,14 +9,16 @@ type SearchSelectBatchesProps = {
     width?: number,
     required?:boolean,
     type?:'Raw Material'|'Finished Good' |'Packaging',
+    disabled?:boolean
 }
-const SearchSelectBatches = ({setSelect, type, required, value, width}:SearchSelectBatchesProps) => {
+const SearchSelectBatches = ({setSelect, type, required, value, width, disabled}:SearchSelectBatchesProps) => {
     const {batches, isPending} = useBatches(type);
     const [search, setSearch] = useState<string>('');
 
     return(
         <Autocomplete
             disablePortal
+            disabled={disabled}
             options={batches}
             onChange={(e, item:IBatch|null)=>{
                 console.log(e.target)

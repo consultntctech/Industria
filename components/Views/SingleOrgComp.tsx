@@ -10,8 +10,8 @@ import {  updateOrg } from "@/lib/actions/org.action";
 import Image from "next/image";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { LinearProgress } from "@mui/material";
-import { useAuth } from "@/hooks/useAuth";
-import { canUser, isSystemAdmin } from "@/Data/roles/permissions";
+import { useAuth, useCanUser } from "@/hooks/useAuth";
+import { isSystemAdmin } from "@/Data/roles/permissions";
 
 type SingleOrgCompProps = {
  currentOrganization: IOrganization | null | undefined;
@@ -27,8 +27,8 @@ const SingleOrgComp = ({currentOrganization, isPending, refetch}:SingleOrgCompPr
 
   const {user} = useAuth();
 
-  const isCreator = canUser(user, '48', 'CREATE');
-  const isEditor = canUser(user, '48', 'UPDATE');
+  const isCreator = useCanUser('48', 'CREATE');
+  const isEditor = useCanUser('48', 'UPDATE');
 
   const isAdmin = isSystemAdmin(user);
 

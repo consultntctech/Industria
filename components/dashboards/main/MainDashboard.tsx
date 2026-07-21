@@ -6,17 +6,16 @@ import DashInventoryLineChart from "./DashInventoryLineChart"
 import DashRejectionBarChart from "./DashRejectionBarChart"
 import DashProductionBarChart from "./DashProductionBarChart"
 import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
-import { canUser } from "@/Data/roles/permissions"
-import { useAuth } from "@/hooks/useAuth"
+import { useCanUser } from "@/hooks/useAuth"
 import UserMainDashMainComponent from "./UserMainDashMainComponent"
 
 const MainDashboard = () => {
   const {dashboardStats, isPending} = useFetchDashboardStats();
-  const {user} = useAuth();
-  const finance = canUser(user, '97', 'READ');
+  // const {user} = useAuth();
+  const finance = useCanUser('97', 'READ');
   return (
     <PermissionGuard tableId= {['0']} >
-      <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
+      <div className="flex flex-col w-full gap-8 ml-4 md:ml-4">
           <div className="flex flex-col">
               <Title showback={false} title="Dashboard Overview" isLink={false}/>
               <span className="greyText">Comprehensive insights into manufacturing operations</span>

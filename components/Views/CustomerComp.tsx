@@ -9,7 +9,7 @@ import { createCustomer, updateCustomer } from "@/lib/actions/customer.action";
 import { useAuth } from "@/hooks/useAuth";
 import { enqueueSnackbar } from "notistack";
 import { useFetchCustomers } from "@/hooks/fetch/useFetchCustomers";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 type CustomerCompProps = {
     openNew:boolean;
@@ -25,8 +25,8 @@ const CustomerComp = ({openNew, setOpenNew, currentCustomer, setCurrentCustomer}
     
     const {user} = useAuth()
     const {refetch} = useFetchCustomers();
-    const isCustomerCreator = canUser(user, '33', 'CREATE');
-    const isCustomerEditor = canUser(user, '33', 'UPDATE');
+    const isCustomerCreator = useCanUser('33', 'CREATE');
+    const isCustomerEditor = useCanUser('33', 'UPDATE');
 
     const formRef = useRef<HTMLFormElement>(null);
 

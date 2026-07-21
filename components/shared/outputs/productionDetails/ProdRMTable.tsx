@@ -7,8 +7,7 @@ import {  IRMaterial, IRMaterialPopulate } from '@/lib/models/rmaterial.mode'
 import { ProdRMColumns } from './ProdRMColumn'
 import { IProduction } from '@/lib/models/production.model'
 import { GoPencil } from 'react-icons/go'
-import { useAuth } from '@/hooks/useAuth'
-import { canUser } from '@/Data/roles/permissions'
+import { useCanUser } from '@/hooks/useAuth'
 
 type ProdRMTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -19,8 +18,7 @@ type ProdRMTableProps = {
 const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
 
     const materials = production?.ingredients as unknown as IRMaterialPopulate[];
-    const {user} = useAuth();
-    const isEditor = canUser(user, '8', 'UPDATE');
+    const isEditor = useCanUser('8', 'UPDATE');
 
     // console.log('Materials: ', materials);
 

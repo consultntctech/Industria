@@ -6,14 +6,12 @@ import ProdItemComp from "../Views/ProdItemComp";
 import ProdItemTable from "../tables/proditems/ProdItemTable";
 import { IProdItem } from "@/lib/models/proditem.model";
 import { PermissionGuard } from "@/hooks/permissions/PermissionProvider";
-import { useAuth } from "@/hooks/useAuth";
-import { canUser } from "@/Data/roles/permissions";
+import {  useCanUser } from "@/hooks/useAuth";
 
 const ProdItems = () => {
     const [openNew, setOpenNew] = useState(false);
     const [currentProdItem, setCurrentProdItem] = useState<IProdItem | null>(null);
-    const {user} = useAuth();
-    const isCreator = canUser(user, '12', 'CREATE');
+    const isCreator = useCanUser( '12', 'CREATE');
 
   return (
     <TopContent showAdd={isCreator} isLink={false} title="Packaging Materials" openNew={openNew} setOpenNew={setOpenNew}>

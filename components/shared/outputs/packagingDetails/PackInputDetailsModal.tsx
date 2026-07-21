@@ -24,8 +24,7 @@ import { IQGSelector } from "@/types/Types";
 import SearchSelectProducts from "../../inputs/dropdowns/SearchSelectProducts";
 import SearchSelectAvMultipleGoods from "../../inputs/dropdowns/SearchSelectAvMultipleGoods";
 import GoodsQSelector from "@/components/misc/GoodsQSelector";
-import { useAuth } from "@/hooks/useAuth";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";
 
 type PackInputDetailsModalProps = {
     openNew:boolean;
@@ -46,8 +45,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
     const [product, setProduct] = useState<IProduct | null>(null);
     const [newGoods, setNewGoods] = useState<IGood[]>([]);
     const [goodItems, setGoodItems] = useState<IQGSelector[]>([]);
-    const {user} = useAuth();
-    const isEditor = canUser(user, '99', 'UPDATE');
+    const isEditor = useCanUser('99', 'UPDATE');
 
     const router = useRouter();
     

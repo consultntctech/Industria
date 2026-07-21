@@ -16,10 +16,9 @@ import { IRMaterial } from '@/lib/models/rmaterial.mode';
 import { IIngredient } from '@/types/Types';
 import {  updateProductionIngredients } from '@/lib/actions/production.action';
 import { enqueueSnackbar } from 'notistack';
-import { useAuth } from '@/hooks/useAuth';
-import { canUser } from '@/Data/roles/permissions';
 import { IBatch } from '@/lib/models/batch.model';
 import '@/styles/customscroll.css'
+import { useCanUser } from '@/hooks/useAuth';
 
 type ProductionContentModalProps = {
   openNew:boolean;
@@ -41,8 +40,7 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
 //   const [productionCost, setProductionCost] = useState(0);
   const [productBatchId, setProductBatchId] = useState<string>('');
 
-  const {user} = useAuth();
-  const isEditor = canUser(user, '8', 'UPDATE');
+  const isEditor = useCanUser('8', 'UPDATE');
   const batch = production?.batch as IBatch;
 
   const formRef = React.useRef<HTMLFormElement>(null);
@@ -203,12 +201,12 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
                                 <>
                                     <GenericLabel
                                         label="Pick a batch to select raw materials"
-                                        input={<SearchSelectBatches value={batch} type="Raw Material" setSelect={setProductBatchId} />}
+                                        input={<SearchSelectBatches disabled value={batch} type="Raw Material" setSelect={setProductBatchId} />}
                                     />
                                     
                                     <GenericLabel
                                         label="Select raw materials"
-                                        input={<SearchSelectAvMultipleRMaterials value={oldRawMaterials} setSelection={setRawMaterials} batchId={productBatchId} />}
+                                        input={<SearchSelectAvMultipleRMaterials disabled value={oldRawMaterials} setSelection={setRawMaterials} batchId={productBatchId} />}
                                     />
 
                                     {

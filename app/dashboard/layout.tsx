@@ -10,11 +10,11 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-      <div className="w-full flex flex-col gap-4 bg-white">
+      <div className="flex flex-col w-full gap-4 bg-white">
           <Header/>
-          <div className="flex justify-between flex-row w-full items-start gap-6">
+          <div className="flex flex-row items-start justify-between w-full gap-6">
               <NavBar/>
-              <div className="flex flex-row justify-center flex-1 ml-4 p-4">
+              <div className="flex flex-row justify-center flex-1 p-4 ml-4">
                   {children}
               </div>
           </div>

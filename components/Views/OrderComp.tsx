@@ -17,7 +17,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { createOrder, updateOrder } from "@/lib/actions/order.action";
 import { enqueueSnackbar } from "notistack";
 import { formatDate } from "@/functions/dates";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 
 type OrderCompProps = {
@@ -36,8 +36,8 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
   const {currency} = useCurrencyConfig();
   const utils = useQueryClient();
   const {user} = useAuth();
-  const isCreator = canUser(user, '86', 'CREATE');
-  const isEditor = canUser(user, '86', 'UPDATE');
+  const isCreator = useCanUser('86', 'CREATE');
+  const isEditor = useCanUser('86', 'UPDATE');
 
   const savedCustomer = currentOrder?.customer as ICustomer;
   const savedProduct = currentOrder?.product as IProduct;

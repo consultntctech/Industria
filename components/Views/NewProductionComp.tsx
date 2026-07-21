@@ -21,7 +21,7 @@ import { useRouter } from "next/navigation";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import SearchSelectBatchesWithRM from "../shared/inputs/dropdowns/SearchSelectBatchesWithRM";
 import { IUser } from "@/lib/models/user.model";
-import { canUser } from "@/Data/roles/permissions";
+import {useCanUser } from "@/hooks/useAuth";;
 
 const NewProductionComp = () => {
     const [loading, setLoading] = useState(false);
@@ -43,7 +43,7 @@ const NewProductionComp = () => {
     const {user} = useAuth();
     const {currency} = useCurrencyConfig();
 
-    const isCreator = canUser(user, '8', 'CREATE');
+    const isCreator = useCanUser('8', 'CREATE');
 
     useEffect(() => {
         const price = rawMaterials.reduce((sum, material) => {

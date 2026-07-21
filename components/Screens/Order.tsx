@@ -6,14 +6,12 @@ import OrderComp from "../Views/OrderComp";
 import { IOrder } from "@/lib/models/order.model";
 import OrderTable from "../tables/orders/OrderTable";
 import { PermissionGuard } from "@/hooks/permissions/PermissionProvider";
-import { useAuth } from "@/hooks/useAuth";
-import { canUser } from "@/Data/roles/permissions";
+import { useCanUser } from "@/hooks/useAuth";
 
 const Order = () => {
     const [openNew, setOpenNew] = useState(false);
     const [currentOrder, setCurrentOrder] = useState<IOrder | null>(null);
-    const {user} = useAuth();
-    const isCreator = canUser(user, '86', 'CREATE');
+    const isCreator = useCanUser('86', 'CREATE');
   return (
     <TopContent showAdd={isCreator} isLink={false} title="Orders" openNew={openNew} setOpenNew={setOpenNew}>
       <PermissionGuard tableId={['86']} >

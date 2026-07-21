@@ -5,14 +5,12 @@ import TopContent from '../misc/TopContent'
 import RoletemplatesTable from '../tables/roletemplates/RoletemplatesTable'
 import { IRoleTemplate } from '@/lib/models/roletemplate.model'
 import { PermissionGuard } from '@/hooks/permissions/PermissionProvider'
-import { useAuth } from '@/hooks/useAuth'
-import { canUser } from '@/Data/roles/permissions'
+import {  useCanUser } from '@/hooks/useAuth'
 
 const Roletemplate = () => {
     const [openNew, setOpenNew] = useState(false);
     const [currentRoletemplate, setCurrentRoletemplate] = useState<IRoleTemplate | null>(null);
-    const {user} = useAuth();
-    const isCreator = canUser(user, '23', 'CREATE');
+    const isCreator = useCanUser('23', 'CREATE');
   return (
     <TopContent showAdd={isCreator} isLink={false} title="Role Templates" openNew={openNew} setOpenNew={setOpenNew}>
       <PermissionGuard tableId={['23']} >

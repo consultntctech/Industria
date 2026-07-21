@@ -8,6 +8,8 @@ import { FaChevronUp, FaChevronDown } from "react-icons/fa";
 import { flattenNav } from "@/functions/helpers";
 import { useAuth } from "@/hooks/useAuth";
 import { filterNavLinks } from "@/Data/roles/permissions";
+import { skipToken, useQuery } from "@tanstack/react-query";
+import { ISessionRole } from "@/types/Types";
 
 type NavBarContentProps = {
   isNavOpen: boolean;
@@ -15,10 +17,16 @@ type NavBarContentProps = {
 
 const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
   const { user } = useAuth();
+  const { data: roles } = useQuery<ISessionRole[]>({
+    queryKey: ['permissions', user?._id],
+    queryFn: skipToken,
+    enabled: Boolean(user),
+  });
+  
   const links = useMemo(
-  () => filterNavLinks(user, NavLinks()),
-  [user]
-);
+    () => filterNavLinks(user, roles, NavLinks()),
+    [user, roles]
+  );
   const pathname = usePathname();
 
   const [currentItem, setCurrentItem] = useState<INavBarItem | null>(links?.[0] ?? null);
