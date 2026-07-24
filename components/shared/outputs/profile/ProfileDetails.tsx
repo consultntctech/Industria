@@ -12,6 +12,7 @@ import { updateUserV2 } from "@/lib/actions/user.action";
 import { enqueueSnackbar } from "notistack";
 import { ISession } from "@/types/Types";
 import { createSession } from "@/lib/session";
+import { useCanUser } from "@/hooks/useAuth";
 // import { useAuth } from "@/hooks/useAuth";
 
 const ProfileDetails = () => {
@@ -21,6 +22,7 @@ const ProfileDetails = () => {
     const [data, setData] = useState<Partial<IUser>>({});
     const [loading, setLoading] = useState(false);
     const [logo, setLogo] = useState<{url:string, filename:string}>({url:'', filename:''});
+    const editor =  useCanUser('15', 'UPDATE');
 
     // const {user} = useAuth();
     // console.log('User: ', user)
@@ -98,10 +100,10 @@ const ProfileDetails = () => {
                     }
                     <div className="flex flex-col lg:flex-row gap-4 items-stretch">
                     <div className="flex gap-4 flex-col w-full">
-                        <InputWithLabel defaultValue={userProfile?.name} readOnly onChange={onChange} name="name" required placeholder="enter name" label="Name" className="w-full" />
+                        <InputWithLabel defaultValue={userProfile?.name} readOnly={!editor} onChange={onChange} name="name" required placeholder="enter name" label="Name" className="w-full" />
                         <InputWithLabel defaultValue={userProfile?.address} onChange={onChange} name="address" required placeholder="enter address" label="Address" className="w-full" />
                         <InputWithLabel defaultValue={userProfile?.phone} onChange={onChange} name="phone" required placeholder="enter phone" label="Phone" className="w-full" />
-                        <InputWithLabel defaultValue={userProfile?.email} readOnly onChange={onChange} name="email" required type="email" placeholder="enter email" label="Email" className="w-full" />
+                        <InputWithLabel defaultValue={userProfile?.email} readOnly={!editor} onChange={onChange} name="email" required type="email" placeholder="enter email" label="Email" className="w-full" />
                     </div>
             
                     <div className="flex gap-4 flex-col w-full justify-between">
@@ -109,7 +111,7 @@ const ProfileDetails = () => {
                             <span className="smallText" >Profile picture</span>
                             <Uploader text={logo?.filename ? logo?.filename : 'Upload Image' } onSuccess={cloudinarySuccess} />
                         </div>
-                        <TextAreaWithLabel defaultValue={userProfile?.description} readOnly name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
+                        <TextAreaWithLabel defaultValue={userProfile?.description} readOnly={!editor} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                         <PrimaryButton loading={loading} type="submit" text={loading?"loading" : "Update"} className="w-full mt-4" />
                     </div>
                     </div>
