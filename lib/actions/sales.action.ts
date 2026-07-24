@@ -315,10 +315,49 @@ export async function getSale(id:string):Promise<IResponse>{
 }
 
 
-export async function updateSales(data:Partial<ISales>):Promise<IResponse>{
+
+export async function updateSales(data: Partial<ISales>): Promise<IResponse> {
     try {
         await connectDB();
+
+        const existingSales = await Sales.findById(data._id);
+        if (!existingSales) {
+            return respond('Sales record not found', true, {}, 404);
+        }
+
+        const previousProductIds: string[] = (existingSales.products || []).map(
+            (id: Types.ObjectId | string) => id.toString()
+        );
+        const newProductIds: string[] = (data.products || []).map(
+            (id) => id.toString()
+        );
+
+        // Items that were in the sale before but are no longer selected
+        const droppedIds = previousProductIds.filter(
+            id => !newProductIds.includes(id)
+        );
+
+        // Items newly added to the sale that weren't there before
+        const addedIds = newProductIds.filter(
+            id => !previousProductIds.includes(id)
+        );
+
         const updatedSales = await Sales.findByIdAndUpdate(data._id, data, { new: true });
+
+        if (droppedIds.length > 0) {
+            await LineItem.updateMany(
+                { _id: { $in: droppedIds } },
+                { $set: { status: 'Available', soldTo: null } }
+            );
+        }
+
+        if (addedIds.length > 0) {
+            await LineItem.updateMany(
+                { _id: { $in: addedIds } },
+                { $set: { status: 'Sold', soldTo: data.customer } }
+            );
+        }
+
         return respond('Sales updated successfully', false, updatedSales, 200);
     } catch (error) {
         console.log(error);

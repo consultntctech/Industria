@@ -38,6 +38,16 @@ export const CustomersColoumns = (
             headerName: 'Address',
             width:150,
         },
+        {
+            field: 'baddress',
+            headerName: 'Billing Address',
+            width:150,
+        },
+        {
+            field: 'saddress',
+            headerName: 'Shipping Address',
+            width:150,
+        },
 
         {
             field: 'person',
@@ -84,16 +94,23 @@ export const CustomersColoumns = (
             width:170,
             valueFormatter: (_, row:ICustomer)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return  creator.name || row?.creator || '';
             },
             valueGetter: (_, row:ICustomer)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return  creator.name || row?.creator || '';
             },
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                    <>
+                    {
+                        creator?
+                        <Link href={`/dashboard/users?Id=${creator?._id}`} className="link" >{creator?.name}</Link>
+                        :
+                        <span className="">{params?.row?.creator}</span>
+                    }
+                    </>
                 )
             }
         },

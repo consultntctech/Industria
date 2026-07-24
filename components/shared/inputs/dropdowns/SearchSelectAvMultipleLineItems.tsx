@@ -13,11 +13,12 @@ type SearchSelectAvMultipleLineItemsProps = {
     isPending: boolean;
     productId: string;
     width?:number;
+    disabled?:boolean
     required?:boolean;
     // value?:ILineItem[];
 }
 
-const SearchSelectAvMultipleLineItems = ({setSelection, selection, items, isPending, productId, width, required}:SearchSelectAvMultipleLineItemsProps) => {
+const SearchSelectAvMultipleLineItems = ({setSelection, selection, disabled, items, isPending, productId, width, required}:SearchSelectAvMultipleLineItemsProps) => {
     const [search, setSearch] = useState<string>('');
     
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -31,7 +32,7 @@ const SearchSelectAvMultipleLineItems = ({setSelection, selection, items, isPend
         multiple
         filterSelectedOptions
         value={selection}
-        
+        disabled={disabled}
         options={items}
         onChange={(_, items:ILineItem[])=>{
             // const fixed = fixedSelection ?? [];

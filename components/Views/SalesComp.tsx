@@ -1,28 +1,24 @@
 import { useAuth } from "@/hooks/useAuth";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
 import { FaChevronUp } from "react-icons/fa";
 
 import { enqueueSnackbar } from "notistack";
-import { IProduct } from "@/lib/models/product.model";
-import GenericLabel from "../shared/inputs/GenericLabel";
-import SearchSelectProducts from "../shared/inputs/dropdowns/SearchSelectProducts";
 import { ILineItem } from "@/lib/models/lineitem.model";
-import SearchSelectAvMultipleLineItems from "../shared/inputs/dropdowns/SearchSelectAvMultipleLineItems";
-import CustomCheckV2 from "../misc/CustomCheckV2";
 import { ICustomer } from "@/lib/models/customer.model";
 import SearchSelectCustomers from "../shared/inputs/dropdowns/SearchSelectCustomers";
-import { useFetchAvailableLineItemsByProduct } from "@/hooks/fetch/useFetchLineItems";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { ISales } from "@/lib/models/sales.model";
 import { createSales, updateSales } from "@/lib/actions/sales.action";
 import { useRouter } from "next/navigation";
 // import { useFetchSales } from "@/hooks/fetch/useFetchSales";
 import { useQueryClient } from "@tanstack/react-query";
-import SearchSelectBatchesWithLineItems from "../shared/inputs/dropdowns/SearchSelectBatchesWithLineItems";
-import {useCanUser } from "@/hooks/useAuth";;
+// import SearchSelectBatchesWithLineItems from "../shared/inputs/dropdowns/SearchSelectBatchesWithLineItems";
+import {useCanUser } from "@/hooks/useAuth";import { getProductCounts } from "@/functions/helpers";
+import SalesLineItemsTable from "../tables/sales/SalesLineItemsTable";
+;
 
 type SalesCompProps = {
   openNew:boolean;
@@ -33,16 +29,16 @@ type SalesCompProps = {
 
 const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCompProps) => {
     const [loading, setLoading] = useState(false);
-    const [product, setProduct] = useState<IProduct | null>(null);
+    // const [product, setProduct] = useState<IProduct | null>(null);
     const [lineItems, setLineItems] = useState<ILineItem[]>([]);
-    const [isSelectedAll, setIsSelectedAll] = useState<boolean>(false);
+    // const [isSelectedAll, setIsSelectedAll] = useState<boolean>(false);
     const [customer, setCustomer] = useState<ICustomer | null>(null);
     const [data, setData] = useState<Partial<ISales>>({});
-    const [batch, setBatch] = useState<string>('');
+    // const [batch, setBatch] = useState<string>('');
     const {user} = useAuth();
     const {currency} = useCurrencyConfig();
 
-    const {lineItems:items, isPending} = useFetchAvailableLineItemsByProduct(product?._id as string, batch);
+    // const {lineItems:items, isPending} = useFetchAvailableLineItemsByProduct(product?._id as string, batch);
 
     const isCreator = useCanUser('82', 'CREATE');
     const isEditor = useCanUser('82', 'UPDATE');
@@ -51,28 +47,16 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
     // console.log('Items: ', items.length)
     const formRef = useRef<HTMLFormElement>(null);
     const router = useRouter();
-    const savedItems = currentSales?.products as ILineItem[];
+    const savedItems = (currentSales?.products || []) as ILineItem[];
     const savedCustomer = currentSales?.customer as ICustomer;
     const utils = useQueryClient();
 
+    // console.log('LineItems: ', currentSales);
 
+    const needed= useMemo(()=>getProductCounts(lineItems), [lineItems]);
     // console.log('Saved Customer: ', savedCustomer)
 
-    useEffect(()=>{
-         if(isSelectedAll){
-            setLineItems(prev =>
-                [
-                    ...prev,
-                    ...items.filter(item => 
-                    !prev.some(line => line._id === item._id)
-                    )
-                ]
-            );
-
-        }else{
-            setLineItems([]);
-        }
-    }, [isSelectedAll])
+   
 
     useEffect(()=>{
         if(currentSales){
@@ -173,15 +157,15 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                 
                 <div className="flex flex-col  gap-4 items-stretch">
                     <div className="flex flex-col gap-4 w-full">
-                        <div className="flex gap-4 flex-col w-full md:flex-row ">
+                        {/* <div className="flex gap-4 flex-col w-full md:flex-row ">
                             <GenericLabel label="Product"
                                 input={<SearchSelectProducts required={!currentSales} type="Finished Good" setSelect={setProduct} />}
                             />
                             <GenericLabel label="Batch (optional)"
                                 input={<SearchSelectBatchesWithLineItems setSelect={setBatch} />}
                             />
-                        </div>
-                        <div className="flex gap-4 flex-col w-full md:flex-row ">
+                        </div> */}
+                        {/* <div className="flex gap-4 flex-col w-full md:flex-row ">
                             <InputWithLabel onChange={onChange} name="quantity"  min={1} placeholder="eg. 10" label="Quantity to search for" className="w-full" />
                             <div className="flex flex-row gap-2 items-center w-full">
                                 <GenericLabel label="Pick products"
@@ -194,7 +178,9 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                                 
                             </div>
                         </div>
-                        <span>{lineItems?.length} / {items?.length} products selected</span>
+                        <span>{lineItems?.length} / {items?.length} products selected</span> */}
+                        
+                        <SalesLineItemsTable currentSales={currentSales} needed={needed} lines={lineItems} setLines={setLineItems} />
 
                         <div className="flex gap-4 flex-col w-full md:flex-row ">
                             <InputWithLabel defaultValue={currentSales?.discount} min={0} step={0.001} label={currency ? `Discount amount ${currency?.symbol}`:`Discount amount`} type="number" onChange={onChange} name="discount" />

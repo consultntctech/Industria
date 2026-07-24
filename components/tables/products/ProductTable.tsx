@@ -24,6 +24,8 @@ const ProductTable = ({setOpenNew, currentProduct, setCurrentProduct}:ProductTab
     const searchParams = useSearchParams();
     const productId = searchParams.get("Id");
 
+    // console.log('Current Product: ', currentProduct)
+
     useEffect(() => {
         if (!productId) return;
 
@@ -36,8 +38,8 @@ const ProductTable = ({setOpenNew, currentProduct, setCurrentProduct}:ProductTab
 
             const userData = res.payload as IProduct;
             if (!res.error) {
-                setCurrentProduct(userData);
                 setShowInfo(true);
+                setCurrentProduct(userData);
             }
             } catch (error) {
             if (isMounted) {

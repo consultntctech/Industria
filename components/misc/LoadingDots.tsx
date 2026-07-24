@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { twMerge } from "tailwind-merge";
 
 export type LoadingDotsProps = {
   /** Controls whether the dots are animating */
@@ -45,15 +46,15 @@ export default function LoadingDots({
 
   return (
     <span
-      className={`inline-flex items-center gap-1 ${className}`}
+      className={twMerge("inline-flex items-center", className)}
       style={style}
       aria-live="polite"
       aria-atomic="true"
     >
-      <span className="select-none">{text}</span>
+      <span className={twMerge("select-none", className)}>{text}</span>
       {
         loading &&
-        <span className="w-8 text-left">{dots}</span>
+        <span className={twMerge("w-8 text-left", className)}>{dots}</span>
       }
     </span>
   );

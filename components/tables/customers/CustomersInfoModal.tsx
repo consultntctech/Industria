@@ -49,6 +49,14 @@ const CustomersInfoModal = ({infoMode, setInfoMode, currentCustomer, setCurrentC
                 <span className="mtext">{currentCustomer?.address || 'None'}</span>
             </div>
             <div className="flex flex-col">
+                <span className="mlabel">Billing Address</span>
+                <span className="mtext">{currentCustomer?.baddress || 'None'}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Shipping Address</span>
+                <span className="mtext">{currentCustomer?.saddress || 'None'}</span>
+            </div>
+            <div className="flex flex-col">
                 <span className="mlabel">Active</span>
                 <span className="mtext">{currentCustomer?.isActive ?'Yes':'No'}</span>
             </div>
@@ -67,7 +75,11 @@ const CustomersInfoModal = ({infoMode, setInfoMode, currentCustomer, setCurrentC
             </div>
              <div className="flex flex-col">
                 <span className="mlabel">Created By</span>
-                <Linker tableId='38'  link={`/dashboard/users?Id=${creator?._id}`}  linkStyle="mtext link" spanStyle='mtext' placeholder={creator?.name || 'None'} />
+                {
+                    creator?
+                    <Linker tableId='38'  link={`/dashboard/users?Id=${creator?._id}`}  linkStyle="mtext link" spanStyle='mtext' placeholder={creator?.name || 'None'} />:
+                    <span className="mtext">{currentCustomer?.creator || 'Unknown'}</span>
+                }
             </div>
             {
                 isAdmin &&

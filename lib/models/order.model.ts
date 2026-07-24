@@ -8,11 +8,13 @@ import { models } from "mongoose";
 export interface IOrder extends Document {
     _id: string;
     customer: string | Types.ObjectId | ICustomer;
-    product: string | Types.ObjectId | IProduct;
+    products: { product: string | Types.ObjectId | IProduct, quantity: number }[];
     quantity: number;
     price: number;
     deadline: string;
     fulfilledAt: string;
+    instruction: string;
+    creator: string;
     description: string;
     status: string;
     createdBy: string | Types.ObjectId | IUser;
@@ -23,10 +25,12 @@ export interface IOrder extends Document {
 
 const OrderSchema = new Schema<IOrder>({
     customer: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
-    product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+    products: [{ product:{type: Schema.Types.ObjectId, ref: 'Product', required: true}, quantity: Number }],
     quantity: { type: Number, required: false, default: 1 },
     price: { type: Number, required: false, default: 0 },
     deadline: { type: String, required: false },
+    instruction: String,
+    creator: String,
     fulfilledAt: { type: String, required: false },
     description: { type: String, required: false },
     status: { type: String, required: true, default: 'Pending' },
@@ -36,3 +40,22 @@ const OrderSchema = new Schema<IOrder>({
 
 const Order = models?.Order || model<IOrder>('Order', OrderSchema);
 export default Order;
+
+
+// export interface IOrder extends Document {
+//     _id: string;
+//     customer: string | Types.ObjectId | ICustomer;
+//     product: string | Types.ObjectId | IProduct;
+//     quantity: number;
+//     price: number;
+//     deadline: string;
+//     fulfilledAt: string;
+//     instruction: string;
+//     creator: string;
+//     description: string;
+//     status: string;
+//     createdBy: string | Types.ObjectId | IUser;
+//     org: string | Types.ObjectId | IOrganization;
+//     createdAt: string;
+//     updatedAt: string;
+// }

@@ -4,7 +4,7 @@ import { IOrder } from "@/lib/models/order.model";
 import { IProduct } from "@/lib/models/product.model";
 import { IRole } from "@/lib/models/role.model";
 import { INavBarItem } from "@/types/NavBar.types";
-import { IOperation, ISoldItem } from "@/types/Types";
+import { IOperation, ISession, ISoldItem } from "@/types/Types";
 
 export function generatePassword(length: number): string {
   const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -44,7 +44,7 @@ export function arraysEqual(a:string[], b:string[]) {
 
 
 export function getProductCounts(items: ILineItem[]):ISoldItem[] {
-  const counts = new Map<string, { name: string; quantity: number }>();
+  const counts = new Map<string, { name: string; quantity: number, package?: string }>();
 
   for (const item of items) {
     const product = item.product as IProduct; // fully populated
@@ -52,7 +52,8 @@ export function getProductCounts(items: ILineItem[]):ISoldItem[] {
     if (!counts.has(product._id)) {
       counts.set(product._id, {
         name: product.name,
-        quantity: 1
+        quantity: 1,
+        package: item?.package?.toString()
       });
     } else {
       counts.get(product._id)!.quantity++;
@@ -62,7 +63,8 @@ export function getProductCounts(items: ILineItem[]):ISoldItem[] {
   return Array.from(counts, ([id, data]) => ({
     id,
     name: data.name,
-    quantity: data.quantity
+    quantity: data.quantity,
+    package: data?.package
   }));
 }
 
@@ -247,3 +249,9 @@ export function validatePasswordReset(
     message: 'Password is valid'
   };
 }
+
+
+export const saveCreator = (creator:ISession | null | undefined):string=>{
+  if(!creator) return '';
+  return creator.name;
+};

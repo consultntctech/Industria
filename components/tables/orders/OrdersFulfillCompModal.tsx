@@ -1,27 +1,26 @@
 import CustomCheckV2 from "@/components/misc/CustomCheckV2";
 import PrimaryButton from "@/components/shared/buttons/PrimaryButton";
-import SearchSelectAvMultipleLineItems from "@/components/shared/inputs/dropdowns/SearchSelectAvMultipleLineItems";
-import SearchSelectBatches from "@/components/shared/inputs/dropdowns/SearchSelectBatches";
 import GenericLabel from "@/components/shared/inputs/GenericLabel";
 import InputWithLabel from "@/components/shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "@/components/shared/inputs/TextAreaWithLabel";
 import ModalContainer from "@/components/shared/outputs/ModalContainer";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
-import { useFetchAvailableLineItemsByProduct } from "@/hooks/fetch/useFetchLineItems";
 import { useAuth } from "@/hooks/useAuth";
 import { updateOrder } from "@/lib/actions/order.action";
 import { createSales } from "@/lib/actions/sales.action";
 import { ICustomer } from "@/lib/models/customer.model";
 import { ILineItem } from "@/lib/models/lineitem.model";
 import { IOrder } from "@/lib/models/order.model";
-import { IProduct } from "@/lib/models/product.model";
 import { ISales } from "@/lib/models/sales.model";
 import { QueryObserverResult, RefetchOptions, useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-import { Dispatch,  SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch,  SetStateAction,  useRef, useState } from "react";
 import { FaChevronUp } from "react-icons/fa";
 import '@/styles/customscroll.css'
-import {useCanUser } from "@/hooks/useAuth";;
+import {useCanUser } from "@/hooks/useAuth";import OrderLineItemsTable from "./OrderLineItemsTable";
+import { IProduct } from "@/lib/models/product.model";
+import { INeed, OrderSelectType } from "@/types/Types";
+;
 
 type OrdersFulfillCompModalProps = {
     currentOrder: IOrder | null;
@@ -33,17 +32,27 @@ type OrdersFulfillCompModalProps = {
 
 const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, setOpen}:OrdersFulfillCompModalProps) => {
     const [loading, setLoading] = useState(false);
-    const [batch, setBatch] = useState<string>('');
+    // const [batch, setBatch] = useState<string>('');
     const [lineItems, setLineItems] = useState<ILineItem[]>([]);
-    const [isSelectedAll, setIsSelectedAll] = useState(false);
     const [isExtraCharges, setIsExtraCharges] = useState(false);
     const [data, setData] = useState<Partial<ISales>>({price:currentOrder?.price});
+    const items = currentOrder?.products as OrderSelectType[];
     
-    
-    const product = currentOrder?.product as IProduct;
+    const needed:INeed[] = items?.map(item =>{
+        const product = item.product as IProduct;
+        return ({
+            product:product?.name,
+            quantity:item.quantity,
+            selected: lineItems.filter(line => {
+                const lineProduct = line.product as IProduct;
+                return lineProduct?._id === product?._id;
+            }).length
+        })}
+    );
+    // const product = currentOrder?.product as IProduct;
 
+    // console.log('Selected: ', lineItems?.length)
 
-    const {lineItems:items, isPending} = useFetchAvailableLineItemsByProduct(product?._id, batch, currentOrder?.quantity);
     const {currency} = useCurrencyConfig();
     const utils = useQueryClient();
     const {user} = useAuth();
@@ -52,22 +61,7 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
 
     const formRef = useRef<HTMLFormElement>(null);
 
-    
-    useEffect(()=>{
-        if(isSelectedAll){
-        setLineItems(prev =>
-            [
-                ...prev,
-                ...items.filter(item => 
-                !prev.some(line => line._id === item._id)
-                )
-            ]
-        );
 
-        }else{
-            setLineItems([]);
-        }
-    }, [isSelectedAll])
     
     
     const handleClose = ()=>{
@@ -83,6 +77,12 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
     const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
+        const wrongSelection = needed.some((item)=>item.quantity !== item.selected);
+        if(wrongSelection){
+            enqueueSnackbar('Please select the required units for the products', {variant:'error'});
+            setLoading(false);
+            return;
+        }
         
         try {
             const formData:Partial<ISales> = {
@@ -134,52 +134,39 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
                     <span className="title" >Fulfill this order</span>
                     <span className="greyText" >This will create a sale record for the order</span>
                 </div>       
-                            <div className="flex flex-col  gap-4 items-stretch">
-                                <div className="flex flex-col gap-4 w-full">
-                <div className="flex gap-4 flex-col w-full md:flex-row ">
-                    <GenericLabel label="Batch (optional)"
-                        input={<SearchSelectBatches type="Finished Good" setSelect={setBatch} />}
-                    />
-                </div>
-                <div className="flex gap-4 flex-col w-full md:flex-row ">
-                    <div className="flex flex-row gap-2 items-center w-full">
-                        <GenericLabel label="Pick products"
-                            input={<SearchSelectAvMultipleLineItems selection={lineItems} items={items} isPending={isPending} productId={product?._id as string}  setSelection={setLineItems} />}
-                        />
-                    {
-                        items?.length > 0 &&
-                        <CustomCheckV2 uncheckedTip="Select all products in the list" checkedTip="Unselect all products" checked={isSelectedAll && lineItems.length>0} setChecked={setIsSelectedAll} />
-                    }
-                        
-                    </div>
-                </div>
-                <span>{lineItems?.length} / {items?.length} products selected</span>
-                <GenericLabel label="Add charges and allowances"
-                    input={<CustomCheckV2 uncheckedTip="Add extra charges and allowances" checkedTip="Remove extra charges and allowances" checked={isExtraCharges} setChecked={setIsExtraCharges} />}
-                />
-                {
-                    isExtraCharges &&
-                    <div className="flex gap-4 flex-col w-full md:flex-row ">
-                        <InputWithLabel  min={0} step={0.001} label={currency ? `Discount amount ${currency?.symbol}`:`Discount amount`} type="number" onChange={onChange} name="discount" />
-                        <InputWithLabel min={0} step={0.001} label={currency ? `Charges ${currency?.symbol}`:`Charges`} type="number" onChange={onChange} name="charges" />
-                    </div>
-                }
-                {
-                    lineItems?.length > 0 &&
-                    <span className="font-semibold">Total price: {totalPrice} {currency?.symbol || ''}</span>
-                }
-            </div>
+                <div className="flex flex-col  gap-4 items-stretch">
+                    <div className="flex flex-col gap-4 w-full">
+                
+               
 
-            <div className="flex gap-4 flex-col w-full justify-between">
-                <div className="flex flex-col gap-4 w-full">
-                    <TextAreaWithLabel name="narration" onChange={onChange} placeholder="enter narration" label="Narration" className="w-full" />
+                        <OrderLineItemsTable currentOrder={currentOrder} needed={needed} setLines={setLineItems} />
+                        {/* <span>{lineItems?.length} / {items?.length} products selected</span> */}
+                        <GenericLabel className='flex-row-reverse items-center w-fit' label="Add charges and allowances"
+                            input={<CustomCheckV2 uncheckedTip="Add extra charges and allowances" checkedTip="Remove extra charges and allowances" checked={isExtraCharges} setChecked={setIsExtraCharges} />}
+                        />
+                        {
+                            isExtraCharges &&
+                            <div className="flex gap-4 flex-col w-full md:flex-row ">
+                                <InputWithLabel  min={0} step={0.001} label={currency ? `Discount amount ${currency?.symbol}`:`Discount amount`} type="number" onChange={onChange} name="discount" />
+                                <InputWithLabel min={0} step={0.001} label={currency ? `Charges ${currency?.symbol}`:`Charges`} type="number" onChange={onChange} name="charges" />
+                            </div>
+                        }
+                        {
+                            lineItems?.length > 0 &&
+                            <span className="font-semibold">Total price: {totalPrice} {currency?.symbol || ''}</span>
+                        }
+                    </div>
+
+                    <div className="flex gap-4 flex-col w-full justify-between">
+                        <div className="flex flex-col gap-4 w-full">
+                            <TextAreaWithLabel name="narration" onChange={onChange} placeholder="enter narration" label="Narration" className="w-full" />
+                        </div>
+                        {
+                            isEditor &&
+                            <PrimaryButton disabled={!isEditor} loading={loading} type="submit" text={loading?"loading" : "Proceed"} className="w-full mt-4" />
+                        }
+                    </div>
                 </div>
-                {
-                    isEditor &&
-                    <PrimaryButton disabled={!isEditor} loading={loading} type="submit" text={loading?"loading" : "Proceed"} className="w-full mt-4" />
-                }
-            </div>
-        </div>
 
         <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
             <FaChevronUp />

@@ -5,8 +5,9 @@ import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { ICustomer } from "@/lib/models/customer.model";
 import { IOrder } from "@/lib/models/order.model";
 import { IOrganization } from "@/lib/models/org.model";
-import { IProduct } from "@/lib/models/product.model";
+// import { IProduct } from "@/lib/models/product.model";
 import { IUser } from "@/lib/models/user.model";
+import { OrderSelectType } from "@/types/Types";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
 export const OrdersColumns = (
@@ -40,21 +41,27 @@ export const OrdersColumns = (
             }
         },
         {
-            field: 'product',
-            headerName: 'Product',
+            field: 'products',
+            headerName: 'Products',
             width:170,
             valueFormatter: (_, row:IOrder)=>{
-                const product = row?.product as IProduct;
-                return product ? product.name : '';
+                const products = row?.products as OrderSelectType[];
+                return products?.map(item => `${item.quantity} x ${item.product.name}`).join(', ');
             },
             valueGetter: (_, row:IOrder)=>{
-                const product = row?.product as IProduct;
-                return product ? product.name : '';
+                const products = row?.products as OrderSelectType[];
+                return products?.map(item => `${item.quantity} x ${item.product.name}`).join(', ');
             },
             renderCell: (params:GridRenderCellParams)=>{
-                const product = params?.row?.product as IProduct;
+                const products = params?.row?.products as OrderSelectType[];
                 return (
-                    <Linker link={`/dashboard/products/types?Id=${product?._id}`} tableId="28" placeholder={product?.name} />
+                    <>
+                    {
+                        products?.map((item, index)=>(
+                            <Linker link={`/dashboard/products/types?Id=${item?.product?._id}`} tableId="28" placeholder={`${item?.quantity} x ${item?.product?.name}${index < products.length - 1 && ', '}`} key={index} />
+                        ))
+                    }
+                    </>
                 )
             }
         },
@@ -69,6 +76,16 @@ export const OrdersColumns = (
             field: 'quantity',
             headerName: `Quantity`,
             width:100,
+            valueFormatter: (_, row:IOrder)=>{
+                const products = row?.products as OrderSelectType[];
+                const quantity = products?.map(item => item.quantity).reduce((acc, curr) => acc + curr, 0);
+                return quantity;
+            },
+            valueGetter: (_, row:IOrder)=>{
+                const products = row?.products as OrderSelectType[];
+                const quantity = products?.map(item => item.quantity).reduce((acc, curr) => acc + curr, 0);
+                return quantity;
+            }
         },
         
 
@@ -88,6 +105,11 @@ export const OrdersColumns = (
             field: 'status',
             headerName: `Status`,
             width:100,
+        },
+        {
+            field: 'instruction',
+            headerName: `Instructions`,
+            width:150,
         },
         {
             field: 'description',
@@ -136,16 +158,23 @@ export const OrdersColumns = (
             width:170,
             valueFormatter: (_, row:IOrder)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return  creator.name || row?.creator || '';
             },
             valueGetter: (_, row:IOrder)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return  creator.name || row?.creator || '';
             },
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
+                    <>
+                    {
+                        creator?
+                        <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
+                        :
+                        <span className="">{params?.row?.creator}</span>
+                    }
+                    </>
                 )
             }
         },

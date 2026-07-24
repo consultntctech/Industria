@@ -8,11 +8,14 @@ export interface ICustomer extends Document {
     email: string;
     phone: string;
     address: string;
+    baddress: string;
+    saddress: string;
     person: string;
     description?: string;
     isActive: boolean;
     org: string | Types.ObjectId | IOrganization;
     createdBy: string | Types.ObjectId | IUser;
+    creator: string;
     createdAt: string;
     updatedAt: string;
 }
@@ -22,6 +25,9 @@ const CustomerSchema = new Schema<ICustomer>({
     email: String,
     phone: String,
     address: String,
+    baddress: String,
+    saddress: String,
+    creator: String,
     description: String,
     person: String,
     isActive: { type: Boolean, required: true },

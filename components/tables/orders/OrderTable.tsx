@@ -140,6 +140,7 @@ const OrderTable = ({setOpenNew, currentOrder, setCurrentOrder}:OrdersTableProps
                                   updatedAt:false,
                                   org:false,
                                   description:false,
+                                  instruction:false,
                                   late:false
                                 }
                               }

@@ -38,7 +38,7 @@ export async function getOrders():Promise<IResponse>{
         await connectDB();
         const orders = await Order.find()
         .populate('customer')
-        .populate('product')
+        .populate({path:'products', populate:{path:'product'}})
         .populate('createdBy')
         .populate('org')
         .lean<IOrder[]>();
@@ -62,7 +62,7 @@ export async function getTodayOrders():Promise<IResponse>{
             createdAt: { $gte: start, $lt: end }
         })
         .populate('customer')
-        .populate('product')
+        .populate({path:'products', populate:{path:'product'}})
         .populate('createdBy')
         .populate('org')
         .lean<IOrder[]>();
@@ -84,7 +84,7 @@ export async function getTodayOrdersByOrg(orgId:string):Promise<IResponse>{
         end.setDate(end.getDate() + 1);
         const orders = await Order.find({ org: orgId, createdAt: { $gte: start, $lt: end } })
         .populate('customer')
-        .populate('product')
+        .populate({path:'products', populate:{path:'product'}})
         .populate('createdBy')
         .populate('org')
         .lean<IOrder[]>();
@@ -101,7 +101,7 @@ export async function getOrdersByOrg(orgId:string):Promise<IResponse>{
         await connectDB();
         const orders = await Order.find({ org: orgId })
          .populate('customer')
-        .populate('product')
+        .populate({path:'products', populate:{path:'product'}})
         .populate('createdBy')
         .populate('org')
         .lean<IOrder[]>();
@@ -118,7 +118,7 @@ export async function getOrder(id:string):Promise<IResponse>{
         await connectDB();
         const check = await verifyOrgAccess(Order, id, "Order", [
             { path: "customer" },
-            { path: "product" },
+            { path: "products",  populate: { path: "product" } },
             { path: "createdBy" },
             { path: "org" },
         ]);

@@ -120,6 +120,8 @@ const CustomersTable = ({setOpenNew, currentCustomer, setCurrentCustomer}:Custom
                             columns:{
                                 columnVisibilityModel:{
                                   createdBy:false,
+                                  baddress:false,
+                                  saddress:false,
                                   createdAt:false,
                                   updatedAt:false,
                                   org:false,

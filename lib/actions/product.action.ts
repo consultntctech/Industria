@@ -82,6 +82,7 @@ export async function getProduct(id: string): Promise<IResponse> {
       { path: "org" },
     ]);
 
+    // console.log('Check: ', check)
     // If not allowed, return the middleware's response directly
     if ("allowed" in check === false) return check;
 

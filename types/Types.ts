@@ -1,4 +1,5 @@
 import Card from "@/components/misc/Card";
+import { IProduct } from "@/lib/models/product.model";
 // import { IRole } from "@/lib/models/role.model";
 // import { Types } from "mongoose";
 import { ComponentProps, ReactNode } from "react";
@@ -33,6 +34,7 @@ export interface ISoldItem {
     id: string;
     name: string;
     quantity: number;
+    package?: string;
 }
 
 
@@ -252,4 +254,16 @@ export interface ISession {
   photo: string;
 //   roles: ISessionRole[];
   expires?: Date;
+}
+
+
+export type OrderSelectType = {
+    product: IProduct;
+    quantity: number;
+}
+
+export type INeed = {
+    product: string;
+    quantity: number;
+    selected: number;
 }

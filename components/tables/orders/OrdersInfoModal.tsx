@@ -7,11 +7,12 @@ import  { Dispatch, SetStateAction } from 'react'
 import { ICustomer } from '@/lib/models/customer.model';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { IOrder } from '@/lib/models/order.model';
-import { IProduct } from '@/lib/models/product.model';
+// import { IProduct } from '@/lib/models/product.model';
 import { isDeadlinePast } from '@/functions/helpers';
 import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import { useAuth } from '@/hooks/useAuth';
 import { isSystemAdmin } from '@/Data/roles/permissions';
+import { OrderSelectType } from '@/types/Types';
 
 type OrdersInfoModalProps = {
     infoMode:boolean,
@@ -23,11 +24,13 @@ type OrdersInfoModalProps = {
 const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}:OrdersInfoModalProps) => {
     const creator = currentOrder?.createdBy as IUser;
     const org = currentOrder?.org as IOrganization;
-    const product = currentOrder?.product as IProduct;
+    const products = currentOrder?.products as OrderSelectType[];
     const customer = currentOrder?.customer as ICustomer;
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
     const {currency} = useCurrencyConfig();
+
+    const quantity = products?.map(item => item.quantity).reduce((acc, curr) => acc + curr, 0);
 
     // console.log('Creator:', creator);
     const handleClose = ()=>{
@@ -49,12 +52,17 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
             </div>
             
             <div className="flex flex-col">
-                <span className="mlabel">Product</span>
-                <Linker tableId='28' linkStyle="mtext link" spanStyle='mtext' placeholder={product?.name} link={`/dashboard/products/types?Id=${product?._id}`} />
+                <span className="mlabel">Products</span>
+                {
+                    products?.map((item, index)=>(
+                        <Linker tableId='28' linkStyle="mtext link" spanStyle='mtext' placeholder={`${item?.quantity} x ${item?.product?.name}`} link={`/dashboard/products/types?Id=${item?.product?._id}`} key={index} />
+                    ))
+                }
+                {/* <Linker tableId='28' linkStyle="mtext link" spanStyle='mtext' placeholder={product?.name} link={`/dashboard/products/types?Id=${product?._id}`} /> */}
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Quantity</span>
-                <span className="mtext">{currentOrder?.quantity || 0}</span>
+                <span className="mtext">{quantity || 0}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Amount Received</span>
@@ -74,13 +82,22 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
             }
            
             <div className="flex flex-col">
+                <span className="mlabel">Instructions</span>
+                <span className="mtext">{currentOrder?.instruction || 'None'}</span>
+            </div>
+            <div className="flex flex-col">
                 <span className="mlabel">Description</span>
                 <span className="mtext">{currentOrder?.description || 'None'}</span>
             </div>
             
             <div className="flex flex-col">
                 <span className="mlabel">Sales Personnel</span>
-                <Linker tableId='38' placeholder={creator?.name || 'None'} link={`/dashboard/users?Id=${creator?._id}`} spanStyle='mtext' linkStyle="mtext link" />
+                {
+                    creator?
+                    <Linker tableId='38' placeholder={creator?.name || 'None'} link={`/dashboard/users?Id=${creator?._id}`} spanStyle='mtext' linkStyle="mtext link" />
+                    :
+                    <span className="mtext">{currentOrder?.creator || 'Unknown'}</span>
+                }
             </div>
             {
                 isAdmin &&

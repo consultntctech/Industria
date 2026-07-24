@@ -56,7 +56,7 @@ const CustomerComp = ({openNew, setOpenNew, currentCustomer, setCurrentCustomer}
         setLoading(true);
         
         try {
-          const res = await createCustomer({...data, isActive, org:user?.org, createdBy:user?._id});
+          const res = await createCustomer({...data, isActive, org:user?.org, creator:user?.name, createdBy:user?._id});
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
           if(!res.error){
               formRef.current?.reset();
@@ -101,21 +101,23 @@ const CustomerComp = ({openNew, setOpenNew, currentCustomer, setCurrentCustomer}
     
             <div className="flex flex-col lg:flex-row gap-4 items-stretch">
                 <div className="flex gap-4 flex-col w-full">
-                <InputWithLabel defaultValue={currentCustomer?.name} onChange={onChange} name="name" required placeholder="enter name" label="Company/Individual name" className="w-full" />
-                <InputWithLabel defaultValue={currentCustomer?.person} onChange={onChange} name="person" required placeholder="enter name" label="Enter contact person's name" className="w-full" />
-                <InputWithLabel defaultValue={currentCustomer?.email} onChange={onChange} name="email" required type="email" placeholder="enter email" label="Email" className="w-full" />
-                <InputWithLabel defaultValue={currentCustomer?.phone} onChange={onChange} name="phone" required placeholder="enter phone" label="Phone" className="w-full" />
-                <InputWithLabel defaultValue={currentCustomer?.address} onChange={onChange} name="address" required placeholder="enter address" label="Address" className="w-full" />
+                    <InputWithLabel defaultValue={currentCustomer?.name} onChange={onChange} name="name" required placeholder="enter name" label="Company/Individual name" className="w-full" />
+                    <InputWithLabel defaultValue={currentCustomer?.person} onChange={onChange} name="person" required placeholder="enter name" label="Enter contact person's name" className="w-full" />
+                    <InputWithLabel defaultValue={currentCustomer?.email} onChange={onChange} name="email" required type="email" placeholder="enter email" label="Email" className="w-full" />
+                    <InputWithLabel defaultValue={currentCustomer?.phone} onChange={onChange} name="phone" required placeholder="enter phone" label="Phone" className="w-full" />
+                    <InputWithLabel defaultValue={currentCustomer?.address} onChange={onChange} name="address" required placeholder="enter address" label="Address" className="w-full" />
                 </div>
     
                 <div className="flex gap-4 flex-col w-full justify-between">
-                <div className="flex flex-col gap-4 w-full">
-                    <TextAreaWithLabel defaultValue={currentCustomer?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
-                    <div className="flex items-center flex-row gap-4">
-                        <span className="smallText">Customer is Active</span>
-                        <Switch onChange={(e)=>setIsActive(e.target.checked)} defaultChecked={currentCustomer?.isActive} checked={ isActive} color="primary" />
+                    <div className="flex flex-col gap-4 w-full">
+                        <InputWithLabel defaultValue={currentCustomer?.baddress} onChange={onChange} name="baddress" required placeholder="enter billing address" label="Billing Address" className="w-full" />
+                        <InputWithLabel defaultValue={currentCustomer?.saddress} onChange={onChange} name="saddress" required placeholder="enter shipping address" label="Shipping Address" className="w-full" />
+                        <TextAreaWithLabel defaultValue={currentCustomer?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
+                        <div className="flex items-center flex-row gap-4">
+                            <span className="smallText">Customer is Active</span>
+                            <Switch onChange={(e)=>setIsActive(e.target.checked)} defaultChecked={currentCustomer?.isActive} checked={ isActive} color="primary" />
+                        </div>
                     </div>
-                </div>
                 {
                     (isCustomerCreator || isCustomerEditor) &&
                     <PrimaryButton disabled={currentCustomer ? !isCustomerEditor : !isCustomerCreator} loading={loading} type="submit" text={loading?"loading" : currentCustomer ? "Update" : "Submit"} className="w-full mt-4" />

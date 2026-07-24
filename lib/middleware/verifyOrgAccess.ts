@@ -4,6 +4,7 @@ import { respond } from "../misc";
 import { getSession } from "../session";
 import { ISession } from "@/types/Types";
 import { IOrganization } from "../models/org.model";
+import { systemAdminOrgId } from "@/Data/constants";
 
 interface HasOrg extends Document {
   org: string | object;
@@ -40,7 +41,7 @@ export async function verifyOrgAccess<T extends HasOrg>(
   // console.log('User ORg ID ', userOrgId);
   // console.log('Doc Org ID ', docOrgId);
 
-  if (userOrgId !== docOrgId) {
+  if ((userOrgId !== docOrgId) && (userOrgId !== systemAdminOrgId)) {
     return respond(`Forbidden: You do not have access to this ${modelName}`, true, {}, 403);
   }
 

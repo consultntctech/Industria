@@ -1,10 +1,10 @@
 
 
-import { ChangeEvent, Dispatch, SetStateAction, useRef, useState } from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import SearchSelectCustomers from "../shared/inputs/dropdowns/SearchSelectCustomers";
 import { ICustomer } from "@/lib/models/customer.model";
-import SearchSelectProducts from "../shared/inputs/dropdowns/SearchSelectProducts";
+// import SearchSelectProducts from "../shared/inputs/dropdowns/SearchSelectProducts";
 import { IProduct } from "@/lib/models/product.model";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
@@ -17,7 +17,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { createOrder, updateOrder } from "@/lib/actions/order.action";
 import { enqueueSnackbar } from "notistack";
 import { formatDate } from "@/functions/dates";
-import {useCanUser } from "@/hooks/useAuth";;
+import {useCanUser } from "@/hooks/useAuth";
+import ProductsOrderSelector from "../misc/ProductsOrderSelector";
+import { OrderSelectType } from "@/types/Types";
+import SelectedProductOrderItem from "../misc/SelectedProductOrderItem";
+
 
 
 type OrderCompProps = {
@@ -32,6 +36,8 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
   const [loading, setLoading] = useState(false);
   const [customer, setCustomer] = useState<ICustomer | null>(null);
   const [product, setProduct] = useState<IProduct | null>(null);
+  const [quantity, setQuantity] = useState<number>(1);
+  const [products, setProducts] = useState<OrderSelectType[]>([]);
   const formRef = useRef<HTMLFormElement>(null);
   const {currency} = useCurrencyConfig();
   const utils = useQueryClient();
@@ -40,7 +46,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
   const isEditor = useCanUser('86', 'UPDATE');
 
   const savedCustomer = currentOrder?.customer as ICustomer;
-  const savedProduct = currentOrder?.product as IProduct;
+  // const savedProduct = currentOrder?.product as IProduct;
 
   const onChange = (e:ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const {name, value} = e.target;
@@ -48,6 +54,15 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
       ...pre, [name]: value
     }))
   }
+
+  useEffect(()=>{
+    if(currentOrder){
+      setData({...currentOrder});
+      setProducts(currentOrder.products as OrderSelectType[]);
+    }else{
+      setData({});// Reset form data when currentUser is null
+    }
+  }, [currentOrder])
 
   const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,8 +72,9 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
       const formData:Partial<IOrder> = {
         ...data,
         customer: customer?._id,
-        product: product?._id,
+        products: products.map(item => ({product:item.product._id, quantity:item.quantity})),
         org:user?.org,
+        creator: user?.name,
         createdBy:user?._id
       }
       const res = await createOrder(formData);
@@ -84,7 +100,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
         ...data,
         _id: currentOrder?._id,
         customer: customer?._id || savedCustomer?._id,
-        product: product?._id || savedProduct?._id,
+        products: products.map(item => ({product:item.product._id, quantity:item.quantity})),
       }
       const res = await updateOrder(formData);
       enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -105,6 +121,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
     setOpenNew(false);
     setCurrentOrder(null);
   }
+  // console.log('products: ', products?.length)
 
   return (
     <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`}>
@@ -115,18 +132,30 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
                 <span className="title" >{currentOrder ? 'Edit order' : 'Add new order'}</span>
                 <span className="greyText" >{currentOrder ? 'Edit the order details' : 'Place an order for requested products'}</span>
             </div>
+
+            <ProductsOrderSelector required={!currentOrder} setProduct={setProduct} product={product} quantity={quantity} products={products} setProducts={setProducts} />
+            <hr className="border-gray-200" />
+
+            <div className="flex flex-wrap gap-4">
+              {
+                products.map((item, index)=>(
+                  <SelectedProductOrderItem products={products} key={index} product={item.product} quantity={item.quantity} setProducts={setProducts} setQuantity={setQuantity} />
+                ))
+              }
+            </div>
     
-            <div className="flex flex-col lg:flex-row gap-4 items-stretch">
+            <div className="flex flex-col md:flex-row gap-4 items-stretch">
                 <div className="flex gap-4 flex-col w-full">
                   <GenericLabel
                     label="Select customer"
                     input={<SearchSelectCustomers value={savedCustomer} required={!currentOrder} setSelect={setCustomer} />}
                   />
-                  <GenericLabel label="Select product"
+                  {/* <GenericLabel label="Select product"
                     input={<SearchSelectProducts value={savedProduct} setSelect={setProduct} type="Finished Good" />}
                   />
-                  <InputWithLabel defaultValue={currentOrder?.quantity} onChange={onChange} name="quantity"  min={0} step={0.0001}  label="Enter quantity" className="w-full" />
+                  <InputWithLabel defaultValue={currentOrder?.quantity} onChange={onChange} name="quantity"  min={0} step={0.0001}  label="Enter quantity" className="w-full" /> */}
                   <InputWithLabel defaultValue={currentOrder?.price} placeholder="this is optional"  onChange={onChange} name="price"  min={0} step={0.0001}  label={`Enter amount received from customer (${currency?.symbol || ''})`} className="w-full" />
+                  <TextAreaWithLabel defaultValue={currentOrder?.instruction} name="instruction" onChange={onChange} placeholder="enter instruction" label="Order instructions" className="w-full" />
                 </div>
     
                 <div className="flex gap-4 flex-col w-full justify-between">
