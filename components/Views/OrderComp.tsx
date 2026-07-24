@@ -55,6 +55,8 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
     }))
   }
 
+  const qty = products?.reduce((acc, curr) => acc + curr.quantity, 0);
+
   useEffect(()=>{
     if(currentOrder){
       setData({...currentOrder});
@@ -75,7 +77,8 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
         products: products.map(item => ({product:item.product._id, quantity:item.quantity})),
         org:user?.org,
         creator: user?.name,
-        createdBy:user?._id
+        createdBy:user?._id,
+        quantity: qty
       }
       const res = await createOrder(formData);
       enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -101,6 +104,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
         _id: currentOrder?._id,
         customer: customer?._id || savedCustomer?._id,
         products: products.map(item => ({product:item.product._id, quantity:item.quantity})),
+        quantity: qty
       }
       const res = await updateOrder(formData);
       enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
