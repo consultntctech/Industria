@@ -5,18 +5,23 @@ import PrimaryButton from "../shared/buttons/PrimaryButton"
 import { useEffect, useRef, useState } from "react";
 import { ICurrency } from "@/lib/models/currency.model";
 import { useAuth } from "@/hooks/useAuth";
-import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { createCurrency } from "@/lib/actions/currency.action";
 import { enqueueSnackbar } from "notistack";
-import {useCanUser } from "@/hooks/useAuth";;
+import {useCanUser } from "@/hooks/useAuth";import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 
-const CurrencyComp = () => {
+type CurrencyCompProps = {
+  currency: ICurrency | null | undefined;
+  refetch:(options?: RefetchOptions) => Promise<QueryObserverResult<ICurrency | null, Error>>;
+  currencyLoading: boolean;
+}
+
+const CurrencyComp = ({currency, refetch, currencyLoading}:CurrencyCompProps) => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<ICurrency>>({});
     const formRef = useRef<HTMLFormElement>(null);
     const {user} = useAuth();
 
-    const {currency, refetch, currencyLoading} = useCurrencyConfig();
+    
     const isConfigurer = useCanUser('48', 'UPDATE');
     const isConfigAdmin = useCanUser('48', 'CREATE');
 
@@ -64,7 +69,7 @@ const CurrencyComp = () => {
         <form ref={formRef} onSubmit={handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
 
             <div className="flex flex-col gap-1">
-                <span className="title" >Set up currency</span>
+                <span className="title" >Set up primary currency</span>
                 <span className="greyText" >This will be attached to all your production amounts</span>
             </div>
             {
@@ -73,6 +78,7 @@ const CurrencyComp = () => {
               :
               <div className="flex flex-col lg:flex-row gap-4 items-stretch">
                   <div className="flex gap-4 flex-col w-full">
+                  <InputWithLabel required defaultValue={currency?.name} onChange={onChange} name="name"  placeholder="eg. US Dollar" label="Currency name" className="w-full" />
                   <InputWithLabel required defaultValue={currency?.symbol} onChange={onChange} name="symbol"  placeholder="eg. $" label="Currency symbol" className="w-full" />
                   {
                     (isConfigurer || isConfigAdmin) &&

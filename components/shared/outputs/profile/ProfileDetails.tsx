@@ -22,7 +22,7 @@ const ProfileDetails = () => {
     const [data, setData] = useState<Partial<IUser>>({});
     const [loading, setLoading] = useState(false);
     const [logo, setLogo] = useState<{url:string, filename:string}>({url:'', filename:''});
-    const editor =  useCanUser('15', 'UPDATE');
+    const editor =  useCanUser('38', 'UPDATE');
 
     // const {user} = useAuth();
     // console.log('User: ', user)
