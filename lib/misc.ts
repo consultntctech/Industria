@@ -34,9 +34,6 @@ export const comparePassword = async(text:string, hash:string):Promise<boolean>=
 
 
  const transporter = nodemailer.createTransport({
-    // host: process.env.SMTP_HOST || "smtp.gmail.com",
-    // port: Number(process.env.SMTP_PORT) || 587,
-    // secure: false,
     service: 'gmail',
     auth: {
       user: process.env.GMAIL_USER!,
@@ -77,13 +74,14 @@ export async function sendWelcomeEmail({
 
   // console.log(process.env.GMAIL_USER, process.env.GMAIL_PASS)
 
-  await transporter.sendMail({
-    from: `"${companyName}" <${supportEmail}>`,
+  const emailRes =await transporter.sendMail({
+    from: `"${companyName}" <${process.env.GMAIL_USER}>`,
+    replyTo: supportEmail,
     to,
     subject: `Welcome to ${companyName}!`,
     html,
   });
-  // console.log('Email Response: ', emailRes.response)
+  console.log('Email Response: ', emailRes)
   console.log(`✅ Welcome email sent to ${to}`);
 }
 

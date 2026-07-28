@@ -61,14 +61,14 @@ export async function createUser(data: Partial<IUser>): Promise<IResponse> {
         userEmail: data.email!,
         password,
         appUrl: "https://industra-app.vercel.app/",
-        supportEmail: org?.email || "cchelpdesk@consultntctech.com",
+        supportEmail: org?.email || 'akwaaba@sesatechafrica.com',
       });
     } catch (emailError) {
       // Compensating action: undo the user creation since the email leg failed
       console.log("Welcome email failed, rolling back user creation:", emailError);
       await User.deleteOne({ _id: createdUserId });
       return respond(
-        "Error occured while creating user",
+        "Failed to send email. Error occured while creating user",
         true,
         {},
         500
