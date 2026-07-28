@@ -23,38 +23,64 @@ import Forgot from "../models/forgot.model";
 
 
 export async function createUser(data: Partial<IUser>): Promise<IResponse> {
+  let createdUserId: string | undefined;
+
   try {
     await connectDB();
-    const user = await User.findOne({ email: data.email?.toLowerCase() });
-    if (user) {
+
+    const existing = await User.findOne({ email: data.email?.toLowerCase() });
+    if (existing) {
       return respond("User already exists", true, {}, 400);
     }
+
     const password = generatePassword(8);
     const hashedPassword = await encryptPassword(password);
+
     const userData: Partial<IUser> = {
       ...data,
       email: data?.email?.toLowerCase(),
       password: hashedPassword,
     };
+
     const [newUser, org] = await Promise.all([
       User.create(userData),
       Organization.findById(data.org),
     ]);
-    await sendWelcomeEmail({
-      to: data.email!,
-      companyName: "Industra",
-      companyInitials: "Industra",
-      companyLogo:
-        org?.logo ||
-        "https://thumbs.dreamstime.com/b/real-estate-logo-home-house-simple-design-vector-icons-135196436.jpg",
-      userName: data.name!,
-      userEmail: data.email!,
-      password: password,
-      appUrl: "https://industra-app.vercel.app/",
-      supportEmail:
-        org?.email || "CCHelpDesk@consultntctech.com"?.toLowerCase(),
-    });
-    return respond("User created successfully. Have the user check their inbox/spam folder for the welcome email", false, newUser, 201);
+
+    createdUserId = newUser._id.toString();
+
+    try {
+      await sendWelcomeEmail({
+        to: data.email!,
+        companyName: "Industra",
+        companyInitials: "Industra",
+        companyLogo:
+          org?.logo ||
+          "https://thumbs.dreamstime.com/b/real-estate-logo-home-house-simple-design-vector-icons-135196436.jpg",
+        userName: data.name!,
+        userEmail: data.email!,
+        password,
+        appUrl: "https://industra-app.vercel.app/",
+        supportEmail: org?.email || "cchelpdesk@consultntctech.com",
+      });
+    } catch (emailError) {
+      // Compensating action: undo the user creation since the email leg failed
+      console.log("Welcome email failed, rolling back user creation:", emailError);
+      await User.deleteOne({ _id: createdUserId });
+      return respond(
+        "Error occured while creating user",
+        true,
+        {},
+        500
+      );
+    }
+
+    return respond(
+      "User created successfully. Have the user check their inbox/spam folder for the welcome email",
+      false,
+      newUser,
+      201
+    );
   } catch (error) {
     console.log(error);
     return respond("Error occured while creating user", true, {}, 500);

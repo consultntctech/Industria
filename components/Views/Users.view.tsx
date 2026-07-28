@@ -83,8 +83,8 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
           if(!res.error){
               formRef?.current?.reset();
-              handleClose();
               refetch();
+              handleClose();
           }
         } catch (error) {
           console.log(error);
