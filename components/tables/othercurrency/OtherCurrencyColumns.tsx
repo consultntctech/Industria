@@ -15,7 +15,7 @@ export const OtherCurrencyColumns = (
         {
             field: 'name',
             headerName: 'Name',
-            width:130,
+            width:150,
         },
 
         {
@@ -34,7 +34,7 @@ export const OtherCurrencyColumns = (
         {
             field: 'note',
             headerName: 'Notes',
-            width:150,
+            width:250,
         },
 
        

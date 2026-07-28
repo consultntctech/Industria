@@ -79,7 +79,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
         setLoading(true);
         try {
           if(!currentUser) return;
-          const res = await updateUser(formData);
+          const res = await updateUser({...formData, org:org || currentUser.org});
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
           if(!res.error){
               formRef?.current?.reset();
