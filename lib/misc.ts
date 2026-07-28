@@ -34,7 +34,7 @@ export const comparePassword = async(text:string, hash:string):Promise<boolean>=
 
 
  const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    service: 'Gmail',
     auth: {
       user: process.env.GMAIL_USER!,
       pass: process.env.GMAIL_PASS!,
@@ -74,14 +74,14 @@ export async function sendWelcomeEmail({
 
   // console.log(process.env.GMAIL_USER, process.env.GMAIL_PASS)
 
-  const emailRes =await transporter.sendMail({
+  await transporter.sendMail({
     from: `"${companyName}" <${process.env.GMAIL_USER}>`,
     replyTo: supportEmail,
     to,
     subject: `Welcome to ${companyName}!`,
     html,
   });
-  console.log('Email Response: ', emailRes)
+  // console.log('Email Response: ', emailRes)
   console.log(`✅ Welcome email sent to ${to}`);
 }
 
@@ -95,9 +95,10 @@ export async function sendPasswordResetEmail(
     `https://industra-app.vercel.app/reset-password?token=${token}`;
 
   await transporter.sendMail({
-    from: `"Industra" <${process.env.SMTP_FROM}>`,
+    from: `"Industra" <${process.env.GMAIL_USER}>`,
     to,
     subject: 'Reset your Industra password',
     html: renderPasswordResetEmail({ resetUrl })
-  });
+  })
+  // .then(res=>console.log(res));
 }
