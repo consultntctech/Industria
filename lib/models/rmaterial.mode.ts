@@ -4,6 +4,7 @@ import { IUser } from "./user.model";
 import { IProduct } from "./product.model";
 import { ISupplier } from "./supplier.model";
 import { IBatch } from "./batch.model";
+import { IOtherCurrency } from "./othercurrency.model";
 
 export interface IRMaterial extends Document {
     _id: string;
@@ -16,6 +17,11 @@ export interface IRMaterial extends Document {
     qReceived: number;
     qRejected: number;
     qAccepted: number;
+    original:{
+        amount:number,
+        rate: number,
+        currency:string | Types.ObjectId | IOtherCurrency
+    }
     note: string;
     unitPrice:number;
     charges: number;
@@ -46,6 +52,7 @@ const RMaterialSchema = new Schema<IRMaterial>({
     qReceived: { type: Number, required: true },
     qRejected: { type: Number, required: false },
     qAccepted: { type: Number, required: true },
+    original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     note: String,
     unitPrice: { type: Number, required: false },
     charges: { type: Number, required: false },

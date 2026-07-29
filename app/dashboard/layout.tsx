@@ -12,7 +12,7 @@ export default function RootLayout({
   return (
       <div className="flex flex-col w-full gap-4 bg-white">
           <Header/>
-          <div className="flex flex-row items-start justify-between w-full gap-6">
+          <div className="flex flex-row items-stretch justify-between w-full gap-6">
               <NavBar/>
               <div className="flex flex-row justify-center flex-1 p-4 ml-4">
                   {children}

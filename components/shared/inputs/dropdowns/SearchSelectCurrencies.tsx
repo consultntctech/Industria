@@ -4,7 +4,7 @@ import { Autocomplete, CircularProgress, TextField } from "@mui/material"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
 type SearchSelectCurrenciesProps = {
-    setSelect?: Dispatch<SetStateAction<string>>,
+    setSelect?: Dispatch<SetStateAction<IOtherCurrency | null>>,
     value?: IOtherCurrency | null,
     width?: number,
     required?:boolean,
@@ -20,7 +20,7 @@ const SearchSelectCurrencies = ({setSelect, required, value, width}:SearchSelect
             onChange={(_, item:IOtherCurrency|null)=>{
                 // console.log(e.target)
                 if(setSelect){
-                    setSelect(item?._id as string)
+                    setSelect(item);
                 }
             }}
             defaultValue={value}

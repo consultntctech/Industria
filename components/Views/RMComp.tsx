@@ -1,4 +1,4 @@
-import { Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, FormEvent, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import GenericLabel from "../shared/inputs/GenericLabel";
 import SearchSelectProducts from "../shared/inputs/dropdowns/SearchSelectProducts";
@@ -16,7 +16,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useFetchRMaterials } from "@/hooks/fetch/useRMaterials";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { IBatch } from "@/lib/models/batch.model";
-import {useCanUser } from "@/hooks/useAuth";;
+import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
+import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
+import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
+import CustomCheckV2 from "../misc/CustomCheckV2";
+;
 
 type RMCompProps = {
   openNew:boolean;
@@ -33,9 +37,14 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
     const [supplier, setSupplier] = useState<string>('')
     const [batch, setBatch] = useState<string>('')
     const [showReason, setShowReason] = useState(false);
+    const [useRate, setUseRate] = useState(false);
+    const [showRate, setShowRate] = useState(false);
+
+    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
 
     const {user} = useAuth();
     const {refetch} = useFetchRMaterials();
+    const {currency} = useCurrencyConfig();
 
     const isCreator = useCanUser('87', 'CREATE');
     const isEditor = useCanUser('87', 'UPDATE');
@@ -44,15 +53,34 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
     const savedProduct = currentMaterial?.product as IProduct;
     const savedSupplier = currentMaterial?.supplier as ISupplier;
     const savedBatch = currentMaterial?.batch as IBatch;
+    const savedCurrency = currentMaterial?.original?.currency as IOtherCurrency;
+
+    // const rate = useRate ? (otherCurrency?.rate || 1) : (currentMaterial?.original?.rate || 1);
+    const originalAmount = ((data?.unitPrice! * data.qReceived!) - (data.discount! - data?.charges!)) || 0;
+
+    const rate = useMemo(() => {
+     if(!currentMaterial) return otherCurrency?.rate || 1;
+     if(showRate && !useRate) return currentMaterial?.original?.rate || 1;
+     return otherCurrency?.rate || 1;
+    }, [otherCurrency, currentMaterial, useRate, showRate])
+    const price = ( originalAmount * rate);
+    const currencyLabel = `Total cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const otherLabel = `Total cost (${otherCurrency?.symbol || otherCurrency?.name})`;
+
+    // console.log('Other Currency: ', otherCurrency)
 
     const handleClose = () => {
       setCurrentMaterial(null);
-      setOpenNew(false)
+      setOpenNew(false);
+      setShowRate(false);
+      setUseRate(false);
     };
+
 
     useEffect(() => {
       if(currentMaterial){
         setData({ ...currentMaterial});
+        setOtherCurrency(savedCurrency);
         if(currentMaterial?.product){
           setProduct(savedProduct);
         }
@@ -60,6 +88,14 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
         setData({dateReceived:new Date(), qStatus:'Pass', qReceived:0, qRejected:0, charges:0, discount:0});
       } 
     }, [currentMaterial])
+
+    useEffect(()=>{
+      if((currentMaterial && otherCurrency) && (otherCurrency?._id === savedCurrency?._id) && otherCurrency?.rate !== currentMaterial?.original?.rate){
+        setShowRate(true);
+      }else{
+        setShowRate(false);
+      }
+    },[otherCurrency, currentMaterial])
 
     useEffect(() => {
       if(data?.qRejected && data?.qRejected > 0){
@@ -100,7 +136,13 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
         
         try {
           const rmData:Partial<IRMaterial> = {
-            ...data, product: product?._id, supplier, batch, createdBy:user?._id, org:user?.org
+            ...data, product: product?._id, supplier, batch, createdBy:user?._id, org:user?.org,
+            original:{
+              amount: originalAmount,
+              rate,
+              currency: otherCurrency?._id as string,
+            },
+            price
           }
           // console.log('Data: ', rmData)
           const res = await createRMaterial(rmData);
@@ -128,6 +170,12 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
             supplier: supplier || savedSupplier?._id,
             batch: batch || savedBatch?._id,
             product: product?._id || savedProduct?._id,
+             original:{
+              amount: originalAmount,
+              rate,
+              currency: otherCurrency?._id || savedCurrency?._id
+            },
+            price
           }
           // console.log('Raw Data: ', resData)
           const res = await updateRMaterial(resData);
@@ -146,7 +194,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
         }
     }
 
-    const price = ((data?.unitPrice! * data.qReceived!) - (data.discount! - data?.charges!)) || 0;
+
 
   return (
      <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
@@ -164,16 +212,16 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
               <>
                 <GenericLabel
                   label="Select product"
-                  input={<SearchSelectProducts value={savedProduct} type="Raw Material" setSelect={setProduct} required={true} />}
+                  input={<SearchSelectProducts value={savedProduct} type="Raw Material" setSelect={setProduct} required={!currentMaterial} />}
                 />
                 <GenericLabel
                 label="Select supplier"
-                input={<SearchSelectLtdSuppliers value={savedSupplier} required setSelect={setSupplier} productId={product?._id || ''} />}
+                input={<SearchSelectLtdSuppliers value={savedSupplier} required={!currentMaterial} setSelect={setSupplier} productId={product?._id || ''} />}
                 />
                 <GenericLabel 
                   label='Select batch'
                   input={
-                    <SearchSelectBatches value={savedBatch} type="Raw Material" required setSelect={setBatch} />
+                    <SearchSelectBatches value={savedBatch} type="Raw Material" required={!currentMaterial} setSelect={setBatch} />
                   }
                 />
               </>
@@ -193,24 +241,28 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
             }
             <InputWithLabel defaultValue={currentMaterial?.yield} onChange={onChange} name="yield"  type="number" min={1} placeholder="eg. 2" label="Expected yield rate" className="w-full" />
             <InputWithLabel defaultValue={currentMaterial? formatDate(currentMaterial?.dateReceived) : today()} onChange={onChange} max={today()} name="dateReceived" type="date" required={!currentMaterial} label="Date received" className="w-full" />
-            <InputWithLabel step={0.0001} defaultValue={currentMaterial?.unitPrice} onChange={onChange} name="unitPrice"  type="number" min={0} placeholder="eg. 25" label="Enter unit price" className="w-full" />
-            <InputWithLabel step={0.0001} defaultValue={currentMaterial?.qReceived} onChange={onChange} name="qReceived" required type="number" min={0} placeholder="eg. 1000" label="Quantity received" className="w-full" />
+            <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentMaterial} setSelect={setOtherCurrency} value={savedCurrency} />} />
+            {
+              showRate &&
+              <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
+            }
+            <InputWithLabel step={0.0001} required={!currentMaterial} defaultValue={currentMaterial?.unitPrice} onChange={onChange} name="unitPrice"  type="number" min={0} placeholder="eg. 25" label="Enter unit price" className="w-full" />
+            <InputWithLabel step={0.0001} required={!currentMaterial} defaultValue={currentMaterial?.qReceived} onChange={onChange} name="qReceived" type="number" min={0} placeholder="eg. 1000" label="Quantity received" className="w-full" />
           </div>
 
           <div className="flex gap-4 flex-col w-full justify-between">
+            <InputWithLabel step={0.0001} onChange={onChange} defaultValue={currentMaterial?.qRejected || 0} name="qRejected" type="number" min={0} placeholder="eg. 50" label="Quantity rejected" className="w-full" />
             <div className="flex flex-col gap-4 w-full">
-            <InputWithLabel step={0.0001} onChange={onChange} defaultValue={currentMaterial?.qReceived || 0} name="qRejected" type="number" min={0} placeholder="eg. 50" label="Quantity rejected" className="w-full" />
               {
                   showReason &&
                   <TextAreaWithLabel defaultValue={currentMaterial?.reason} name="reason" onChange={onChange} placeholder="enter reason for rejection (if any)" label="Reason for rejection" className="w-full" />
               }
               <InputWithLabel step={0.0001} defaultValue={currentMaterial?.charges} onChange={onChange} name="charges"  type="number" min={0} placeholder="eg. 20" label="Addtional Charges" className="w-full" />
               <InputWithLabel step={0.0001} defaultValue={currentMaterial?.discount} onChange={onChange} name="discount"  type="number" min={0} placeholder="eg. 20" label="Discount" className="w-full" />
+              <InputWithLabel step={0.0001} value={originalAmount} readOnly   type="number"  label={otherCurrency? otherLabel : currencyLabel} className="w-full" />
               {
-                // currentMaterial ? 
-                // <InputWithLabel step={0.0001} defaultValue={data?.price || 0} readOnly  name="price"  type="number"  label="Total cost" className="w-full" />
-                // :
-                <InputWithLabel step={0.0001} value={price} readOnly  name="price"  type="number"  label="Total cost" className="w-full" />
+                otherCurrency &&
+                <InputWithLabel step={0.0001} value={price} readOnly  name="price"  type="number"  label={currencyLabel} className="w-full" />
               }
               <InputWithLabel onChange={onChange} step={0.0001} defaultValue={currentMaterial?.weight || 0} required={!currentMaterial}  name="weight"  type="number"  label="Total weight" className="w-full" />
               <TextAreaWithLabel defaultValue={currentMaterial?.note} name="note" onChange={onChange} placeholder="enter note" label="Note" className="w-full" />

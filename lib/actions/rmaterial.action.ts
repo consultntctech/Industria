@@ -7,6 +7,7 @@ import { connectDB } from "../mongoose";
 import '../models/org.model';
 import '../models/supplier.model';
 import '../models/batch.model';
+import '../models/othercurrency.model';
 import Product, { IProduct } from "../models/product.model";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
@@ -63,6 +64,7 @@ export async function getRMaterials():Promise<IResponse>{
         .populate('product')
         .populate('supplier')
         .populate('batch')
+        .populate('original.currency')
         .populate('createdBy')
         .populate('org') as unknown as IRMaterial[];
         return respond('Raw Materials found successfully', false, materials, 200);
@@ -112,6 +114,7 @@ export async function getRMaterialsByOrg(orgId:string):Promise<IResponse>{
         .populate('product')
         .populate('supplier')
         .populate('batch')
+        .populate('original.currency')
         .populate('createdBy')
         .populate('org') as unknown as IRMaterial[];
         return respond('Raw Materials found successfully', false, materials, 200);
