@@ -1,7 +1,8 @@
 import Card from "@/components/misc/Card";
+import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { IProduct } from "@/lib/models/product.model";
 // import { IRole } from "@/lib/models/role.model";
-// import { Types } from "mongoose";
+import { Types } from "mongoose";
 import { ComponentProps, ReactNode } from "react";
 
 export interface IResponse {
@@ -266,4 +267,10 @@ export type INeed = {
     product: string;
     quantity: number;
     selected: number;
+}
+
+export interface IOriginalPrice{
+    amount: number;
+    rate: number;
+    currency: IOtherCurrency | string | Types.ObjectId;
 }

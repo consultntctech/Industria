@@ -6,6 +6,7 @@ import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { useAuth } from '@/hooks/useAuth';
 import { IBatch } from '@/lib/models/batch.model';
 import { IOrganization } from '@/lib/models/org.model';
+import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import { IProduct } from '@/lib/models/product.model';
 import { IRMaterial } from '@/lib/models/rmaterial.mode';
 import { ISupplier } from '@/lib/models/supplier.model';
@@ -30,6 +31,9 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
     const product = currentMaterial?.product as IProduct;
     const used = (currentMaterial?.qReceived || 0) - (currentMaterial?.qAccepted ||0) - (currentMaterial?.qRejected||0);
     const {currency} = useCurrencyConfig();
+
+    const savedCurrency = currentMaterial?.original?.currency as IOtherCurrency;
+    const original = currentMaterial?.original;
 
     const handleClose = ()=>{
         setInfoMode(false);
@@ -77,6 +81,10 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
             <div className="flex flex-col">
                 <span className="mlabel">Reason for Rejection</span>
                 <span className="mtext">{currentMaterial?.reason || 'None'}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Original Price</span>
+                <span className="mtext">{`${savedCurrency?.symbol} ${original?.amount}` || 'Unavailable'}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Unit Price</span>

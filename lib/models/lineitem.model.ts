@@ -7,6 +7,7 @@ import { IOrganization } from "./org.model";
 import { Schema } from "mongoose";
 import { IBatch } from "./batch.model";
 import { ICustomer } from "./customer.model";
+import { IOriginalPrice } from "@/types/Types";
 
 export interface ILineItem extends Document {
     _id: string;
@@ -18,6 +19,7 @@ export interface ILineItem extends Document {
     package: string | Types.ObjectId | IPackage;
     soldTo: string | Types.ObjectId | ICustomer;
     status: string;
+    original:IOriginalPrice;
     price: number;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
@@ -34,6 +36,7 @@ const LineItemSchema = new Schema<ILineItem>({
     package: { type: Schema.Types.ObjectId, ref: 'Package', required: false },
     soldTo: { type: Schema.Types.ObjectId, ref: 'Customer', required: false },
     status: { type: String, required: true, default:'Pending' },
+    original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     price: { type: Number, required: false, default:0 },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

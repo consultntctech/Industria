@@ -11,7 +11,7 @@ import { IProdItem } from '@/lib/models/proditem.model';
 import { IQGSelector, IQSelector } from '@/types/Types';
 import { useRouter } from 'next/navigation';
 import { enqueueSnackbar } from 'notistack';
-import React, { ChangeEvent, FormEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react'
 import InputWithLabel from '../shared/inputs/InputWithLabel';
 import GenericLabel from '../shared/inputs/GenericLabel';
 import SearchSelectPackagingType from '../shared/inputs/dropdowns/SearchSelectPackagingType';
@@ -33,6 +33,8 @@ import SearchSelectProducts from '../shared/inputs/dropdowns/SearchSelectProduct
 import GoodsQSelector from '../misc/GoodsQSelector';
 import SearchSelectAvMultipleGoods from '../shared/inputs/dropdowns/SearchSelectAvMultipleGoods';
 import { IUser } from '@/lib/models/user.model';
+import { IOtherCurrency } from '@/lib/models/othercurrency.model';
+import SearchSelectCurrencies from '../shared/inputs/dropdowns/SearchSelectCurrencies';
 
 const NewPackageComp = () => {
     const [loading, setLoading] = useState(false);
@@ -43,13 +45,15 @@ const NewPackageComp = () => {
     const [batch, setBatch] = useState<string>('');
     const [supervisor, setSupervisor] = useState<IUser | null>(null);
     const [storage, setStorage] = useState<string>('');
-    const [cost, setCost] = useState<number>(0);
+    // const [cost, setCost] = useState<number>(0);
     const [data, setData] = useState<Partial<IPackage>>({});
     // const [accepted, setAccepted] = useState<number>(0);
     const [packItems, setPackItems] = useState<IQSelector[]>([]);
     const [product, setProduct] = useState<IProduct | null>(null);
     const [goods, setGoods] = useState<IGood[]>([]);
     const [goodItems, setGoodItems] = useState<IQGSelector[]>([]);
+    const [manualCost, setManualCost] = useState<number | null>(null);
+    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
 
     const {user} = useAuth();
     const router = useRouter();
@@ -66,30 +70,34 @@ const NewPackageComp = () => {
     
     
        
-    useEffect(() => {
-        const price = packagingMaterial?.reduce((sum, material) => {
+    const calculatedCost = useMemo(() => {
+        return packagingMaterial.reduce((sum, material) => {
             const item = packItems.find(ing => ing.materialId === material._id);
             const qUsed = item?.quantity || 0;
             return sum + (material.unitPrice * qUsed);
         }, 0);
-        setCost(price);
-    }, [packagingMaterial.length, packItems.length]);
+    }, [packagingMaterial, packItems]);
 
+    const cost = manualCost !== null ? manualCost : calculatedCost;
+    const finalCost = cost * (otherCurrency?.rate || 1);
 
     useEffect(() => {
         const validIds = new Set(packagingMaterial.map(rm => rm._id));
         setPackItems(prev => prev.filter(ing => validIds.has(ing.materialId)));
-        setData(pre=>({...pre, cost}));
-    }, [packagingMaterial,  cost]);
+        // materials changed → the whole basis for the price changed, so drop any manual override
+        setManualCost(null);
+    }, [packagingMaterial]);
     
 
     useEffect(() => {
         const validIds = new Set(goods.map(g => g._id));
         setGoodItems(prev => prev.filter(ing => validIds.has(ing.goodId)));
-        setData(pre=>({...pre, cost}));
-    }, [goods])
+    }, [goods]);
     
     
+    useEffect(() => {
+        setData(pre => ({...pre, cost}));
+    }, [cost]);
     
     const formRef = useRef<HTMLFormElement>(null);
         const onChange = (e:ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
@@ -106,6 +114,7 @@ const NewPackageComp = () => {
             [e.target.name]: e.target.value
         }));
     };
+
 
     
     const handleSubmit = async(e:FormEvent<HTMLFormElement>)=>{
@@ -128,7 +137,12 @@ const NewPackageComp = () => {
                 accepted,
                 packagingType: packagingType?.label,
                 storage,
-                cost
+                cost:finalCost,
+                original:{
+                    amount: cost,
+                    rate: otherCurrency?.rate || 1,
+                    currency: otherCurrency?._id as string,
+                }
             }
             const res = await createPackage(formData);
             // enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -210,12 +224,14 @@ const NewPackageComp = () => {
         })
     }
 
-    const changeCost = (e:React.ChangeEvent<HTMLInputElement>)=>{
+    const changeCost = (e: React.ChangeEvent<HTMLInputElement>) => {
         const {value} = e.target;
-        setCost(Number(value));
-    }
+        setManualCost(value === '' ? null : Number(value));
+    };
 
 
+    const costLabel = `Package cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const otherLabel = `Package cost (${otherCurrency?.symbol || otherCurrency?.name})`;
     
 
   return (
@@ -333,7 +349,12 @@ const NewPackageComp = () => {
                             </div>
                         </div>
                     }
-                    <InputWithLabel onChange={changeCost}  name="cost" type="number" value={cost} label={currency ? `Packaging cost (${currency.symbol})` : 'Packaging cost'} className="w-full" />
+                    <GenericLabel label='Select currency' input={<SearchSelectCurrencies setSelect={setOtherCurrency} />} />
+                    <InputWithLabel onChange={changeCost}  name="cost" type="number" value={cost} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                    {
+                        otherCurrency &&
+                        <InputWithLabel type="number" value={finalCost} readOnly label={costLabel} className="w-full" />
+                    }
                     <TextAreaWithLabel   name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                 </div>
                 {

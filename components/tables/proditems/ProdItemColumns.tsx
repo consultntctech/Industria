@@ -2,10 +2,12 @@ import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/P
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IOrganization } from "@/lib/models/org.model";
+import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { IProdItem } from "@/lib/models/proditem.model";
 import { IProduct } from "@/lib/models/product.model";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { IUser } from "@/lib/models/user.model";
+import { IOriginalPrice } from "@/types/Types";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
 
@@ -82,6 +84,21 @@ export const ProdItemColumns = (
             headerName: currency ? `Total Price (${currency.symbol})` : 'Total Price',
             width:100,
             headerAlign:'center'
+        },
+        {
+            field: 'original',
+            headerName: 'Original Price',
+            width:100,
+            valueFormatter: (_, row:IProdItem)=>{
+                const original = row?.original as IOriginalPrice;
+                const cy = original?.currency as IOtherCurrency;
+                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount}` : 0;
+            },
+            valueGetter: (_, row:IProdItem)=>{
+                const original = row?.original as IOriginalPrice;
+                const cy = original?.currency as IOtherCurrency;
+                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount}` : 0;
+            }
         },
         {
             field: 'uom',

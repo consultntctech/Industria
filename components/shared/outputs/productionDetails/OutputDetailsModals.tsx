@@ -9,7 +9,13 @@ import TextAreaWithLabel from "../../inputs/TextAreaWithLabel";
 import { updateProduction } from "@/lib/actions/production.action";
 import { enqueueSnackbar } from "notistack";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
-import {useCanUser } from "@/hooks/useAuth";;
+import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
+import { IOriginalPrice } from "@/types/Types";
+import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
+import GenericLabel from "../../inputs/GenericLabel";
+import SearchSelectCurrencies from "../../inputs/dropdowns/SearchSelectCurrencies";
+import CustomCheckV2 from "@/components/misc/CustomCheckV2";
+;
 
 type OutputDetailsModalsProps = {
     openNew:boolean;
@@ -20,13 +26,25 @@ type OutputDetailsModalsProps = {
 const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModalsProps) => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<IProduction>>({});
+    const [useRate, setUseRate] = useState(false);
+    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
+    const [extraCost, setExtraCost] = useState(0);
     const formRef = useRef<HTMLFormElement>(null);
     const {currency} = useCurrencyConfig();
     const isEditor = useCanUser('8', 'UPDATE');
 
+    const original = production?.original as IOriginalPrice;
+    const savedCurrency = original?.currency as IOtherCurrency;
+
+    const showRate = exposeRate(savedCurrency, otherCurrency);
+    const rate = currencyRate(original, otherCurrency, showRate, useRate);
+    // console.log(rate)
+
     useEffect(() => {
         if(production){
             setData({...production});
+            setOtherCurrency(savedCurrency);
+            setExtraCost(production?.extraCost || 0);
         }
     }, [production])
 
@@ -35,6 +53,11 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
           ...pre, [e.target.name]: e.target.value
         }))
     }
+    const onChangeCost = (e:React.ChangeEvent<HTMLInputElement>)=>{
+       setExtraCost(Number(e.target.value) * rate);
+    }
+
+    // console.log(productionCost)
 
     const handleSubmit = async(e:React.FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
@@ -44,6 +67,7 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
           const updateData:Partial<IProduction> = {
             ...data,
             status:'Completed',
+            extraCost,
           };
           const res = await updateProduction(updateData);
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -60,6 +84,9 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
         }
     }
 
+    const costLabel = `Extra const on production (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const otherLabel = `Extra const on production (${otherCurrency?.symbol || otherCurrency?.name})`;
+
   return (
      <ModalContainer open={openNew} handleClose={()=>setOpenNew(false)}>
       <div className={`flex w-[90%] md:w-[50%]`}>
@@ -74,11 +101,17 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
                     <InputWithLabel defaultValue={production?.outputQuantity} type="number" onChange={onChange} name="outputQuantity" min={0} required placeholder="eg. 20" label="Actual output quantity" className="w-full" />
                     <InputWithLabel defaultValue={production?.rejQuantity} type="number" onChange={onChange} name="rejQuantity" min={0}  placeholder="eg. 2" label="Rejected quantity" className="w-full" />
                     <InputWithLabel defaultValue={production?.lossQuantity} type="number" onChange={onChange} name="lossQuantity" min={0}  placeholder="eg. 1" label="Loss quantity" className="w-full" />
+                    <GenericLabel label="Select currency" input={<SearchSelectCurrencies  setSelect={setOtherCurrency} value={savedCurrency} />} />
+                    {
+                        showRate &&
+                        <GenericLabel label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
+                    }
                 </div>
             
                 <div className="flex gap-4 flex-col w-full justify-between">
                     <div className="flex flex-col gap-4 w-full">
-                        <InputWithLabel defaultValue={production?.extraCost} type="number" onChange={onChange} name="extraCost" min={0}  placeholder={`eg. ${currency?.symbol}200`} label={`Extra cost on production ${currency?.symbol}`} className="w-full" />
+                        <InputWithLabel defaultValue={((production?.extraCost || 0)/original?.rate)} type="number" onChange={onChangeCost} name="extraCost" min={0}  placeholder={`eg. ${currency?.symbol}200`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                        <InputWithLabel value={extraCost} type="number"  readOnly min={0}  placeholder={`eg. ${currency?.symbol}200`} label={costLabel} className="w-full" />
                         <TextAreaWithLabel defaultValue={production?.notes} name="notes" onChange={onChange} placeholder="enter note" label="Production note" className="w-full" />
                     </div>
                     {

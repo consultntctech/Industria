@@ -13,9 +13,10 @@ type SearchSelectAvMultipleProdItemsProps = {
     width?:number;
     required?:boolean;
     value?:IProdItem[];
+    placeholder?:string;
 }
 
-const SearchSelectAvMultipleProdItems = ({setSelection,  width, required, value}:SearchSelectAvMultipleProdItemsProps) => {
+const SearchSelectAvMultipleProdItems = ({setSelection,  width, required, value, placeholder='Items'}:SearchSelectAvMultipleProdItemsProps) => {
     const [search, setSearch] = useState<string>('');
     const {proditems, isPending} = useFetchAvailableProditems();
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -84,7 +85,7 @@ const SearchSelectAvMultipleProdItems = ({setSelection,  width, required, value}
                 {...params}
                 required={required}
                 size="small"
-                label= "Manufacturing materials"
+                label= {placeholder}
                 color="primary"
                 // defaultValue={value}
                 className="rounded"

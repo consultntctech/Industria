@@ -86,13 +86,13 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
         <OutputDetailsModals production={production} openNew={openNew} setOpenNew={setOpenNew} />
         <DialogueAlet open={openDialog} handleClose={()=>setOpenDialog(false)} agreeClick={handleAgreeClick} title={title} content={content} />
             {
-                !(production?.status === 'New' || production?.status === 'Pending Approval' || production?.status === 'Approved') &&
+                ((production?.status === 'In Progress') || (production?.status === 'Completed')) &&
                 <Tooltip title="Edit Output Details">
                     <FaPenToSquare onClick={()=>setOpenNew(true)} color={primaryColour} className='cursor-pointer absolute top-1 right-1' />
                 </Tooltip>
             }
             {
-                production?.status !== 'New' &&
+                ((production?.status === 'Completed') || (production?.status === 'Approved') || (production?.status === 'Pending Approval')) &&
                 <>
                     <div className="flex flex-row items-center gap-4">
                         <span className="truncate w-1/2 md:w-1/5" >Output Quantity:</span>
@@ -129,7 +129,7 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
                     </div>
 
                     {
-                        production?.status === 'Approved' &&
+                        (production?.status === 'Approved') &&
                         <div className="flex flex-row items-center gap-4">
                             <span className="truncate w-1/2 md:w-1/5" >Ended At:</span>
                             <span className="text-gray-600 flex-1 md:flex-5" >{formatDate(production?.updatedAt)}</span>

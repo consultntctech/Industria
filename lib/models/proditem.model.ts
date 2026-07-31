@@ -4,6 +4,7 @@ import { IUser } from "./user.model";
 import { IOrganization } from "./org.model";
 import Production from "./production.model";
 import Package from "./package.model";
+import { IOriginalPrice } from "@/types/Types";
 
 export interface IProdItem extends Document {
     _id: string;
@@ -16,6 +17,7 @@ export interface IProdItem extends Document {
     uom: string;
     threshold: number;
     unitPrice: number;
+    original: IOriginalPrice;
     qStatus: string;
     stock: number;
     used: number;
@@ -39,6 +41,7 @@ const ProdItemSchema = new Schema<IProdItem>({
     threshold: { type: Number, required: false, default:0 },
     unitPrice: { type: Number, required: false },
     qStatus: { type: String, required: false, default:'Pass' },
+    original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     stock: { type: Number, required: false },
     used: { type: Number, required: false, default:0 },
     price: { type: Number, required: false },

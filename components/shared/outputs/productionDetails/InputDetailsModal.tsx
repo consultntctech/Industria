@@ -16,6 +16,11 @@ import { IBatch } from "@/lib/models/batch.model";
 import { IUser } from "@/lib/models/user.model";
 import {useCanUser } from "@/hooks/useAuth";;
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
+import { IOriginalPrice } from "@/types/Types";
+import { IOtherCurrency } from "@/lib/models/othercurrency.model";
+import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
+import SearchSelectCurrencies from "../../inputs/dropdowns/SearchSelectCurrencies";
+import CustomCheckV2 from "@/components/misc/CustomCheckV2";
 
 type InputDetailsModalProps = {
     openNew:boolean;
@@ -31,6 +36,9 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
     const [batch, setBatch] = useState<string>('');
     const [productToProduce, setProductToProduce] = useState<IProduct|null>(null);
     const [supervisor, setSupervisor] = useState<IUser | null>(null);
+    const [useRate, setUseRate] = useState(false);
+    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
+    const [originalCost, setOriginalCost] = useState(0);
     const isEditor = useCanUser('8', 'UPDATE');
 
     const formRef = useRef<HTMLFormElement>(null);
@@ -38,13 +46,23 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
     const batched = production?.batch as IBatch;
     const productToProd = production?.productToProduce as IProduct;
     const supervisord = production?.supervisor as IUser;
+    const original = production?.original as IOriginalPrice;
+    const savedCurrency = original?.currency as IOtherCurrency;
 
+
+    const showRate = exposeRate(savedCurrency, otherCurrency);
+    const rate = currencyRate(original, otherCurrency, showRate, useRate);
+    const productionCost = originalCost * rate;
+    // console.log(rate)
 
     useEffect(() => {
         if(production){
             setBatch(batched?._id);
             setProductToProduce(productToProd);
             setSupervisor(supervisord);
+            setOtherCurrency(savedCurrency);
+            setData({...production});
+            setOriginalCost(original?.amount || 0);
         }
     }, [production]);
 
@@ -64,7 +82,13 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
             ...data,
             status: production?.status === 'Completed' ? 'Completed' : 'In Progress',
             id:production?._id,
-            batch, supervisor: supervisor?._id, productToProduce: productToProduce?._id
+            batch, supervisor: supervisor?._id, productToProduce: productToProduce?._id,
+            productionCost,
+            original:{
+              amount: originalCost,
+              rate,
+              currency: otherCurrency?._id as string,
+            },
           };
           const res = await updateProduction(updateData);
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -80,6 +104,9 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
           setLoading(false);
         }
     }
+
+    const costLabel = `Production cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const otherLabel = `Production cost (${otherCurrency?.symbol || otherCurrency?.name})`;
 
   return (
      <ModalContainer open={openNew} handleClose={()=>setOpenNew(false)}>
@@ -101,16 +128,25 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
                         label="Select supervisor"
                         input={<SearchSelectUsers value={supervisord} required={true} setSelect={setSupervisor} />}
                     />
+                    <GenericLabel
+                        label="Product to produce"
+                        input={<SearchSelectProducts value={productToProd} type="Finished Good" required={true} setSelect={setProductToProduce} />}
+                    />
                 </div>
             
                 <div className="flex gap-4 flex-col w-full justify-between">
                     <div className="flex flex-col gap-4 w-full">
-                        <GenericLabel
-                            label="Product to produce"
-                            input={<SearchSelectProducts value={productToProd} type="Finished Good" required={true} setSelect={setProductToProduce} />}
-                        />
                         <InputWithLabel onChange={onChange} defaultValue={production?.xquantity} name="xquantity" required type="number" min={1} placeholder="10" label="Expected output quantity" className="w-full" />
-                        <InputWithLabel defaultValue={production?.productionCost} onChange={onChange} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Production cost ${currency?.symbol}`} className="w-full" />
+                        <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!original} setSelect={setOtherCurrency} value={savedCurrency} />} />
+                        {
+                            showRate &&
+                        <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
+                        }
+                        <InputWithLabel defaultValue={originalCost} onChange={(e)=>setOriginalCost(Number(e.target.value))} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                        {
+                            otherCurrency &&
+                            <InputWithLabel value={productionCost} readOnly type="number" min={1} placeholder={`${currency?.symbol}1000`} label={costLabel} className="w-full" />
+                        }
                     </div>
                     {
                         isEditor &&

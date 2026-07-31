@@ -5,9 +5,11 @@ import { IBatch } from "@/lib/models/batch.model";
 import { IGood } from "@/lib/models/good.model";
 import { ILineItem } from "@/lib/models/lineitem.model";
 import { IOrganization } from "@/lib/models/org.model";
+import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { IPackage } from "@/lib/models/package.model";
 import { IProduct } from "@/lib/models/product.model";
 import { IUser } from "@/lib/models/user.model";
+import { IOriginalPrice } from "@/types/Types";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Link from "next/link";
 
@@ -100,6 +102,21 @@ export const LineItemsColumns = (
             field:'price',
             headerName: `Price ${currency ? `(${currency?.symbol})`:'' } `,
             width:100,
+        },
+        {
+            field:'original',
+            headerName: 'Original Price',
+            width:100,
+            valueFormatter: (_, row:ILineItem)=>{
+                const original = row?.original as IOriginalPrice;
+                const cy = original?.currency as IOtherCurrency;
+                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount}` : 0;
+            },
+            valueGetter: (_, row:ILineItem)=>{
+                const original = row?.original as IOriginalPrice;
+                const cy = original?.currency as IOtherCurrency;
+                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount}` : 0;
+            }
         },
         {
             field: 'status',

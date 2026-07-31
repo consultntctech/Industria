@@ -21,7 +21,9 @@ import { useRouter } from "next/navigation";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import SearchSelectBatchesWithRM from "../shared/inputs/dropdowns/SearchSelectBatchesWithRM";
 import { IUser } from "@/lib/models/user.model";
-import {useCanUser } from "@/hooks/useAuth";;
+import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
+import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
+;
 
 const NewProductionComp = () => {
     const [loading, setLoading] = useState(false);
@@ -31,6 +33,7 @@ const NewProductionComp = () => {
     const [productBatchId, setProductBatchId] = useState<string>('');
     const [rawMaterials, setRawMaterials] = useState<IRMaterial[]>([]);
     const [ingredients, setIngredients] = useState<IIngredient[]>([]);
+    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
     // const [proditems, setProditems] = useState<IProdItem[]>([]);
     const [data, setData] = useState<Partial<IProduction>>({});
     const [totalPrice, setTotalPrice] = useState(0);
@@ -76,6 +79,7 @@ const NewProductionComp = () => {
     }
 
     const inputQuantity = ingredients?.reduce((acc, cur)=> acc + (cur.qUsed || 0), 0);
+    const finalPrice = productionCost * (otherCurrency?.rate || 1);
     // alert(totalPrice + totalProd);
 
     useEffect(() => {
@@ -113,7 +117,12 @@ const NewProductionComp = () => {
                 })),
                 // proditems: proditems?.map(item=>item._id),
                 inputQuantity,
-                productionCost
+                productionCost: finalPrice,
+                original:{
+                    amount: productionCost,
+                    rate: otherCurrency?.rate || 1,
+                    currency: otherCurrency?._id as string
+                }
             }
             
           const res = await createProduction(prodData);
@@ -159,6 +168,8 @@ const NewProductionComp = () => {
     }
 
     // console.log('Ingredients: ', ingredients)
+    const costLabel = `Production cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const otherLabel = `Production cost (${otherCurrency?.symbol || otherCurrency?.name})`;
 
   return (
      <div className={`flex p-4 lg:p-8 rounded-2xl w-full`}>
@@ -185,6 +196,10 @@ const NewProductionComp = () => {
                             input={<SearchSelectProducts type="Finished Good" required={true} setSelect={setProductToProduce} />}
                         />
                         <InputWithLabel onChange={onChange} name="xquantity" required type="number" min={1} placeholder="10" label="Expected output quantity" className="w-full" />
+                        <GenericLabel
+                            label="Select currency"
+                            input={<SearchSelectCurrencies required={true} setSelect={setOtherCurrency} />}
+                        />
                     </div>
         
                     <div className="flex gap-4 flex-col w-full justify-between">
@@ -226,7 +241,11 @@ const NewProductionComp = () => {
                                 label="Add production items"
                                 input={<SearchSelectMultipleProdItems setSelection={setProditems} />}
                             /> */}
-                            <InputWithLabel value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Production cost ${currency?.symbol}`} className="w-full" />
+                            <InputWithLabel value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                            {
+                                otherCurrency  &&
+                                <InputWithLabel value={finalPrice} readOnly type="number" min={1} placeholder={`${currency?.symbol}1000`} label={costLabel} className="w-full" />
+                            }
                         </div>
                         {
                             isCreator &&

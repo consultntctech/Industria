@@ -1,19 +1,21 @@
 
-import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Deleter,  Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
 import { IOrganization } from "@/lib/models/org.model";
+import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { IPackage } from "@/lib/models/package.model";
 // import { IProdItem } from "@/lib/models/proditem.model";
 import { IStorage } from "@/lib/models/storage.model";
 import { IUser } from "@/lib/models/user.model";
+import { IOriginalPrice } from "@/types/Types";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
 
 export const PackagesColumns = (
     handleInfo: (item:IPackage)=>void,
-    handleEdit: (item:IPackage)=>void,
+    // handleEdit: (item:IPackage)=>void,
     handleDelete: (item:IPackage)=>void,
 ):GridColDef[]=>{
     const {currency} = useCurrencyConfig();
@@ -91,6 +93,22 @@ export const PackagesColumns = (
             field: 'cost',
             headerName: currency ? `Cost (${currency.symbol})` : 'Cost',
             width:100,
+        },
+
+        {
+            field: 'original',
+            headerName: 'Original Price',
+            width:100,
+            valueFormatter: (_, row:IPackage)=>{
+                const original = row?.original as IOriginalPrice;
+                const cy = original?.currency as IOtherCurrency;
+                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount}` : 0;
+            },
+            valueGetter: (_, row:IPackage)=>{
+                const original = row?.original as IOriginalPrice;
+                const cy = original?.currency as IOtherCurrency;
+                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount}` : 0;
+            }
         },
         
         {
@@ -265,7 +283,7 @@ export const PackagesColumns = (
             return(
                 <div className="h-full flex-center gap-3">
                     <Viewer tableId="99" tip="View package" onClick={()=>handleInfo(params?.row)} />
-                    <Editor tableId="99" tip="Edit package" onClick={()=>handleEdit(params?.row)} />
+                    {/* <Editor tableId="99" tip="Edit package" onClick={()=>handleEdit(params?.row)} /> */}
                     <Deleter tableId="99" tip="Delete package" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )

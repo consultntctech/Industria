@@ -1,6 +1,6 @@
 'use server'
 
-import { IResponse } from "@/types/Types";
+import { IOriginalPrice, IResponse } from "@/types/Types";
 import LineItem, { ILineItem } from "../models/lineitem.model";
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
@@ -30,12 +30,12 @@ export async function createLineItems (data:Partial<ILineItem>[]):Promise<IRespo
 }
 
 
-export async function createPriceForAllLineItemsInPackage (packageId: string, price: number): Promise<IResponse> {
+export async function createPriceForAllLineItemsInPackage (packageId: string, price: number, original:IOriginalPrice): Promise<IResponse> {
     try {
         await connectDB();
         const lineItems = await LineItem.updateMany(
             { package: packageId },
-            { price: price }
+            { price, original }
         );
         return respond('Line items price updated successfully', false, lineItems, 200);
     } catch (error) {
@@ -76,6 +76,7 @@ export async function getLineItems (): Promise<IResponse> {
         populate('product').
         populate('good').
         populate('package').
+        populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
         return respond('Line items found successfully', false, lineItems, 200);
@@ -93,6 +94,7 @@ export async function getAvailableLineItems (): Promise<IResponse> {
         populate('good').
         populate('batch').
         populate('package').
+        populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
         return respond('Line items found successfully', false, lineItems, 200);
@@ -111,6 +113,7 @@ export async function getAvailableLineItemsByOrg (orgId:string): Promise<IRespon
         populate('good').
         populate('batch').
         populate('package').
+        populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
         return respond('Line items found successfully', false, lineItems, 200);
@@ -143,6 +146,7 @@ export async function getAvailableLineItemsByProduct(
       .populate("good")
       .populate('batch')
       .populate("package")
+      .populate("original.currency")
       .populate("createdBy")
       .populate("org");
 
@@ -167,6 +171,7 @@ export async function getLineItemsByProduct (productId: string): Promise<IRespon
         populate('product').
         populate('good').
         populate('package').
+        populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
         return respond('Line items found successfully', false, lineItems, 200);
@@ -185,6 +190,7 @@ export async function getAvailableLineItemsByProducts (products: string[]): Prom
         populate('good').
         populate('batch').
         populate('package').
+        populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
         return respond('Line items found successfully', false, lineItems, 200);
@@ -203,6 +209,7 @@ export async function getAvailableLineItemsByProductAndOrg (productId: string, o
         populate('good').
         populate('batch').
         populate('package').
+        populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
         return respond('Line items found successfully', false, lineItems, 200);
@@ -219,6 +226,7 @@ export async function getLineItemsByProductAndOrg (productId: string, orgId:stri
         populate('product').
         populate('good').
         populate('package').
+        populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
         return respond('Line items found successfully', false, lineItems, 200);
@@ -236,6 +244,7 @@ export async function getLineItemsByPackage (packageId: string): Promise<IRespon
         .populate('product')
         .populate('good')
         .populate('package')
+        .populate('original.currency')
         .populate('createdBy')
         .populate('batch')
         .populate('org').lean() as unknown as ILineItem[];
@@ -254,6 +263,7 @@ export async function getLineItemsByPackageAndOrg (packageId: string, org:string
         .populate('product')
         .populate('good')
         .populate('package')
+        .populate('original.currency')
         .populate('createdBy')
         .populate('batch')
         .populate('org').lean() as unknown as ILineItem[];
@@ -272,6 +282,7 @@ export async function getLineItemsByOrg (org: string): Promise<IResponse> {
         .populate('product')
         .populate('good')
         .populate('package')
+        .populate('original.currency')
         .populate('createdBy')
         .populate('batch')
         .populate('org').lean() as unknown as ILineItem[];
@@ -291,6 +302,7 @@ export async function getLineItem (id: string): Promise<IResponse> {
             { path: "good" },
             { path: "batch" },
             { path: "package" },
+            { path: "original.currency" },
             { path: "createdBy" },
             { path: "org" },
         ]);

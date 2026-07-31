@@ -13,6 +13,8 @@ import { IGood } from '@/lib/models/good.model';
 import { useAuth } from '@/hooks/useAuth';
 import { isSystemAdmin } from '@/Data/roles/permissions';
 import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { IOriginalPrice } from '@/types/Types';
+import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 
 type LineItemsInfoModalProps = {
     infoMode:boolean,
@@ -29,8 +31,11 @@ const LineItemsInfoModal = ({infoMode, setInfoMode, currentLineItem, setCurrentL
     const good = currentLineItem?.good as IGood;
     const batch = currentLineItem?.batch as IBatch;
     const {currency} = useCurrencyConfig();
-
     const {user} = useAuth();
+
+    const original = currentLineItem?.original  as IOriginalPrice;
+    const currentCurrency = original?.currency as IOtherCurrency;
+
     const isAdmin = isSystemAdmin(user);
 
     const handleClose = ()=>{
@@ -54,6 +59,10 @@ const LineItemsInfoModal = ({infoMode, setInfoMode, currentLineItem, setCurrentL
             <div className="flex flex-col">
                 <span className="mlabel">Price</span>
                 <span className="mtext">{currentLineItem?.price ? `${currency?.symbol||''}${currentLineItem?.price}` : 'Not set'}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Original Price</span>
+                <span className="mtext">{original ? `${currentCurrency?.symbol || currentCurrency?.name ||''}${original?.amount || 0}` : 'Not set'}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Status</span>

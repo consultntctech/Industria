@@ -7,10 +7,12 @@ import { useAuth } from '@/hooks/useAuth';
 import { IBatch } from '@/lib/models/batch.model';
 import { IGood } from '@/lib/models/good.model';
 import { IOrganization } from '@/lib/models/org.model';
+import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import { IGoodsPopulate, IPackage } from '@/lib/models/package.model';
 // import { IProdItem } from '@/lib/models/proditem.model';
 import { IStorage } from '@/lib/models/storage.model';
 import { IUser } from '@/lib/models/user.model';
+import { IOriginalPrice } from '@/types/Types';
 import Link from 'next/link';
 import  { Dispatch, SetStateAction } from 'react'
 
@@ -31,6 +33,9 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
     const product = goods?.map((g)=> g?.goodId as IGood)[0];
     const storage = currentPackage?.storage as IStorage;
     const approver = currentPackage?.approvedBy as IUser;
+
+    const original = currentPackage?.original as IOriginalPrice;
+    const cy = original?.currency as IOtherCurrency;
 
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
@@ -116,6 +121,10 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
             <div className="flex flex-col">
                 <span className="mlabel">Cost</span>
                 <span className="mtext">{`${currency?.symbol || ''}${currentPackage?.cost}`}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Original Cost</span>
+                <span className="mtext">{`${cy?.symbol || cy?.name || ''}${original?.amount || 0}`}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Approval Status</span>

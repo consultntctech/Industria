@@ -26,10 +26,10 @@ const PackageTable = () => {
 
     const paginationModel = { page: 0, pageSize: 15 };
 
-    const handleEdit = (user:IPackage)=>{
-        setCurrentPackage(user);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    // const handleEdit = (user:IPackage)=>{
+    //     setCurrentPackage(user);
+    //     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // }
 
     const handleInfo = (user:IPackage)=>{
         setShowInfo(true);
@@ -80,7 +80,7 @@ const PackageTable = () => {
                         loading={isPending}
                         getRowId={(row:IPackage)=>row._id}
                         rows={packages}
-                        columns={PackagesColumns(handleInfo, handleEdit, handleDelete)}
+                        columns={PackagesColumns(handleInfo,  handleDelete)}
                         initialState={{ 
                             pagination: { paginationModel },
                             columns:{
@@ -94,6 +94,7 @@ const PackageTable = () => {
                                 //   packagingMaterial: false,
                                   useProdBatch: false,
                                   batch: true,
+                                  original: false,
                                   quantity: false,
                                   rejected: false,
                                   qStatus: false,

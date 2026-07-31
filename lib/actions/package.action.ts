@@ -11,6 +11,7 @@ import '../models/batch.model'
 import '../models/storage.model'
 import '../models/proditem.model'
 import '../models/product.model'
+import '../models/othercurrency.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Good from "../models/good.model";
 import PackApproval from "../models/packapproval.model";
@@ -273,6 +274,7 @@ export async function getApprovedPackages():Promise<IResponse>{
         .populate('supervisor')
         .populate('storage')
         .populate('batch')
+        .populate('original.currency')
         .populate({
           path:'packagingMaterial',
           populate:{
@@ -299,6 +301,7 @@ export async function getApprovedPackagesByOrg(orgId:string):Promise<IResponse>{
         .populate('createdBy')
         .populate('approvedBy')
         .populate('batch')
+        .populate('original.currency')
         .populate('storage')
         .populate({
           path:'packagingMaterial',
@@ -324,6 +327,7 @@ export async function getPackages():Promise<IResponse>{
         .populate('supervisor')
         .populate('storage')
         .populate('batch')
+        .populate('original.currency')
         .populate({
           path:'packagingMaterial',
           populate:{
@@ -349,6 +353,7 @@ export async function getPackagesByOrg(orgId:string):Promise<IResponse>{
         .populate('createdBy')
         .populate('approvedBy')
         .populate('batch')
+        .populate('original.currency')
         .populate('storage')
         .populate({
           path:'packagingMaterial',
@@ -526,6 +531,7 @@ export async function getPackage(id: string): Promise<IResponse> {
         { path: "packagingMaterial", populate: { path: "materialId" } },
         { path: "storage" },
         { path: "batch" },
+        { path: "original.currency" },
         { path: "approvedBy" },
     ]);
 

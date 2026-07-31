@@ -15,7 +15,11 @@ import { useFetchProditem } from "@/hooks/fetch/useFetchProditem";
 import { PACKAGING_CATEGORY, PACKAGING_SUBCATEGORY, TPackagingProcess } from "@/Data/PackagingProcesses";
 import SearchSelectPackagingType from "../shared/inputs/dropdowns/SearchSelectPackagingType";
 import CustomCheckV2 from "../misc/CustomCheckV2";
-import {useCanUser } from "@/hooks/useAuth";;
+import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
+import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
+import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
+import { IOriginalPrice } from "@/types/Types";
+;
 
 type ProdItemCompProps = {
   openNew:boolean;
@@ -31,7 +35,10 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     const [category, setCategory] = useState<TPackagingProcess | null>(null);
     const [subcategory, setSubcategory] = useState<TPackagingProcess | null>(null);
     const [reusable, setReusable] = useState<boolean>(false);
-    const [price, setPrice] = useState<number>(0);
+    // const [price, setPrice] = useState<number>(0);
+    const [useRate, setUseRate] = useState(false);
+    const [originalCost, setOriginalCost] = useState(0);
+    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
     const formRef = useRef<HTMLFormElement>(null);
     const {user} = useAuth();
     const {currency} = useCurrencyConfig();
@@ -41,6 +48,14 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     const isEditor = useCanUser('12', 'UPDATE');
 
     const savedSuppliers = currentProdItem?.suppliers as unknown as ISupplier[];
+    const savedCurrency = currentProdItem?.original?.currency as IOtherCurrency;
+    const original = currentProdItem?.original as IOriginalPrice;
+
+    const showRate = exposeRate(savedCurrency, otherCurrency);
+    const rate = currencyRate(original, otherCurrency, useRate, showRate);
+
+    // const originalCost = (data?.quantity || 0) * (data?.unitPrice || 0);
+    const price = originalCost * rate;
 
 
     useEffect(() => {
@@ -50,7 +65,8 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
             setReusable(currentProdItem?.reusable);
             setCategory({label:currentProdItem?.category});
             setSubcategory({label:currentProdItem?.subcategory});
-            setPrice(currentProdItem?.price);
+            setOriginalCost(original?.amount || 0);
+            setOtherCurrency(savedCurrency);
         }else{
             setData({});
             setSuppliers([]);
@@ -64,7 +80,9 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
 
     useEffect(() => {
       if(data.quantity && data.unitPrice && !currentProdItem){
-        setPrice(data.quantity * data.unitPrice);
+        setOriginalCost(data.quantity * data.unitPrice);
+      }else{
+        setOriginalCost(original?.amount || 0);
       }
     }, [data.quantity, data.unitPrice, currentProdItem])
 
@@ -91,7 +109,12 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
             org:user?.org, suppliers, createdBy:user?._id,
             stock: data.quantity, reusable,
             used: 0, category: category?.label, subcategory: subcategory?.label,
-            price
+            price,
+            original:{
+              amount: originalCost,
+              rate,
+              currency: otherCurrency?._id as string,
+            }
           }
           const res = await createProdItem(prod);
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -119,7 +142,12 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
             suppliers,
             stock: data.quantity, reusable,
             category: category?.label, subcategory: subcategory?.label,
-            price
+            price,
+            original:{
+              amount: originalCost,
+              rate,
+              currency: otherCurrency?._id as string,
+            }
           }
           const res = await updateProdItem(prod);
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -137,12 +165,14 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     }
 
     // console.log('Reusable: ', reusable)
+    const costLabel = `Total cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const otherLabel = `Total cost (${otherCurrency?.symbol || otherCurrency?.name})`;
 
   return (
     <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`}>
         <form ref={formRef} onSubmit={currentProdItem ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
             <div className="flex flex-col gap-1">
-                <span className="title" >{currentProdItem ? 'Edit production item' : 'Add new production item'}</span>
+                <span className="title" >{currentProdItem ? 'Edit packaging item' : 'Add new packaging item'}</span>
                 <span className="greyText" >These are extra materials you used for production. Eg. sacks, bottles, etc</span>
             </div>
 
@@ -176,12 +206,21 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
                         />
                         <InputWithLabel defaultValue={currentProdItem?.threshold} onChange={onChange} name="threshold" type="number" min={0} placeholder="0" label="Reorder threshold" className="w-full" />
                         <InputWithLabel defaultValue={currentProdItem?.quantity} onChange={onChange} name="quantity" required type="number" min={1} placeholder="10" label="Enter quantity" className="w-full" />
+                        <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentProdItem} setSelect={setOtherCurrency} value={savedCurrency} />} />
+                        {
+                            showRate &&
+                          <GenericLabel label='Use current rate' input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} className="flex-row items-center gap-6" />
+                        }
                     </div>
         
                     <div className="flex gap-4 flex-col w-full justify-between">
                         <div className="flex flex-col gap-4 w-full">
-                          <InputWithLabel defaultValue={currentProdItem?.unitPrice} step={0.0001} onChange={onChange} name="unitPrice" required type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={'Enter unit price ' + (currency?.symbol || '')} className="w-full" />
-                          <InputWithLabel value={price} onChange={(e)=>setPrice(Number(e.target.value))} name="price" required type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={'Enter total price ' + (currency?.symbol || '')} className="w-full" />
+                          <InputWithLabel defaultValue={original?.amount} step={0.0001} onChange={onChange} name="unitPrice" required={!currentProdItem} type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={'Enter unit price'} className="w-full" />
+                          <InputWithLabel value={originalCost} onChange={(e)=>setOriginalCost(Number(e.target.value))} name="price" required={!currentProdItem} type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                          {
+                            otherCurrency &&
+                            <InputWithLabel value={price}  name="price" type="number" readOnly min={0} placeholder={`${currency?.symbol}25.5`} label={costLabel} className="w-full" />
+                          }
                           <InputWithLabel defaultValue={currentProdItem?.uom} onChange={onChange} name="uom" placeholder='eg. liters' label='Unit of measure' className="w-full" />
                           <div className="flex flex-row items-center gap-4">
                               <span className="smallText">This item is reusable</span>

@@ -7,6 +7,7 @@ import { IRMaterial } from "./rmaterial.mode";
 import { IProdItem } from "./proditem.model";
 import { Schema } from "mongoose";
 import ProdApproval from "./prodapproval.model";
+import { IOriginalPrice } from "@/types/Types";
 
 export interface ProdIngredient{
     materialId: string
@@ -29,6 +30,7 @@ export interface IProduction extends Document {
     status:string;
     ingredients: IIngredientInProduction[];
     proditems?: string[] | Types.ObjectId[] | IProdItem[];
+    original:IOriginalPrice;
     inputQuantity: number;
     outputQuantity?: number;
     xquantity?: number;
@@ -57,6 +59,7 @@ const ProductionSchema = new Schema<IProduction>({
         weight: { type: Number, required: false },
     }],
     proditems: [{ type: Schema.Types.ObjectId, ref: 'ProdItem', required: false }],
+    original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     inputQuantity: { type: Number, required: true },
     outputQuantity: { type: Number, required: false },
     xquantity: { type: Number, required: false, default: 0 },

@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import ModalContainer from '../ModalContainer';
 import { IoIosClose } from 'react-icons/io';
 import { FaChevronUp } from 'react-icons/fa';
@@ -7,15 +7,19 @@ import InputWithLabel from '../../inputs/InputWithLabel';
 import PrimaryButton from '../../buttons/PrimaryButton';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 // import { IProdItem } from '@/lib/models/proditem.model';
-import {  IQSelector } from '@/types/Types';
+import {  IOriginalPrice, IQSelector } from '@/types/Types';
 import { enqueueSnackbar } from 'notistack';
-import '@/styles/customscroll.css'
 import { IPackage } from '@/lib/models/package.model';
 import  { IProdItem } from '@/lib/models/proditem.model';
 import ProdItemSelector from '@/components/misc/ProdItemSelector';
 import SearchSelectAvMultipleProdItems from '../../inputs/dropdowns/SearchSelectAvMultipleProdItems';
 import { updatePackagingMaterials } from '@/lib/actions/package.action';
 import { useCanUser } from '@/hooks/useAuth';
+import { IOtherCurrency } from '@/lib/models/othercurrency.model';
+import { currencyRate, exposeRate } from '@/functions/currencyHelpers';
+import SearchSelectCurrencies from '../../inputs/dropdowns/SearchSelectCurrencies';
+import CustomCheckV2 from '@/components/misc/CustomCheckV2';
+import '@/styles/customscroll.css'
 // import { arraysEqual } from '@/functions/helpers';
 
 type PackageContentModalProps = {
@@ -31,7 +35,10 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
   const [data, setData] = React.useState<Partial<IPackage>>({});
   const [packagingMaterial, setPackagingMaterial] = useState<IProdItem[]>([]);
   const [packItems, setPackItems] = useState<IQSelector[]>([]);
-  const [cost, setCost] = useState<number>(0);
+  const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+  const [useRate, setUseRate] = useState(false);
+//   const [cost, setCost] = useState<number>(0);
+  const [manualCost, setManualCost] = useState<number | null>(null);
   const isEditor = useCanUser('99', 'UPDATE');
 
 
@@ -42,8 +49,25 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
 
 
     const oldPackingMaterial = pack?.packagingMaterial?.map((item=>item?.materialId)) as unknown as IProdItem[];
+    const original = pack?.original as IOriginalPrice;
+    const currentCurrency = original?.currency as IOtherCurrency;
     // const equals = arraysEqual(oldPackingMaterial.map(ing=>ing._id), packagingMaterial.map(ing=>ing._id));
     
+    const showRate  = exposeRate(currentCurrency, otherCurrency);
+    const rate = currencyRate(original, otherCurrency, showRate, useRate);
+
+    
+    const calculatedCost = useMemo(() => {
+        return packagingMaterial.reduce((sum, material) => {
+            const item = packItems.find(ing => ing.materialId === material._id);
+            const qUsed = item?.quantity || 0;
+            return sum + (material.unitPrice * qUsed);
+        }, 0);
+    }, [packagingMaterial, packItems]);
+    
+    const cost = manualCost !== null ? manualCost : calculatedCost;
+    // console.log('Cost: ', price);
+    const price = cost * rate;
 
 
     useEffect(() => {
@@ -55,28 +79,26 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
             }));
             setPackagingMaterial(oldPackingMaterial);
             setPackItems(formaattedItems);
+            setManualCost(null);
+            setOtherCurrency(currentCurrency);
         }
     }, [pack])
-
-    useEffect(() => {
-        
-        const price = packagingMaterial.reduce((sum, material) => {
-            const item = packItems.find(ing => ing.materialId === material._id);
-            const qUsed = item?.quantity || 0;
-            return sum + (material.unitPrice * qUsed);
-        }, 0);
-        setCost(price);
-        
-    }, [packagingMaterial.length, packItems.length]);
-
 
     useEffect(() => {
         if (packagingMaterial.length === 0) return;
         const validIds = new Set(packagingMaterial.map(rm => rm._id));
         setPackItems(prev => prev.filter(ing => validIds.has(ing.materialId)));
-        setData(pre=>({...pre, cost}));
-    }, [packagingMaterial,  cost]);
+        setManualCost(null); // material selection changed → drop any manual override
+    }, [packagingMaterial]);
 
+    useEffect(() => {
+        setData(pre => ({...pre, cost}));
+    }, [cost]);
+
+    const changeCost = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const {value} = e.target;
+        setManualCost(value === '' ? null : Number(value));
+    };
 
     
     const onChangeInput = (e:React.ChangeEvent<HTMLInputElement>)=>{
@@ -92,15 +114,11 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
         })
     }
 
-    const changeCost = (e:React.ChangeEvent<HTMLInputElement>)=>{
-        const {value} = e.target;
-        setCost(Number(value));
-    }
-
   
 
     const handleClose = ()=>{
         setOpenNew(false);
+        // setOtherCurrency(null);
         // setOpenItem(false);
     }
 
@@ -115,7 +133,12 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
                      materialId: ing.materialId,
                      quantity: ing.quantity
                  })),
-                //  proditems: proditems?.map(item=>item._id),
+                 cost: price,
+                 original:{
+                     amount: cost,
+                     rate,
+                     currency: otherCurrency?._id as string,
+                 },
              }
              
            const res = await updatePackagingMaterials(prodData);
@@ -141,10 +164,12 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
      }
 
     //  console.log('Raw Materials: ', ingredients)
+    const costLabel = `Packaging cost (${currency?.symbol || currency?.name || 'Primary currency'} ${pack?.cost})`;
+    const otherLabel = `Packaging cost (${otherCurrency?.symbol || otherCurrency?.name} ${original?.amount})`;
 
   return (
     <ModalContainer  open={openNew} handleClose={handleClose}>
-        <div className="flex w-[90%] md:w-[50%] max-h-[95%]">
+        <div className="flex w-[90%] md:w-[50%] h-[90%] items-center">
             <form ref={formRef} onSubmit={ handleSubmit}  className="formBox overflow-y-scroll scrollbar-custom  h-full relative p-4 flex-col gap-8 w-full" >
                 <div className="flex flex-col gap-1">
                     <span className="title" >Edit package data</span>
@@ -189,7 +214,16 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
                                     input={<SearchSelectMultipleProdItems value={proditems} setSelection={setProditems} />}
                                 />
                             } */}
-                            <InputWithLabel value={cost || pack?.cost} onChange={changeCost} name="cost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={`Packaging cost (${currency?.symbol || ''} ${pack?.cost})`} className="w-full" />
+                            <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!original} setSelect={setOtherCurrency} value={currentCurrency} />} />
+                            {
+                                showRate &&
+                                <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
+                            }
+                            <InputWithLabel value={cost} onChange={changeCost} step={0.00001} name="cost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                            {
+                                otherCurrency &&
+                                <InputWithLabel value={price} readOnly type="number" min={1} placeholder={`${currency?.symbol}1000`} label={costLabel} className="w-full" />
+                            }
                         </div>
                         {
                             isEditor &&

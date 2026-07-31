@@ -6,6 +6,7 @@ import { IStorage } from "./storage.model";
 import { IOrganization } from "./org.model";
 import { IProdItem } from "./proditem.model";
 import PackApproval from "./packapproval.model";
+import { IOriginalPrice } from "@/types/Types";
 
 export interface IProdItemQuantity {
     materialId: string | Types.ObjectId | IProdItem;
@@ -39,6 +40,7 @@ export interface IPackage extends Document {
     rejected: number;
     accepted: number;
     weight: string;
+    original: IOriginalPrice;
     qStatus: string;
     sold: number;
     comment: string;
@@ -70,6 +72,7 @@ const PackageSchema = new Schema<IPackage>({
     useProdBatch: { type: Boolean, required: false },
     batch: { type: Schema.Types.ObjectId, ref: 'Batch', required: false },
     quantity: { type: Number, required: true },
+    original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     rejected: { type: Number, required: false, default: 0 },
     accepted: { type: Number, required: false, default: 0 },
     sold: { type: Number, required: false, default: 0 },

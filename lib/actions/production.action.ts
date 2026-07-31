@@ -10,6 +10,7 @@ import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import '../models/user.model'
 import '../models/product.model'
 import '../models/batch.model'
+import '../models/othercurrency.model'
 import Alert, { IAlert } from "../models/alert.model";
 
 
@@ -565,6 +566,7 @@ export async function getProduction(id: string): Promise<IResponse> {
       [
         { path: "productToProduce" },
         { path: "supervisor" },
+        { path: "original.currency" },
         { path: "createdBy" },
         { path: "batch" },
         // {path: 'proditems'},

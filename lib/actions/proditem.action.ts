@@ -6,6 +6,7 @@ import { respond } from "../misc";
 import { connectDB } from "../mongoose";
 import '../models/org.model';
 import '../models/supplier.model';
+import '../models/othercurrency.model';
 
 export async function createProdItem(data: Partial<IProdItem>): Promise<IResponse> {
   try {
@@ -60,6 +61,7 @@ export async function getProdItems():Promise<IResponse>{
         const prodItems = await ProdItem.find().
         populate('suppliers').
         populate('createdBy').
+        populate('original.currency').
         populate('org').lean() as unknown as IProdItem[];
         return respond('Production items found successfully', false, prodItems, 200);
     } catch (error) {
@@ -74,6 +76,7 @@ export async function getProdItemsByOrg(orgId:string):Promise<IResponse>{
         const prodItems = await ProdItem.find({ org: orgId }).
         populate('suppliers').
         populate('createdBy').
+        populate('original.currency').
         populate('org').lean() as unknown as IProdItem[];
         return respond('Production items found successfully', false, prodItems, 200);
     } catch (error) {
@@ -88,6 +91,7 @@ export async function getAvailableProdItems():Promise<IResponse>{
         const prodItems = await ProdItem.find({ $or: [{stock: { $gt: 0 }}, {reusable: true}] }).
         populate('suppliers').
         populate('createdBy').
+        populate('original.currency').
         populate('org').lean() as unknown as IProdItem[];
         return respond('Available production items found successfully', false, prodItems, 200);
     } catch (error) {
@@ -103,6 +107,7 @@ export async function getAvailableProdItemsByOrg(orgId:string):Promise<IResponse
         const prodItems = await ProdItem.find({ org: orgId, $or: [{stock: { $gt: 0 }}, {reusable: true}] }).
         populate('suppliers').
         populate('createdBy').
+        populate('original.currency').
         populate('org').lean() as unknown as IProdItem[];
         return respond('Available production items found successfully', false, prodItems, 200);
     } catch (error) {
@@ -126,7 +131,8 @@ export async function updateProdItem(data:Partial<IProdItem>):Promise<IResponse>
 export async function getProdItem(id:string):Promise<IResponse>{
     try {
         await connectDB();
-        const prodItem = await ProdItem.findById(id);
+        const prodItem = await ProdItem.findById(id).
+        populate('original.currency');
         return respond("Production item retrieved successfully", false, prodItem, 200);
     } catch (error) {
         console.log(error);

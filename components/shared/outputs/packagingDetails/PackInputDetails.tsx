@@ -12,6 +12,8 @@ import PackInputDetailsModal from './PackInputDetailsModal';
 import { IProduction } from '@/lib/models/production.model';
 import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import { useCanUser } from '@/hooks/useAuth';
+import { IOriginalPrice } from '@/types/Types';
+import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 // import { formatDate } from '@/functions/dates';
 
 type PackInputDetailsProps = {
@@ -28,11 +30,13 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
     const creator = pack?.createdBy as IUser;
     const products = pack?.goods as IGoodsPopulate[]
     const storage = pack?.storage as IStorage;
-
-    // console.log('Package: ', pack)
-
+    
     const {primaryColour} = useSettings();
     const {currency} = useCurrencyConfig();
+    // console.log('Package: ', pack)
+    const original = pack?.original as IOriginalPrice;
+    const cry = original?.currency as IOtherCurrency;
+
   return (
     <div className="formBox p-3 flex-col gap-4 relative">
         {
@@ -126,6 +130,11 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Packaging Cost:</span>
           <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${pack?.cost}`}</span>
+        </div>
+
+        <div className="flex flex-row items-center gap-4">
+          <span className="truncate w-1/2 md:w-1/5" >Original Cost:</span>
+          <span className="text-gray-600 flex-1 md:flex-5" >{`${cry?.symbol || cry?.name || ''}${original?.amount || 0}`}</span>
         </div>
 
 

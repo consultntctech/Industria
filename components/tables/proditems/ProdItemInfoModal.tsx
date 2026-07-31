@@ -5,9 +5,11 @@ import { formatDate } from '@/functions/dates';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { useAuth } from '@/hooks/useAuth';
 import { IOrganization } from '@/lib/models/org.model';
+import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import { IProdItem } from '@/lib/models/proditem.model';
 import { ISupplier } from '@/lib/models/supplier.model';
 import { IUser } from '@/lib/models/user.model';
+import { IOriginalPrice } from '@/types/Types';
 import Link from 'next/link';
 import  { Dispatch, SetStateAction } from 'react'
 
@@ -25,6 +27,8 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
     const {currency} = useCurrencyConfig();
+    const original = currentProdItem?.original as IOriginalPrice;
+    const savedCurrency = currentProdItem?.original?.currency as IOtherCurrency;
 
     const handleClose = ()=>{
         setInfoMode(false);
@@ -74,11 +78,15 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Unit price</span>
-                <span className="mtext">{currency?.symbol || ''}${currentProdItem?.unitPrice}</span>
+                <span className="mtext">{currency?.symbol || ''}{currentProdItem?.unitPrice}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Total price</span>
-                <span className="mtext">{currency?.symbol || ''}${currentProdItem?.price}</span>
+                <span className="mtext">{currency?.symbol || ''}{currentProdItem?.price}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Original price</span>
+                <span className="mtext">{savedCurrency?.symbol || savedCurrency?.name || ''}{original?.amount || 0}</span>
             </div>
             
             <div className="flex flex-col">

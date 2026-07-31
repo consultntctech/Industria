@@ -10,7 +10,13 @@ import { IoIosClose } from "react-icons/io";
 import { FaChevronUp } from "react-icons/fa";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { Tooltip } from "@mui/material";
-import {useCanUser } from "@/hooks/useAuth";;
+import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
+import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
+import { IOriginalPrice } from "@/types/Types";
+import GenericLabel from "@/components/shared/inputs/GenericLabel";
+import SearchSelectCurrencies from "@/components/shared/inputs/dropdowns/SearchSelectCurrencies";
+import '@/styles/customscroll.css'
+import CustomCheckV2 from "@/components/misc/CustomCheckV2";
 
 
 type LineItemEditCompProps = {
@@ -24,14 +30,26 @@ type LineItemEditCompProps = {
 const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setCurrentLineItem}:LineItemEditCompProps) => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<ILineItem>>({});
+    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+    const [useRate, setUseRate] = useState(false);
+    const [price, setPrice] = useState<number>(0);
     const formRef = useRef<HTMLFormElement>(null);
     const isEditor = useCanUser('44', 'UPDATE');
-
     const {currency} = useCurrencyConfig();
+
+    const original = currentLineItem?.original as IOriginalPrice;
+    const currentCurrency = original?.currency as IOtherCurrency;
+    const showRate = exposeRate(currentCurrency, otherCurrency);
+    const rate = currencyRate(original, otherCurrency, showRate, useRate);
+
+    const cost = price * rate;
+
 
     useEffect(() => {
         if(currentLineItem){
-            setData({...currentLineItem});// Set form data when currentUser changes
+            setData({...currentLineItem});
+            setOtherCurrency(currentCurrency);
+            setPrice(original?.amount || 0);
         }else{
             setData({});// Reset form data when currentUser is null
         }
@@ -54,7 +72,7 @@ const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setC
         setLoading(true);
         
         try {
-          const res = await updateLineItem({...data,});
+          const res = await updateLineItem({...data, price:cost, original:{amount:price, rate, currency:otherCurrency?._id as string}});
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
           if(!res.error){
               formRef.current?.reset();
@@ -68,10 +86,14 @@ const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setC
           setLoading(false);
         }
     }
+
+    const costLabel = `Price (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const otherLabel = `Price (${otherCurrency?.symbol || otherCurrency?.name})`;
+
   return (
     <ModalContainer open={showEdit} handleClose={()=>setShowEdit(false)}>
-        <div className="flex w-[90%] md:w-[50%]">
-            <form ref={formRef} onSubmit={handleSubmit}  className="formBox relative p-4 flex-col gap-8 w-full" >
+        <div className="flex w-[90%] md:w-[50%] h-[90%] items-center">
+            <form ref={formRef} onSubmit={handleSubmit}  className="formBox relative p-4 flex-col gap-8 w-full h-full overflow-y-scroll scrollbar-custom " >
                 <div className="flex flex-col gap-1">
                     <span className="title" >{currentLineItem?.status !== 'Sold' ? 'Update line item' : 'This item is sold'}</span>
                     <span className="greyText" >{currentLineItem?.status === 'Sold' ? 'You cannot edit sold items':'Set the price and serial number for this line item'}</span>
@@ -82,8 +104,17 @@ const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setC
                     <Tooltip title='Give it a unique name for easy identification' >
                         <InputWithLabel defaultValue={currentLineItem?.name} onChange={onChange} name="name" required placeholder="eg. item 1" label="Name" className="w-full" />
                     </Tooltip>
-                    <InputWithLabel defaultValue={currentLineItem?.serialNumber} onChange={onChange} name="serialNumber" required placeholder="eg. S1234" label="Serial Number" className="w-full" />
-                    <InputWithLabel defaultValue={currentLineItem?.price} onChange={onChange} name="price" required placeholder="eg. S1234" label={`Set price ${currency ? `(${currency?.symbol})`:'' } `} className="w-full" />
+                    <InputWithLabel defaultValue={currentLineItem?.serialNumber} onChange={onChange} name="serialNumber" placeholder="eg. S1234" label="Serial Number" className="w-full" />
+                    <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!original} setSelect={setOtherCurrency} value={currentCurrency} />} />
+                    {
+                        showRate &&
+                        <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
+                    }
+                    <InputWithLabel step={0.0001} defaultValue={price} onChange={(e)=>setPrice(Number(e.target.value))} name="price" placeholder="eg. S1234" label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                    {
+                        otherCurrency &&
+                        <InputWithLabel readOnly value={cost} placeholder="eg. S1234" label={costLabel} className="w-full" />
+                    }
                     {
                         currentLineItem?.status !== 'Sold' && isEditor &&
                         <PrimaryButton disabled={(currentLineItem?.status === 'Sold') || !isEditor} loading={loading} type="submit" text={loading?"loading" : "Update" } className="w-full mt-4" />
