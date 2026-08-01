@@ -176,7 +176,7 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
             <form ref={formRef} onSubmit={handleSubmit}  className="formBox overflow-y-scroll scrollbar-custom h-[90%] p-4 flex-col gap-8 w-full relative" >
                 <div className="flex flex-col gap-1">
                     <span className="title" >Fulfill this order</span>
-                    <span className="greyText" >This will create a sale record for the order and not reversible</span>
+                    <span className="greyText" >This will create a sale record for the order, and can't be undone</span>
                 </div>       
                 <div className="flex flex-col  gap-4 items-stretch">
                     <div className="flex flex-col gap-4 w-full">
