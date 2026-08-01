@@ -13,6 +13,7 @@ const ReturnsSchema = new Schema<IReturns>({
     price: { type: Number, required: false },
     discount: { type: Number, required: false },
     charges: { type: Number, required: false },
+    original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     products: { type: [Schema.Types.ObjectId], ref:'LineItem', required: true },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },

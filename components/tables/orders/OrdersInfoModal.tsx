@@ -12,7 +12,8 @@ import { isDeadlinePast } from '@/functions/helpers';
 import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import { useAuth } from '@/hooks/useAuth';
 import { isSystemAdmin } from '@/Data/roles/permissions';
-import { OrderSelectType } from '@/types/Types';
+import { IOriginalPrice, OrderSelectType } from '@/types/Types';
+import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 
 type OrdersInfoModalProps = {
     infoMode:boolean,
@@ -29,6 +30,9 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
     const {currency} = useCurrencyConfig();
+
+    const original = currentOrder?.original as IOriginalPrice;
+    const savedCurrency = original?.currency as IOtherCurrency;
 
     const quantity = products?.map(item => item.quantity).reduce((acc, curr) => acc + curr, 0);
 
@@ -64,10 +68,14 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
                 <span className="mlabel">Quantity</span>
                 <span className="mtext">{quantity || 0}</span>
             </div>
-            <div className="flex flex-col">
-                <span className="mlabel">Amount Received</span>
-                <span className="mtext">{currency?.symbol || ''} {currentOrder?.price || '0'} </span>
-            </div>
+                <div className="flex flex-col">
+                    <span className="mlabel">Amount Received</span>
+                    <span className="mtext">{currency?.symbol || ''} {currentOrder?.price || '0'} </span>
+                </div>
+                <div className="flex flex-col">
+                    <span className="mlabel">Original Amount</span>
+                    <span className="mtext">{savedCurrency?.symbol || savedCurrency?.name || ''} {original?.amount || '0'}</span>
+                </div>
             
             <div className="flex flex-col">
                 <span className="mlabel">Status</span>

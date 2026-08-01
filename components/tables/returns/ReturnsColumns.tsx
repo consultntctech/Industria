@@ -1,4 +1,4 @@
-import { Linker, Redoer, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Linker,  Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import {  formatTimestamp } from "@/functions/dates";
 import { getProductCounts } from "@/functions/helpers";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
@@ -11,7 +11,7 @@ import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
 export const ReturnsColumns = (
     handleInfo: (item:IReturns)=>void,
-    handleResell: (item:IReturns)=>void,
+    // handleResell: (item:IReturns)=>void,
 ):GridColDef[]=>{
     const {currency} = useCurrencyConfig();
 
@@ -173,7 +173,7 @@ export const ReturnsColumns = (
             return(
                 <div className="h-full flex-center gap-3">
                     <Viewer tableId="86" tip="View return details" onClick={()=>handleInfo(params?.row)} />
-                    <Redoer tableId="86" tip="Resale returned items" onClick={()=>handleResell(params?.row)} />
+                    {/* <Redoer tableId="86" tip="Resale returned items" onClick={()=>handleResell(params?.row)} /> */}
                 </div>
             )
         },

@@ -6,6 +6,7 @@ import { respond } from "../misc";
 import { connectDB } from "../mongoose";
 import '../models/user.model'
 import '../models/org.model'
+import '../models/othercurrency.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import LineItem from "../models/lineitem.model";
 
@@ -17,7 +18,7 @@ export async function createReturns(data:Partial<IReturns>):Promise<IResponse>{
             return respond('No items to return', true, {}, 400);
         }
         const returns = await Returns.create(data);
-        await LineItem.updateMany({ _id: { $in: items } }, {soldTo: data.customer, status: 'Returned' });
+        await LineItem.updateMany({ _id: { $in: items } }, {soldTo: null, status: 'Available' });
         const text = (data?.products?.length || []?.length) > 1 ? 'Items' : 'Item';
         return respond(`${text} returned successfully`, false, returns, 201);
     } catch (error) {

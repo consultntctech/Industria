@@ -96,13 +96,13 @@ const SalesTable = ({setOpenNew, currentSales, setCurrentSales}:SalesTableProps)
     const handleRefundItem = async()=>{
         try {
             if(!currentSales || !reason) return;
-            const {createdAt, updatedAt, ...salesData} = currentSales;
+            const {createdAt, updatedAt,  ...salesData} = currentSales;
             const retData:Partial<IReturns> = {
                 ...salesData,
                 products: products.map((p)=>p._id),
                 reason,
             }
-            console.log(createdAt, updatedAt)
+            // console.log(createdAt, updatedAt)
             const res = await deleteSales(currentSales?._id);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             if(!res.error){

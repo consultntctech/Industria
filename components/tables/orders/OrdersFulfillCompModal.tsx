@@ -14,12 +14,15 @@ import { IOrder } from "@/lib/models/order.model";
 import { ISales } from "@/lib/models/sales.model";
 import { QueryObserverResult, RefetchOptions, useQueryClient } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
-import { Dispatch,  SetStateAction,  useRef, useState } from "react";
+import { ChangeEvent, Dispatch,  SetStateAction,  useEffect,  useRef, useState } from "react";
 import { FaChevronUp } from "react-icons/fa";
 import '@/styles/customscroll.css'
 import {useCanUser } from "@/hooks/useAuth";import OrderLineItemsTable from "./OrderLineItemsTable";
 import { IProduct } from "@/lib/models/product.model";
-import { INeed, OrderSelectType } from "@/types/Types";
+import { INeed, IOriginalPrice, OrderSelectType } from "@/types/Types";
+import { IOtherCurrency } from "@/lib/models/othercurrency.model";
+import SearchSelectCurrencies from "@/components/shared/inputs/dropdowns/SearchSelectCurrencies";
+import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
 ;
 
 type OrdersFulfillCompModalProps = {
@@ -35,8 +38,39 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
     // const [batch, setBatch] = useState<string>('');
     const [lineItems, setLineItems] = useState<ILineItem[]>([]);
     const [isExtraCharges, setIsExtraCharges] = useState(false);
+    const [useRate, setUseRate] = useState(false);
+    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
     const [data, setData] = useState<Partial<ISales>>({price:currentOrder?.price});
+    const [constData, setCostData] = useState<{charges:number, discount:number}>({charges:0, discount:0});
+    const original = currentOrder?.original as IOriginalPrice;
+    const savedCurrency = original?.currency as IOtherCurrency;
     const items = currentOrder?.products as OrderSelectType[];
+
+    const price = lineItems.reduce((acc, { price }) => acc + price, 0) || (currentOrder?.price||0);
+
+    const {currency} = useCurrencyConfig();
+    const utils = useQueryClient();
+    const {user} = useAuth();
+    const isEditor = useCanUser('86', 'UPDATE');
+    const customer = currentOrder?.customer as ICustomer;
+
+    const formRef = useRef<HTMLFormElement>(null);
+    // const totalPrice = price + (Number(data.charges || 0)  - Number(data.discount || 0) );
+
+    const showRate = exposeRate(savedCurrency, otherCurrency);
+    const rate = currencyRate(original, otherCurrency, showRate, useRate);
+    const charge = Number(constData.charges || 0) * (rate || 1);
+    const discount = Number(constData.discount || 0) * (rate || 1);
+    const netCharges = charge - discount;
+
+    const totalPrice = price + netCharges;
+    const totalChages = Number(constData.charges || 0) - Number(constData.discount || 0);
+
+    const chargeLabel = `Charges (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const discountLabel = `Discount (${currency?.symbol || currency?.name || 'Primary currency'})`;
+
+    const chargeOtherLabel = `Charges (${otherCurrency?.symbol || otherCurrency?.name})`;
+    const discountOtherLabel = `Discount (${otherCurrency?.symbol || otherCurrency?.name})`;
     
     const needed:INeed[] = items?.map(item =>{
         const product = item.product as IProduct;
@@ -53,13 +87,6 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
 
     // console.log('Selected: ', lineItems?.length)
 
-    const {currency} = useCurrencyConfig();
-    const utils = useQueryClient();
-    const {user} = useAuth();
-    const isEditor = useCanUser('86', 'UPDATE');
-    const customer = currentOrder?.customer as ICustomer;
-
-    const formRef = useRef<HTMLFormElement>(null);
 
 
     
@@ -67,12 +94,24 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
     const handleClose = ()=>{
         setOpen(false);
         setCurrentOrder(null);
+        setCostData({charges:0, discount:0});
+    }
+    const handlecostChange = (e:ChangeEvent<HTMLInputElement>)=>{
+        setCostData((pre)=>({
+          ...pre, [e.target.name]: e.target.value
+        }))
     }
     const onChange = (e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setData((pre)=>({
           ...pre, [e.target.name]: e.target.value
         }))
     }
+
+    useEffect(()=>{
+        if(currentOrder){
+            setOtherCurrency(savedCurrency);
+        }
+    },[currentOrder]);
 
     const handleSubmit = async(e:React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -92,7 +131,14 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
                 quantity: lineItems?.length,
                 price: totalPrice,
                 org:user?.org,
-                createdBy:user?._id
+                createdBy:user?._id,
+                charges: constData.charges,
+                discount: constData.discount,
+                original:{
+                    amount: totalChages,
+                    rate: rate,
+                    currency: otherCurrency?._id as string,
+                }
             }
             const res = await createSales(formData);
             // enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -121,9 +167,7 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
         }
     }
 
-    const price = lineItems.reduce((acc, { price }) => acc + price, 0) || (currentOrder?.price||0);
-
-    const totalPrice = price + (Number(data.charges || 0)  - Number(data.discount || 0) );
+    
 
     
   return (
@@ -132,7 +176,7 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
             <form ref={formRef} onSubmit={handleSubmit}  className="formBox overflow-y-scroll scrollbar-custom h-[90%] p-4 flex-col gap-8 w-full relative" >
                 <div className="flex flex-col gap-1">
                     <span className="title" >Fulfill this order</span>
-                    <span className="greyText" >This will create a sale record for the order</span>
+                    <span className="greyText" >This will create a sale record for the order and not reversible</span>
                 </div>       
                 <div className="flex flex-col  gap-4 items-stretch">
                     <div className="flex flex-col gap-4 w-full">
@@ -146,10 +190,27 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
                         />
                         {
                             isExtraCharges &&
-                            <div className="flex gap-4 flex-col w-full md:flex-row ">
-                                <InputWithLabel  min={0} step={0.001} label={currency ? `Discount amount ${currency?.symbol}`:`Discount amount`} type="number" onChange={onChange} name="discount" />
-                                <InputWithLabel min={0} step={0.001} label={currency ? `Charges ${currency?.symbol}`:`Charges`} type="number" onChange={onChange} name="charges" />
-                            </div>
+                            <>
+                                <div className="flex gap-4 flex-col w-full md:flex-row items-center">
+                                    <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!isExtraCharges} setSelect={setOtherCurrency} value={savedCurrency} />} />
+                                    {
+                                        showRate &&
+                                        <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
+                                    }
+                                </div>
+                                <div className="flex gap-4 flex-col w-full md:flex-row ">
+                                    <InputWithLabel  min={0} step={0.0001} label={otherCurrency ? discountOtherLabel : discountLabel} type="number" onChange={handlecostChange} name="discount" />
+                                    <InputWithLabel min={0} step={0.0001} label={otherCurrency ? chargeOtherLabel : chargeLabel} type="number" onChange={handlecostChange} name="charges" />
+                                </div>
+                                {
+                                    otherCurrency &&
+                                    <div className="flex gap-4 flex-col w-full md:flex-row ">
+                                        <InputWithLabel value={discount} min={0} label={discountLabel} type="number" readOnly />
+                                        <InputWithLabel value={charge} min={0} label={chargeLabel} type="number" readOnly />
+                                    </div>
+                                }
+
+                            </>
                         }
                         {
                             lineItems?.length > 0 &&

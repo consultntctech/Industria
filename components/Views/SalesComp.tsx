@@ -18,6 +18,12 @@ import { useQueryClient } from "@tanstack/react-query";
 // import SearchSelectBatchesWithLineItems from "../shared/inputs/dropdowns/SearchSelectBatchesWithLineItems";
 import {useCanUser } from "@/hooks/useAuth";import { getProductCounts } from "@/functions/helpers";
 import SalesLineItemsTable from "../tables/sales/SalesLineItemsTable";
+import { IOtherCurrency } from "@/lib/models/othercurrency.model";
+import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
+import { IOriginalPrice } from "@/types/Types";
+import GenericLabel from "../shared/inputs/GenericLabel";
+import CustomCheckV2 from "../misc/CustomCheckV2";
+import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
 ;
 
 type SalesCompProps = {
@@ -34,6 +40,8 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
     // const [isSelectedAll, setIsSelectedAll] = useState<boolean>(false);
     const [customer, setCustomer] = useState<ICustomer | null>(null);
     const [data, setData] = useState<Partial<ISales>>({});
+    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+    const [useRate, setUseRate] = useState(false);
     // const [batch, setBatch] = useState<string>('');
     const {user} = useAuth();
     const {currency} = useCurrencyConfig();
@@ -51,9 +59,29 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
     const savedCustomer = currentSales?.customer as ICustomer;
     const utils = useQueryClient();
 
+    const original = currentSales?.original as IOriginalPrice;
+    const currentCurrency = original?.currency as IOtherCurrency;
+
     // console.log('LineItems: ', currentSales);
+    const showRate = exposeRate(currentCurrency, otherCurrency);
+    const rate = currencyRate(original, otherCurrency, showRate, useRate);
 
     const needed= useMemo(()=>getProductCounts(lineItems), [lineItems]);
+
+    const price = lineItems.reduce((acc, { price }) => acc + price, 0);
+    const charge = Number(data.charges || 0) * (rate || 1);
+    const discount = Number(data.discount || 0) * (rate || 1);
+    const netCharges = charge - discount;
+
+    const totalPrice = price + netCharges;
+
+    const chargeLabel = `Charges (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const discountLabel = `Discount (${currency?.symbol || currency?.name || 'Primary currency'})`;
+
+    const chargeOtherLabel = `Charges (${otherCurrency?.symbol || otherCurrency?.name})`;
+    const discountOtherLabel = `Discount (${otherCurrency?.symbol || otherCurrency?.name})`;
+
+    const beforeRateNetCharge = Number(data.charges || 0) + Number(data.discount || 0);
     // console.log('Saved Customer: ', savedCustomer)
 
    
@@ -63,6 +91,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
             setData({...currentSales});
             setLineItems(savedItems);
             setCustomer(savedCustomer);
+            setOtherCurrency(currentCurrency);
         }
        else{
            setData({});
@@ -99,7 +128,12 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                 quantity: lineItems?.length,
                 price: totalPrice,
                 org:user?.org,
-                createdBy:user?._id
+                createdBy:user?._id,
+                original:{
+                    amount: beforeRateNetCharge,
+                    rate: rate,
+                    currency: otherCurrency?._id as string,
+                }
             }
             const res = await createSales(formData);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -127,6 +161,11 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                 products: lineItems.map(item => item._id),
                 quantity: lineItems?.length,
                 price: totalPrice,
+                original:{
+                    amount: beforeRateNetCharge,
+                    rate: rate,
+                    currency: otherCurrency?._id as string,
+                }
             }
             const res = await updateSales(formData);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -143,9 +182,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
         }
     }
 
-   const price = lineItems.reduce((acc, { price }) => acc + price, 0);
-
-    const totalPrice = price + (Number(data.charges || 0)  - Number(data.discount || 0) );
+   
 
     // console.log('Data: ', data)
 
@@ -181,11 +218,25 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                         <span>{lineItems?.length} / {items?.length} products selected</span> */}
                         
                         <SalesLineItemsTable currentSales={currentSales} needed={needed} lines={lineItems} setLines={setLineItems} />
+                        <div className="flex gap-4 flex-col w-full md:flex-row">
+                            <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentSales} setSelect={setOtherCurrency} value={currentCurrency} />} />
+                            {
+                                showRate &&
+                                <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
+                            }
+                        </div>
 
                         <div className="flex gap-4 flex-col w-full md:flex-row ">
-                            <InputWithLabel defaultValue={currentSales?.discount} min={0} step={0.001} label={currency ? `Discount amount ${currency?.symbol}`:`Discount amount`} type="number" onChange={onChange} name="discount" />
-                            <InputWithLabel defaultValue={currentSales?.charges} min={0} step={0.001} label={currency ? `Charges ${currency?.symbol}`:`Charges`} type="number" onChange={onChange} name="charges" />
+                            <InputWithLabel defaultValue={currentSales?.discount} min={0} step={0.0001} label={otherCurrency ? discountOtherLabel : discountLabel} type="number" onChange={onChange} name="discount" />
+                            <InputWithLabel defaultValue={currentSales?.charges} min={0} step={0.0001} label={otherCurrency ? chargeOtherLabel : chargeLabel} type="number" onChange={onChange} name="charges" />
                         </div>
+                        {
+                            otherCurrency &&
+                            <div className="flex gap-4 flex-col w-full md:flex-row ">
+                                <InputWithLabel value={discount} min={0} step={0.0001} label={discountLabel} type="number" readOnly name="discount" />
+                                <InputWithLabel value={charge} min={0} step={0.0001} label={chargeLabel} type="number" readOnly name="charges" />
+                            </div>
+                        }
                         {
                             lineItems?.length > 0 &&
                             <span className="font-semibold">Total price: {totalPrice} {currency?.symbol || ''}</span>

@@ -5,9 +5,11 @@ import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { ICustomer } from "@/lib/models/customer.model";
 import { IOrder } from "@/lib/models/order.model";
 import { IOrganization } from "@/lib/models/org.model";
+import { IOtherCurrency } from "@/lib/models/othercurrency.model";
+import { IPackage } from "@/lib/models/package.model";
 // import { IProduct } from "@/lib/models/product.model";
 import { IUser } from "@/lib/models/user.model";
-import { OrderSelectType } from "@/types/Types";
+import { IOriginalPrice, OrderSelectType } from "@/types/Types";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
 export const OrdersColumns = (
@@ -58,7 +60,7 @@ export const OrdersColumns = (
                     <>
                     {
                         products?.map((item, index)=>(
-                            <Linker link={`/dashboard/products/types?Id=${item?.product?._id}`} tableId="28" placeholder={`${item?.quantity} x ${item?.product?.name}${index < products.length - 1 && ', '}`} key={index} />
+                            <Linker link={`/dashboard/products/types?Id=${item?.product?._id}`} tableId="28" placeholder={`${item?.quantity} x ${item?.product?.name}${index < products.length - 1 ? ', ':''}`} key={index} />
                         ))
                     }
                     </>
@@ -71,6 +73,21 @@ export const OrdersColumns = (
             field: 'price',
             headerName: `Price ${currency?.symbol || ''}`,
             width:100,
+        },
+         {
+            field: 'original',
+            headerName: 'Original Amount',
+            width:100,
+            valueFormatter: (_, row:IPackage)=>{
+                const original = row?.original as IOriginalPrice;
+                const cy = original?.currency as IOtherCurrency;
+                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount}` : 0;
+            },
+            valueGetter: (_, row:IPackage)=>{
+                const original = row?.original as IOriginalPrice;
+                const cy = original?.currency as IOtherCurrency;
+                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount}` : 0;
+            }
         },
         {
             field: 'quantity',
@@ -215,11 +232,13 @@ export const OrdersColumns = (
             return(
                 <div className="h-full flex-center gap-3">
                     <Viewer onClick={()=>handleInfo(params?.row)} tableId="86" tip="View order" />
-                    <Editor onClick={()=>handleEdit(params?.row)}  tableId="86" tip="Edit order" />
                    
                     {
                         params?.row?.status === 'Pending' &&
+                        <>
+                        <Editor onClick={()=>handleEdit(params?.row)}  tableId="86" tip="Edit order" />
                         <Fulfiller onClick={()=>handleFulfill(params?.row)}  tableId="86" tip="Fulfill order" />
+                        </>
                     }
                     <Deleter onClick={()=>handleDelete(params?.row)}  tableId="86" tip="Delete order" />
                 </div>

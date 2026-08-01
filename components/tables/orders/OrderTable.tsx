@@ -78,11 +78,13 @@ const OrderTable = ({setOpenNew, currentOrder, setCurrentOrder}:OrdersTableProps
     const handleEdit = (item:IOrder)=>{
         setOpenNew(true);
         setCurrentOrder(item);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     const handleFulfill = (item:IOrder)=>{
         setShowFulfill(true);
         setCurrentOrder(item);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     const handleDelete = (item:IOrder)=>{
@@ -139,6 +141,7 @@ const OrderTable = ({setOpenNew, currentOrder, setCurrentOrder}:OrdersTableProps
                                   createdAt:false,
                                   updatedAt:false,
                                   org:false,
+                                  original:false,
                                   description:false,
                                   instruction:false,
                                   late:false

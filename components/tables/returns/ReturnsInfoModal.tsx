@@ -11,6 +11,7 @@ import { IReturns } from '@/lib/models/returns.model';
 import { useAuth } from '@/hooks/useAuth';
 import { isSystemAdmin } from '@/Data/roles/permissions';
 import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { IOriginalPrice } from '@/types/Types';
 
 type ReturnsInfoModalProps = {
     infoMode:boolean,
@@ -28,6 +29,9 @@ const ReturnsInfoModal = ({infoMode, setInfoMode, currentReturn, setCurrentRetur
     const isAdmin = isSystemAdmin(user);
 
     const {currency} = useCurrencyConfig();
+    const original = currentReturn?.original as IOriginalPrice;
+    const charge = (currentReturn?.charges || 0) * (original?.rate || 1);
+    const discount = (currentReturn?.discount || 0) * (original?.rate || 1);
 
     // console.log('Creator:', creator);
     const handleClose = ()=>{
@@ -50,15 +54,15 @@ const ReturnsInfoModal = ({infoMode, setInfoMode, currentReturn, setCurrentRetur
             
             <div className="flex flex-col">
                 <span className="mlabel">Discounts</span>
-                <span className="mtext">{currentReturn?.discount || '0'} {currency?.symbol || ''}</span>
+                <span className="mtext">{currency?.symbol || ''} {discount}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Charges</span>
-                <span className="mtext">{currentReturn?.charges || '0'} {currency?.symbol || ''}</span>
+                <span className="mtext">{currency?.symbol || ''} {charge}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Total Price</span>
-                <span className="mtext">{currentReturn?.price || '0'} {currency?.symbol || ''}</span>
+                <span className="mtext">{currency?.symbol || ''} {currentReturn?.price || '0'}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Products ({lineitems?.length})</span>

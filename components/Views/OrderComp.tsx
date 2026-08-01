@@ -19,8 +19,12 @@ import { enqueueSnackbar } from "notistack";
 import { formatDate } from "@/functions/dates";
 import {useCanUser } from "@/hooks/useAuth";
 import ProductsOrderSelector from "../misc/ProductsOrderSelector";
-import { OrderSelectType } from "@/types/Types";
+import { IOriginalPrice, OrderSelectType } from "@/types/Types";
 import SelectedProductOrderItem from "../misc/SelectedProductOrderItem";
+import { IOtherCurrency } from "@/lib/models/othercurrency.model";
+import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
+import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
+import CustomCheckV2 from "../misc/CustomCheckV2";
 
 
 
@@ -38,6 +42,9 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
   const [product, setProduct] = useState<IProduct | null>(null);
   const [quantity, setQuantity] = useState<number>(1);
   const [products, setProducts] = useState<OrderSelectType[]>([]);
+  const [useRate, setUseRate] = useState(false);
+  const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+  const [cost, setCost] = useState<number>(0);
   const formRef = useRef<HTMLFormElement>(null);
   const {currency} = useCurrencyConfig();
   const utils = useQueryClient();
@@ -46,6 +53,14 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
   const isEditor = useCanUser('86', 'UPDATE');
 
   const savedCustomer = currentOrder?.customer as ICustomer;
+  const original = currentOrder?.original as IOriginalPrice;
+  const savedCurrency = original?.currency as IOtherCurrency;
+
+  const showRate = exposeRate(savedCurrency, otherCurrency);
+  const rate = currencyRate(original, otherCurrency, showRate, useRate);
+
+  
+  const price = cost * rate;
   // const savedProduct = currentOrder?.product as IProduct;
 
   const onChange = (e:ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -61,6 +76,8 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
     if(currentOrder){
       setData({...currentOrder});
       setProducts(currentOrder.products as OrderSelectType[]);
+      setCost(original?.amount || 0);
+      setOtherCurrency(savedCurrency);
     }else{
       setData({});// Reset form data when currentUser is null
     }
@@ -78,7 +95,13 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
         org:user?.org,
         creator: user?.name,
         createdBy:user?._id,
-        quantity: qty
+        quantity: qty,
+        price,
+        original:{
+          amount: cost,
+          rate: rate,
+          currency: otherCurrency?._id as string,
+        }
       }
       const res = await createOrder(formData);
       enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -94,6 +117,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
       setLoading(false);
     }
   }
+
   const handleUpdate = async(e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -104,7 +128,13 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
         _id: currentOrder?._id,
         customer: customer?._id || savedCustomer?._id,
         products: products.map(item => ({product:item.product._id, quantity:item.quantity})),
-        quantity: qty
+        quantity: qty,
+        price,
+        original:{
+          amount: cost,
+          rate: rate,
+          currency: otherCurrency?._id as string,
+        }
       }
       const res = await updateOrder(formData);
       enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -124,8 +154,12 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
   const handleClose = () => {
     setOpenNew(false);
     setCurrentOrder(null);
+    setProducts([]);
   }
   // console.log('products: ', products?.length)
+
+  const costLabel = `Amount received from customer (${currency?.symbol || currency?.name || 'Primary currency'})`;
+  const otherLabel = `Enter amount received from customer (${otherCurrency?.symbol || otherCurrency?.name || 'Other currency'})`;
 
   return (
     <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`}>
@@ -154,11 +188,20 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
                     label="Select customer"
                     input={<SearchSelectCustomers value={savedCustomer} required={!currentOrder} setSelect={setCustomer} />}
                   />
+                  <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentOrder} setSelect={setOtherCurrency} value={savedCurrency} />} />
+                  {
+                    showRate &&
+                    <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
+                  }
                   {/* <GenericLabel label="Select product"
                     input={<SearchSelectProducts value={savedProduct} setSelect={setProduct} type="Finished Good" />}
                   />
                   <InputWithLabel defaultValue={currentOrder?.quantity} onChange={onChange} name="quantity"  min={0} step={0.0001}  label="Enter quantity" className="w-full" /> */}
-                  <InputWithLabel defaultValue={currentOrder?.price} placeholder="this is optional"  onChange={onChange} name="price"  min={0} step={0.0001}  label={`Enter amount received from customer (${currency?.symbol || ''})`} className="w-full" />
+                  <InputWithLabel defaultValue={original?.amount} placeholder="this is optional"  onChange={(e)=>setCost(Number(e.target.value))} name="price"  min={0} step={0.0001}  label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                  {
+                    otherCurrency &&
+                    <InputWithLabel value={price} placeholder="this is optional"  readOnly  min={0} step={0.0001}  label={costLabel} className="w-full" />
+                  }
                   <TextAreaWithLabel defaultValue={currentOrder?.instruction} name="instruction" onChange={onChange} placeholder="enter instruction" label="Order instructions" className="w-full" />
                 </div>
     

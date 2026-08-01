@@ -4,6 +4,7 @@ import { IProduct } from "./product.model";
 import { IUser } from "./user.model";
 import { IOrganization } from "./org.model";
 import { models } from "mongoose";
+import { IOriginalPrice } from "@/types/Types";
 
 export interface IOrder extends Document {
     _id: string;
@@ -17,6 +18,7 @@ export interface IOrder extends Document {
     creator: string;
     description: string;
     status: string;
+    original: IOriginalPrice;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
     createdAt: string;
@@ -34,6 +36,7 @@ const OrderSchema = new Schema<IOrder>({
     fulfilledAt: { type: String, required: false },
     description: { type: String, required: false },
     status: { type: String, required: true, default: 'Pending' },
+    original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
 }, {timestamps:true})

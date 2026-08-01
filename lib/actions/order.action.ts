@@ -8,6 +8,7 @@ import '../models/org.model';
 import '../models/user.model'
 import '../models/product.model'
 import '../models/customer.model'
+import '../models/othercurrency.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
 
@@ -40,6 +41,7 @@ export async function getOrders():Promise<IResponse>{
         .populate('customer')
         .populate({path:'products', populate:{path:'product'}})
         .populate('createdBy')
+        .populate('original.currency')
         .populate('org')
         .lean<IOrder[]>();
         return respond('Orders found successfully', false, orders, 200);
@@ -64,6 +66,7 @@ export async function getTodayOrders():Promise<IResponse>{
         .populate('customer')
         .populate({path:'products', populate:{path:'product'}})
         .populate('createdBy')
+        .populate('original.currency')
         .populate('org')
         .lean<IOrder[]>();
         return respond('Orders found successfully', false, orders, 200);
@@ -86,6 +89,7 @@ export async function getTodayOrdersByOrg(orgId:string):Promise<IResponse>{
         .populate('customer')
         .populate({path:'products', populate:{path:'product'}})
         .populate('createdBy')
+        .populate('original.currency')
         .populate('org')
         .lean<IOrder[]>();
         return respond('Orders found successfully', false, orders, 200);
@@ -103,6 +107,7 @@ export async function getOrdersByOrg(orgId:string):Promise<IResponse>{
          .populate('customer')
         .populate({path:'products', populate:{path:'product'}})
         .populate('createdBy')
+        .populate('original.currency')
         .populate('org')
         .lean<IOrder[]>();
         return respond('Orders found successfully', false, orders, 200);
@@ -120,6 +125,7 @@ export async function getOrder(id:string):Promise<IResponse>{
             { path: "customer" },
             { path: "products",  populate: { path: "product" } },
             { path: "createdBy" },
+            { path: "original.currency" },
             { path: "org" },
         ]);
         if ("allowed" in check === false) return check;

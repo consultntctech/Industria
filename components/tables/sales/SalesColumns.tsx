@@ -74,7 +74,7 @@ export const SalesColoumns = (
                     {items?.map((item, index) => (
                         <span key={item?.id}>
                         <Linker tableId="28" link={`/dashboard/products/types?Id=${item?.id}`} placeholder={`${item?.quantity} x ${item?.name}`} />
-                        {index < items.length - 1 && ', '}
+                        {index < items.length - 1 ? ', ':''}
                         </span>
                     ))}
                     </div>

@@ -66,10 +66,10 @@ const ReturnsTable = () => {
         setCurrentReturns(item);
     }
 
-    const handleRefund = (item:IReturns)=>{
-        setShowDelete(true);
-        setCurrentReturns(item);
-    }
+    // const handleRefund = (item:IReturns)=>{
+    //     setShowDelete(true);
+    //     setCurrentReturns(item);
+    // }
 
 
   return (
@@ -93,7 +93,7 @@ const ReturnsTable = () => {
                         loading={isPending}
                         getRowId={(row:IReturns)=>row._id}
                         rows={returns}
-                        columns={ReturnsColumns(handleInfo, handleRefund)}
+                        columns={ReturnsColumns(handleInfo)}
                         initialState={{ 
                             pagination: { paginationModel },
                             columns:{

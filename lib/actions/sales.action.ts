@@ -9,6 +9,7 @@ import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Alert, { IAlert } from "../models/alert.model";
 import mongoose, { Types } from "mongoose";
 import Product from "../models/product.model";
+import '../models/othercurrency.model';
 
 
 interface ILineItemLean {
@@ -194,6 +195,7 @@ export async function getSales():Promise<IResponse>{
         populate('customer').
         populate({path:'products', populate:[{path:'product'}, {path:'batch'}]}).
         populate('createdBy').
+        populate('original.currency').
         populate('org').lean() as unknown as ISales[];
         return respond('Sales found successfully', false, sales, 200);
     } catch (error) {
@@ -209,6 +211,7 @@ export async function getSalesByOrg(orgId:string):Promise<IResponse>{
         populate('customer').
         populate({path:'products', populate:[{path:'product'}, {path:'batch'}]}).
         populate('createdBy').
+        populate('original.currency').
         populate('org').lean() as unknown as ISales[];
         return respond('Sales found successfully', false, sales, 200);
     } catch (error) {
@@ -224,6 +227,7 @@ export async function getSalesByCustomer(customerId:string):Promise<IResponse>{
         populate('customer').
         populate({path:'products', populate:[{path:'product'}, {path:'batch'}]}).
         populate('createdBy').
+        populate('original.currency').
         populate('org').lean() as unknown as ISales[];
         return respond('Sales found successfully', false, sales, 200);
     } catch (error) {
@@ -239,6 +243,7 @@ export async function getSalesByProduct(productId:string):Promise<IResponse>{
         populate('customer').
         populate({path:'products', populate:[{path:'product'}, {path:'batch'}]}).
         populate('createdBy').
+        populate('original.currency').
         populate('org').lean() as unknown as ISales[];
         return respond('Sales found successfully', false, sales, 200);
     } catch (error) {
@@ -264,6 +269,7 @@ export async function getTodaySales(): Promise<IResponse> {
       .populate("customer")
       .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
       .populate("createdBy")
+      .populate("original.currency")
       .populate("org")
       .lean<ISales[]>();
 
@@ -287,6 +293,7 @@ export async function getTodaySalesByOrg(orgId:string):Promise<IResponse>{
         .populate("customer")
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
         .populate("createdBy")
+        .populate("original.currency")
         .populate("org")
         .lean<ISales[]>();
         return respond('Sales found successfully', false, sales, 200);
@@ -303,6 +310,7 @@ export async function getSale(id:string):Promise<IResponse>{
             { path: "customer" },
             { path: "products", populate:[{path:'product'}, {path:'batch'}] },
             { path: "createdBy" },
+            { path: "original.currency" },
             { path: "org" },
         ]);
         if ("allowed" in check === false) return check;
