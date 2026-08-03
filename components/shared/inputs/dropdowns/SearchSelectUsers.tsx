@@ -10,9 +10,10 @@ type SearchSelectUsersProps = {
     width?: number,
     required?:boolean,
     showMe?:boolean,
-    showAdmins?:boolean
+    showAdmins?:boolean,
+    placeholder?:string,
 }
-const SearchSelectUsers = ({setSelect, required, showMe, showAdmins, value, width}:SearchSelectUsersProps) => {
+const SearchSelectUsers = ({setSelect, required, showMe, showAdmins, value, width, placeholder}:SearchSelectUsersProps) => {
     const {users, isPending} = useFetchUsers(showMe, showAdmins);
     const [search, setSearch] = useState<string>('');
 
@@ -41,7 +42,7 @@ const SearchSelectUsers = ({setSelect, required, showMe, showAdmins, value, widt
                     {...params}
                     required={required}
                     size="small"
-                    label= "User"
+                    label= {placeholder || "User"}
                     color="primary"
                     className="rounded"
                     slotProps={{

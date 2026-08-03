@@ -15,9 +15,10 @@ type SearchSelectMultipleUsersProps = {
     value?:IUser[];
     showMe?:boolean;
     showAdmins?:boolean;
+    placeholder?:string;
 }
 
-const SearchSelectMultipleUsers = ({setSelection, showMe, showAdmins, width, required, value}:SearchSelectMultipleUsersProps) => {
+const SearchSelectMultipleUsers = ({setSelection, showMe, showAdmins, width, required, value, placeholder}:SearchSelectMultipleUsersProps) => {
     const [search, setSearch] = useState<string>('');
     const {users, isPending} = useFetchUsers(showMe, showAdmins);
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -86,7 +87,7 @@ const SearchSelectMultipleUsers = ({setSelection, showMe, showAdmins, width, req
                 {...params}
                 required={required}
                 size="small"
-                label= "Users"
+                label= {placeholder || "Users"}
                 color="primary"
                 // defaultValue={value}
                 className="rounded"

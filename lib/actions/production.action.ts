@@ -566,6 +566,7 @@ export async function getProduction(id: string): Promise<IResponse> {
       [
         { path: "productToProduce" },
         { path: "supervisor" },
+        { path: "labourers" },
         { path: "original.currency" },
         { path: "createdBy" },
         { path: "batch" },

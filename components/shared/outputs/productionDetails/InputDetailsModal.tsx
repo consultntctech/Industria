@@ -38,7 +38,9 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
     const [supervisor, setSupervisor] = useState<IUser | null>(null);
     const [useRate, setUseRate] = useState(false);
     const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
-    const [originalCost, setOriginalCost] = useState(0);
+    // const [originalCost, setOriginalCost] = useState(0);
+    const [pCost, setPCost] = useState(0);
+    const [labourCost, setLabourCost] = useState(0);
     const isEditor = useCanUser('8', 'UPDATE');
 
     const formRef = useRef<HTMLFormElement>(null);
@@ -49,11 +51,33 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
     const original = production?.original as IOriginalPrice;
     const savedCurrency = original?.currency as IOtherCurrency;
 
+    const pc = Number(production?.pCost || 0);
+    const lc = Number(production?.labourCost || 0);
+
 
     const showRate = exposeRate(savedCurrency, otherCurrency);
     const rate = currencyRate(original, otherCurrency, showRate, useRate);
-    const productionCost = originalCost * rate;
-    // console.log(rate)
+
+    const productionCost = (pCost + labourCost) * rate;
+
+    const extra = Number(production?.productionCost || 0) - (pc + lc);
+
+    const finalLabourCost = labourCost * rate;
+    const finalPCost = pCost * rate;
+
+    const ogRate = Number(original?.rate || 1);
+
+    const ogAmount = Number(original?.amount || 0);
+
+    const ogLabour  = lc / ogRate;
+    const ogPCost = pc / ogRate;
+
+    const ogExtra = ogAmount - (ogPCost + ogLabour);
+
+    const finalOg = ogExtra + (pCost + labourCost);
+
+    const finalPrice = productionCost + extra;
+    console.log()
 
     useEffect(() => {
         if(production){
@@ -62,7 +86,9 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
             setSupervisor(supervisord);
             setOtherCurrency(savedCurrency);
             setData({...production});
-            setOriginalCost(original?.amount || 0);
+            // setOriginalCost(Number(original?.amount || 0));
+            setPCost(ogPCost);
+            setLabourCost(ogLabour);
         }
     }, [production]);
 
@@ -83,9 +109,11 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
             status: production?.status === 'Completed' ? 'Completed' : 'In Progress',
             id:production?._id,
             batch, supervisor: supervisor?._id, productToProduce: productToProduce?._id,
-            productionCost,
+            productionCost: finalPrice,
+            pCost: finalPCost,
+            labourCost: finalLabourCost,
             original:{
-              amount: originalCost,
+              amount: finalOg,
               rate,
               currency: otherCurrency?._id as string,
             },
@@ -107,6 +135,12 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
 
     const costLabel = `Production cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
     const otherLabel = `Production cost (${otherCurrency?.symbol || otherCurrency?.name})`;
+
+    const labourLabel = `Labour cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const otherLabourLabel = `Labour cost (${otherCurrency?.symbol || otherCurrency?.name})`;
+
+    // const otherTotalLabel = `Total cost (${otherCurrency?.symbol || otherCurrency?.name})`;
+    const totalLabel = `Total cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
 
   return (
      <ModalContainer open={openNew} handleClose={()=>setOpenNew(false)}>
@@ -142,10 +176,11 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
                             showRate &&
                         <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
                         }
-                        <InputWithLabel defaultValue={originalCost} onChange={(e)=>setOriginalCost(Number(e.target.value))} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                        <InputWithLabel defaultValue={ogPCost} onChange={(e)=>setPCost(Number(e.target.value))} name="pCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                        <InputWithLabel defaultValue={ogLabour} onChange={(e)=>setLabourCost(Number(e.target.value))} name="labourCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabourLabel : labourLabel} className="w-full" />
                         {
-                            otherCurrency &&
-                            <InputWithLabel value={productionCost} readOnly type="number" min={1} placeholder={`${currency?.symbol}1000`} label={costLabel} className="w-full" />
+                            // otherCurrency &&
+                            <InputWithLabel value={productionCost} readOnly type="number" min={1} placeholder={`${currency?.symbol}1000`} label={totalLabel} className="w-full" />
                         }
                     </div>
                     {

@@ -5,12 +5,13 @@ import { IUser } from "@/lib/models/user.model";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { enqueueSnackbar } from "notistack";
-import { useAuth } from "../useAuth";
-import { isDbGlobalAdmin, isSystemAdmin } from "@/Data/roles/permissions";
-import { IRole } from "@/lib/models/role.model";
+import { useAuth, useIsGlobalAdmin } from "../useAuth";
+import {  isSystemAdmin } from "@/Data/roles/permissions";
+// import { IRole } from "@/lib/models/role.model";
 
 export const useFetchUsers = (showMe:boolean=true, showAdmins:boolean=true) => {
     const {user} = useAuth();
+    const global = useIsGlobalAdmin();
     const isAdmin = isSystemAdmin(user);
     const fetchUsers = async():Promise<IUser[]>=>{
         try {
@@ -18,9 +19,9 @@ export const useFetchUsers = (showMe:boolean=true, showAdmins:boolean=true) => {
             const res = isAdmin ? await getUsers() : await getUsersByOrg(user?.org);
             const users = res.payload as IUser[];
             return users
-            .filter((u)=>{
+            .filter(()=>{
                 if (showAdmins) return true;
-                return !isDbGlobalAdmin(u.roles as IRole[]);
+                return !global;
             })
             ?.filter((u) => showMe ? true : u._id !== user?._id)
             ?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());

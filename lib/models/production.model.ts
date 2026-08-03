@@ -25,6 +25,7 @@ export interface IProduction extends Document {
     _id: string;
     name: string;
     supervisor: string | Types.ObjectId | IUser;
+    labourers: string[] | Types.ObjectId[] | IUser[];
     batch: string | Types.ObjectId | IBatch;
     productToProduce: string | Types.ObjectId | IProduct;
     status:string;
@@ -38,6 +39,8 @@ export interface IProduction extends Document {
     lossQuantity?: number;
     productionCost?: number;
     extraCost: number;
+    labourCost?: number;
+    pCost: number;
     approvedBy?: string | Types.ObjectId | IUser;
     notes?: string;
     reviewNotes?: string;
@@ -65,7 +68,10 @@ const ProductionSchema = new Schema<IProduction>({
     xquantity: { type: Number, required: false, default: 0 },
     rejQuantity: { type: Number, required: false, default: 0 },
     lossQuantity: { type: Number, required: false, default: 0 },
+    labourers: [{ type: Schema.Types.ObjectId, ref: 'User', required: false }],
     productionCost: { type: Number, required: false },
+    labourCost: { type: Number, required: false, default: 0 },
+    pCost: { type: Number, required: false, default: 0 },
     approvedBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     notes: String,
     reviewNotes: String,

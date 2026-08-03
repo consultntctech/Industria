@@ -23,6 +23,7 @@ import SearchSelectBatchesWithRM from "../shared/inputs/dropdowns/SearchSelectBa
 import { IUser } from "@/lib/models/user.model";
 import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
+import SearchSelectMultipleUsers from "../shared/inputs/dropdowns/SearchSelectMultipleUsers";
 ;
 
 const NewProductionComp = () => {
@@ -40,6 +41,8 @@ const NewProductionComp = () => {
     // const [totalProd, setTotalProd] = useState(0);
     const [productionCost, setProductionCost] = useState(0);
     const [userOverrodeCost, setUserOverrodeCost] = useState(false);
+    const [labourers, setLabourers] = useState<IUser[]>([]);
+    // const [labourCost, setLabourCost] = useState(0);
 
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
@@ -79,7 +82,12 @@ const NewProductionComp = () => {
     }
 
     const inputQuantity = ingredients?.reduce((acc, cur)=> acc + (cur.qUsed || 0), 0);
-    const finalPrice = productionCost * (otherCurrency?.rate || 1);
+    const labourCost = Number(data?.labourCost || 0) * Number(otherCurrency?.rate || 1);
+    const pCost = productionCost * Number(otherCurrency?.rate || 1);
+
+    const rawCost = Number(data?.labourCost || 0) + productionCost;
+    const finalPrice = (pCost + labourCost);
+    // console.log(productionCost + (data?.labourCost || 0))
     // alert(totalPrice + totalProd);
 
     useEffect(() => {
@@ -117,9 +125,12 @@ const NewProductionComp = () => {
                 })),
                 // proditems: proditems?.map(item=>item._id),
                 inputQuantity,
+                labourCost,
+                pCost,
+                labourers: labourers?.map(lab=>lab._id),
                 productionCost: finalPrice,
                 original:{
-                    amount: productionCost,
+                    amount: rawCost,
                     rate: otherCurrency?.rate || 1,
                     currency: otherCurrency?._id as string
                 }
@@ -171,6 +182,11 @@ const NewProductionComp = () => {
     const costLabel = `Production cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
     const otherLabel = `Production cost (${otherCurrency?.symbol || otherCurrency?.name})`;
 
+    const labourLabel = `Labour cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const otherLabourLabel = `Labour cost (${otherCurrency?.symbol || otherCurrency?.name})`;
+
+    const totalLabel = `Total cost (${otherCurrency?.symbol || otherCurrency?.name})`;
+
   return (
      <div className={`flex p-4 lg:p-8 rounded-2xl w-full`}>
             <form ref={formRef} onSubmit={handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
@@ -189,7 +205,11 @@ const NewProductionComp = () => {
                         />
                         <GenericLabel
                             label="Select supervisor"
-                            input={<SearchSelectUsers required={true} setSelect={setSupervisor} />}
+                            input={<SearchSelectUsers required={true} setSelect={setSupervisor} placeholder="supervisor" />}
+                        />
+                        <GenericLabel
+                            label="Select labourers"
+                            input={<SearchSelectMultipleUsers required={true} setSelection={setLabourers} placeholder="labourers" />}
                         />
                         <GenericLabel
                             label="Product to produce"
@@ -241,10 +261,11 @@ const NewProductionComp = () => {
                                 label="Add production items"
                                 input={<SearchSelectMultipleProdItems setSelection={setProditems} />}
                             /> */}
-                            <InputWithLabel value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                            <InputWithLabel step={0.0001} onChange={onChange} name="labourCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabourLabel : labourLabel} className="w-full" />
+                            <InputWithLabel step={0.0001} value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
                             {
                                 otherCurrency  &&
-                                <InputWithLabel value={finalPrice} readOnly type="number" min={1} placeholder={`${currency?.symbol}1000`} label={costLabel} className="w-full" />
+                                <InputWithLabel value={finalPrice} readOnly type="number" min={1} placeholder={`${currency?.symbol}1000`} label={totalLabel} className="w-full" />
                             }
                         </div>
                         {

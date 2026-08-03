@@ -31,9 +31,9 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
 
 
     const productToProduce = production?.productToProduce as IProduct;
-    const yieldRate =  (((production?.outputQuantity||0) / (production?.xquantity||0)) * 100).toFixed(2);
-    const extraCost = production?.extraCost || 0;
-    const prodCost = production?.productionCost || 0;
+    const yieldRate =  ((Number(production?.outputQuantity||0) / Number(production?.xquantity||0)) * 100).toFixed(2);
+    const extraCost = Number(production?.extraCost || 0);
+    const prodCost = Number(production?.productionCost || 0);
     const totalCost = extraCost + prodCost;
 
     const title = 'Submit Production for Approval';

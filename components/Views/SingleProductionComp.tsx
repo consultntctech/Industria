@@ -21,10 +21,11 @@ const SingleProductionComp = ({production}:SingleProductionCompProps) => {
     <div className="flex gap-4 flex-col border border-gray-300 p-3 rounded" >
       <CustomTabs 
         FirstTabText="Details" activeTab={activeTab} onClickFirstTab={()=>setActiveTab('first')}
-        SecondTabText="Raw Materials" onClickSecondTab={()=>setActiveTab('second')}
+        SecondTabText="Labourers" onClickSecondTab={()=>setActiveTab('second')}
         // ThirdTabText="Production Materials" onClickThirdTab={()=>setActiveTab('third')}
-        ThirdTabText="Output" onClickThirdTab={()=>setActiveTab('third')}
-        showSecondTab={true}  showThirdTab={true}
+        ThirdTabText="Raw Materials" onClickThirdTab={()=>setActiveTab('third')}
+        FourthTabText="Output" onClickFourthTab={()=>setActiveTab('fourth')}
+        showSecondTab={true}  showThirdTab={true} showFourthTab={true}
       />
 
       {
@@ -32,11 +33,11 @@ const SingleProductionComp = ({production}:SingleProductionCompProps) => {
         <InputDetails production={production} setActiveTab={setActiveTab} />
       }
       {
-        activeTab === 'third' &&
+        activeTab === 'fourth' &&
         <OutputDetails production={production} />
       }
       {
-        activeTab === 'second' &&
+        activeTab === 'third' &&
         <ProdRMTable setOpenNew={setOpenNew}  production={production} />
       }
       {/* {
