@@ -38,13 +38,29 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
 
     const showRate = exposeRate(savedCurrency, otherCurrency);
     const rate = currencyRate(original, otherCurrency, showRate, useRate);
-    // console.log(rate)
+
+    const ogRate = Number(original?.rate || 1);
+    const extra = Number(production?.extraCost || 0);
+    const productionCost = Number(production?.productionCost || 0);
+    const newCost = productionCost - extra;
+    const ogAmount = Number(original?.amount || 0);
+    const ogExtra = extra/ogRate;
+
+    const newOgAmount = ogAmount - ogExtra;
+
+    const finalOgAmount = newOgAmount + extraCost
+
+    const finalExtra = extraCost * rate;
+    
+    const finalCost = newCost + finalExtra;// console.log(rate)
+
+    // console.log(extra)
 
     useEffect(() => {
         if(production){
             setData({...production});
             setOtherCurrency(savedCurrency);
-            setExtraCost(production?.extraCost || 0);
+            setExtraCost(ogExtra);
         }
     }, [production])
 
@@ -54,7 +70,7 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
         }))
     }
     const onChangeCost = (e:React.ChangeEvent<HTMLInputElement>)=>{
-       setExtraCost(Number(e.target.value) * rate);
+       setExtraCost(Number(e.target.value));
     }
 
     // console.log(productionCost)
@@ -67,7 +83,13 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
           const updateData:Partial<IProduction> = {
             ...data,
             status:'Completed',
-            extraCost,
+            extraCost:finalExtra,
+            productionCost:finalCost,
+            original:{
+                rate,
+                amount:finalOgAmount,
+                currency:otherCurrency?._id || savedCurrency?._id,
+            }
           };
           const res = await updateProduction(updateData);
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -84,8 +106,8 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
         }
     }
 
-    const costLabel = `Extra const on production (${currency?.symbol || currency?.name || 'Primary currency'})`;
-    const otherLabel = `Extra const on production (${otherCurrency?.symbol || otherCurrency?.name})`;
+    const costLabel = `Extra cost on production (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const otherLabel = `Extra cost on production (${otherCurrency?.symbol || otherCurrency?.name})`;
 
   return (
      <ModalContainer open={openNew} handleClose={()=>setOpenNew(false)}>
@@ -110,8 +132,8 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
             
                 <div className="flex gap-4 flex-col w-full justify-between">
                     <div className="flex flex-col gap-4 w-full">
-                        <InputWithLabel defaultValue={((production?.extraCost || 0)/original?.rate)} type="number" onChange={onChangeCost} name="extraCost" min={0}  placeholder={`eg. ${currency?.symbol}200`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
-                        <InputWithLabel value={extraCost} type="number"  readOnly min={0}  placeholder={`eg. ${currency?.symbol}200`} label={costLabel} className="w-full" />
+                        <InputWithLabel defaultValue={ogExtra} type="number" onChange={onChangeCost} name="extraCost" min={0}  placeholder={`eg. ${currency?.symbol}200`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                        <InputWithLabel value={finalExtra} type="number"  readOnly min={0}  placeholder={`eg. ${currency?.symbol}200`} label={costLabel} className="w-full" />
                         <TextAreaWithLabel defaultValue={production?.notes} name="notes" onChange={onChange} placeholder="enter note" label="Production note" className="w-full" />
                     </div>
                     {

@@ -2,9 +2,10 @@
 import { ILineItem } from "@/lib/models/lineitem.model";
 import { IOrder } from "@/lib/models/order.model";
 import { IProduct } from "@/lib/models/product.model";
+import { IRMaterial } from "@/lib/models/rmaterial.mode";
 import { IRole } from "@/lib/models/role.model";
 import { INavBarItem } from "@/types/NavBar.types";
-import { IOperation, ISession, ISoldItem } from "@/types/Types";
+import { IIngredient, IOperation, ISession, ISoldItem } from "@/types/Types";
 
 export function generatePassword(length: number): string {
   const upper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -255,3 +256,16 @@ export const saveCreator = (creator:ISession | null | undefined):string=>{
   if(!creator) return '';
   return creator.name;
 };
+
+
+export const getQuantity = (material:IRMaterial, ingredients:IIngredient[])=>{
+    const ingredient = ingredients.find(ing => ing.materialId === material._id);
+  //  console.log('Ingredient: ', ingredient')
+    return ingredient?.qUsed || 0;
+}
+
+export const getWeight = (material:IRMaterial, ingredients:IIngredient[])=>{
+    const ingredient = ingredients.find(ing => ing.materialId === material._id);
+  //  console.log('Ingredient: ', ingredient')
+    return ingredient?.weight || 0;
+}

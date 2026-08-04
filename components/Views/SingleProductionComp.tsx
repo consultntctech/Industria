@@ -7,6 +7,8 @@ import OutputDetails from "../shared/outputs/productionDetails/OutputDetails";
 import ProdRMTable from "../shared/outputs/productionDetails/ProdRMTable";
 // import ProdItemsTable from "../shared/outputs/productionDetails/ProdItemsTable";
 import ProductionContentModal from "../shared/outputs/productionDetails/ProductionContentModal";
+import ProductionLabourersTable from '../shared/outputs/productionDetails/ProductionLabourersTable';
+
 
 type SingleProductionCompProps = {
   production: IProduction | null;
@@ -40,10 +42,10 @@ const SingleProductionComp = ({production}:SingleProductionCompProps) => {
         activeTab === 'third' &&
         <ProdRMTable setOpenNew={setOpenNew}  production={production} />
       }
-      {/* {
-        activeTab === 'third' &&
-        <ProdItemsTable setOpenNew={setOpenNew} setOpenItem={setOpenItem} production={production} />
-      } */}
+      {
+        activeTab === 'second' &&
+        <ProductionLabourersTable production={production} />
+      }
       <ProductionContentModal openNew={openNew} setOpenNew={setOpenNew}  production={production} />
     </div>
   )

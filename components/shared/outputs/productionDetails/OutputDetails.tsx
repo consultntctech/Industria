@@ -32,9 +32,9 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
 
     const productToProduce = production?.productToProduce as IProduct;
     const yieldRate =  ((Number(production?.outputQuantity||0) / Number(production?.xquantity||0)) * 100).toFixed(2);
-    const extraCost = Number(production?.extraCost || 0);
-    const prodCost = Number(production?.productionCost || 0);
-    const totalCost = extraCost + prodCost;
+    // const extraCost = Number(production?.extraCost || 0);
+    // const prodCost = Number(production?.productionCost || 0);
+    // const totalCost = extraCost + prodCost;
 
     const title = 'Submit Production for Approval';
     const content = 'Are you sure you want to submit this production? You cannot edit the production after submitting for approval.';
@@ -118,10 +118,10 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
                         <span className="truncate w-1/2 md:w-1/5" >Extra Cost:</span>
                         <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.extraCost || 0}`}</span>
                     </div>
-                    <div className="flex flex-row items-center gap-4">
+                    {/* <div className="flex flex-row items-center gap-4">
                         <span className="truncate w-1/2 md:w-1/5" >Total Cost:</span>
                         <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${totalCost || 0}`}</span>
-                    </div>
+                    </div> */}
 
                     <div className="flex flex-row items-center gap-4">
                         <span className="truncate w-1/2 md:w-1/5" >Started At:</span>

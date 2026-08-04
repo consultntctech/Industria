@@ -171,7 +171,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
                 <div className="flex gap-4 flex-col w-full justify-between">
                     <div className="flex flex-col gap-4 w-full">
                         <InputWithLabel onChange={onChange} defaultValue={production?.xquantity} name="xquantity" required type="number" min={1} placeholder="10" label="Expected output quantity" className="w-full" />
-                        <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!original} setSelect={setOtherCurrency} value={savedCurrency} />} />
+                        <GenericLabel label="Select currency" input={<SearchSelectCurrencies required setSelect={setOtherCurrency} value={savedCurrency} />} />
                         {
                             showRate &&
                         <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />

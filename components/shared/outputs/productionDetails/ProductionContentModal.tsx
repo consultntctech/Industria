@@ -153,7 +153,7 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
                   })),
                   inputQuantity
               }
-             console.log('Prod Data', prodData)
+            //  console.log('Prod Data', prodData)
            const res = await updateProductionIngredients(prodData);
            enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
            if(!res.error){
@@ -164,7 +164,7 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
            }
          } catch (error) {
            console.log(error);
-           enqueueSnackbar('Error occured while starting a production', {variant:'error'});
+           enqueueSnackbar('Error occured while updating production ingredients', {variant:'error'});
          }finally{
            setLoading(false);
          }
@@ -186,13 +186,13 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
 
   return (
     <ModalContainer  open={openNew} handleClose={handleClose}>
-        <div className="flex w-[90%] md:w-[50%] max-h-[95%]">
+        <div className="flex w-[90%] md:w-[50%] h-[90%] items-center">
             <form ref={formRef} onSubmit={ handleSubmit}  className="formBox overflow-y-scroll scrollbar-custom  h-full relative p-4 flex-col gap-8 w-full" >
                 <div className="flex flex-col gap-1">
                     <span className="title" >Edit production data</span>
                     <span className="greyText" >You cannot edit the production after submitting for approval.</span>
                 </div>
-        
+                
                 <div className="flex flex-col lg:flex-row gap-4 items-stretch">
                     <div className="flex gap-4 flex-col w-full">
                         <div className="flex flex-col gap-4 w-full">
@@ -201,12 +201,12 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
                                 <>
                                     <GenericLabel
                                         label="Pick a batch to select raw materials"
-                                        input={<SearchSelectBatches disabled value={batch} type="Raw Material" setSelect={setProductBatchId} />}
+                                        input={<SearchSelectBatches value={batch} type="Raw Material" setSelect={setProductBatchId} />}
                                     />
                                     
                                     <GenericLabel
                                         label="Select raw materials"
-                                        input={<SearchSelectAvMultipleRMaterials disabled value={oldRawMaterials} setSelection={setRawMaterials} batchId={productBatchId} />}
+                                        input={<SearchSelectAvMultipleRMaterials value={oldRawMaterials} setSelection={setRawMaterials} batchId={productBatchId} />}
                                     />
 
                                     {
@@ -217,8 +217,9 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
                                                 {
                                                     rawMaterials.map((material, index)=>{
                                                         const qty = getQuantity(material);
+                                                        const wt = getWeight(material);
                                                         return (
-                                                            <RMQSelector key={index} weight={getWeight(material)} material={material} inputId={material?._id} onChangeInput={onChangeInput} name={material?.materialName} quantity={qty} />
+                                                            <RMQSelector key={index} weight={wt} material={material} inputId={material?._id} onChangeInput={onChangeInput} name={material?.materialName} quantity={qty} />
                                                         )
                                                     }
                                                     )
