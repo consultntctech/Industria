@@ -70,10 +70,10 @@ const NewProductionComp = () => {
     // Calculate production cost only if user hasn't overridden
     useEffect(() => {
         if (!userOverrodeCost) {
-            const extraCost = data.extraCost || 0;
-            setProductionCost(totalPrice + extraCost);
+            // const extraCost = data.extraCost || 0;
+            setProductionCost(totalPrice);
         }
-    }, [totalPrice, userOverrodeCost, data.extraCost]);
+    }, [totalPrice, userOverrodeCost]);
  
     const onchangeProdCost = (e:React.ChangeEvent<HTMLInputElement>)=>{
         const {value} = e.target;
@@ -89,7 +89,7 @@ const NewProductionComp = () => {
     const finalPrice = (pCost + labourCost);
     // console.log(productionCost + (data?.labourCost || 0))
     // alert(totalPrice + totalProd);
-
+    // console.log(productionCost)
     useEffect(() => {
         const validIds = new Set(rawMaterials.map(rm => rm._id));
         setIngredients(prev => prev.filter(ing => validIds.has(ing.materialId)));
@@ -126,6 +126,7 @@ const NewProductionComp = () => {
                 // proditems: proditems?.map(item=>item._id),
                 inputQuantity,
                 labourCost,
+                extraCost:0,
                 pCost,
                 labourers: labourers?.map(lab=>lab._id),
                 productionCost: finalPrice,
@@ -209,7 +210,7 @@ const NewProductionComp = () => {
                         />
                         <GenericLabel
                             label="Select labourers"
-                            input={<SearchSelectMultipleUsers required={true} setSelection={setLabourers} placeholder="labourers" />}
+                            input={<SearchSelectMultipleUsers  setSelection={setLabourers} placeholder="labourers" />}
                         />
                         <GenericLabel
                             label="Product to produce"

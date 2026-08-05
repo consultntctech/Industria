@@ -76,19 +76,15 @@ export const ProductionColumns = (
 
         {
             field: 'productionCost',
-            headerName: 'Total Cost',
+            headerName: `Total Cost`,
             width:120,
             valueFormatter:(_, row:IProduction)=>{
                 const cost = row?.productionCost as number || 0;
-                const extra = row?.extraCost as number || 0;
-                const labour = row?.labourCost as number || 0;
-                return `${currency?.symbol ||''} ${cost + extra + labour}`;
+                return `${currency?.symbol || ''} ${cost}`;
             },
             valueGetter:(_, row:IProduction)=>{
                 const cost = row?.productionCost as number || 0;
-                const extra = row?.extraCost as number || 0;
-                const labour = row?.labourCost as number || 0;
-                return `${currency?.symbol || ''} ${cost + extra + labour}`;
+                return `${currency?.symbol || ''} ${cost}`;
             }
         },
         {

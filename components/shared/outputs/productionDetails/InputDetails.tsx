@@ -105,21 +105,24 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Production Cost:</span>
-          <span className="text-gray-600 flex-1 md:flex-5" >{`${savedCurrency?.symbol || ''}${production?.pCost || '0'}`}</span>
+          <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.pCost || '0'}`}</span>
         </div>
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Labour Cost:</span>
-          <span className="text-gray-600 flex-1 md:flex-5" >{`${savedCurrency?.symbol || ''}${production?.labourCost || '0'}`}</span>
+          <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.labourCost || '0'}`}</span>
         </div>
         
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Total Cost:</span>
           <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.productionCost}`}</span>
         </div>
-        <div className="flex flex-row items-center gap-4">
-          <span className="truncate w-1/2 md:w-1/5" >Original Cost:</span>
-          <span className="text-gray-600 flex-1 md:flex-5" >{`${savedCurrency?.symbol || ''}${original?.amount || 'Unavailable'}`}</span>
-        </div>
+        {
+          original &&
+          <div className="flex flex-row items-center gap-4">
+            <span className="truncate w-1/2 md:w-1/5" >Total Cost ({savedCurrency?.symbol || ''}):</span>
+            <span className="text-gray-600 flex-1 md:flex-5" >{`${savedCurrency?.symbol || ''}${original?.amount || 'Unavailable'}`}</span>
+          </div>
+        }
 
 
         <div className="flex flex-row items-center gap-4">

@@ -77,7 +77,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
     const finalOg = ogExtra + (pCost + labourCost);
 
     const finalPrice = productionCost + extra;
-    console.log()
+    // console.log()
 
     useEffect(() => {
         if(production){

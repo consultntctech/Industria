@@ -1,4 +1,4 @@
-import { Dispatch, FormEvent, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
+import { Dispatch, FormEvent, SetStateAction, useEffect,  useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import GenericLabel from "../shared/inputs/GenericLabel";
 import SearchSelectProducts from "../shared/inputs/dropdowns/SearchSelectProducts";
@@ -20,6 +20,8 @@ import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/li
 import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import CustomCheckV2 from "../misc/CustomCheckV2";
+import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
+import { IOriginalPrice } from "@/types/Types";
 ;
 
 type RMCompProps = {
@@ -38,7 +40,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
     const [batch, setBatch] = useState<string>('')
     const [showReason, setShowReason] = useState(false);
     const [useRate, setUseRate] = useState(false);
-    const [showRate, setShowRate] = useState(false);
+    // const [showRate, setShowRate] = useState(false);
 
     const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
 
@@ -54,15 +56,13 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
     const savedSupplier = currentMaterial?.supplier as ISupplier;
     const savedBatch = currentMaterial?.batch as IBatch;
     const savedCurrency = currentMaterial?.original?.currency as IOtherCurrency;
+    const original = currentMaterial?.original as IOriginalPrice;
 
     // const rate = useRate ? (otherCurrency?.rate || 1) : (currentMaterial?.original?.rate || 1);
     const originalAmount = ((data?.unitPrice! * data.qReceived!) - (data.discount! - data?.charges!)) || 0;
 
-    const rate = useMemo(() => {
-     if(!currentMaterial) return otherCurrency?.rate || 1;
-     if(showRate && !useRate) return currentMaterial?.original?.rate || 1;
-     return otherCurrency?.rate || 1;
-    }, [otherCurrency, currentMaterial, useRate, showRate])
+    const showRate = exposeRate(savedCurrency, otherCurrency);
+    const rate = currencyRate(original, otherCurrency, showRate, useRate);
     const price = ( originalAmount * rate);
     const currencyLabel = `Total cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
     const otherLabel = `Total cost (${otherCurrency?.symbol || otherCurrency?.name})`;
@@ -72,7 +72,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
     const handleClose = () => {
       setCurrentMaterial(null);
       setOpenNew(false);
-      setShowRate(false);
+      // setShowRate(false);
       setUseRate(false);
     };
 
@@ -89,13 +89,6 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
       } 
     }, [currentMaterial])
 
-    useEffect(()=>{
-      if((currentMaterial && otherCurrency) && (otherCurrency?._id === savedCurrency?._id) && otherCurrency?.rate !== currentMaterial?.original?.rate){
-        setShowRate(true);
-      }else{
-        setShowRate(false);
-      }
-    },[otherCurrency, currentMaterial])
 
     useEffect(() => {
       if(data?.qRejected && data?.qRejected > 0){
@@ -198,86 +191,81 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
 
   return (
      <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
-      
-      <form ref={formRef} onSubmit={currentMaterial ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
-        <div className="flex flex-col gap-1">
-          <span className="title" >{currentMaterial ? 'Edit raw material' : 'Add new raw material'}</span>
-          <span className="greyText" >These are the goods you buy for production</span>
-        </div>
+      {
+        openNew &&
+        <form ref={formRef} onSubmit={currentMaterial ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
+          <div className="flex flex-col gap-1">
+            <span className="title" >{currentMaterial ? 'Edit raw material' : 'Add new raw material'}</span>
+            <span className="greyText" >These are the goods you buy for production</span>
+          </div>
 
-        <div className="flex flex-col lg:flex-row gap-4 items-stretch">
-          <div className="flex gap-4 flex-col w-full">
-            {
-              openNew &&
-              <>
-                <GenericLabel
-                  label="Select product"
-                  input={<SearchSelectProducts value={savedProduct} type="Raw Material" setSelect={setProduct} required={!currentMaterial} />}
-                />
-                <GenericLabel
-                label="Select supplier"
-                input={<SearchSelectLtdSuppliers value={savedSupplier} required={!currentMaterial} setSelect={setSupplier} productId={product?._id || ''} />}
-                />
+          <div className="flex flex-col lg:flex-row gap-4 items-stretch">
+            <div className="flex gap-4 flex-col w-full">
+            
+                  <GenericLabel
+                    label="Select product"
+                    input={<SearchSelectProducts value={savedProduct} type="Raw Material" setSelect={setProduct} required={!currentMaterial} />}
+                  />
+                  <GenericLabel
+                  label="Select supplier"
+                  input={<SearchSelectLtdSuppliers value={savedSupplier} required={!currentMaterial} setSelect={setSupplier} productId={product?._id || ''} />}
+                  />
+                  <GenericLabel 
+                    label='Select batch'
+                    input={
+                      <SearchSelectBatches value={savedBatch} type="Raw Material" required={!currentMaterial} setSelect={setBatch} />
+                    }
+                  />
                 <GenericLabel 
-                  label='Select batch'
-                  input={
-                    <SearchSelectBatches value={savedBatch} type="Raw Material" required={!currentMaterial} setSelect={setBatch} />
-                  }
+                    label='Select quality status'
+                    input={
+                    <select defaultValue={currentMaterial?.qStatus} onChange={onSelectChange} name="qStatus" className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
+                        <option  value="Pass">Pass</option>
+                        <option value="Partial">Partial</option>
+                        <option value="Fail">Fail</option>
+                    </select>
+                    }
                 />
-              </>
-            }
-            {
-              openNew &&
-              <GenericLabel 
-                  label='Select quality status'
-                  input={
-                  <select defaultValue={currentMaterial?.qStatus} onChange={onSelectChange} name="qStatus" className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
-                      <option  value="Pass">Pass</option>
-                      <option value="Partial">Partial</option>
-                      <option value="Fail">Fail</option>
-                  </select>
-                  }
-              />
-            }
-            <InputWithLabel defaultValue={currentMaterial?.yield} onChange={onChange} name="yield"  type="number" min={1} placeholder="eg. 2" label="Expected yield rate" className="w-full" />
-            <InputWithLabel defaultValue={currentMaterial? formatDate(currentMaterial?.dateReceived) : today()} onChange={onChange} max={today()} name="dateReceived" type="date" required={!currentMaterial} label="Date received" className="w-full" />
-            <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentMaterial} setSelect={setOtherCurrency} value={savedCurrency} />} />
-            {
-              showRate &&
-              <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
-            }
-            <InputWithLabel step={0.0001} required={!currentMaterial} defaultValue={currentMaterial?.unitPrice} onChange={onChange} name="unitPrice"  type="number" min={0} placeholder="eg. 25" label="Enter unit price" className="w-full" />
-            <InputWithLabel step={0.0001} required={!currentMaterial} defaultValue={currentMaterial?.qReceived} onChange={onChange} name="qReceived" type="number" min={0} placeholder="eg. 1000" label="Quantity received" className="w-full" />
-          </div>
-
-          <div className="flex gap-4 flex-col w-full justify-between">
-            <InputWithLabel step={0.0001} onChange={onChange} defaultValue={currentMaterial?.qRejected || 0} name="qRejected" type="number" min={0} placeholder="eg. 50" label="Quantity rejected" className="w-full" />
-            <div className="flex flex-col gap-4 w-full">
+              <InputWithLabel defaultValue={currentMaterial?.yield} onChange={onChange} name="yield"  type="number" min={1} placeholder="eg. 2" label="Expected yield rate" className="w-full" />
+              <InputWithLabel defaultValue={currentMaterial? formatDate(currentMaterial?.dateReceived) : today()} onChange={onChange} max={today()} name="dateReceived" type="date" required={!currentMaterial} label="Date received" className="w-full" />
+              <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentMaterial} setSelect={setOtherCurrency} value={savedCurrency} />} />
               {
-                  showReason &&
-                  <TextAreaWithLabel defaultValue={currentMaterial?.reason} name="reason" onChange={onChange} placeholder="enter reason for rejection (if any)" label="Reason for rejection" className="w-full" />
+                showRate &&
+                <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
               }
-              <InputWithLabel step={0.0001} defaultValue={currentMaterial?.charges} onChange={onChange} name="charges"  type="number" min={0} placeholder="eg. 20" label="Addtional Charges" className="w-full" />
-              <InputWithLabel step={0.0001} defaultValue={currentMaterial?.discount} onChange={onChange} name="discount"  type="number" min={0} placeholder="eg. 20" label="Discount" className="w-full" />
-              <InputWithLabel step={0.0001} value={originalAmount} readOnly   type="number"  label={otherCurrency? otherLabel : currencyLabel} className="w-full" />
-              {
-                otherCurrency &&
-                <InputWithLabel step={0.0001} value={price} readOnly  name="price"  type="number"  label={currencyLabel} className="w-full" />
-              }
-              <InputWithLabel onChange={onChange} step={0.0001} defaultValue={currentMaterial?.weight || 0} required={!currentMaterial}  name="weight"  type="number"  label="Total weight" className="w-full" />
-              <TextAreaWithLabel defaultValue={currentMaterial?.note} name="note" onChange={onChange} placeholder="enter note" label="Note" className="w-full" />
+              <InputWithLabel step={0.0001} required={!currentMaterial} defaultValue={currentMaterial?.unitPrice} onChange={onChange} name="unitPrice"  type="number" min={0} placeholder="eg. 25" label="Enter unit price" className="w-full" />
+              <InputWithLabel step={0.0001} required={!currentMaterial} defaultValue={currentMaterial?.qReceived} onChange={onChange} name="qReceived" type="number" min={0} placeholder="eg. 1000" label="Quantity received" className="w-full" />
             </div>
-            {
-              (isCreator || isEditor) &&
-              <PrimaryButton disabled={currentMaterial ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentMaterial ? "Update" : "Submit"} className="w-full mt-4" />
-            }
-          </div>
-        </div>
 
-        <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
-          <FaChevronUp />
-        </div>
-      </form>
+            <div className="flex gap-4 flex-col w-full justify-between">
+              <InputWithLabel step={0.0001} onChange={onChange} defaultValue={currentMaterial?.qRejected || 0} name="qRejected" type="number" min={0} placeholder="eg. 50" label="Quantity rejected" className="w-full" />
+              <div className="flex flex-col gap-4 w-full">
+                {
+                    showReason &&
+                    <TextAreaWithLabel defaultValue={currentMaterial?.reason} name="reason" onChange={onChange} placeholder="enter reason for rejection (if any)" label="Reason for rejection" className="w-full" />
+                }
+                <InputWithLabel step={0.0001} defaultValue={currentMaterial?.charges} onChange={onChange} name="charges"  type="number" min={0} placeholder="eg. 20" label="Addtional Charges" className="w-full" />
+                <InputWithLabel step={0.0001} defaultValue={currentMaterial?.discount} onChange={onChange} name="discount"  type="number" min={0} placeholder="eg. 20" label="Discount" className="w-full" />
+                <InputWithLabel step={0.0001} value={originalAmount} readOnly   type="number"  label={otherCurrency? otherLabel : currencyLabel} className="w-full" />
+                {
+                  otherCurrency &&
+                  <InputWithLabel step={0.0001} value={price} readOnly  name="price"  type="number"  label={currencyLabel} className="w-full" />
+                }
+                <InputWithLabel onChange={onChange} step={0.0001} defaultValue={currentMaterial?.weight || 0} required={!currentMaterial}  name="weight"  type="number"  label="Total weight" className="w-full" />
+                <TextAreaWithLabel defaultValue={currentMaterial?.note} name="note" onChange={onChange} placeholder="enter note" label="Note" className="w-full" />
+              </div>
+              {
+                (isCreator || isEditor) &&
+                <PrimaryButton disabled={currentMaterial ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentMaterial ? "Update" : "Submit"} className="w-full mt-4" />
+              }
+            </div>
+          </div>
+
+          <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
+            <FaChevronUp />
+          </div>
+        </form>
+      }
     </div>
   )
 }

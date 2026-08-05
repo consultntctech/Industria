@@ -4,20 +4,20 @@ import { DataGrid } from "@mui/x-data-grid";
 import { GoPencil } from "react-icons/go";
 import { IUser } from '../../../../lib/models/user.model';
 import { ProductionLabourersColumns } from './ProductionLabourersColumns';
-// import { useState } from "react";
-// import ProdLabourersSelectModal from "./ProdLabourersSelectModal";
+import { useState } from "react";
+import ProdLabourersSelectModal from "./ProdLabourersSelectModal";
 
 type ProductionLabourersTableProps = {
   production: IProduction | null;
 }
 
 const ProductionLabourersTable = ({ production }: ProductionLabourersTableProps) => {
-  // const [openLab, setOpenLab] = useState(false);
+  const [openLab, setOpenLab] = useState(false);
   const labourers = (production?.labourers || []) as unknown as IUser[];
   const paginationModel = { page: 0, pageSize: 15 };
   const handleEdit = ()=>{
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    // setOpenLab(true);
+    setOpenLab(true);
   }
   return (
     <div className='table-main2' >
@@ -30,7 +30,7 @@ const ProductionLabourersTable = ({ production }: ProductionLabourersTableProps)
                 </Tooltip>
             }
         </div>
-        {/* <ProdLabourersSelectModal openLab={openLab} setOpenLab={setOpenLab} production={production} /> */}
+        <ProdLabourersSelectModal openLab={openLab} setOpenLab={setOpenLab} production={production} />
         <div className="flex w-full">
             {
                 // loading ? 

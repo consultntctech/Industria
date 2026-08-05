@@ -1,5 +1,6 @@
 import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
+import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IProduct } from "@/lib/models/product.model";
@@ -14,7 +15,7 @@ export const RMaterialColumns = (
     handleEdit: (item:IRMaterial)=>void,
     handleDelete: (item:IRMaterial)=>void,
 ):GridColDef[]=>{
-
+    const {currency} = useCurrencyConfig();
     return [
        
         {
@@ -116,7 +117,7 @@ export const RMaterialColumns = (
         },
         {
             field: 'unitPrice',
-            headerName: 'Unit Price',
+            headerName: `Unit Price (${currency?.symbol || ''})`,
             width:110,
         },
         {
@@ -134,17 +135,17 @@ export const RMaterialColumns = (
         },
         {
             field: 'charges',
-            headerName: 'Extra Charges',
+            headerName: `Extra Charges (${currency?.symbol || ''})`,
             width:110,
         },
         {
             field: 'discount',
-            headerName: 'Discount',
+            headerName: `Discount (${currency?.symbol || ''})`,
             width:110,
         },
         {
             field: 'price',
-            headerName: 'Price Paid',
+            headerName: `Total Price (${currency?.symbol || ''})`,
             width:110,
         },
         {

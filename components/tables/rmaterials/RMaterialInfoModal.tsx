@@ -83,30 +83,31 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
                 <span className="mtext">{currentMaterial?.reason || 'None'}</span>
             </div>
             <div className="flex flex-col">
-                <span className="mlabel">Original Price</span>
-                <span className="mtext">{`${savedCurrency?.symbol} ${original?.amount}` || 'Unavailable'}</span>
-            </div>
-            <div className="flex flex-col">
                 <span className="mlabel">Unit Price</span>
-                <span className="mtext">{currency?.symbol}{currentMaterial?.unitPrice}</span>
+                <span className="mtext">{savedCurrency?.symbol || currency?.symbol}{currentMaterial?.unitPrice}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Discounts</span>
-                <span className="mtext">{currency?.symbol}{currentMaterial?.discount}</span>
+                <span className="mtext">{savedCurrency?.symbol || currency?.symbol}{currentMaterial?.discount}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Extra Charges</span>
-                <span className="mtext">{currency?.symbol}{currentMaterial?.charges}</span>
+                <span className="mtext">{ savedCurrency?.symbol || currency?.symbol}{currentMaterial?.charges}</span>
             </div>
+
+            <div className="flex flex-col">
+                <span className="mlabel">Total Price</span>
+                <span className="mtext">{`${savedCurrency?.symbol}${original?.amount}` || 'Unavailable'}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">{`Total Price (${currency?.symbol || 'Primary currency'})`}</span>
+                <span className="mtext">{currency?.symbol}{currentMaterial?.price}</span>
+            </div>
+
             <div className="flex flex-col">
                 <span className="mlabel">Weight</span>
                 <span className="mtext">{currentMaterial?.weight || 0} {product?.uom || 'units'}</span>
             </div>
-            <div className="flex flex-col">
-                <span className="mlabel">Price Paid</span>
-                <span className="mtext">{currency?.symbol}{currentMaterial?.price}</span>
-            </div>
-
             <div className="flex flex-col">
                 <span className="mlabel">Quality Status</span>
                 <span className="mtext">{currentMaterial?.qStatus}</span>
