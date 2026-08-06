@@ -118,13 +118,16 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
                 <span className="mlabel">Description</span>
                 <span className="mtext">{currentPackage?.description || 'None'}</span>
             </div>
+            {
+                original &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Total Cost</span>
+                    <span className="mtext">{`${cy?.symbol || cy?.name || ''}${original?.amount || 0}`}</span>
+                </div>
+            }
             <div className="flex flex-col">
-                <span className="mlabel">Cost</span>
+                <span className="mlabel">{`Total Cost (${currency?.symbol || 'Primary currency'})`}</span>
                 <span className="mtext">{`${currency?.symbol || ''}${currentPackage?.cost}`}</span>
-            </div>
-            <div className="flex flex-col">
-                <span className="mlabel">Original Cost</span>
-                <span className="mtext">{`${cy?.symbol || cy?.name || ''}${original?.amount || 0}`}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Approval Status</span>

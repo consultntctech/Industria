@@ -15,6 +15,7 @@ import DialogueAlertWithInput from "@/components/misc/DialogueAlertWithInput";
 import { IReturns } from "@/lib/models/returns.model";
 import { createReturns } from "@/lib/actions/returns.action";
 import { ILineItem } from "@/lib/models/lineitem.model";
+import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 
 type SalesTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -92,14 +93,24 @@ const SalesTable = ({setOpenNew, currentSales, setCurrentSales}:SalesTableProps)
         setShowDelete(false);
         setCurrentSales(null);
     }
+    // const {createdAt, updatedAt, original, charges, discount,  ...salesData} = currentSales;
+    // console.log(currentSales)
 
     const handleRefundItem = async()=>{
         try {
             if(!currentSales || !reason) return;
-            const {createdAt, updatedAt,  ...salesData} = currentSales;
+            const {createdAt, updatedAt, original, charges, discount,  ...salesData} = currentSales;
+            const cy = original?.currency as IOtherCurrency;
             const retData:Partial<IReturns> = {
                 ...salesData,
                 products: products.map((p)=>p._id),
+                original:{
+                    amount: original?.amount,
+                    rate: original?.rate,
+                    currency:cy?._id,
+                },
+                charges,
+                discount,
                 reason,
             }
             // console.log(createdAt, updatedAt)

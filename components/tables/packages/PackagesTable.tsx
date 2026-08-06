@@ -67,7 +67,7 @@ const PackageTable = () => {
 
   return (
     <div className='table-main2' >
-        <span className='font-bold text-xl' >Packages</span>
+        <span className='font-bold text-xl' >Packaging</span>
         <PackageInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentPackage={currentPackage} setCurrentPackage={setCurrentPackage} />
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteItem} title="Delete Package" content={content} />
         <div className="flex w-full">

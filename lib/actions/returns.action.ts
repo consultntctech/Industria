@@ -35,6 +35,7 @@ export async function getReturns():Promise<IResponse>{
         .populate('customer')
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
         .populate('createdBy')
+        .populate('original.currency')
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, returns, 200);
     } catch (error) {
@@ -51,6 +52,7 @@ export async function getReturnsByOrg(orgId:string):Promise<IResponse>{
         .populate('customer')
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
         .populate('createdBy')
+        .populate('original.currency')
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, returns, 200);
     } catch (error) {
@@ -68,6 +70,7 @@ export async function getReturnsByCustomer(customerId:string):Promise<IResponse>
         .populate('customer')
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
         .populate('createdBy')
+        .populate('original.currency')
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, returns, 200);
     } catch (error) {
@@ -84,6 +87,7 @@ export async function getReturnsByProduct(productId:string):Promise<IResponse>{
         .populate('customer')
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
         .populate('createdBy')
+        .populate('original.currency')
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, returns, 200);
     } catch (error) {
@@ -100,6 +104,7 @@ export async function getReturnsByOrgAndCustomer(orgId:string, customerId:string
         .populate('customer')
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
         .populate('createdBy')
+        .populate('original.currency')
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, returns, 200);
     } catch (error) {
@@ -125,6 +130,7 @@ export async function getTodayReturns(): Promise<IResponse> {
       .populate("customer")
       .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
       .populate("createdBy")
+      .populate("original.currency")
       .populate("org")
       .lean<IReturns[]>();
 
@@ -148,6 +154,7 @@ export async function getTodayReturnsByOrg(orgId:string):Promise<IResponse>{
         .populate("customer")
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
         .populate("createdBy")
+        .populate("original.currency")
         .populate("org")
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, sales, 200);
@@ -167,6 +174,7 @@ export async function getReturnsByOrgAndProduct(orgId:string, productId:string):
         .populate('customer')
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
         .populate('createdBy')
+        .populate('original.currency')
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, returns, 200);
     } catch (error) {
@@ -194,6 +202,7 @@ export async function getReturn(id:string):Promise<IResponse>{
             { path: "customer" },
             { path: "products", populate:[{path:'product'}, {path:'batch'}] },
             { path: "createdBy" },
+            { path: "original.currency" },
             { path: "org" },
         ]);
         if ("allowed" in check === false) return check;

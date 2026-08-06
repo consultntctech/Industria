@@ -30,6 +30,10 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
     const original = currentProdItem?.original as IOriginalPrice;
     const savedCurrency = currentProdItem?.original?.currency as IOtherCurrency;
 
+    // const rate = Number(original?.rate || 1);
+    // console.log(rate, currentProdItem?.unitPrice)
+    // const ogUnit = Number(currentProdItem?.unitPrice || 0) / rate;
+
     const handleClose = ()=>{
         setInfoMode(false);
         setCurrentProdItem(null);
@@ -69,6 +73,10 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
                 <span className="mtext">{currentProdItem?.qStatus}</span>
             </div>
             <div className="flex flex-col">
+                <span className="mlabel">Resuable item</span>
+                <span className="mtext">{currentProdItem?.reusable ? 'Yes' : 'No'}</span>
+            </div>
+            <div className="flex flex-col">
                 <span className="mlabel">Quantity received</span>
                 <span className="mtext">{currentProdItem?.quantity}</span>
             </div>
@@ -78,15 +86,18 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Unit price</span>
-                <span className="mtext">{currency?.symbol || ''}{currentProdItem?.unitPrice}</span>
+                <span className="mtext">{savedCurrency?.symbol || currency?.symbol || ''}{currentProdItem?.unitPrice}</span>
             </div>
+            {
+                original &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Total price</span>
+                    <span className="mtext">{savedCurrency?.symbol || savedCurrency?.name || ''}{original?.amount || 0}</span>
+                </div>
+            }
             <div className="flex flex-col">
-                <span className="mlabel">Total price</span>
+                <span className="mlabel">{`Total price (${currency?.symbol || 'Primary currency'})`}</span>
                 <span className="mtext">{currency?.symbol || ''}{currentProdItem?.price}</span>
-            </div>
-            <div className="flex flex-col">
-                <span className="mlabel">Original price</span>
-                <span className="mtext">{savedCurrency?.symbol || savedCurrency?.name || ''}{original?.amount || 0}</span>
             </div>
             
             <div className="flex flex-col">

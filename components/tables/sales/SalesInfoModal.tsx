@@ -13,6 +13,7 @@ import { isSystemAdmin } from '@/Data/roles/permissions';
 import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import { getProductCounts } from '@/functions/helpers';
 import { IOriginalPrice } from '@/types/Types';
+import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 
 type SalesInfoModalProps = {
     infoMode:boolean,
@@ -32,14 +33,16 @@ const SalesInfoModal = ({infoMode, setInfoMode, currentSale, setCurrentSale}:Sal
     // console.log('LineItems: ', lineitems)
     // console.log('Id: ', products[0])
     const original = currentSale?.original as IOriginalPrice;
+    const savedCurrency = original?.currency as IOtherCurrency;
 
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
 
     const {currency} = useCurrencyConfig();
 
-    const charge = (currentSale?.charges || 0) * (original?.rate || 1);
-    const discount = (currentSale?.discount || 0) * (original?.rate || 1);
+    // const charge = (currentSale?.charges || 0) * (original?.rate || 1);
+    // const discount = (currentSale?.discount || 0) * (original?.rate || 1);
+    const amt = Number(currentSale?.price || 0) / Number(original?.rate || 1);
 
     // console.log('Creator:', creator);
     const handleClose = ()=>{
@@ -62,14 +65,21 @@ const SalesInfoModal = ({infoMode, setInfoMode, currentSale, setCurrentSale}:Sal
             
             <div className="flex flex-col">
                 <span className="mlabel">Discounts</span>
-                <span className="mtext">{currency?.symbol || ''} {discount}</span>
+                <span className="mtext">{savedCurrency?.symbol || currency?.symbol || ''} {currentSale?.discount}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Charges</span>
-                <span className="mtext">{currency?.symbol || ''} {charge}</span>
+                <span className="mtext">{savedCurrency?.symbol || currency?.symbol || ''} {currentSale?.charges}</span>
             </div>
+            {
+                original &&
+                <div className="flex flex-col">
+                    <span className="mlabel">{`Total Price`}</span>
+                    <span className="mtext">{savedCurrency?.symbol || ''} {amt?.toFixed(2)}</span>
+                </div>
+            }
             <div className="flex flex-col">
-                <span className="mlabel">Total Price</span>
+                <span className="mlabel">{`Total Price (${currency?.symbol || 'Primary currency'})`}</span>
                 <span className="mtext">{currency?.symbol || ''} {currentSale?.price || '0'}</span>
             </div>
             <div className="flex flex-col">

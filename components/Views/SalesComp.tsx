@@ -82,6 +82,8 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
     const discountOtherLabel = `Discount (${otherCurrency?.symbol || otherCurrency?.name})`;
 
     const beforeRateNetCharge = Number(data.charges || 0) + Number(data.discount || 0);
+
+    // console.log(beforeRateNetCharge)
     // console.log('Saved Customer: ', savedCustomer)
 
    
