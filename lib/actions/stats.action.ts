@@ -12,6 +12,8 @@ import Package, { IPackage } from "../models/package.model";
 import RMaterial from "../models/rmaterial.mode";
 import LineItem from "../models/lineitem.model";
 import { getLast7Days, getLast7Months, getLast7Weeks } from "@/functions/dates";
+import ProdItem from "../models/proditem.model";
+import { ICostStats, IMonthlyCost } from "@/types/FinanceTypes";
 
 type CollectionKey = keyof IStats;
 
@@ -30,7 +32,7 @@ const collectionsMap: {
   sales: { model: Sales, amountFields: ['price'] },
   orders: { model: Order, amountFields: ['price'] },
   returns: { model: Returns, amountFields: ['price'] },
-  production: { model: Production, amountFields: ['productionCost', 'extraCost'] },
+  production: { model: Production, amountFields: ['productionCost'] },
   packaging: { model: Package, amountFields: ['cost'] },
 };
 
@@ -1728,4 +1730,237 @@ export async function getUserDashStats(
       500
     );
   }
+}
+
+
+
+
+export async function getCostStats(): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const now = new Date();
+        const startDate = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+        const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+        const monthsList = Array.from({ length: 6 }, (_, idx) => {
+            const i = 5 - idx;
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            return {
+                year: date.getFullYear(),
+                month: date.getMonth() + 1,
+                label: `${date.toLocaleString("en-US", { month: "short" })} ${date.getFullYear()}`,
+            };
+        });
+
+        const fillMonths = (
+            data: { _id: { year: number; month: number }; cost: number }[]
+        ): IMonthlyCost[] =>
+            monthsList.map(({ year, month, label }) => {
+                const found = data.find(
+                    d => d._id.year === year && d._id.month === month
+                );
+                return { month: label, cost: found ? found.cost : 0 };
+            });
+
+        /* ================= PRODUCTION (pCost, labourCost, extraCost) ================= */
+        const productionAgg = await Production.aggregate([
+            { $match: { createdAt: { $gte: startDate, $lte: endDate } } },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" },
+                    },
+                    pCost: { $sum: { $ifNull: ["$pCost", 0] } },
+                    labourCost: { $sum: { $ifNull: ["$labourCost", 0] } },
+                    extraCost: { $sum: { $ifNull: ["$extraCost", 0] } },
+                },
+            },
+        ]);
+
+        const pCost = fillMonths(productionAgg.map(p => ({ _id: p._id, cost: p.pCost })));
+        const labourCost = fillMonths(productionAgg.map(p => ({ _id: p._id, cost: p.labourCost })));
+        const extraCost = fillMonths(productionAgg.map(p => ({ _id: p._id, cost: p.extraCost })));
+
+        /* ================= PACKAGES (cost) ================= */
+        const packageAgg = await Package.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate, $lte: endDate },
+                    cost: { $ne: null },
+                },
+            },
+            {
+                $group: {
+                    _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                    cost: { $sum: "$cost" },
+                },
+            },
+        ]);
+        const packages = fillMonths(packageAgg);
+
+        /* ================= RAW MATERIALS (price) ================= */
+        const rawMaterialAgg = await RMaterial.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate, $lte: endDate },
+                    price: { $ne: null },
+                },
+            },
+            {
+                $group: {
+                    _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                    cost: { $sum: "$price" },
+                },
+            },
+        ]);
+        const rawMaterials = fillMonths(rawMaterialAgg);
+
+        /* ================= PROD ITEMS (price) ================= */
+        const prodItemAgg = await ProdItem.aggregate([
+            {
+                $match: {
+                    createdAt: { $gte: startDate, $lte: endDate },
+                    price: { $ne: null },
+                },
+            },
+            {
+                $group: {
+                    _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                    cost: { $sum: "$price" },
+                },
+            },
+        ]);
+        const prodItems = fillMonths(prodItemAgg);
+
+        const payload: ICostStats = {
+            production: { pCost, labourCost, extraCost },
+            packages,
+            rawMaterials,
+            prodItems,
+        };
+
+        return respond("Cost stats fetched successfully", false, payload, 200);
+    } catch (error) {
+        console.error(error);
+        return respond("Error occurred while fetching cost stats", true, {}, 500);
+    }
+}
+
+
+export async function getCostStatsByOrg(org: string): Promise<IResponse> {
+    try {
+        await connectDB();
+
+        const now = new Date();
+        const startDate = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+        const endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+        const monthsList = Array.from({ length: 6 }, (_, idx) => {
+            const i = 5 - idx;
+            const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            return {
+                year: date.getFullYear(),
+                month: date.getMonth() + 1,
+                label: `${date.toLocaleString("en-US", { month: "short" })} ${date.getFullYear()}`,
+            };
+        });
+
+        const fillMonths = (
+            data: { _id: { year: number; month: number }; cost: number }[]
+        ): IMonthlyCost[] =>
+            monthsList.map(({ year, month, label }) => {
+                const found = data.find(
+                    d => d._id.year === year && d._id.month === month
+                );
+                return { month: label, cost: found ? found.cost : 0 };
+            });
+
+        /* ================= PRODUCTION (pCost, labourCost, extraCost) ================= */
+        const productionAgg = await Production.aggregate([
+            { $match: { org, createdAt: { $gte: startDate, $lte: endDate } } },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" },
+                    },
+                    pCost: { $sum: { $ifNull: ["$pCost", 0] } },
+                    labourCost: { $sum: { $ifNull: ["$labourCost", 0] } },
+                    extraCost: { $sum: { $ifNull: ["$extraCost", 0] } },
+                },
+            },
+        ]);
+
+        const pCost = fillMonths(productionAgg.map(p => ({ _id: p._id, cost: p.pCost })));
+        const labourCost = fillMonths(productionAgg.map(p => ({ _id: p._id, cost: p.labourCost })));
+        const extraCost = fillMonths(productionAgg.map(p => ({ _id: p._id, cost: p.extraCost })));
+
+        /* ================= PACKAGES (cost) ================= */
+        const packageAgg = await Package.aggregate([
+            {
+                $match: {
+                    org,
+                    createdAt: { $gte: startDate, $lte: endDate },
+                    cost: { $ne: null },
+                },
+            },
+            {
+                $group: {
+                    _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                    cost: { $sum: "$cost" },
+                },
+            },
+        ]);
+        const packages = fillMonths(packageAgg);
+
+        /* ================= RAW MATERIALS (price) ================= */
+        const rawMaterialAgg = await RMaterial.aggregate([
+            {
+                $match: {
+                    org,
+                    createdAt: { $gte: startDate, $lte: endDate },
+                    price: { $ne: null },
+                },
+            },
+            {
+                $group: {
+                    _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                    cost: { $sum: "$price" },
+                },
+            },
+        ]);
+        const rawMaterials = fillMonths(rawMaterialAgg);
+
+        /* ================= PROD ITEMS (price) ================= */
+        const prodItemAgg = await ProdItem.aggregate([
+            {
+                $match: {
+                    org,
+                    createdAt: { $gte: startDate, $lte: endDate },
+                    price: { $ne: null },
+                },
+            },
+            {
+                $group: {
+                    _id: { year: { $year: "$createdAt" }, month: { $month: "$createdAt" } },
+                    cost: { $sum: "$price" },
+                },
+            },
+        ]);
+        const prodItems = fillMonths(prodItemAgg);
+
+        const payload: ICostStats = {
+            production: { pCost, labourCost, extraCost },
+            packages,
+            rawMaterials,
+            prodItems,
+        };
+
+        return respond("Cost stats fetched successfully", false, payload, 200);
+    } catch (error) {
+        console.error(error);
+        return respond("Error occurred while fetching cost stats", true, {}, 500);
+    }
 }

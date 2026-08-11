@@ -6,6 +6,7 @@ import TransactionFinanceChart from "../shared/outputs/finance/charts/Transactio
 import FinanceCard from "../shared/outputs/finance/FinanceCard";
 import { FinanceCardsData } from "../shared/outputs/finance/FinanceCardsData"
 import { LinearProgress } from "@mui/material";
+import CostHub from "../shared/outputs/finance/charts/costs/CostHub";
 
 
 const FinanceComp = () => {
@@ -35,6 +36,8 @@ const FinanceComp = () => {
         <PackagingFinanceChart />
         <TransactionFinanceChart />
       </div>
+
+      <CostHub />
     </div>
   )
 }

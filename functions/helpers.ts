@@ -269,3 +269,5 @@ export const getWeight = (material:IRMaterial, ingredients:IIngredient[])=>{
   //  console.log('Ingredient: ', ingredient')
     return ingredient?.weight || 0;
 }
+
+

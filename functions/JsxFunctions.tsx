@@ -1,4 +1,5 @@
 import { MarkElementProps } from "@mui/x-charts";
+type SeriesDataMap = Record<string, number[]>;
 
 export const CustomMark = (data: number[]) =>
   function Mark(props: MarkElementProps) {
@@ -19,6 +20,39 @@ export const CustomMark = (data: number[]) =>
           }}
         >
           {data[dataIndex]?.toString()}
+        </text>
+      </g>
+    );
+  };
+
+
+
+
+
+
+
+export const MultiCustomMark = (dataMap: SeriesDataMap) =>
+  function Mark(props: MarkElementProps) {
+    const { x, y, color, dataIndex, id } = props;
+
+    const value = id != null ? dataMap[id]?.[dataIndex] : undefined;
+    if (value == null) return null;
+
+    return (
+      <g>
+        <circle cx={x} cy={y} r={4} fill={color || "currentColor"} />
+        <text
+          x={x}
+          y={Number(y) - 10}
+          style={{
+            textAnchor: "middle",
+            dominantBaseline: "auto",
+            fill: color || "currentColor",
+            fontWeight: "bold",
+            fontSize: 9,
+          }}
+        >
+          {value}
         </text>
       </g>
     );

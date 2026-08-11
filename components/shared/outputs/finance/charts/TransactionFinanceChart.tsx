@@ -12,7 +12,7 @@ const TransactionFinanceChart = () => {
 
     const salesAmonunt = sales?.map((item)=>item.quantity)
     const ordersAmonunt = orders?.map((item)=>item.quantity)
-    const returnsAmonunt = returns?.map((item)=>-Math.abs(item.quantity))
+    const returnsAmonunt = returns?.map((item)=> item?.quantity === 0 ? 0 : -Math.abs(item.quantity))
 
     const xData = sales?.map(item=>item?.month) || [];
     // const yData = sales?.map(item=>item?.quantity);
@@ -24,7 +24,7 @@ const TransactionFinanceChart = () => {
 
 
   return (
-    <div className='w-[86vw] lg:w-8/9 p-6 rounded-2xl shadow-xl flex flex-col gap-4 border border-slate-200'>
+    <div className='w-[86vw] lg:w-8/9 p-6 rounded-md shadow flex flex-col gap-4 border border-slate-200'>
         <span className="semibold" >Transactions {currency? `(${currency?.symbol})`:''} (Last 6 Months)</span>
         {
             isPending?
@@ -39,7 +39,6 @@ const TransactionFinanceChart = () => {
                 ]}
                 yAxis={[{ disableLine:true, disableTicks:true}]}
                 height={300}
-                
             />
         }
     </div>

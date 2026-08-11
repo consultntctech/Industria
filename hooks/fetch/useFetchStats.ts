@@ -1,8 +1,9 @@
 import { IDashboardStats, IDashStats, IGlobalFinance, IOrderAndSalesStats, IStats, ITransactCount, ITransactMontly } from "@/types/Types"
-import { getDashboardStats, getDashboardStatsByOrg, getGlobalFinanceStats, getGlobalFinanceStatsByOrg, getMonthlyTransactionCounts, getMonthlyTransactionCountsByOrg, getMonthlyTransactionSummary, getMonthlyTransactionSummaryByOrg, getOrderAndSalesStats, getOrderAndSalesStatsByOrg, getStats, getStatsByOrg, getUserDashStats } from "@/lib/actions/stats.action";
+import { getCostStats, getCostStatsByOrg, getDashboardStats, getDashboardStatsByOrg, getGlobalFinanceStats, getGlobalFinanceStatsByOrg, getMonthlyTransactionCounts, getMonthlyTransactionCountsByOrg, getMonthlyTransactionSummary, getMonthlyTransactionSummaryByOrg, getOrderAndSalesStats, getOrderAndSalesStatsByOrg, getStats, getStatsByOrg, getUserDashStats } from "@/lib/actions/stats.action";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
 import { isSystemAdmin } from "@/Data/roles/permissions";
+import { ICostStats } from "@/types/FinanceTypes";
 
 export const useFetchStats = () => {
   const {user} = useAuth();
@@ -179,4 +180,30 @@ export const useFetchUserDashboardStats = () => {
     enabled: !!user?.org,
   })
   return {dashboardStats, isPending, refetch, isSuccess}
+}
+
+
+
+
+export const useFetchCostStats = () => {
+  const {user} = useAuth();
+  const isAdmin = isSystemAdmin(user);
+  const fetchCostStats = async ():Promise<ICostStats | null> => {
+      try {
+          if(!user) return null;
+          const res = isAdmin ? await getCostStats() : await getCostStatsByOrg(user?.org);
+          const data = res.payload as ICostStats;
+          return data;
+      } catch (error) {
+          console.log(error);
+          return null;
+      }
+  }
+
+  const {data:costStats, isPending, refetch, isSuccess} = useQuery({
+    queryKey: ['costStats'],
+    queryFn: fetchCostStats,
+    enabled: !!user
+  })
+  return {costStats, isPending, refetch, isSuccess}
 }
