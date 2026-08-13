@@ -1,5 +1,6 @@
 import { Document, model, models, Schema } from "mongoose";
 import User from "./user.model";
+import Labourer from "./labourer.model";
 
 export interface IOrganization extends Document {
     _id: string;
@@ -36,7 +37,10 @@ export const OrganizationSchema = new Schema({
 OrganizationSchema.pre('deleteOne', { document: false, query: true }, async function(next) {
     try {
         const orgId = this.getQuery()._id;
-        await User.deleteMany({ org: orgId });
+        await Promise.all([
+            User.deleteMany({ org: orgId }),
+            Labourer.deleteMany({ org: orgId }),
+        ]);
         next();
     } catch (error) {
         console.log(error);

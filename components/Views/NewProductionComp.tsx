@@ -23,7 +23,8 @@ import SearchSelectBatchesWithRM from "../shared/inputs/dropdowns/SearchSelectBa
 import { IUser } from "@/lib/models/user.model";
 import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
-import SearchSelectMultipleUsers from "../shared/inputs/dropdowns/SearchSelectMultipleUsers";
+import SearchSelectMultipleLabourers from "../shared/inputs/dropdowns/SearchSelectMultipleLabourers";
+import { ILabourer } from "@/lib/models/labourer.model";
 ;
 
 const NewProductionComp = () => {
@@ -41,7 +42,7 @@ const NewProductionComp = () => {
     // const [totalProd, setTotalProd] = useState(0);
     const [productionCost, setProductionCost] = useState(0);
     const [userOverrodeCost, setUserOverrodeCost] = useState(false);
-    const [labourers, setLabourers] = useState<IUser[]>([]);
+    const [labourers, setLabourers] = useState<ILabourer[]>([]);
     // const [labourCost, setLabourCost] = useState(0);
 
     const router = useRouter();
@@ -210,7 +211,7 @@ const NewProductionComp = () => {
                         />
                         <GenericLabel
                             label="Select labourers"
-                            input={<SearchSelectMultipleUsers  setSelection={setLabourers} placeholder="labourers" />}
+                            input={<SearchSelectMultipleLabourers  setSelection={setLabourers} placeholder="labourers" />}
                         />
                         <GenericLabel
                             label="Product to produce"

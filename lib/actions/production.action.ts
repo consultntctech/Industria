@@ -11,6 +11,7 @@ import '../models/user.model'
 import '../models/product.model'
 import '../models/batch.model'
 import '../models/othercurrency.model'
+import '../models/labourer.model'
 import Alert, { IAlert } from "../models/alert.model";
 
 
@@ -546,10 +547,32 @@ export async function getProductionsByOrg(orgId:string):Promise<IResponse>{
 }
 
 
-export async function updateProduction(data:Partial<IProduction>):Promise<IResponse>{
+export async function updateProduction(data: Partial<IProduction>): Promise<IResponse> {
     try {
         await connectDB();
+
+        const oldProduction = await Production.findById(data._id).select('status').lean() as { status: string } | null;
+
         const updatedProduction = await Production.findByIdAndUpdate(data._id, data, { new: true });
+
+        if (
+            updatedProduction &&
+            oldProduction &&
+            oldProduction.status !== 'Approved' &&
+            updatedProduction.status === 'Approved'
+        ) {
+            await Alert.create({
+                title: 'Production Approved',
+                body: `Production ${updatedProduction.name} has been approved.`,
+                type: 'success',
+                item: updatedProduction._id,
+                itemModel: 'Production',
+                receiver: updatedProduction.createdBy,
+                createdBy: updatedProduction.createdBy,
+                org: updatedProduction.org,
+            });
+        }
+
         return respond('Production updated successfully', false, updatedProduction, 200);
     } catch (error) {
         console.log(error);

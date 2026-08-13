@@ -8,6 +8,8 @@ import { IProdItem } from "./proditem.model";
 import { Schema } from "mongoose";
 import ProdApproval from "./prodapproval.model";
 import { IOriginalPrice } from "@/types/Types";
+import { ILabourer } from "./labourer.model";
+import Alert from "./alert.model";
 
 export interface ProdIngredient{
     materialId: string
@@ -25,7 +27,7 @@ export interface IProduction extends Document {
     _id: string;
     name: string;
     supervisor: string | Types.ObjectId | IUser;
-    labourers: string[] | Types.ObjectId[] | IUser[];
+    labourers: string[] | Types.ObjectId[] | ILabourer[];
     batch: string | Types.ObjectId | IBatch;
     productToProduce: string | Types.ObjectId | IProduct;
     status:string;
@@ -68,7 +70,7 @@ const ProductionSchema = new Schema<IProduction>({
     xquantity: { type: Number, required: false, default: 0 },
     rejQuantity: { type: Number, required: false, default: 0 },
     lossQuantity: { type: Number, required: false, default: 0 },
-    labourers: [{ type: Schema.Types.ObjectId, ref: 'User', required: false }],
+    labourers: [{ type: Schema.Types.ObjectId, ref: 'Labourer', required: false }],
     productionCost: { type: Number, required: false },
     labourCost: { type: Number, required: false, default: 0 },
     pCost: { type: Number, required: false, default: 0 },
@@ -89,6 +91,35 @@ ProductionSchema.pre('deleteOne', { document: false, query: true }, async functi
     } catch (error) {
         console.log(error);
         next();
+    }
+});
+
+
+ProductionSchema.pre('save', async function(next) {
+    // console.log('pre-save firing, isNew:', this.isNew);
+    this.$locals.wasNew = this.isNew;
+    next();
+});
+
+ProductionSchema.post('save', async function(doc, next) {
+    // console.log('post-save firing, wasNew:', this.$locals.wasNew);
+    try {
+        if(this.$locals.wasNew){
+            await Alert.create({
+                title: 'Production Created',
+                body: `Production ${doc.name} has been created successfully.`,
+                type: 'info',
+                item: doc._id,
+                itemModel: 'Production',
+                receiver: doc.createdBy,
+                org: doc.org,
+                createdBy: doc.createdBy,
+                createdAt: doc.createdAt,
+                updatedAt: doc.updatedAt
+            });
+        }
+    } catch (error) {
+        next(error as Error);
     }
 });
 

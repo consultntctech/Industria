@@ -2,10 +2,10 @@ import { IProduction } from "@/lib/models/production.model";
 import { Paper, Tooltip } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { GoPencil } from "react-icons/go";
-import { IUser } from '../../../../lib/models/user.model';
 import { ProductionLabourersColumns } from './ProductionLabourersColumns';
 import { useState } from "react";
 import ProdLabourersSelectModal from "./ProdLabourersSelectModal";
+import { ILabourer } from "@/lib/models/labourer.model";
 
 type ProductionLabourersTableProps = {
   production: IProduction | null;
@@ -13,7 +13,7 @@ type ProductionLabourersTableProps = {
 
 const ProductionLabourersTable = ({ production }: ProductionLabourersTableProps) => {
   const [openLab, setOpenLab] = useState(false);
-  const labourers = (production?.labourers || []) as unknown as IUser[];
+  const labourers = (production?.labourers || []) as unknown as ILabourer[];
   const paginationModel = { page: 0, pageSize: 15 };
   const handleEdit = ()=>{
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -39,7 +39,7 @@ const ProductionLabourersTable = ({ production }: ProductionLabourersTableProps)
                 <Paper className='w-full' sx={{ height: 'auto', }}>
                     <DataGrid
                         loading={!production}
-                        getRowId={(row:IUser)=>row._id}
+                        getRowId={(row:ILabourer)=>row._id}
                         rows={labourers}
                         columns={ProductionLabourersColumns()}
                         initialState={{ 

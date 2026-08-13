@@ -10,6 +10,7 @@ import '../models/product.model'
 import '../models/customer.model'
 import '../models/othercurrency.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
+import Alert from "../models/alert.model";
 
 
 export async function createOrder(data:Partial<IOrder>):Promise<IResponse>{
@@ -23,10 +24,32 @@ export async function createOrder(data:Partial<IOrder>):Promise<IResponse>{
     }
 }
 
-export async function updateOrder(data:Partial<IOrder>):Promise<IResponse>{
+export async function updateOrder(data: Partial<IOrder>): Promise<IResponse> {
     try {
         await connectDB();
+
+        const oldOrder = await Order.findById(data._id).select('status').lean() as { status: string } | null;
+
         const updatedOrder = await Order.findByIdAndUpdate(data._id, data, { new: true });
+
+        if (
+            updatedOrder &&
+            oldOrder &&
+            oldOrder.status !== 'Fulfilled' &&
+            updatedOrder.status === 'Fulfilled'
+        ) {
+            await Alert.create({
+                title: 'Order Fulfilled',
+                body: `Order (${updatedOrder._id}) has been fulfilled.`,
+                type: 'success',
+                item: updatedOrder._id,
+                itemModel: 'Order',
+                receiver: updatedOrder.createdBy,
+                createdBy: updatedOrder.createdBy,
+                org: updatedOrder.org,
+            });
+        }
+
         return respond('Order updated successfully', false, updatedOrder, 200);
     } catch (error) {
         console.log(error);
@@ -49,6 +72,48 @@ export async function getOrders():Promise<IResponse>{
         console.log(error);
         return respond('Error occured while fetching orders', true, {}, 500);
     }
+}
+
+
+export async function checkOverdueOrders(): Promise<IResponse> {
+  try {
+    await connectDB();
+
+    // "today" as YYYY-MM-DD, same shape as deadline, so $lt compares correctly
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    const overdue = await Order.find({
+      status: 'Pending',
+      deadlineAlertSent: { $ne: true },
+      deadline: { $exists: true, $nin: [null, ''], $lt: todayStr },
+    }).lean();
+
+    if (!overdue.length) {
+      return respond('No overdue orders found', false, [], 200);
+    }
+
+    const alerts= overdue.map((order) => ({
+      title: 'Order Deadline Passed',
+      body: `Order (${order._id}) has passed its deadline (${order.deadline}) and is still pending.`,
+      type: 'warning',
+      item: order._id,
+      itemModel: 'Order',
+      createdBy: order.createdBy,
+      org: order.org,
+    }));
+
+    await Alert.insertMany(alerts);
+
+    await Order.updateMany(
+      { _id: { $in: overdue.map((o) => o._id) } },
+      { $set: { deadlineAlertSent: true } }
+    );
+
+    return respond('Overdue order alerts created', false, alerts, 200);
+  } catch (error) {
+    console.error(error);
+    return respond('Error occurred while checking overdue orders', true, {}, 500);
+  }
 }
 
 export async function getTodayOrders():Promise<IResponse>{

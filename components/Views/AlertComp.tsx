@@ -1,7 +1,11 @@
 'use client'
 
 import { AlertsData } from "@/Data/alerts"
+import { formatDate } from "@/functions/dates";
+import { useFetchAlerts } from "@/hooks/fetch/useFetchAlerts";
+import { deleteAlert } from "@/lib/actions/alert.action";
 import { Alert } from "@mui/material"
+import { enqueueSnackbar } from "notistack";
 import { useState } from "react"
 import { FaTrash } from "react-icons/fa"
 
@@ -9,9 +13,21 @@ type variantProps = 'filled' | 'outlined' | 'standard'
 
 const AlertComp = () => {
     const [variant, setVariant] = useState<variantProps>('filled');
-    const handleDelete = (id: string) => {
-        AlertsData.filter((alert)=>alert._id !== id)
+    const {alerts, refetch} = useFetchAlerts();
+    
+
+    const handleDeleteAlert = async(id:string)=>{
+        try {
+            if(!alerts) return;
+            const res = await deleteAlert(id);
+            enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
+            refetch();
+        } catch (error) {
+            console.log(error);
+            enqueueSnackbar('Error occured while deleting alert', {variant:'error'});
+        }
     }
+
   return (
     <div className="flex gap-4 flex-col border border-gray-300 p-3 rounded" >
         <div className="flex flex-row items-start gap-2 self-end w-fit">
@@ -31,14 +47,15 @@ const AlertComp = () => {
         }
         <div className="flex flex-col gap-3">
             {
-                AlertsData?.map((alert, index)=>{
+                alerts?.map((alert, index)=>{
                     return (
-                        <Alert variant={variant} key={index} severity={alert?.type}  className="rounded relative shadow-md border border-slate-200 p-3">
+                        <Alert variant={variant} key={index} severity={alert?.type}  className="relative shadow-md border border-slate-200 p-3">
                             <div className="flex flex-col gap-1">
                                 <span className="text-lg font-semibold">{alert?.title}</span>
                                 <span className="text-sm font-light">{alert?.body}</span>
+                                <span className="text-xs font-light">{formatDate(alert?.createdAt)}</span>
                             </div>
-                            <FaTrash onClick={()=>handleDelete(alert?._id as string )}  className="absolute top-2 right-2 cursor-pointer" />
+                            <FaTrash onClick={()=>handleDeleteAlert(alert?._id )}  className="absolute top-2 right-2 cursor-pointer" />
                         </Alert>
                     )
                 })

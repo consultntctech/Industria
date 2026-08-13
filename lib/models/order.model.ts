@@ -18,6 +18,7 @@ export interface IOrder extends Document {
     creator: string;
     description: string;
     status: string;
+    deadlineAlertSent: boolean;
     original: IOriginalPrice;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
@@ -36,10 +37,19 @@ const OrderSchema = new Schema<IOrder>({
     fulfilledAt: { type: String, required: false },
     description: { type: String, required: false },
     status: { type: String, required: true, default: 'Pending' },
+    deadlineAlertSent: {type:Boolean, required:false, default:false},
     original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: true },
 }, {timestamps:true})
+
+
+OrderSchema.pre('save', function (next) {
+    if (this.isModified('deadline') || (this.isModified('status') && this.status === 'Pending')) {
+        this.deadlineAlertSent = false;
+    }
+    next();
+});
 
 const Order = models?.Order || model<IOrder>('Order', OrderSchema);
 export default Order;

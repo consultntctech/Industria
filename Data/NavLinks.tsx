@@ -4,7 +4,7 @@ import { CiBag1, CiCircleCheck } from "react-icons/ci";
 import { FaRegUser } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
 import { GoPeople } from "react-icons/go";
-import { GrAlert, GrShieldSecurity } from "react-icons/gr";
+import { GrAlert, GrShieldSecurity, GrUserWorker } from "react-icons/gr";
 import { HiOutlineCash, HiOutlineCurrencyDollar, HiOutlineUsers } from "react-icons/hi";
 import { IoAlertCircleOutline, IoSettingsOutline } from "react-icons/io5";
 import { LiaRecycleSolid, LiaShoppingBasketSolid, LiaUsersCogSolid } from "react-icons/lia";
@@ -62,9 +62,10 @@ export const NavLinks = (): INavBarItem[] => {
       id: "4",
       title: "Processing",
       icon: <LiaRecycleSolid />,
-      tableids: ['8', '88'],
+      tableids: ['8', '88', '91'],
       subMenu: [
         {id: '40', tableids: ['8', '88'], title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/processing/dashboard'},
+        {id: '106', tableids: ['91'], title:'Labourers', icon: <GrUserWorker />, link: '/dashboard/processing/labourers'},
         { id: "41", tableids:['8'], title: "Production", icon: <FiRefreshCw />, link: "/dashboard/processing/production" },
         { id: "42", tableids:['88'], title: "Goods", icon: <CiBag1 />, link: "/dashboard/processing/goods" },
       ],
@@ -77,7 +78,7 @@ export const NavLinks = (): INavBarItem[] => {
       subMenu: [
         {id: '50', tableids: ['33', '12', '99'], title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/distribution/dashboard'},
         { id: "51", tableids: ['33'], title: "Customers", icon: <HiOutlineUsers />, link: "/dashboard/distribution/customers" },
-        { id: "52", tableids: ['12'], title: "Packaging Items", icon: <LuPillBottle />, link: "/dashboard/distribution/packaging-materials" },
+        { id: "52", tableids: ['12'], title: "Packaging Mat.", icon: <LuPillBottle />, link: "/dashboard/distribution/packaging-materials" },
         { id: "53", tableids: ['99'], title: "Packaging", icon: <TfiPackage />, link: "/dashboard/distribution/packaging" },
       ],
     },

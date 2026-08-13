@@ -5,11 +5,11 @@ import PrimaryButton from "../../buttons/PrimaryButton";
 import { useCanUser } from "@/hooks/useAuth";
 import { IoIosClose } from "react-icons/io";
 import { FaChevronUp } from "react-icons/fa";
-import { IUser } from "@/lib/models/user.model";
 import { updateProduction } from "@/lib/actions/production.action";
 import { enqueueSnackbar } from "notistack";
 import GenericLabel from "../../inputs/GenericLabel";
-import SearchSelectMultipleUsers from "../../inputs/dropdowns/SearchSelectMultipleUsers";
+import { ILabourer } from "@/lib/models/labourer.model";
+import SearchSelectMultipleLabourers from "../../inputs/dropdowns/SearchSelectMultipleLabourers";
 
 type ProdLabourersSelectModalProps = {
     openLab:boolean;
@@ -19,9 +19,9 @@ type ProdLabourersSelectModalProps = {
 
 const ProdLabourersSelectModal = ({ openLab, setOpenLab, production }: ProdLabourersSelectModalProps) => {
     const [loading, setLoading] = useState(false);
-    const [labourers, setLabourers] = useState<IUser[]>([]);
+    const [labourers, setLabourers] = useState<ILabourer[]>([]);
     const isEditor = useCanUser('8', 'UPDATE');
-    const labs = production?.labourers as IUser[];
+    const labs = production?.labourers as ILabourer[];
 
     const formRef = useRef<HTMLFormElement>(null);
 
@@ -76,7 +76,7 @@ const ProdLabourersSelectModal = ({ openLab, setOpenLab, production }: ProdLabou
                                 <>
                                     <GenericLabel
                                         label="Select labourers"
-                                        input={<SearchSelectMultipleUsers placeholder="labourers" value={labs} setSelection={setLabourers} />}
+                                        input={<SearchSelectMultipleLabourers placeholder="labourers" value={labs} setSelection={setLabourers} />}
                                     />
                                     
                                 </>

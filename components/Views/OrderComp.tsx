@@ -16,7 +16,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { createOrder, updateOrder } from "@/lib/actions/order.action";
 import { enqueueSnackbar } from "notistack";
-import { formatDate } from "@/functions/dates";
+import { formatDate, today } from "@/functions/dates";
 import {useCanUser } from "@/hooks/useAuth";
 import ProductsOrderSelector from "../misc/ProductsOrderSelector";
 import { IOriginalPrice, OrderSelectType } from "@/types/Types";
@@ -156,7 +156,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
     setCurrentOrder(null);
     setProducts([]);
   }
-  // console.log('products: ', products?.length)
+  // console.log('Data: ', data)
 
   const costLabel = `Amount received from customer (${currency?.symbol || currency?.name || 'Primary currency'})`;
   const otherLabel = `Enter amount received from customer (${otherCurrency?.symbol || otherCurrency?.name || 'Other currency'})`;
@@ -207,7 +207,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
     
                 <div className="flex gap-4 flex-col w-full justify-between">
                     <div className="flex flex-col gap-4 w-full">
-                      <InputWithLabel defaultValue={formatDate(currentOrder?.deadline)} type="date" onChange={onChange} name="deadline" label="Deadline" />
+                      <InputWithLabel min={currentOrder ? '' : today()} defaultValue={formatDate(currentOrder?.deadline)} type="date" onChange={onChange} name="deadline" label="Deadline" />
                       <TextAreaWithLabel defaultValue={currentOrder?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                     </div>
                     {

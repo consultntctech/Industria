@@ -106,4 +106,9 @@ export const TableData:ITable[] = [
         name: 'Alerts',
         description: 'Read Alerts'
     },
+    {
+        id:'91',
+        name: 'Labourers',
+        description: 'Labourers table'
+    },
 ].sort((a,b)=>a.name.localeCompare(b.name))

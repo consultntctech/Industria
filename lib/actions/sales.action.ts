@@ -19,6 +19,7 @@ interface ILineItemLean {
 
 interface IProductLean {
   _id: Types.ObjectId;
+  name: string;
   threshold: number;
 }
 
@@ -26,6 +27,7 @@ interface IProductSalesAgg {
   _id: Types.ObjectId; // productId
   totalSold: number;
 }
+
 
 function normalizeLineItemId(
   value: string | Types.ObjectId | ILineItem
@@ -104,12 +106,14 @@ export async function createSales(
       // 5️⃣ Fetch product thresholds
       const products = await Product.find(
         { _id: { $in: [...productIds].map(id => new Types.ObjectId(id)) } },
-        { threshold: 1 }
+        { threshold: 1, name: 1 }
       ).session(session).lean<IProductLean[]>();
 
       const productThresholdMap = new Map<string, number>();
+      const productNameMap = new Map<string, string>();
       for (const p of products) {
         productThresholdMap.set(p._id.toString(), p.threshold);
+        productNameMap.set(p._id.toString(), p.name);
       }
 
       // 6️⃣ Aggregate remaining line items per product
@@ -130,18 +134,21 @@ export async function createSales(
         }
       ]).session(session);
 
+
+     
       // 7️⃣ Build alerts
       const alerts: Partial<IAlert>[] = [];
 
-      for (const row of remainingAgg) {
+     for (const row of remainingAgg) {
         const remaining = row.totalSold;
-        const threshold =
-          productThresholdMap.get(row._id.toString()) ?? 0;
+        const productId = row._id.toString();
+        const threshold = productThresholdMap.get(productId) ?? 0;
+        const productName = productNameMap.get(productId) ?? "Unknown Product";
 
         if (remaining <= threshold) {
           alerts.push({
-            title: "Product Stock Critical",
-            body: `Remaining items for this product have reached the threshold (${remaining}).`,
+            title: `Product Stock Critical (${productName})`,
+            body: `${productName} has reached its stock threshold (${remaining} remaining).`,
             type: "error",
             item: row._id,
             itemModel: "Product",
@@ -150,8 +157,8 @@ export async function createSales(
           });
         } else if (remaining <= threshold + 5) {
           alerts.push({
-            title: "Product Stock Warning",
-            body: `Remaining items for this product are running low (${remaining}).`,
+            title: `Product Stock Warning (${productName})`,
+            body: `${productName} is running low (${remaining} remaining).`,
             type: "warning",
             item: row._id,
             itemModel: "Product",

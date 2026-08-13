@@ -1,22 +1,10 @@
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import Image from "next/image";
 import Link from "next/link";
 import { Linker } from '../../../PermisionHelpers/PermisionHelpers';
 import { IUser } from '../../../../lib/models/user.model';
 
 export const ProductionLabourersColumns = ():GridColDef[]=>[
-    {
-        field: 'photo',
-        headerName: 'Photo',
-        width:100,
-        disableExport:true,
-        filterable:false,
-        renderCell: (params:GridRenderCellParams)=>(
-            <div className="relative flex flex-row items-center h-full pb-2 mt-1">
-                <Image alt="member" height={30} width={30}  objectFit="cover"  className="object-cover rounded-full" src={params.row?.photo} />
-            </div>
-        )
-    },
+    
     {
         field: 'name',
         headerName: 'Name',
@@ -30,7 +18,7 @@ export const ProductionLabourersColumns = ():GridColDef[]=>[
             return user ? user : '';
         },
         renderCell: (params:GridRenderCellParams)=>(
-            <Linker tableId="38" link={`/dashboard/users?Id=${params.row?._id}`} placeholder={params.row?.name} />
+            <Linker tableId="91" link={`/dashboard/processing/labourers?Id=${params?.row?._id}`} placeholder={params.row?.name} />
         )
     },
     {
