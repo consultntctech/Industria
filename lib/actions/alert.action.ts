@@ -6,6 +6,15 @@ import { respond } from "../misc";
 import { connectDB } from "../mongoose";
 import '../models/user.model'
 import '../models/org.model'
+import '../models/product.model'
+import '../models/production.model'
+import '../models/sales.model'
+import '../models/order.model'
+import '../models/rmaterial.mode'
+import '../models/proditem.model';
+import '../models/lineitem.model'
+import '../models/package.model'
+import '../models/returns.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
 export async function createAlert(data:Partial<IAlert>):Promise<IResponse>{
