@@ -29,7 +29,7 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
     const supervisor = pack?.supervisor as IUser;
     const creator = pack?.createdBy as IUser;
     const products = pack?.goods as IGoodsPopulate[]
-    const storage = pack?.storage as IStorage;
+    const storages = pack?.storages as IStorage[];
     
     const {primaryColour} = useSettings();
     const {currency} = useCurrencyConfig();
@@ -102,7 +102,17 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Storage:</span>
-          <Linker tableId='77' linkStyle="link" spanStyle='text-gray-600 flex-1 md:flex-5' link={`/dashboard/storage?Id=${storage?._id}`} placeholder={storage?.name} />
+          <div className="flex gap-2 items-center flex-wrap">
+            {
+              storages?.map((storage, index)=>(
+                <span key={index} >
+                  <Linker key={index} link={`/dashboard/storage/${storage?._id}`} placeholder={storage?.name} tableId="77" />
+                  {index < storages?.length - 1 ? ', ' : ''}
+                </span>
+              ))
+            }
+          </div>
+          {/* <Linker tableId='77' linkStyle="link" spanStyle='text-gray-600 flex-1 md:flex-5' link={`/dashboard/storage?Id=${storage?._id}`} placeholder={storage?.name} /> */}
         </div>
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Batch:</span>

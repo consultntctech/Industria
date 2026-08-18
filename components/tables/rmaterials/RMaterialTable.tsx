@@ -24,6 +24,7 @@ const RMaterialTable = ({setOpenNew, currentMaterial, setCurrentMaterial}:RMater
     const searchParams = useSearchParams();
     const materialId = searchParams.get("Id");
 
+
     // console.log('Materials: ', materials)
 
     useEffect(() => {
@@ -125,6 +126,7 @@ const RMaterialTable = ({setOpenNew, currentMaterial, setCurrentMaterial}:RMater
                                   note: false,
                                   createdBy:false,
                                   createdAt:false,
+                                  storages: false,
                                   dateReceived:false,
                                   updatedAt:false,
                                   qReceived: false,

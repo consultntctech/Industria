@@ -17,6 +17,12 @@ export const StorageColumns = (
             field: 'name',
             headerName: 'Storage Name',
             width:130,
+            renderCell: (params:GridRenderCellParams)=>{
+                const storage = params?.row as IStorage;
+                return (
+                    <Linker link={`/dashboard/storage/${storage?._id}`} placeholder={storage?.name} tableId="71" />
+                )
+            }
         },
 
         {

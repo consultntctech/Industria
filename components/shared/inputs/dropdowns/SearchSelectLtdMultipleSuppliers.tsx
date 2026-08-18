@@ -1,4 +1,4 @@
-import { useFetchSuppliers } from "@/hooks/fetch/useFetchSuppliers";
+import { useFetchProductSuppliers } from "@/hooks/fetch/useFetchSuppliers";
 import { ISupplier } from "@/lib/models/supplier.model"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -6,19 +6,20 @@ import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { Autocomplete, Checkbox, Chip, CircularProgress, TextField } from "@mui/material";
 
 
-type SearchSelectMultipleSuppliersProps = {
-    setSelection:Dispatch<SetStateAction<string[]>>;
+type SearchSelectLtdMultipleSuppliersProps = {
+    setSelection:Dispatch<SetStateAction<ISupplier[]>>;
     // selection:string[];
     // fixedSelection?:ISupplier[];
     width?:number;
     required?:boolean;
     value?:ISupplier[];
     placeholder?:string;
+    productId:string;
 }
 
-const SearchSelectMultipleSuppliers = ({setSelection,  width, required, value, placeholder}:SearchSelectMultipleSuppliersProps) => {
+const SearchSelectLtdMultipleSuppliers = ({setSelection,  width, required, value, placeholder, productId}:SearchSelectLtdMultipleSuppliersProps) => {
     const [search, setSearch] = useState<string>('');
-    const {suppliers, isPending} = useFetchSuppliers();
+    const {suppliers, isPending} = useFetchProductSuppliers(productId);
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
     const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -29,13 +30,7 @@ const SearchSelectMultipleSuppliers = ({setSelection,  width, required, value, p
         filterSelectedOptions
         options={suppliers}
         onChange={(_, items:ISupplier[])=>{
-            // const fixed = fixedSelection ?? [];
-            // const uniqueSelection = items.filter(
-            //     (option)=>!fixed.some((item)=>item._id === option._id)
-            // )
-            const ids = items.map(item=>item._id)
-            // setSelection([...fixed, ...uniqueSelection]);
-            setSelection(ids);
+            setSelection(items);
         }}
         defaultValue={value}
         inputValue={search}
@@ -91,7 +86,7 @@ const SearchSelectMultipleSuppliers = ({setSelection,  width, required, value, p
                         ...params.InputProps,
                         endAdornment:(
                             <Fragment>
-                                {isPending ? <CircularProgress size={20} color="inherit" />: null}
+                                {(isPending && productId) ? <CircularProgress size={20} color="inherit" />: null}
                                 {params.InputProps.endAdornment}
                             </Fragment>
                         )
@@ -103,4 +98,4 @@ const SearchSelectMultipleSuppliers = ({setSelection,  width, required, value, p
   )
 }
 
-export default SearchSelectMultipleSuppliers
+export default SearchSelectLtdMultipleSuppliers

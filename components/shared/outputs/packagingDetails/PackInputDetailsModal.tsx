@@ -13,7 +13,6 @@ import { IGoodsPopulate, IPackage } from "@/lib/models/package.model";
 import { useRouter } from "next/navigation";
 import SearchSelectPackagingType from "../../inputs/dropdowns/SearchSelectPackagingType";
 import { PACKAGING_PROCESSES, TPackagingProcess } from "@/Data/PackagingProcesses";
-import SearchSelectStorages from "../../inputs/dropdowns/SearchSelectStorages";
 import TextAreaWithLabel from "../../inputs/TextAreaWithLabel";
 import { IStorage } from "@/lib/models/storage.model";
 import { IGood } from "@/lib/models/good.model";
@@ -25,6 +24,7 @@ import SearchSelectProducts from "../../inputs/dropdowns/SearchSelectProducts";
 import SearchSelectAvMultipleGoods from "../../inputs/dropdowns/SearchSelectAvMultipleGoods";
 import GoodsQSelector from "@/components/misc/GoodsQSelector";
 import {useCanUser } from "@/hooks/useAuth";
+import SearchSelectMultipleStorages from "../../inputs/dropdowns/SearchSelectMultipleStorages";
 
 type PackInputDetailsModalProps = {
     openNew:boolean;
@@ -39,7 +39,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
     // const [useProdBatch, setUseProdBatch] = useState(true);
     const [batch, setBatch] = useState<string>('');
     const [supervisor, setSupervisor] = useState<IUser | null>(null);
-    const [storage, setStorage] = useState<string>('');
+    const [storages, setStorages] = useState<IStorage[]>([]);
     const [data, setData] = useState<Partial<IPackage>>({});
     const [typed, setTyped] = useState<TPackagingProcess | null>(null);
     const [product, setProduct] = useState<IProduct | null>(null);
@@ -52,7 +52,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
 
     const batched = pack?.batch as IBatch;
     const supervisord = pack?.supervisor as IUser;
-    const storaged = pack?.storage as IStorage;
+    const storaged = pack?.storages as IStorage[];
     const goods = pack?.goods as IGoodsPopulate[];
     const savedGoods = goods.map(g=> g.goodId as IGood);
     const gooded = savedGoods[0];
@@ -73,7 +73,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
             setTyped({label:pack?.packagingType, inputValue:pack?.packagingType});
             setPackagingType({label:pack?.packagingType, inputValue:pack?.packagingType});
             setSupervisor(supervisord);
-            setStorage(storaged?._id);
+            setStorages(storaged);
             setNewGoods(savedGoods);
             setProduct(savedProduct)
             setBatch(batched?._id);
@@ -120,8 +120,9 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
                 useProdBatch:false,
                 accepted,
                 packagingType: packagingType?.label,
-                storage,
+                storages: storages.map((item)=>item._id),
             }
+            // console.log('Data: ', formData)
             const res = await updatePackage(formData);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             if(!res.error){
@@ -229,8 +230,8 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
                         <div className="flex flex-col gap-4 w-full">
                             <InputWithLabel defaultValue={pack?.weight} onChange={onChange}  name="weight" required  placeholder="eg. 25kg" label="Package weight" className="w-full" />
                             <GenericLabel
-                                label="Select location"
-                                input={<SearchSelectStorages value={storaged} setSelect={setStorage} />}
+                                label="Storage"
+                                input={<SearchSelectMultipleStorages value={storaged} setSelection={setStorages} placeholder="Storage location" />}
                             /> 
                             
                         

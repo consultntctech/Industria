@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { IOrganization } from '@/lib/models/org.model';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import { IProdItem } from '@/lib/models/proditem.model';
+import { IStorage } from '@/lib/models/storage.model';
 import { ISupplier } from '@/lib/models/supplier.model';
 import { IUser } from '@/lib/models/user.model';
 import { IOriginalPrice } from '@/types/Types';
@@ -29,6 +30,7 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
     const {currency} = useCurrencyConfig();
     const original = currentProdItem?.original as IOriginalPrice;
     const savedCurrency = currentProdItem?.original?.currency as IOtherCurrency;
+    const storages = currentProdItem?.storages as IStorage[];
 
     // const rate = Number(original?.rate || 1);
     // console.log(rate, currentProdItem?.unitPrice)
@@ -107,6 +109,18 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
                         suppliers?.map((supplier, index) => (
                             <Linker key={index} tableId='41' link={`/dashboard/suppliers?Id=${supplier?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={supplier?.name} />
                         ))
+                    }
+                </div>
+            </div>
+
+            <div className="flex flex-col">
+                <span className="mlabel">Storage</span>
+                <div className="flex flex-col gap-0.5">
+                    {
+                       storages?.length > 0 ?  storages?.map((storage, index) => (
+                            <Linker key={index} tableId='71' link={`/dashboard/storage/${storage?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={storage?.name} />
+                        ))
+                        : <span className="mtext">None</span>
                     }
                 </div>
             </div>

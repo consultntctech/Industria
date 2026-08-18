@@ -9,6 +9,7 @@ import { IOrganization } from '@/lib/models/org.model';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import { IProduct } from '@/lib/models/product.model';
 import { IRMaterial } from '@/lib/models/rmaterial.mode';
+import { IStorage } from '@/lib/models/storage.model';
 import { ISupplier } from '@/lib/models/supplier.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
@@ -27,14 +28,14 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
     const organization = currentMaterial?.org as IOrganization;
     const batch = currentMaterial?.batch as IBatch;
     const creator = currentMaterial?.createdBy as IUser;
-    const supplier = currentMaterial?.supplier as ISupplier;
+    const suppliers = currentMaterial?.suppliers as ISupplier[];
     const product = currentMaterial?.product as IProduct;
     const used = (currentMaterial?.qReceived || 0) - (currentMaterial?.qAccepted ||0) - (currentMaterial?.qRejected||0);
     const {currency} = useCurrencyConfig();
 
     const savedCurrency = currentMaterial?.original?.currency as IOtherCurrency;
     const original = currentMaterial?.original;
-
+    const storages = currentMaterial?.storages as IStorage[];
     const handleClose = ()=>{
         setInfoMode(false);
         setCurrentMaterial(null);
@@ -61,8 +62,14 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
             </div>
 
             <div className="flex flex-col">
-                <span className="mlabel">Supplier</span>
-                <Linker  link={`/dashboard/suppliers?Id=${supplier?._id}`} linkStyle="mtext link" spanStyle='mtext' tableId="41" placeholder={supplier?.name} />
+                <span className="mlabel">Suppliers</span>
+                {
+                    suppliers.map((supplier, index)=>{
+                        return(
+                            <Linker  key={index} link={`/dashboard/suppliers?Id=${supplier?._id}`} linkStyle="mtext link" spanStyle='mtext' tableId="41" placeholder={supplier?.name} />
+                        )
+                    })
+                }
             </div>
             
             
@@ -116,6 +123,18 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
             <div className="flex flex-col">
                 <span className="mlabel">Date Received</span>
                 <span className="mtext">{formatDate(currentMaterial?.dateReceived)}</span>
+            </div>
+
+            <div className="flex flex-col">
+                <span className="mlabel">Storage</span>
+                {
+                    storages?.length > 0 ?storages.map((storage, index)=>{
+                        return(
+                            <Linker  key={index} link={`/dashboard/storage/${storage?._id}`} linkStyle="mtext link" spanStyle='mtext' tableId="41" placeholder={storage?.name} />
+                        )
+                    })
+                    : <span className="mtext">None</span>
+                }
             </div>
 
             <div className="flex flex-col">

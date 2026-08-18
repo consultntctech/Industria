@@ -19,6 +19,8 @@ import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/li
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
 import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
 import { IOriginalPrice } from "@/types/Types";
+import { IStorage } from "@/lib/models/storage.model";
+import SearchSelectMultipleStorages from "../shared/inputs/dropdowns/SearchSelectMultipleStorages";
 ;
 
 type ProdItemCompProps = {
@@ -39,6 +41,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     const [useRate, setUseRate] = useState(false);
     const [originalCost, setOriginalCost] = useState(0);
     const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
+    const [storages, setStorages] = useState<IStorage[]>([]);
     const formRef = useRef<HTMLFormElement>(null);
     const {user} = useAuth();
     const {currency} = useCurrencyConfig();
@@ -50,6 +53,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     const savedSuppliers = currentProdItem?.suppliers as unknown as ISupplier[];
     const savedCurrency = currentProdItem?.original?.currency as IOtherCurrency;
     const original = currentProdItem?.original as IOriginalPrice;
+    const savedStorages = currentProdItem?.storages as IStorage[];
 
     const showRate = exposeRate(savedCurrency, otherCurrency);
     const rate = currencyRate(original, otherCurrency, useRate, showRate);
@@ -67,6 +71,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
             setSubcategory({label:currentProdItem?.subcategory});
             setOriginalCost(original?.amount || 0);
             setOtherCurrency(savedCurrency);
+            setStorages(savedStorages);
         }else{
             setData({});
             setSuppliers([]);
@@ -76,6 +81,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     const handleClose = ()=>{
         setOpenNew(false);
         setCurrentProdItem(null);
+        setStorages([]);
     }
 
     useEffect(() => {
@@ -114,7 +120,8 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
               amount: originalCost,
               rate,
               currency: otherCurrency?._id as string,
-            }
+            },
+            storages: storages.map((item)=>item._id),
           }
           const res = await createProdItem(prod);
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -147,7 +154,8 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
               amount: originalCost,
               rate,
               currency: otherCurrency?._id as string,
-            }
+            },
+            storages: storages.map((item)=>item._id),
           }
           const res = await updateProdItem(prod);
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -222,6 +230,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
                             <InputWithLabel value={price}  name="price" type="number" readOnly min={0} placeholder={`${currency?.symbol}25.5`} label={costLabel} className="w-full" />
                           }
                           <InputWithLabel defaultValue={currentProdItem?.uom} onChange={onChange} name="uom" placeholder='eg. liters' label='Unit of measure' className="w-full" />
+                          <GenericLabel label="Storage" input={<SearchSelectMultipleStorages  placeholder="Storage locations" required={!currentProdItem} value={savedStorages} setSelection={setStorages} />}  />
                           <div className="flex flex-row items-center gap-4">
                               <span className="smallText">This item is reusable</span>
                               <CustomCheckV2 checked={reusable} setChecked={setReusable} />

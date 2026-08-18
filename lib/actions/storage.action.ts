@@ -7,6 +7,10 @@ import { connectDB } from "../mongoose";
 import '../models/user.model'
 import '../models/org.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
+import RMaterial, { IRMaterial } from '../models/rmaterial.mode';
+import ProdItem, { IProdItem } from "../models/proditem.model";
+import Package, { IPackage } from "../models/package.model";
+import { IStorageStats } from "@/types/OtherTypes";
 
 export async function createStorage(data:Partial<IStorage>):Promise<IResponse>{
     try {
@@ -77,6 +81,42 @@ export async function getStorage(id: string): Promise<IResponse> {
     return respond("Error occurred retrieving storage", true, {}, 500);
   }
 }
+
+export async function getItemsInStorage(id:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const [raw, packItems, packs] = await Promise.all([
+             RMaterial.find({storages: id})
+            .populate('product')
+            .populate('suppliers')
+            .populate('createdBy')
+            .lean() as unknown as IRMaterial[],
+
+            ProdItem.find({storages: id})
+            .populate('suppliers')
+            .populate('createdBy')
+            .lean() as unknown as IProdItem[],
+
+            Package.find({storages: id})
+            .populate('batch')
+            .populate('createdBy')
+            .lean() as unknown as IPackage[],
+        ]);
+
+        const store:IStorageStats = {
+            rawMaterials: raw,
+            packages:packs,
+            packItems
+        }
+
+        return respond('Storage items found successfully', false, store, 200);
+    
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching storage items', true, {}, 500);
+    }
+}
+
 
 export async function deleteStorage(id:string):Promise<IResponse>{
     try {

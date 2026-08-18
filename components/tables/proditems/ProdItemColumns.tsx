@@ -5,6 +5,7 @@ import { IOrganization } from "@/lib/models/org.model";
 import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { IProdItem } from "@/lib/models/proditem.model";
 import { IProduct } from "@/lib/models/product.model";
+import { IStorage } from "@/lib/models/storage.model";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { IUser } from "@/lib/models/user.model";
 import { IOriginalPrice } from "@/types/Types";
@@ -157,6 +158,36 @@ export const ProdItemColumns = (
 
         },
 
+        {
+            field: 'storages',
+            headerName: 'Storage',
+            width:110,
+            valueFormatter:(_, row:IProdItem)=>{
+                const storage = row?.storages as IStorage[];
+                return storage ? storage?.map((item)=>item.name).join(', ') : '';
+            },
+            valueGetter:(_, row:IProdItem)=>{
+                const storage = row?.storages as IStorage[];
+                return storage ? storage?.map((item)=>item.name).join(', ') : '';
+            },
+            renderCell: (params:GridRenderCellParams)=>{
+                const storages = params?.row?.storages as IStorage[];
+                return (
+                    <div className="flex flex-row items-center gap-1 flex-wrap" >
+                    
+                        {
+                        storages?.map((storage, index)=>(
+                            <span key={index} >
+                                <Linker key={index} link={`/dashboard/storage/${storage?._id}`} placeholder={storage?.name} tableId="71" />
+                                {index < storages.length - 1 ? ', ' : ''}
+                            </span>
+                        ))
+                            
+                    }
+                    </div>
+                )
+            }
+        },
        
         {
             field: 'description',

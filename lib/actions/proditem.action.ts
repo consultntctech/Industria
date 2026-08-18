@@ -61,6 +61,7 @@ export async function getProdItems():Promise<IResponse>{
         const prodItems = await ProdItem.find().
         populate('suppliers').
         populate('createdBy').
+        populate('storages').
         populate('original.currency').
         populate('org').lean() as unknown as IProdItem[];
         return respond('Production items found successfully', false, prodItems, 200);
@@ -76,6 +77,7 @@ export async function getProdItemsByOrg(orgId:string):Promise<IResponse>{
         const prodItems = await ProdItem.find({ org: orgId }).
         populate('suppliers').
         populate('createdBy').
+        populate('storages').
         populate('original.currency').
         populate('org').lean() as unknown as IProdItem[];
         return respond('Production items found successfully', false, prodItems, 200);
@@ -91,6 +93,7 @@ export async function getAvailableProdItems():Promise<IResponse>{
         const prodItems = await ProdItem.find({ $or: [{stock: { $gt: 0 }}, {reusable: true}] }).
         populate('suppliers').
         populate('createdBy').
+        populate('storages').
         populate('original.currency').
         populate('org').lean() as unknown as IProdItem[];
         return respond('Available production items found successfully', false, prodItems, 200);
@@ -107,6 +110,7 @@ export async function getAvailableProdItemsByOrg(orgId:string):Promise<IResponse
         const prodItems = await ProdItem.find({ org: orgId, $or: [{stock: { $gt: 0 }}, {reusable: true}] }).
         populate('suppliers').
         populate('createdBy').
+        populate('storages').
         populate('original.currency').
         populate('org').lean() as unknown as IProdItem[];
         return respond('Available production items found successfully', false, prodItems, 200);

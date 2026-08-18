@@ -46,7 +46,7 @@ export interface IPackage extends Document {
     comment: string;
     approvalStatus: string;
     approvedBy: string | Types.ObjectId | IUser;
-    storage: string | Types.ObjectId | IStorage;
+    storages: string[] | Types.ObjectId[] | IStorage[];
     cost: number;
     description: string;
     createdBy: string | Types.ObjectId | IUser;
@@ -81,7 +81,7 @@ const PackageSchema = new Schema<IPackage>({
     comment: { type: String, required: false },
     approvalStatus: { type: String, required: false, default:'Pending' },
     approvedBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
-    storage: { type: Schema.Types.ObjectId, ref: 'Storage', required: false },
+    storages: [{ type: Schema.Types.ObjectId, ref: 'Storage', default: [] }],
     cost: { type: Number, required: false },
     description: { type: String, required: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },

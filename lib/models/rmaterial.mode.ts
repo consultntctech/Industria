@@ -5,13 +5,15 @@ import { IProduct } from "./product.model";
 import { ISupplier } from "./supplier.model";
 import { IBatch } from "./batch.model";
 import { IOtherCurrency } from "./othercurrency.model";
+import { IStorage } from "./storage.model";
 
 export interface IRMaterial extends Document {
     _id: string;
     materialName: string;
     product: string | Types.ObjectId | IProduct;
-    supplier: string | Types.ObjectId | ISupplier;
+    suppliers: string[] | Types.ObjectId[] | ISupplier[];
     batch: string | Types.ObjectId | IBatch;
+    storages: string[] | Types.ObjectId[] | IStorage[];
     qStatus: string;
     dateReceived: Date;
     qReceived: number;
@@ -45,8 +47,9 @@ export interface IRMaterialPopulate extends IRMaterial {
 const RMaterialSchema = new Schema<IRMaterial>({
     materialName: { type: String, required: true },
     product: { type: Schema.Types.ObjectId, ref: 'Product', required: false },
-    supplier: { type: Schema.Types.ObjectId, ref: 'Supplier', required: false },
+    suppliers: [{ type: Schema.Types.ObjectId, ref: 'Supplier', default: [] }],
     batch: { type: Schema.Types.ObjectId, ref: 'Batch', required: false },
+    storages: [{ type: Schema.Types.ObjectId, ref: 'Storage', default: [] }],
     qStatus: { type: String, required: true },
     dateReceived: { type: Date, required: true },
     qReceived: { type: Number, required: true },

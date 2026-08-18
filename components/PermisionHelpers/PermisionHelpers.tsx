@@ -31,7 +31,7 @@ export const Linker =({tableId, link, placeholder, operation='READ', linkStyle, 
         <>
         {
             isViewer ?
-            <Link  className={twMerge(`link`, linkStyle)} href={link} target={target} >{placeholder}</Link>
+            <Link  className={twMerge(`link w-fit`, linkStyle)} href={link} target={target} >{placeholder}</Link>
             :
             <span className={spanStyle} >{placeholder}</span>
         }

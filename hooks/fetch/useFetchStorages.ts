@@ -1,8 +1,9 @@
-import { getStorages, getStoragesByOrg } from "@/lib/actions/storage.action";
+import { getItemsInStorage, getStorages, getStoragesByOrg } from "@/lib/actions/storage.action";
 import { IStorage } from "@/lib/models/storage.model";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
 import { isSystemAdmin } from "@/Data/roles/permissions";
+import { IStorageStats } from "@/types/OtherTypes";
 
 export const useFetchStorages = () => {
     const {user} = useAuth();
@@ -25,4 +26,26 @@ export const useFetchStorages = () => {
         enabled: !!user
     })
     return {storages, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchStorageItems = (id:string) => {
+    const fetchStorageItems = async ():Promise<IStorageStats> => {
+        try {
+            if(!id) return {rawMaterials:[], packages:[], packItems:[]};
+            const res = await getItemsInStorage(id);
+            const data = res.payload as IStorageStats;
+            return data;
+        } catch (error) {
+            console.log(error);
+            return {rawMaterials:[], packages:[], packItems:[]};
+        }
+    }
+    const {data:storageItems={}, isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['StorageItems'],
+        queryFn: fetchStorageItems,
+        enabled: !!id
+    })
+    // const {rawMaterials, packages, packItems} = storageItems as IStorageStats;
+    return {storageItems, isPending, refetch, isSuccess}
 }

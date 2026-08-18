@@ -5,6 +5,7 @@ import { IOrganization } from "./org.model";
 import Production from "./production.model";
 import Package from "./package.model";
 import { IOriginalPrice } from "@/types/Types";
+import { IStorage } from "./storage.model";
 
 export interface IProdItem extends Document {
     _id: string;
@@ -21,6 +22,7 @@ export interface IProdItem extends Document {
     qStatus: string;
     stock: number;
     used: number;
+    storages: string[] | Types.ObjectId[] | IStorage[];
     reusable: boolean;
     suppliers: string[] | Types.ObjectId[] | ISupplier[];
     description: string;
@@ -44,6 +46,7 @@ const ProdItemSchema = new Schema<IProdItem>({
     original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     stock: { type: Number, required: false },
     used: { type: Number, required: false, default:0 },
+    storages: [{ type: Schema.Types.ObjectId, ref: 'Storage', default: [] }],
     price: { type: Number, required: false },
     reusable: { type: Boolean, required: false },
     suppliers: { type: [Schema.Types.ObjectId], ref: 'Supplier', required: false },

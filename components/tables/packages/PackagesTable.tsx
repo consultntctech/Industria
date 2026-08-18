@@ -31,6 +31,7 @@ const PackageTable = () => {
     //     window.scrollTo({ top: 0, behavior: 'smooth' });
     // }
 
+    
     const handleInfo = (user:IPackage)=>{
         setShowInfo(true);
         setCurrentPackage(user);
@@ -101,7 +102,6 @@ const PackageTable = () => {
                                   comment:false,
                                   approvalStatus: false,
                                   approvedBy: false,
-                                  storage: true,
                                 }
                               }
                          }}

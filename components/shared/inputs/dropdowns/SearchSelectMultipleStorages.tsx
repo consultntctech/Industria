@@ -1,49 +1,52 @@
-import { useFetchSuppliers } from "@/hooks/fetch/useFetchSuppliers";
-import { ISupplier } from "@/lib/models/supplier.model"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { Autocomplete, Checkbox, Chip, CircularProgress, TextField } from "@mui/material";
+import { IStorage } from "@/lib/models/storage.model";
+import { useFetchStorages } from "@/hooks/fetch/useFetchStorages";
 
 
-type SearchSelectMultipleSuppliersProps = {
-    setSelection:Dispatch<SetStateAction<string[]>>;
+type SearchSelectMultipleStoragesProps = {
+    setSelection:Dispatch<SetStateAction<IStorage[]>>;
     // selection:string[];
     // fixedSelection?:ISupplier[];
     width?:number;
     required?:boolean;
-    value?:ISupplier[];
+    value?:IStorage[];
     placeholder?:string;
 }
 
-const SearchSelectMultipleSuppliers = ({setSelection,  width, required, value, placeholder}:SearchSelectMultipleSuppliersProps) => {
+const SearchSelectMultipleStorages = ({setSelection, width, required, value, placeholder}:SearchSelectMultipleStoragesProps) => {
     const [search, setSearch] = useState<string>('');
-    const {suppliers, isPending} = useFetchSuppliers();
+    const {storages, isPending} = useFetchStorages();
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
     const checkedIcon = <CheckBoxIcon fontSize="small" />;
+
+    // console.log('IDS: ',labourers.map((item)=>item._id))
 
   return (
     <Autocomplete
         disableCloseOnSelect
         multiple
         filterSelectedOptions
-        options={suppliers}
-        onChange={(_, items:ISupplier[])=>{
+        defaultValue={value}
+        options={storages}
+        onChange={(_, items:IStorage[])=>{
             // const fixed = fixedSelection ?? [];
             // const uniqueSelection = items.filter(
             //     (option)=>!fixed.some((item)=>item._id === option._id)
             // )
-            const ids = items.map(item=>item._id)
+            // const ids = items.map(item=>item._id)
             // setSelection([...fixed, ...uniqueSelection]);
-            setSelection(ids);
+            setSelection(items);
         }}
-        defaultValue={value}
+
         inputValue={search}
         onInputChange={(_, v)=>setSearch(v)}
         // value={selection ?? []}
         loading={isPending}
         isOptionEqualToValue={(option, v)=>option._id === v._id}
-        getOptionLabel={(option)=>option?.name}
+        getOptionLabel={(option)=>`${option?.name}`}
         sx ={{width:width || '100%'}}
 
         renderValue={(tagValue, getTagProps)=>
@@ -54,7 +57,7 @@ const SearchSelectMultipleSuppliers = ({setSelection,  width, required, value, p
                     <Chip
                         {...tagProps}
                         key={key}
-                        label={option.name}
+                        label={`${option?.name}`}
                         // disabled={!!fixedSelection?.find((item)=>item._id === option._id)}
                     />
                 )
@@ -82,7 +85,7 @@ const SearchSelectMultipleSuppliers = ({setSelection,  width, required, value, p
                 {...params}
                 required={required}
                 size="small"
-                label= { placeholder || "Suppliers"}
+                label= {placeholder || "Storages"}
                 color="primary"
                 // defaultValue={value}
                 className="rounded"
@@ -103,4 +106,4 @@ const SearchSelectMultipleSuppliers = ({setSelection,  width, required, value, p
   )
 }
 
-export default SearchSelectMultipleSuppliers
+export default SearchSelectMultipleStorages

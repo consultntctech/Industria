@@ -95,7 +95,7 @@ const StorageTable = ({setOpenNew, currentStorage, setCurrentStorage}:StorageTab
 
   return (
     <div className='table-main2' >
-        <span className='font-bold text-xl' >Storages Location</span>
+        <span className='font-bold text-xl' >Storage Locations</span>
         {/* <StorageInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentStorage={currentStorage} setCurrentStorage={setCurrentStorage} /> */}
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteItem} title="Delete Storage Location" content={content} />
         <div className="flex w-full">

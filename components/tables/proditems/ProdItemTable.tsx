@@ -127,6 +127,7 @@ const ProdItemTable = ({setOpenNew, currentProdItem, setCurrentProdItem}:ProdIte
                                   quantity: false,
                                   materialName: false,
                                   category:false,
+                                  storages: false,
                                   description: false,
                                   original: false,
                                   createdBy:false,

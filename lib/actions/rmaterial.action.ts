@@ -62,7 +62,7 @@ export async function getRMaterials():Promise<IResponse>{
         await connectDB();
         const materials = await RMaterial.find()
         .populate('product')
-        .populate('supplier')
+        .populate('suppliers')
         .populate('batch')
         .populate('original.currency')
         .populate('createdBy')
@@ -112,7 +112,7 @@ export async function getRMaterialsByOrg(orgId:string):Promise<IResponse>{
         await connectDB();
         const materials = await RMaterial.find({ org: orgId })
         .populate('product')
-        .populate('supplier')
+        .populate('suppliers')
         .populate('batch')
         .populate('original.currency')
         .populate('createdBy')
@@ -130,7 +130,7 @@ export async function getRawMaterialsBySupplier(supplierId:string):Promise<IResp
         await connectDB();
         const materials = await RMaterial.find({ supplier: supplierId })
         .populate('product')
-        .populate('supplier')
+        .populate('suppliers')
         .populate('batch')
         .populate('createdBy')
         .populate('org') as unknown as IRMaterial[];
@@ -147,7 +147,7 @@ export async function getRawMaterialsBySupplierByOrg(org:string, supplierId:stri
         await connectDB();
         const materials = await RMaterial.find({org, supplier: supplierId })
         .populate('product')
-        .populate('supplier')
+        .populate('suppliers')
         .populate('batch')
         .populate('createdBy')
         .populate('org') as unknown as IRMaterial[];
@@ -170,12 +170,26 @@ export async function updateRMaterial(data:Partial<IRMaterial>):Promise<IRespons
     }
 }
 
+// export async function updateMaterialSuppliers():Promise<IResponse>{
+//     try {
+//         await connectDB();
+//         const rms = await RMaterial.find() as unknown as IRMaterial[];
+//         for(const rm of rms){
+//             await RMaterial.updateOne({_id: rm._id}, { suppliers: [rm.supplier?.toString()] });
+//         }
+//         return respond('Raw Material updated successfully', false, rms, 200);
+//     } catch (error) {
+//         console.log(error);
+//         return respond('Error occured while updating Raw Material', true, {}, 500);
+//     }
+// }
+
 export async function getRMaterial(id:string):Promise<IResponse>{
     try {
         await connectDB();
         const check = await verifyOrgAccess(RMaterial, id, "Raw Material",[
             { path: "product" },
-            { path: "supplier" },
+            { path: "suppliers" },
             { path: "batch" },
             { path: "createdBy" },
             { path: "org" },

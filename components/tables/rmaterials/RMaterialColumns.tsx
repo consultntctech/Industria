@@ -5,6 +5,7 @@ import { IBatch } from "@/lib/models/batch.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IProduct } from "@/lib/models/product.model";
 import { IRMaterial } from "@/lib/models/rmaterial.mode";
+import { IStorage } from "@/lib/models/storage.model";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { IUser } from "@/lib/models/user.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
@@ -44,21 +45,32 @@ export const RMaterialColumns = (
             }
         },
         {
-            field:'supplier',
-            headerName: 'Supplier',
+            field:'suppliers',
+            headerName: 'Suppliers',
             width:120,
             valueFormatter: (_, row:IRMaterial)=>{
-                const supplier = row?.supplier as ISupplier;
-                return supplier ? supplier.name : '';
+                const supplier = row?.suppliers as ISupplier[];
+                return supplier ? supplier.map((item)=>item.name).join(', ') : '';
             },
             valueGetter: (_, row:IRMaterial)=>{
-                const supplier = row?.supplier as ISupplier;
-                return supplier ? supplier.name : '';
+                const supplier = row?.suppliers as ISupplier[];
+                return supplier ? supplier.map((item)=>item.name).join(', ') : '';
             },
             renderCell: (params:GridRenderCellParams)=>{
-                const supplier = params?.row?.supplier as ISupplier;
+                const suppliers = params?.row?.suppliers as ISupplier[];
                 return (
-                    <Linker link={`/dashboard/suppliers?Id=${supplier?._id}`} placeholder={supplier?.name} tableId="41" />
+                    <div className="flex flex-row items-center gap-1 flex-wrap" >
+                    
+                        {
+                        suppliers.map((supplier, index)=>(
+                            <span key={index} >
+                                <Linker key={index} link={`/dashboard/suppliers?Id=${supplier?._id}`} placeholder={supplier?.name} tableId="41" />
+                                {index < suppliers.length - 1 ? ', ' : ''}
+                            </span>
+                        ))
+                            
+                    }
+                    </div>
                 )
             }
         },
@@ -152,6 +164,36 @@ export const RMaterialColumns = (
             field: 'yield',
             headerName: 'Expected Yield',
             width:110,
+        },
+        {
+            field: 'storages',
+            headerName: 'Storage',
+            width:110,
+            valueFormatter:(_, row:IRMaterial)=>{
+                const storage = row?.storages as IStorage[];
+                return storage ? storage.map((item)=>item.name).join(', ') : '';
+            },
+            valueGetter:(_, row:IRMaterial)=>{
+                const storage = row?.storages as IStorage[];
+                return storage ? storage.map((item)=>item.name).join(', ') : '';
+            },
+            renderCell: (params:GridRenderCellParams)=>{
+                const storages = params?.row?.ss as IStorage[];
+                return (
+                    <div className="flex flex-row items-center gap-1 flex-wrap" >
+                    
+                        {
+                        storages?.map((storage, index)=>(
+                            <span key={index} >
+                                <Linker key={index} link={`/dashboard/storage/${storage?._id}`} placeholder={storage?.name} tableId="71" />
+                                {index < storages.length - 1 ? ', ' : ''}
+                            </span>
+                        ))
+                            
+                    }
+                    </div>
+                )
+            }
         },
         {
             field: 'dateReceived',

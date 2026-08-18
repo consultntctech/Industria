@@ -21,7 +21,6 @@ import SearchSelectUsers from '../shared/inputs/dropdowns/SearchSelectUsers';
 // import CustomCheckV2 from '../misc/CustomCheckV2';
 // import TextInput from '../shared/inputs/TextInput';
 import SearchSelectBatches from '../shared/inputs/dropdowns/SearchSelectBatches';
-import SearchSelectStorages from '../shared/inputs/dropdowns/SearchSelectStorages';
 import TextAreaWithLabel from '../shared/inputs/TextAreaWithLabel';
 import PrimaryButton from '../shared/buttons/PrimaryButton';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
@@ -35,6 +34,8 @@ import SearchSelectAvMultipleGoods from '../shared/inputs/dropdowns/SearchSelect
 import { IUser } from '@/lib/models/user.model';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import SearchSelectCurrencies from '../shared/inputs/dropdowns/SearchSelectCurrencies';
+import { IStorage } from '@/lib/models/storage.model';
+import SearchSelectMultipleStorages from '../shared/inputs/dropdowns/SearchSelectMultipleStorages';
 
 const NewPackageComp = () => {
     const [loading, setLoading] = useState(false);
@@ -44,7 +45,7 @@ const NewPackageComp = () => {
     // const [useProdBatch, setUseProdBatch] = useState(true);
     const [batch, setBatch] = useState<string>('');
     const [supervisor, setSupervisor] = useState<IUser | null>(null);
-    const [storage, setStorage] = useState<string>('');
+    const [storages, setStorages] = useState<IStorage[]>([]);
     // const [cost, setCost] = useState<number>(0);
     const [data, setData] = useState<Partial<IPackage>>({});
     // const [accepted, setAccepted] = useState<number>(0);
@@ -136,7 +137,7 @@ const NewPackageComp = () => {
                 useProdBatch: false,
                 accepted,
                 packagingType: packagingType?.label,
-                storage,
+                storages: storages.map((item)=>item._id),
                 cost:finalCost,
                 original:{
                     amount: cost,
@@ -327,8 +328,8 @@ const NewPackageComp = () => {
                 <div className="flex flex-col gap-4 w-full">
                     <InputWithLabel onChange={onChange} step={0.0001}  name="weight" required  placeholder="eg. 25kg" label="Package weight" className="w-full" />
                     <GenericLabel
-                        label="Select location"
-                        input={<SearchSelectStorages  setSelect={setStorage} />}
+                        label="Storage"
+                        input={<SearchSelectMultipleStorages  setSelection={setStorages} placeholder='Storage locations' />}
                     /> 
                     
                     <GenericLabel

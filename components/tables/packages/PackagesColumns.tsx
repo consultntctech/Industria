@@ -111,22 +111,33 @@ export const PackagesColumns = (
             }
         },
         
-        {
-            field:'storage',
+         {
+            field: 'storages',
             headerName: 'Storage',
-            width:100,
-            valueFormatter: (_, row:IPackage)=>{
-                const storage = row?.storage as IStorage;
-                return storage ? storage.name : '';
+            width:110,
+            valueFormatter:(_, row:IPackage)=>{
+                const storage = row?.storages as IStorage[];
+                return storage ? storage.map((item)=>item.name).join(', ') : '';
             },
-            valueGetter: (_, row:IPackage)=>{
-                const storage = row?.storage as IStorage;
-                return storage ? storage.name : '';
+            valueGetter:(_, row:IPackage)=>{
+                const storage = row?.storages as IStorage[];
+                return storage ? storage.map((item)=>item.name).join(', ') : '';
             },
             renderCell: (params:GridRenderCellParams)=>{
-                const storage = params?.row?.storage as IStorage;
+                const storages = params?.row?.storages as IStorage[];
                 return (
-                    <Linker link={`/dashboard/storage?Id=${storage?._id}`} placeholder={storage?.name} tableId="77" />
+                    <div className="flex flex-row items-center gap-1 flex-wrap" >
+                    
+                        {
+                        storages?.map((storage, index)=>(
+                            <span key={index} >
+                                <Linker key={index} link={`/dashboard/storage/${storage?._id}`} placeholder={storage?.name} tableId="71" />
+                                {index < storages.length - 1 ? ', ' : ''}
+                            </span>
+                        ))
+                            
+                    }
+                    </div>
                 )
             }
         },

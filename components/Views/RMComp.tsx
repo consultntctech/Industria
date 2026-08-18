@@ -3,7 +3,6 @@ import InputWithLabel from "../shared/inputs/InputWithLabel";
 import GenericLabel from "../shared/inputs/GenericLabel";
 import SearchSelectProducts from "../shared/inputs/dropdowns/SearchSelectProducts";
 import { FaChevronUp } from "react-icons/fa";
-import SearchSelectLtdSuppliers from "../shared/inputs/dropdowns/SearchSelectLtdSuppliers";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
 import SearchSelectBatches from "../shared/inputs/dropdowns/SearchSelectBatches";
@@ -22,6 +21,9 @@ import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import CustomCheckV2 from "../misc/CustomCheckV2";
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
 import { IOriginalPrice } from "@/types/Types";
+import { IStorage } from "@/lib/models/storage.model";
+import SearchSelectMultipleStorages from "../shared/inputs/dropdowns/SearchSelectMultipleStorages";
+import SearchSelectLtdMultipleSuppliers from "../shared/inputs/dropdowns/SearchSelectLtdMultipleSuppliers";
 ;
 
 type RMCompProps = {
@@ -36,10 +38,11 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
     const [data, setData] = useState<Partial<IRMaterial>>({dateReceived:new Date(), qStatus:'Pass', qReceived:0, qRejected:0, charges:0, discount:0});
 
     const [product, setProduct] = useState<IProduct|null>(null);
-    const [supplier, setSupplier] = useState<string>('')
+    const [suppliers, setSuppliers] = useState<ISupplier[]>([]);
     const [batch, setBatch] = useState<string>('')
     const [showReason, setShowReason] = useState(false);
     const [useRate, setUseRate] = useState(false);
+    const [storages, setStorages] = useState<IStorage[]>([]);
     // const [showRate, setShowRate] = useState(false);
 
     const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
@@ -53,9 +56,10 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
 
     const formRef = useRef<HTMLFormElement>(null);
     const savedProduct = currentMaterial?.product as IProduct;
-    const savedSupplier = currentMaterial?.supplier as ISupplier;
+    const savedSuppliers = currentMaterial?.suppliers as ISupplier[];
     const savedBatch = currentMaterial?.batch as IBatch;
     const savedCurrency = currentMaterial?.original?.currency as IOtherCurrency;
+    const savedStorages = currentMaterial?.storages as IStorage[];
     const original = currentMaterial?.original as IOriginalPrice;
 
     // const rate = useRate ? (otherCurrency?.rate || 1) : (currentMaterial?.original?.rate || 1);
@@ -81,6 +85,8 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
       if(currentMaterial){
         setData({ ...currentMaterial});
         setOtherCurrency(savedCurrency);
+        setStorages(savedStorages);
+        setSuppliers(savedSuppliers);
         if(currentMaterial?.product){
           setProduct(savedProduct);
         }
@@ -129,13 +135,15 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
         
         try {
           const rmData:Partial<IRMaterial> = {
-            ...data, product: product?._id, supplier, batch, createdBy:user?._id, org:user?.org,
+            ...data, product: product?._id, batch, createdBy:user?._id, org:user?.org,
             original:{
               amount: originalAmount,
               rate,
               currency: otherCurrency?._id as string,
             },
-            price
+            price,
+            storages: storages.map((item)=>item._id),
+            suppliers: suppliers.map((item)=>item._id)
           }
           // console.log('Data: ', rmData)
           const res = await createRMaterial(rmData);
@@ -160,7 +168,6 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
         try {
           const resData = {
             ...data, 
-            supplier: supplier || savedSupplier?._id,
             batch: batch || savedBatch?._id,
             product: product?._id || savedProduct?._id,
              original:{
@@ -168,7 +175,9 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
               rate,
               currency: otherCurrency?._id || savedCurrency?._id
             },
-            price
+            price,
+            storages: storages.map((item)=>item._id),
+            suppliers: suppliers.map((item)=>item._id)
           }
           // console.log('Raw Data: ', resData)
           const res = await updateRMaterial(resData);
@@ -208,7 +217,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
                   />
                   <GenericLabel
                   label="Select supplier"
-                  input={<SearchSelectLtdSuppliers value={savedSupplier} required={!currentMaterial} setSelect={setSupplier} productId={product?._id || ''} />}
+                  input={<SearchSelectLtdMultipleSuppliers value={savedSuppliers} required={!currentMaterial} setSelection={setSuppliers} productId={product?._id || ''} />}
                   />
                   <GenericLabel 
                     label='Select batch'
@@ -216,6 +225,12 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
                       <SearchSelectBatches value={savedBatch} type="Raw Material" required={!currentMaterial} setSelect={setBatch} />
                     }
                   />
+                  <GenericLabel 
+                    label='Select storages'
+                    input={
+                      <SearchSelectMultipleStorages value={savedStorages} required={!currentMaterial} setSelection={setStorages} />
+                    }
+                    />
                 <GenericLabel 
                     label='Select quality status'
                     input={

@@ -351,7 +351,7 @@ export async function getApprovedPackages():Promise<IResponse>{
         const packages = await Package.find({ approvalStatus: 'Approved', accepted: { $gt: 0 } })
         .populate({path:'goods', populate:{path:'goodId', populate:[{path:'batch'}, {path:'production', populate:{path:'productToProduce'}}]}})
         .populate('supervisor')
-        .populate('storage')
+        .populate('storages')
         .populate('batch')
         .populate('original.currency')
         .populate({
@@ -381,7 +381,7 @@ export async function getApprovedPackagesByOrg(orgId:string):Promise<IResponse>{
         .populate('approvedBy')
         .populate('batch')
         .populate('original.currency')
-        .populate('storage')
+        .populate('storages')
         .populate({
           path:'packagingMaterial',
           populate:{
@@ -404,7 +404,7 @@ export async function getPackages():Promise<IResponse>{
         const packages = await Package.find()
         .populate({path:'goods', populate:{path:'goodId', populate:[{path:'batch'}, {path:'product'}, {path:'production', populate:{path:'productToProduce'}}]}})
         .populate('supervisor')
-        .populate('storage')
+        .populate('storages')
         .populate('batch')
         .populate('original.currency')
         .populate({
@@ -433,7 +433,7 @@ export async function getPackagesByOrg(orgId:string):Promise<IResponse>{
         .populate('approvedBy')
         .populate('batch')
         .populate('original.currency')
-        .populate('storage')
+        .populate('storages')
         .populate({
           path:'packagingMaterial',
           populate:{
@@ -467,72 +467,85 @@ export async function updatePackage(data: Partial<IPackage>): Promise<IResponse>
       return respond("Package not found", true, {}, 404);
     }
 
-    // 2. Reverse OLD materials usage
-    const oldMaterials = oldPackage.packagingMaterial || [];
+    // 2 & 3. Reverse OLD / apply NEW materials usage — only if packagingMaterial was part of this update
+    if (data.packagingMaterial) {
+      const oldMaterials = oldPackage.packagingMaterial || [];
+      const newMaterials = data.packagingMaterial;
 
-    for (const oldMat of oldMaterials) {
-      await ProdItem.findByIdAndUpdate(
-        oldMat.materialId,
-        { $inc: { used: -oldMat.quantity } },
-        { session }
-      );
-    }
-
-    // 3. Apply NEW materials usage
-    const newMaterials = data.packagingMaterial || [];
-
-    for (const newMat of newMaterials) {
-      const prodItem = await ProdItem.findById(newMat.materialId).session(session);
-
-      if (!prodItem) {
-        await session.abortTransaction();
-        return respond(`ProdItem not found: ${newMat.materialId}`, true, {}, 404);
-      }
-
-      const available = prodItem.stock - prodItem.used;
-      if (newMat.quantity > available) {
-        await session.abortTransaction();
-        return respond(
-          `Not enough stock for material: ${prodItem.name}`,
-          true,
-          {},
-          400
+      for (const oldMat of oldMaterials) {
+        await ProdItem.findByIdAndUpdate(
+          oldMat.materialId,
+          { $inc: { used: -oldMat.quantity } },
+          { session }
         );
       }
 
-      await ProdItem.findByIdAndUpdate(
-        newMat.materialId,
-        { $inc: { used: newMat.quantity } },
-        { session }
-      );
+      for (const newMat of newMaterials) {
+        const prodItem = await ProdItem.findById(newMat.materialId).session(session);
+
+        if (!prodItem) {
+          await session.abortTransaction();
+          return respond(`ProdItem not found: ${newMat.materialId}`, true, {}, 404);
+        }
+
+        const available = prodItem.stock - prodItem.used;
+        if (newMat.quantity > available) {
+          await session.abortTransaction();
+          return respond(
+            `Not enough stock for material: ${prodItem.name}`,
+            true,
+            {},
+            400
+          );
+        }
+
+        await ProdItem.findByIdAndUpdate(
+          newMat.materialId,
+          { $inc: { used: newMat.quantity } },
+          { session }
+        );
+      }
     }
 
-    // 4. Update Good.quantityLeftToPackage if accepted changed
-    if (typeof data.accepted === "number") {
-      const good = await Good.findById(oldPackage.good).session(session);
-      if (!good) {
-        await session.abortTransaction();
-        return respond("Good not found", true, {}, 404);
-      }
+    // 4. Update Good.quantityLeftToPackage for each good in the package — only if goods was part of this update
+    if (data.goods) {
+      const oldGoods = oldPackage.goods || [];
+      const newGoods = data.goods;
 
-      const diff = data.accepted - oldPackage.accepted;
-
-      // if accepted increases, ensure good has enough quantity
-      if (diff > 0 && diff > good.quantityLeftToPackage) {
-        await session.abortTransaction();
-        return respond(
-          "Not enough quantityLeftToPackage available for this Good",
-          true,
-          {},
-          400
+      // Reverse OLD goods usage
+      for (const oldG of oldGoods) {
+        await Good.findByIdAndUpdate(
+          oldG.goodId,
+          { $inc: { quantityLeftToPackage: oldG.quantity } },
+          { session }
         );
       }
 
-      await Good.findByIdAndUpdate(
-        good._id,
-        { $inc: { quantityLeftToPackage: -diff } },
-        { session }
-      );
+      // Apply NEW goods usage (with quantity check)
+      for (const newG of newGoods) {
+        const good = await Good.findById(newG.goodId).session(session);
+
+        if (!good) {
+          await session.abortTransaction();
+          return respond(`Good not found: ${newG.goodId}`, true, {}, 404);
+        }
+
+        if (newG.quantity > good.quantityLeftToPackage) {
+          await session.abortTransaction();
+          return respond(
+            `Not enough quantityLeftToPackage for Good: ${good._id}`,
+            true,
+            {},
+            400
+          );
+        }
+
+        await Good.findByIdAndUpdate(
+          good._id,
+          { $inc: { quantityLeftToPackage: -newG.quantity } },
+          { session }
+        );
+      }
     }
 
     // 5. Update the Package itself
@@ -582,6 +595,22 @@ export async function updatePackageV2(data:Partial<IPackage>):Promise<IResponse>
 }
 
 
+export async function updatePackageStorages():Promise<IResponse>{
+    try {
+        await connectDB();
+        const packs = await Package.find() as unknown as IPackage[];
+        for(const pack of packs){
+            await Package.updateOne({_id: pack._id}, { storages: [pack.storage.toString()] });
+        }
+        return respond('Package updated successfully', false, packs, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while updating package', true, {}, 500);
+    }
+}
+
+
+
 export async function resubmitPackage(id:string):Promise<IResponse>{
     try {
         await connectDB();
@@ -608,7 +637,7 @@ export async function getPackage(id: string): Promise<IResponse> {
         { path: "createdBy" },
         { path: "org" },
         { path: "packagingMaterial", populate: { path: "materialId" } },
-        { path: "storage" },
+        { path: "storages" },
         { path: "batch" },
         { path: "original.currency" },
         { path: "approvedBy" },
@@ -1370,13 +1399,17 @@ export async function deletePackage(id: string): Promise<IResponse> {
     }
 
     // --------------------------------------------
-    // 3. Return Good.quantityLeftToPackage
+    // 3. Return Good.quantityLeftToPackage for each good in the package
     // --------------------------------------------
-    await Good.findByIdAndUpdate(
-      pack.good,
-      { $inc: { quantityLeftToPackage: pack.accepted } },
-      { session }
-    );
+    if (pack.goods && pack.goods.length > 0) {
+      for (const g of pack.goods) {
+        await Good.findByIdAndUpdate(
+          g.goodId,
+          { $inc: { quantityLeftToPackage: g.quantity } },
+          { session }
+        );
+      }
+    }
 
     // --------------------------------------------
     // 4. Delete the package itself
