@@ -595,19 +595,19 @@ export async function updatePackageV2(data:Partial<IPackage>):Promise<IResponse>
 }
 
 
-export async function updatePackageStorages():Promise<IResponse>{
-    try {
-        await connectDB();
-        const packs = await Package.find() as unknown as IPackage[];
-        for(const pack of packs){
-            await Package.updateOne({_id: pack._id}, { storages: [pack.storage.toString()] });
-        }
-        return respond('Package updated successfully', false, packs, 200);
-    } catch (error) {
-        console.log(error);
-        return respond('Error occured while updating package', true, {}, 500);
-    }
-}
+// export async function updatePackageStorages():Promise<IResponse>{
+//     try {
+//         await connectDB();
+//         const packs = await Package.find() as unknown as IPackage[];
+//         for(const pack of packs){
+//             await Package.updateOne({_id: pack._id}, { storages: [pack.storage.toString()] });
+//         }
+//         return respond('Package updated successfully', false, packs, 200);
+//     } catch (error) {
+//         console.log(error);
+//         return respond('Error occured while updating package', true, {}, 500);
+//     }
+// }
 
 
 

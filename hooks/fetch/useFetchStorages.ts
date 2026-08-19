@@ -41,8 +41,8 @@ export const useFetchStorageItems = (id:string) => {
             return {rawMaterials:[], packages:[], packItems:[]};
         }
     }
-    const {data:storageItems={}, isPending, refetch, isSuccess} = useQuery({
-        queryKey: ['StorageItems'],
+    const {data:storageItems={} as IStorageStats, isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['StorageItems', id],
         queryFn: fetchStorageItems,
         enabled: !!id
     })

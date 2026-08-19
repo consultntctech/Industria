@@ -130,7 +130,7 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
                 {
                     storages?.length > 0 ?storages.map((storage, index)=>{
                         return(
-                            <Linker  key={index} link={`/dashboard/storage/${storage?._id}`} linkStyle="mtext link" spanStyle='mtext' tableId="41" placeholder={storage?.name} />
+                            <Linker  key={index} link={`/dashboard/storage/${storage?._id}`} linkStyle="mtext link" spanStyle='mtext' tableId="77" placeholder={storage?.name} />
                         )
                     })
                     : <span className="mtext">None</span>

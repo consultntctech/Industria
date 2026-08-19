@@ -8,6 +8,7 @@ import '../models/org.model';
 import '../models/supplier.model';
 import '../models/batch.model';
 import '../models/othercurrency.model';
+import '../models/storage.model';
 import Product, { IProduct } from "../models/product.model";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
@@ -63,6 +64,7 @@ export async function getRMaterials():Promise<IResponse>{
         const materials = await RMaterial.find()
         .populate('product')
         .populate('suppliers')
+        .populate('storages')
         .populate('batch')
         .populate('original.currency')
         .populate('createdBy')
@@ -113,6 +115,7 @@ export async function getRMaterialsByOrg(orgId:string):Promise<IResponse>{
         const materials = await RMaterial.find({ org: orgId })
         .populate('product')
         .populate('suppliers')
+        .populate('storages')
         .populate('batch')
         .populate('original.currency')
         .populate('createdBy')
@@ -131,6 +134,7 @@ export async function getRawMaterialsBySupplier(supplierId:string):Promise<IResp
         const materials = await RMaterial.find({ supplier: supplierId })
         .populate('product')
         .populate('suppliers')
+        .populate('storages')
         .populate('batch')
         .populate('createdBy')
         .populate('org') as unknown as IRMaterial[];
@@ -148,6 +152,7 @@ export async function getRawMaterialsBySupplierByOrg(org:string, supplierId:stri
         const materials = await RMaterial.find({org, supplier: supplierId })
         .populate('product')
         .populate('suppliers')
+        .populate('storages')
         .populate('batch')
         .populate('createdBy')
         .populate('org') as unknown as IRMaterial[];

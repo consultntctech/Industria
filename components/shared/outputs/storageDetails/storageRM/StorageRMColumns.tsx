@@ -1,21 +1,13 @@
-import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Linker } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
-import { IOrganization } from "@/lib/models/org.model";
 import { IProduct } from "@/lib/models/product.model";
 import { IRMaterial } from "@/lib/models/rmaterial.mode";
-import { IStorage } from "@/lib/models/storage.model";
 import { ISupplier } from "@/lib/models/supplier.model";
-import { IUser } from "@/lib/models/user.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
-
-export const RMaterialColumns = (
-    handleInfo: (item:IRMaterial)=>void,
-    handleEdit: (item:IRMaterial)=>void,
-    handleDelete: (item:IRMaterial)=>void,
-):GridColDef[]=>{
+export const StorageRMColumns = ():GridColDef[]=>{
     const {currency} = useCurrencyConfig();
     return [
        
@@ -23,6 +15,12 @@ export const RMaterialColumns = (
             field: 'materialName',
             headerName: 'Material Name',
             width:120,
+            renderCell: (params:GridRenderCellParams)=>{
+                const rmaterial = params?.row as IRMaterial;
+                return (
+                    <Linker link={`/dashboard/products/raw-materials?Id=${rmaterial?._id}`} placeholder={rmaterial?.materialName} tableId="87" />
+                )
+            }
         },
 
         {
@@ -160,41 +158,8 @@ export const RMaterialColumns = (
             headerName: `Total Price (${currency?.symbol || ''})`,
             width:110,
         },
-        {
-            field: 'yield',
-            headerName: 'Expected Yield',
-            width:110,
-        },
-        {
-            field: 'storages',
-            headerName: 'Storage',
-            width:110,
-            valueFormatter:(_, row:IRMaterial)=>{
-                const storage = row?.storages as IStorage[];
-                return storage ? storage.map((item)=>item.name).join(', ') : '';
-            },
-            valueGetter:(_, row:IRMaterial)=>{
-                const storage = row?.storages as IStorage[];
-                return storage ? storage.map((item)=>item.name).join(', ') : '';
-            },
-            renderCell: (params:GridRenderCellParams)=>{
-                const storages = params?.row?.ss as IStorage[];
-                return (
-                    <div className="flex flex-row items-center gap-1 flex-wrap" >
-                    
-                        {
-                        storages?.map((storage, index)=>(
-                            <span key={index} >
-                                <Linker key={index} link={`/dashboard/storage/${storage?._id}`} placeholder={storage?.name} tableId="77" />
-                                {index < storages.length - 1 ? ', ' : ''}
-                            </span>
-                        ))
-                            
-                    }
-                    </div>
-                )
-            }
-        },
+       
+        
         {
             field: 'dateReceived',
             headerName: 'Date Received',
@@ -206,98 +171,5 @@ export const RMaterialColumns = (
                 return formatDate(row?.dateReceived)
             }
         },
-        {
-            field: 'reason',
-            headerName: 'Reason for Rejection',
-            width:150,
-        },
-        {
-            field: 'note',
-            headerName: 'Note',
-            width:150,
-        },
-
-        {
-            field:'org',
-            headerName: 'Organization',
-            width:170,
-            valueFormatter: (_, row:IUser)=>{
-                const org = row?.org as IOrganization;
-                return org ? org.name : '';
-            },
-            valueGetter: (_, row:IUser)=>{
-                const org = row?.org as IOrganization;
-                return org ? org.name : '';
-            },
-            renderCell: (params:GridRenderCellParams)=>{
-                const org = params?.row?.org as IOrganization;
-                return (
-                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
-                )
-            }
-        },
-        
-        {
-            field: 'createdAt',
-            headerName: 'Created',
-            width:100,
-            valueFormatter:(_, row:IUser)=>{
-                return formatDate(row?.createdAt)
-            },
-            valueGetter:(_, row:IUser)=>{
-                return formatDate(row?.createdAt)
-            }
-        },
-
-        {
-            field: 'updatedAt',
-            headerName: 'Modified',
-            width:100,
-            valueFormatter:(_, row:IUser)=>{
-                return formatDate(row?.updatedAt)
-            },
-            valueGetter:(_, row:IUser)=>{
-                return formatDate(row?.updatedAt)
-            }
-        },
-        {
-            field:'createdBy',
-            headerName: 'Created By',
-            width:170,
-            valueFormatter: (_, row:IProduct)=>{
-                const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
-            },
-            valueGetter: (_, row:IProduct)=>{
-                const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
-            },
-            renderCell: (params:GridRenderCellParams)=>{
-                const creator = params?.row?.createdBy as IUser;
-                return (
-                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
-                )
-            }
-        },
-
-        {
-        field:'id',
-        headerName:'Actions',
-        filterable: false,
-        width:120,
-        disableExport: true,
-        // params:GridRenderCellParams
-        renderCell:(params:GridRenderCellParams)=> {
-            // console.log(params.row?.id)
-            return(
-                <div className="h-full flex-center gap-3">
-                    <Viewer tableId="87" tip="View raw material" onClick={()=>handleInfo(params?.row)} />
-                    <Editor tableId="87" tip="Edit raw material" onClick={()=>handleEdit(params?.row)} />
-                    <Deleter tableId="87" tip="Delete raw material" onClick={()=>handleDelete(params?.row)} />
-                </div>
-            )
-        },
-    }
-        
     ]
 }

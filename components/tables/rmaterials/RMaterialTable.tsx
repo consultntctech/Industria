@@ -121,7 +121,7 @@ const RMaterialTable = ({setOpenNew, currentMaterial, setCurrentMaterial}:RMater
                             columns:{
                                 columnVisibilityModel:{
                                   org:false,
-                                  supplier: false,
+                                  suppliers: false,
                                   qStatus: false,
                                   note: false,
                                   createdBy:false,

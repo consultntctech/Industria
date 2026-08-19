@@ -50,7 +50,7 @@ export const PackagesColumns = (
         },
         {
             field: 'accepted',
-            headerName: 'Quantity Used',
+            headerName: 'Stock',
             width:100,
         },
         {

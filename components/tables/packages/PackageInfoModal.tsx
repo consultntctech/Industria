@@ -31,9 +31,10 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
     const goods = currentPackage?.goods as IGoodsPopulate[];
     const supervisor = currentPackage?.supervisor as IUser;
     const product = goods?.map((g)=> g?.goodId as IGood)[0];
-    const storage = currentPackage?.storage as IStorage;
+    const storages = currentPackage?.storages as IStorage[];
     const approver = currentPackage?.approvedBy as IUser;
 
+    // console.log('Goods: ', goods)
     const original = currentPackage?.original as IOriginalPrice;
     const cy = original?.currency as IOtherCurrency;
 
@@ -62,7 +63,12 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Finished Good</span>
-                <Linker tableId='88' link={`/dashboard/processing/goods?Id=${product?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={product?.name} />
+                {
+                    product ?
+                    <Linker tableId='88' link={`/dashboard/processing/goods?Id=${product?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={product?.name} />
+                    :
+                    <span className="mtext">None</span>
+                }
             </div>
             
             <div className="flex flex-col">
@@ -108,7 +114,14 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Storage</span>
-                <Linker tableId='77' link={`/dashboard/storage?Id=${storage?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={storage?.name} />
+                {
+                    storages?.length > 0 ?
+                    storages.map((storage, index)=>(
+                        <Linker key={index} tableId='77' link={`/dashboard/storage?Id=${storage?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={storage?.name} />
+                    ))
+                    :
+                    <span className="mtext">None</span>
+                }
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Quality Status</span>

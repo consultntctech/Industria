@@ -118,7 +118,7 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
                 <div className="flex flex-col gap-0.5">
                     {
                        storages?.length > 0 ?  storages?.map((storage, index) => (
-                            <Linker key={index} tableId='71' link={`/dashboard/storage/${storage?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={storage?.name} />
+                            <Linker key={index} tableId='77' link={`/dashboard/storage/${storage?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={storage?.name} />
                         ))
                         : <span className="mtext">None</span>
                     }

@@ -178,7 +178,7 @@ export const ProdItemColumns = (
                         {
                         storages?.map((storage, index)=>(
                             <span key={index} >
-                                <Linker key={index} link={`/dashboard/storage/${storage?._id}`} placeholder={storage?.name} tableId="71" />
+                                <Linker key={index} link={`/dashboard/storage/${storage?._id}`} placeholder={storage?.name} tableId="77" />
                                 {index < storages.length - 1 ? ', ' : ''}
                             </span>
                         ))
