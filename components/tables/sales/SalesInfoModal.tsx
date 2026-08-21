@@ -60,16 +60,16 @@ const SalesInfoModal = ({infoMode, setInfoMode, currentSale, setCurrentSale}:Sal
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Customer</span>
-                <span className="mtext">{customer?.name}</span>
+                <Linker tableId="33" link={`/dashboard/distribution/customers/${customer?._id}`} placeholder={customer?.name} />
             </div>
             
             <div className="flex flex-col">
                 <span className="mlabel">Discounts</span>
-                <span className="mtext">{savedCurrency?.symbol || currency?.symbol || ''} {currentSale?.discount}</span>
+                <span className="mtext">{savedCurrency?.symbol || currency?.symbol || ''} {currentSale?.discount ?? 0}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Charges</span>
-                <span className="mtext">{savedCurrency?.symbol || currency?.symbol || ''} {currentSale?.charges}</span>
+                <span className="mtext">{savedCurrency?.symbol || currency?.symbol || ''} {currentSale?.charges ?? 0}</span>
             </div>
             {
                 original &&

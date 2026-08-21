@@ -1,43 +1,30 @@
-import { Deleter, Editor, Fulfiller, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
-import {  formatDate, formatTimestamp } from "@/functions/dates";
+import { Linker } from "@/components/PermisionHelpers/PermisionHelpers";
+import { formatDate, formatTimestamp } from "@/functions/dates";
 import { isDeadlinePast } from "@/functions/helpers";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
-import { ICustomer } from "@/lib/models/customer.model";
 import { IOrder } from "@/lib/models/order.model";
-import { IOrganization } from "@/lib/models/org.model";
-import { IOtherCurrency } from "@/lib/models/othercurrency.model";
-// import { IProduct } from "@/lib/models/product.model";
 import { IUser } from "@/lib/models/user.model";
-import { IOriginalPrice, OrderSelectType } from "@/types/Types";
+import { OrderSelectType } from "@/types/Types";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
-export const OrdersColumns = (
-    handleInfo: (item:IOrder)=>void,
-    handleEdit: (item:IOrder)=>void,
-    handleFulfill: (item:IOrder)=>void,
-    handleDelete: (item:IOrder)=>void,
-):GridColDef[]=>{
+export const CustomerOrdersColumns = ():GridColDef[]=>{
     const {currency} = useCurrencyConfig();
-
     return [
-
-        
         {
-            field: 'customer',
-            headerName: 'Customer',
-            width:170,
-            valueFormatter: (_, row:IOrder)=>{
-                const customer = row?.customer as ICustomer;
-                return customer ? customer.name : '';
+            field: 'createdAt',
+            headerName: 'Ordered On',
+            width:100,
+            valueFormatter:(_, row:IOrder)=>{
+                return formatTimestamp(row?.createdAt)
             },
-            valueGetter: (_, row:IOrder)=>{
-                const customer = row?.customer as ICustomer;
-                return customer ? customer.name : '';
+            valueGetter:(_, row:IOrder)=>{
+                return formatTimestamp(row?.createdAt)
             },
             renderCell: (params:GridRenderCellParams)=>{
-                const customer = params?.row?.customer as ICustomer;
+                const order = params?.row as IOrder;
+                const date = formatTimestamp(order?.createdAt);
                 return (
-                    <Linker link={`/dashboard/distribution/customers/${customer?._id}`} placeholder={customer?.name} tableId="33" />
+                    <Linker tableId="86" link={`/dashboard/transactions/orders?Id=${order?._id}`} placeholder={date || order?.createdAt} />
                 )
             }
         },
@@ -73,21 +60,7 @@ export const OrdersColumns = (
             headerName: `Price ${currency?.symbol || ''}`,
             width:100,
         },
-         {
-            field: 'original',
-            headerName: 'Original Amount',
-            width:100,
-            valueFormatter: (_, row:IOrder)=>{
-                const original = row?.original as IOriginalPrice;
-                const cy = original?.currency as IOtherCurrency;
-                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount}` : 0;
-            },
-            valueGetter: (_, row:IOrder)=>{
-                const original = row?.original as IOriginalPrice;
-                const cy = original?.currency as IOtherCurrency;
-                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount}` : 0;
-            }
-        },
+         
         {
             field: 'quantity',
             headerName: `Quantity`,
@@ -103,9 +76,7 @@ export const OrdersColumns = (
                 return quantity;
             }
         },
-        
-
-       
+               
         {
             field: 'deadline',
             headerName: `Deadline`,
@@ -147,25 +118,6 @@ export const OrdersColumns = (
             }
         },
 
-        {
-            field:'org',
-            headerName: 'Organization',
-            width:170,
-            valueFormatter: (_, row:IOrder)=>{
-                const org = row?.org as IOrganization;
-                return org ? org.name : '';
-            },
-            valueGetter: (_, row:IOrder)=>{
-                const org = row?.org as IOrganization;
-                return org ? org.name : '';
-            },
-            renderCell: (params:GridRenderCellParams)=>{
-                const org = params?.row?.org as IOrganization;
-                return (
-                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
-                )
-            }
-        },
                 
 
         {
@@ -193,57 +145,8 @@ export const OrdersColumns = (
                     </>
                 )
             }
-        },
-        {
-            field: 'createdAt',
-            headerName: 'Ordered On',
-            width:100,
-            valueFormatter:(_, row:IOrder)=>{
-                return formatTimestamp(row?.createdAt)
-            },
-            valueGetter:(_, row:IOrder)=>{
-                return formatTimestamp(row?.createdAt)
-            }
-        },
-
-        {
-            field: 'updatedAt',
-            headerName: 'Modified',
-            width:100,
-            valueFormatter:(_, row:IOrder)=>{
-                return formatDate(row?.updatedAt)
-            },
-            valueGetter:(_, row:IOrder)=>{
-                return formatDate(row?.updatedAt)
-            }
-        },
-
-        {
-        field:'id',
-        headerName:'Actions',
-        filterable: false,
-        width:150,
-        disableExport: true,
-        headerAlign:'center',
-        // params:GridRenderCellParams
-        renderCell:(params:GridRenderCellParams)=> {
-            // console.log(params.row?.id)
-            return(
-                <div className="h-full flex-center gap-3">
-                    <Viewer onClick={()=>handleInfo(params?.row)} tableId="86" tip="View order" />
-                   
-                    {
-                        params?.row?.status === 'Pending' &&
-                        <>
-                        <Editor onClick={()=>handleEdit(params?.row)}  tableId="86" tip="Edit order" />
-                        <Fulfiller onClick={()=>handleFulfill(params?.row)}  tableId="86" tip="Fulfill order" />
-                        </>
-                    }
-                    <Deleter onClick={()=>handleDelete(params?.row)}  tableId="86" tip="Delete order" />
-                </div>
-            )
-        },
-    }
+        }
         
+
     ]
 }

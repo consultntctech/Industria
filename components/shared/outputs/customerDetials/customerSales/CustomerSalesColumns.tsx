@@ -1,25 +1,16 @@
-import { Editor, Linker, Redoer, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
-import {  formatTimestamp } from "@/functions/dates";
+import { Linker } from "@/components/PermisionHelpers/PermisionHelpers";
+import { formatTimestamp } from "@/functions/dates";
 import { getProductCounts } from "@/functions/helpers";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
-import { ICustomer } from "@/lib/models/customer.model";
 import { ILineItem } from "@/lib/models/lineitem.model";
-import { IOrganization } from "@/lib/models/org.model";
 import { ISales } from "@/lib/models/sales.model";
 import { IUser } from "@/lib/models/user.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
-
-export const SalesColoumns = (
-    handleInfo: (sale:ISales)=>void,
-    handleEdit: (sale:ISales)=>void,
-    handleRefund: (sale:ISales)=>void,
-):GridColDef[]=>{
+export const CustomerSalesColumns = ():GridColDef[]=>{
     const {currency} = useCurrencyConfig();
-
     return [
-
-        {
+         {
             field: 'createdAt',
             headerName: 'Sold On',
             width:100,
@@ -28,27 +19,16 @@ export const SalesColoumns = (
             },
             valueGetter:(_, row:ISales)=>{
                 return formatTimestamp(row?.createdAt)
-            }
-        },
-        {
-            field: 'customer',
-            headerName: 'Customer',
-            width:170,
-            valueFormatter: (_, row:ISales)=>{
-                const customer = row?.customer as ICustomer;
-                return customer ? customer.name : '';
-            },
-            valueGetter: (_, row:ISales)=>{
-                const customer = row?.customer as ICustomer;
-                return customer ? customer.name : '';
             },
             renderCell: (params:GridRenderCellParams)=>{
-                const customer = params?.row?.customer as ICustomer;
+                const sales = params?.row as ISales;
+                const date = formatTimestamp(sales?.createdAt);
                 return (
-                    <Linker tableId="33" link={`/dashboard/distribution/customers/${customer?._id}`} placeholder={customer?.name} />
+                    <Linker tableId="82" link={`/dashboard/transactions/sales?Id=${sales?._id}`} placeholder={ date || sales?.createdAt} />
                 )
             }
         },
+       
 
         {
             field:'products',
@@ -92,6 +72,12 @@ export const SalesColoumns = (
             field: 'discount',
             headerName: `Discount ${currency?.symbol || ''}`,
             width:100,
+            valueFormatter:(_, row:ISales)=>{
+                return row?.discount ? row?.discount : 0;
+            },
+            valueGetter:(_, row:ISales)=>{
+                return row?.discount ? row?.discount : 0;
+            }
         },
         
 
@@ -99,29 +85,14 @@ export const SalesColoumns = (
             field: 'charges',
             headerName: `Charges ${currency?.symbol || ''}`,
             width:100,
-        },
-
-        
-
-        {
-            field:'org',
-            headerName: 'Organization',
-            width:170,
-            valueFormatter: (_, row:ISales)=>{
-                const org = row?.org as IOrganization;
-                return org ? org.name : '';
+            valueFormatter:(_, row:ISales)=>{
+                return row?.charges ? row?.charges : 0;
             },
-            valueGetter: (_, row:ISales)=>{
-                const org = row?.org as IOrganization;
-                return org ? org.name : '';
-            },
-            renderCell: (params:GridRenderCellParams)=>{
-                const org = params?.row?.org as IOrganization;
-                return (
-                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
-                )
+            valueGetter:(_, row:ISales)=>{
+                return row?.charges ? row?.charges : 0;
             }
         },
+
                 
 
         {
@@ -144,38 +115,5 @@ export const SalesColoumns = (
             }
         },
 
-
-        {
-            field: 'updatedAt',
-            headerName: 'Modified',
-            width:100,
-            valueFormatter:(_, row:ISales)=>{
-                return formatTimestamp(row?.updatedAt)
-            },
-            valueGetter:(_, row:ISales)=>{
-                return formatTimestamp(row?.updatedAt)
-            }
-        },
-
-        {
-        field:'id',
-        headerName:'Actions',
-        filterable: false,
-        width:120,
-        disableExport: true,
-        headerAlign:'center',
-        // params:GridRenderCellParams
-        renderCell:(params:GridRenderCellParams)=> {
-            // console.log(params.row?.id)
-            return(
-                <div className="h-full flex-center gap-3">
-                    <Viewer tableId="82" tip="View sale" onClick={()=>handleInfo(params?.row)} />
-                    <Editor tableId="82" tip="Edit sale" onClick={()=>handleEdit(params?.row)} />
-                    <Redoer tableId="82" tip="Return sale" onClick={()=>handleRefund(params?.row)} />
-                </div>
-            )
-        },
-    }
-        
     ]
 }

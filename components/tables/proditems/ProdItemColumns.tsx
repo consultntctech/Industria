@@ -148,7 +148,7 @@ export const ProdItemColumns = (
                     <div className="flex flex-row items-center gap-1 flex-wrap">
                     {suppliers?.map((item, index) => (
                         <span key={item?._id}>
-                            <Linker placeholder={item?.name} link={`/dashboard/suppliers?Id=${item?._id}`} tableId="41" />
+                            <Linker placeholder={item?.name} link={`/dashboard/suppliers/${item?._id}`} tableId="41" />
                             {index < suppliers.length - 1 && ', '}
                         </span>
                     ))}

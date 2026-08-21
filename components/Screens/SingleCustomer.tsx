@@ -1,5 +1,7 @@
+import { PermissionGuard } from "@/hooks/permissions/PermissionProvider";
 import Title from "../misc/Title";
 import { ICustomer } from "@/lib/models/customer.model";
+import SingleCustomerComp from "../Views/SingleCustomerComp";
 // import { PermissionGuard } from "@/hooks/permissions/PermissionProvider";
 // import SingleCustomerComp from "../Views/SingleCustomerComp";
 
@@ -17,9 +19,9 @@ const SingleCustomer = ({customer}:SingleCustomerProps) => {
             <div className="title hidden md:block">/</div>
             <Title className="hidden md:flex" showback={false} title={customer?.name} isLink={false} />
         </div>
-        {/* <PermissionGuard tableId={['77']} >
-          <SingleCustomerComp storage={storage}/>
-        </PermissionGuard> */}
+        <PermissionGuard tableId={['33']} >
+          <SingleCustomerComp customer={customer}/>
+        </PermissionGuard>
     </div>
   )
 }

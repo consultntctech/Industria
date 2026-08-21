@@ -17,6 +17,12 @@ export const SupplierColoumns = (
             field: 'name',
             headerName: 'Name',
             width:170,
+            renderCell: (params:GridRenderCellParams)=>{
+                const supplier = params?.row as ISupplier;
+                return (
+                    <Linker tableId="41" link={`/dashboard/suppliers/${supplier?._id}`} placeholder={supplier?.name} />
+                )
+            }
         },
         {
             field: 'email',

@@ -1,8 +1,9 @@
-import { getProductSuppliers, getProductSuppliersByOrg, getSuppliers, getSuppliersByOrg } from "@/lib/actions/supplier.action";
+import { getProductSuppliers, getProductSuppliersByOrg, getSupplierItems, getSuppliers, getSuppliersByOrg } from "@/lib/actions/supplier.action";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
 import { isSystemAdmin } from "@/Data/roles/permissions";
+import { ISupplierStats } from "@/types/OtherTypes";
 
 export const useFetchSuppliers = ()=>{
     const {user} = useAuth();
@@ -50,4 +51,27 @@ export const useFetchProductSuppliers = (id:string)=>{
     })
 
     return {suppliers, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchSupplierItems = (id:string)=>{
+    const fetchSupplierItems = async ():Promise<ISupplierStats> => {
+        try {
+            if(!id) return {rawMaterials:[], packItems:[]};
+            const res = await getSupplierItems(id);
+            const data = res.payload as ISupplierStats;
+            return data;
+        } catch (error) {
+            console.log(error);
+            return {rawMaterials:[], packItems:[]};
+        }
+    }
+  
+  const {data:supplierItems={rawMaterials:[], packItems:[]}, isPending, refetch, isSuccess} = useQuery({
+    queryKey: ['supplierItems', id],
+    queryFn: fetchSupplierItems,
+    enabled: !!id
+  })
+  const {rawMaterials, packItems} = supplierItems;
+  return {rawMaterials, packItems, isPending, refetch, isSuccess}
 }

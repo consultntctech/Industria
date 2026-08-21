@@ -66,7 +66,7 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentMaterial, setCurrentMat
                 {
                     suppliers.map((supplier, index)=>{
                         return(
-                            <Linker  key={index} link={`/dashboard/suppliers?Id=${supplier?._id}`} linkStyle="mtext link" spanStyle='mtext' tableId="41" placeholder={supplier?.name} />
+                            <Linker  key={index} link={`/dashboard/suppliers/${supplier?._id}`} linkStyle="mtext link" spanStyle='mtext' tableId="41" placeholder={supplier?.name} />
                         )
                     })
                 }

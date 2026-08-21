@@ -6,6 +6,9 @@ import { respond } from '../misc';
 import '../models/supplier.model';
 import Product from '../models/product.model';
 import { verifyOrgAccess } from '../middleware/verifyOrgAccess';
+import RMaterial, { IRMaterial } from '../models/rmaterial.mode';
+import ProdItem, { IProdItem } from '../models/proditem.model';
+import { ISupplierStats } from '@/types/OtherTypes';
 
 
 export async function createSupplier(data:Partial<ISupplier>):Promise<IResponse>{
@@ -96,6 +99,24 @@ export async function getSupplier(id:string):Promise<IResponse>{
     } catch (error) {
         console.log(error);
         return respond("Error occured retrieving supplier", true, {}, 500);
+    }
+}
+
+export async function getSupplierItems(id:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const [raw, pack] = await Promise.all([
+          RMaterial.find({ suppliers: id }).populate('createdBy').populate('suppliers').populate('batch').populate('product').lean() as unknown as IRMaterial[],
+          ProdItem.find({ suppliers: id }).populate('createdBy').populate('suppliers').lean() as unknown as IProdItem[],
+        ]);
+        const data:ISupplierStats = {
+          rawMaterials: raw?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime()),
+          packItems: pack?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime()),
+        }
+        return respond('Supplier found successfully', false, data, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching supplier', true, {}, 500);
     }
 }
 

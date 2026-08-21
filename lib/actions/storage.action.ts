@@ -121,9 +121,9 @@ export async function getItemsInStorage(id:string):Promise<IResponse>{
         const filteredItemsWithCounts = packItems.filter((item) => item.stock > 0);
 
         const store:IStorageStats = {
-            rawMaterials: raw,
-            packages: filteredPacks,
-            packItems: filteredItemsWithCounts
+            rawMaterials: raw?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime()),
+            packages: filteredPacks?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime()),
+            packItems: filteredItemsWithCounts?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime()),
         }
 
         return respond('Storage items found successfully', false, store, 200);

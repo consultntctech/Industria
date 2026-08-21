@@ -1,22 +1,15 @@
-import { Linker,  Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
-import {  formatTimestamp } from "@/functions/dates";
+import { Linker } from "@/components/PermisionHelpers/PermisionHelpers";
+import { formatTimestamp } from "@/functions/dates";
 import { getProductCounts } from "@/functions/helpers";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
-import { ICustomer } from "@/lib/models/customer.model";
 import { ILineItem } from "@/lib/models/lineitem.model";
-import { IOrganization } from "@/lib/models/org.model";
 import { IReturns } from "@/lib/models/returns.model";
 import { IUser } from "@/lib/models/user.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
-export const ReturnsColumns = (
-    handleInfo: (item:IReturns)=>void,
-    // handleResell: (item:IReturns)=>void,
-):GridColDef[]=>{
+export const CustomerReturnsColumns = ():GridColDef[]=>{
     const {currency} = useCurrencyConfig();
-
     return [
-
         {
             field: 'createdAt',
             headerName: 'Return On',
@@ -28,25 +21,7 @@ export const ReturnsColumns = (
                 return formatTimestamp(row?.createdAt)
             }
         },
-        {
-            field: 'customer',
-            headerName: 'Customer',
-            width:170,
-            valueFormatter: (_, row:IReturns)=>{
-                const customer = row?.customer as ICustomer;
-                return customer ? customer.name : '';
-            },
-            valueGetter: (_, row:IReturns)=>{
-                const customer = row?.customer as ICustomer;
-                return customer ? customer.name : '';
-            },
-            renderCell: (params:GridRenderCellParams)=>{
-                const customer = params?.row?.customer as ICustomer;
-                return (
-                    <Linker tableId="33" link={`/dashboard/distribution/customers/${customer?._id}`} placeholder={customer?.name} />
-                )
-            }
-        },
+       
 
         {
             field:'products',
@@ -116,27 +91,6 @@ export const ReturnsColumns = (
             width:200,
         },
 
-        
-
-        {
-            field:'org',
-            headerName: 'Organization',
-            width:170,
-            valueFormatter: (_, row:IReturns)=>{
-                const org = row?.org as IOrganization;
-                return org ? org.name : '';
-            },
-            valueGetter: (_, row:IReturns)=>{
-                const org = row?.org as IOrganization;
-                return org ? org.name : '';
-            },
-            renderCell: (params:GridRenderCellParams)=>{
-                const org = params?.row?.org as IOrganization;
-                return (
-                    <Linker link={`/dashboard/organizations?Id=${org?._id}`} placeholder={org?.name} tableId="100" />
-                )
-            }
-        },
                 
 
         {
@@ -158,38 +112,5 @@ export const ReturnsColumns = (
                 )
             }
         },
-
-
-        {
-            field: 'updatedAt',
-            headerName: 'Modified',
-            width:100,
-            valueFormatter:(_, row:IReturns)=>{
-                return formatTimestamp(row?.updatedAt)
-            },
-            valueGetter:(_, row:IReturns)=>{
-                return formatTimestamp(row?.updatedAt)
-            }
-        },
-
-        {
-        field:'id',
-        headerName:'Actions',
-        filterable: false,
-        width:120,
-        disableExport: true,
-        headerAlign:'center',
-        // params:GridRenderCellParams
-        renderCell:(params:GridRenderCellParams)=> {
-            // console.log(params.row?.id)
-            return(
-                <div className="h-full flex-center gap-3">
-                    <Viewer tableId="86" tip="View return details" onClick={()=>handleInfo(params?.row)} />
-                    {/* <Redoer tableId="86" tip="Resale returned items" onClick={()=>handleResell(params?.row)} /> */}
-                </div>
-            )
-        },
-    }
-        
     ]
 }

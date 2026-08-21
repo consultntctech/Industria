@@ -52,7 +52,7 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Customer</span>
-                <span className="mtext">{customer?.name}</span>
+                <Linker tableId="33" link={`/dashboard/distribution/customers/${customer?._id}`} placeholder={customer?.name} />
             </div>
             
             <div className="flex flex-col">

@@ -107,7 +107,7 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
                 <div className="flex flex-col gap-0.5">
                     {
                         suppliers?.map((supplier, index) => (
-                            <Linker key={index} tableId='41' link={`/dashboard/suppliers?Id=${supplier?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={supplier?.name} />
+                            <Linker key={index} tableId='41' link={`/dashboard/suppliers/${supplier?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={supplier?.name} />
                         ))
                     }
                 </div>
