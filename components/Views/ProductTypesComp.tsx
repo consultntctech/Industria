@@ -81,7 +81,7 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
         setLoading(true);
         
         try {
-          const formData = {...data, org:user?.org, category, suppliers, createdBy:user?._id}
+          const formData:Partial<IProduct> = {...data, name:data?.name?.trim(), org:user?.org, category, suppliers, createdBy:user?._id}
           const res = await createProduct(formData);
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
           if(!res.error){
@@ -105,7 +105,8 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
         try {
           const supplierIds = savedSuppliers.map(supplier=>supplier._id);
           const res = await updateProduct({
-            ...data, 
+            ...data,
+            name:data?.name?.trim(), 
             suppliers: suppliers.length ? suppliers : supplierIds,
             category: category || savedCategory._id,
           });

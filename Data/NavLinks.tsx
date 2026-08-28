@@ -7,14 +7,14 @@ import { GoPeople } from "react-icons/go";
 import { GrAlert, GrShieldSecurity, GrUserWorker } from "react-icons/gr";
 import { HiOutlineCash, HiOutlineCurrencyDollar, HiOutlineUsers } from "react-icons/hi";
 import { IoAlertCircleOutline, IoSettingsOutline } from "react-icons/io5";
-import { LiaRecycleSolid, LiaShoppingBasketSolid, LiaUsersCogSolid } from "react-icons/lia";
+import { LiaRecycleSolid, LiaShoppingBasketSolid, LiaToolsSolid, LiaUsersCogSolid } from "react-icons/lia";
 import { LuBaggageClaim, LuGitPullRequest, LuLayoutDashboard, LuPillBottle, LuShoppingCart } from "react-icons/lu";
 import { MdOutlineCategory, MdOutlineStoreMallDirectory, /*MdStackedLineChart*/ } from "react-icons/md";
-import { PiCashRegisterLight, PiUsersThree } from "react-icons/pi";
+import { PiCashRegisterLight, PiCompassToolDuotone, PiToolbox, PiUsersThree } from "react-icons/pi";
 import { RiShieldFlashLine, RiStackLine, RiStackshareLine } from "react-icons/ri";
 import { RxStack } from "react-icons/rx";
 import { SiAwsorganizations } from "react-icons/si";
-import { TbCashOff,  TbDashboard,  TbTimeline } from "react-icons/tb";
+import { TbCashOff,  TbDashboard,  TbTimeline, TbTool } from "react-icons/tb";
 import { TfiPackage } from "react-icons/tfi";
 
 export const NavLinks = (): INavBarItem[] => {
@@ -101,6 +101,18 @@ export const NavLinks = (): INavBarItem[] => {
       icon: <MdOutlineStoreMallDirectory />,
       link: "/dashboard/storage",
       tableids: ['77']
+    },
+    {
+      id: '14',
+      title: 'Equipment',
+      icon: <TbTool />,
+      tableids: ['92', '93', '94'],
+      subMenu: [
+        { id: '140', tableids: ['92', '93', '94'], title: 'Dashboard', icon: <TbDashboard />, link: '/dashboard/equipment/dashboard' },
+        { id: '142', tableids: ['93'], title: 'Categories', icon: <LiaToolsSolid />, link: '/dashboard/equipment/categories' },
+        { id: '141', tableids: ['92'], title: 'Types', icon: <PiCompassToolDuotone />, link: '/dashboard/equipment/types' },
+        { id: '143', tableids: ['94'], title: 'Items', icon: <PiToolbox />, link: '/dashboard/equipment/items' },
+      ]
     },
     {
       id: "12",

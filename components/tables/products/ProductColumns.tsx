@@ -75,6 +75,11 @@ export const ProductColumns = (
             }
 
         },
+        {
+            field: 'stock',
+            headerName: 'Stock',
+            width:100,
+        },
 
         {
             field: 'uom',

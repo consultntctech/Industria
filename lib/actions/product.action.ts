@@ -8,6 +8,8 @@ import '../models/org.model';
 import '../models/supplier.model';
 import '../models/category.model';
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
+import LineItem from "../models/lineitem.model";
+import RMaterial from "../models/rmaterial.mode";
 
 export async function createProduct(data:Partial<IProduct>):Promise<IResponse>{
     try {
@@ -24,34 +26,91 @@ export async function createProduct(data:Partial<IProduct>):Promise<IResponse>{
     }
 }
 
-export async function getProducts():Promise<IResponse>{
-    try {
-        await connectDB();
-        const products = await Product.find()
-        .populate('category')
-        .populate('suppliers')
-        .populate('createdBy')
-        .populate('org').lean() as unknown as IProduct[];
-        return respond('Products found successfully', false, products, 200);
-    } catch (error) {
-        console.log(error);
-        return respond('Error occured while fetching products', true, {}, 500);
-    }
+
+export async function getProducts(): Promise<IResponse> {
+  try {
+    await connectDB();
+
+    const products = await Product.find()
+      .populate('category')
+      .populate('suppliers')
+      .populate('createdBy')
+      .populate('org')
+      .lean() as unknown as IProduct[];
+
+    const productIds = products.map(p => p._id);
+
+    const [lineItemCounts, rMaterialSums] = await Promise.all([
+      LineItem.aggregate([
+        { $match: { product: { $in: productIds }, status: 'Available' } },
+        { $group: { _id: '$product', count: { $sum: 1 } } }
+      ]),
+      RMaterial.aggregate([
+        { $match: { product: { $in: productIds } } },
+        { $group: { _id: '$product', total: { $sum: '$qAccepted' } } }
+      ])
+    ]);
+
+    const lineItemMap = new Map(lineItemCounts.map(l => [l._id.toString(), l.count]));
+    const rMaterialMap = new Map(rMaterialSums.map(r => [r._id.toString(), r.total]));
+
+    const productsWithStock = products.map(product => {
+      const idStr = product._id.toString();
+      const stock = product.type === 'Finished Good'
+        ? (lineItemMap.get(idStr) ?? 0)
+        : (rMaterialMap.get(idStr) ?? 0);
+
+      return { ...product, stock };
+    });
+
+    return respond('Products found successfully', false, productsWithStock, 200);
+  } catch (error) {
+    console.log(error);
+    return respond('Error occured while fetching products', true, {}, 500);
+  }
 }
 
-export async function getProductsByOrg(orgId:string):Promise<IResponse>{
-    try {
-        await connectDB();
-        const products = await Product.find({ org: orgId })
-        .populate('category')
-        .populate('suppliers')
-        .populate('createdBy')
-        .populate('org').lean() as unknown as IProduct[];
-        return respond('Products found successfully', false, products, 200);
-    } catch (error) {
-        console.log(error);
-        return respond('Error occured while fetching products', true, {}, 500);
-    }
+export async function getProductsByOrg(orgId: string): Promise<IResponse> {
+  try {
+    await connectDB();
+
+    const products = await Product.find({ org: orgId })
+      .populate('category')
+      .populate('suppliers')
+      .populate('createdBy')
+      .populate('org')
+      .lean() as unknown as IProduct[];
+
+    const productIds = products.map(p => p._id);
+
+    const [lineItemCounts, rMaterialSums] = await Promise.all([
+      LineItem.aggregate([
+        { $match: { product: { $in: productIds }, status: 'Available' } },
+        { $group: { _id: '$product', count: { $sum: 1 } } }
+      ]),
+      RMaterial.aggregate([
+        { $match: { product: { $in: productIds } } },
+        { $group: { _id: '$product', total: { $sum: '$qAccepted' } } }
+      ])
+    ]);
+
+    const lineItemMap = new Map(lineItemCounts.map(l => [l._id.toString(), l.count]));
+    const rMaterialMap = new Map(rMaterialSums.map(r => [r._id.toString(), r.total]));
+
+    const productsWithStock = products.map(product => {
+      const idStr = product._id.toString();
+      const stock = product.type === 'Finished Good'
+        ? (lineItemMap.get(idStr) ?? 0)
+        : (rMaterialMap.get(idStr) ?? 0);
+
+      return { ...product, stock };
+    });
+
+    return respond('Products found successfully', false, productsWithStock, 200);
+  } catch (error) {
+    console.log(error);
+    return respond('Error occured while fetching products', true, {}, 500);
+  }
 }
 
 
@@ -75,27 +134,35 @@ export async function getProduct(id: string): Promise<IResponse> {
   try {
     await connectDB();
 
-    const check = await verifyOrgAccess(Product, id, "Product",[
+    const check = await verifyOrgAccess(Product, id, "Product", [
       { path: "category" },
       { path: "suppliers" },
       { path: "createdBy" },
       { path: "org" },
     ]);
 
-    // console.log('Check: ', check)
-    // If not allowed, return the middleware's response directly
     if ("allowed" in check === false) return check;
 
-    // Authorized → you can use check.doc safely, fully typed as Production
-    const production = check.doc;
+    const product = check.doc;
 
-    return respond("Production retrieved successfully", false, production, 200);
+    const stock = product.type === 'Finished Good'
+      ? await LineItem.countDocuments({ product: product._id, status: 'Available' })
+      : await RMaterial.aggregate([
+          { $match: { product: product._id } },
+          { $group: { _id: null, total: { $sum: '$qAccepted' } } }
+        ]).then(result => result[0]?.total ?? 0);
+
+    return respond(
+      "Production retrieved successfully",
+      false,
+      { ...(product.toObject ? product.toObject() : product), stock },
+      200
+    );
   } catch (error) {
     console.error(error);
     return respond("Error occurred retrieving production", true, {}, 500);
   }
 }
-
 
 
 export async function getProductStats(): Promise<IResponse> {

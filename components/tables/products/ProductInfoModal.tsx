@@ -50,6 +50,11 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentProduct, setCurrentProd
             </div>
             
             <div className="flex flex-col">
+                <span className="mlabel">Stock</span>
+                <span className="mtext">{currentProduct?.stock || '0'}</span>
+            </div>
+
+            <div className="flex flex-col">
                 <span className="mlabel">Unit of Measure</span>
                 <span className="mtext">{currentProduct?.uom || 'None'}</span>
             </div>

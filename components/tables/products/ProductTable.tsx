@@ -121,6 +121,7 @@ const ProductTable = ({setOpenNew, currentProduct, setCurrentProduct}:ProductTab
                                 columnVisibilityModel:{
                                   org:false,
                                   uom: false,
+                                  threshold: false,
                                   description: false,
                                   createdBy:false,
                                   createdAt:false,

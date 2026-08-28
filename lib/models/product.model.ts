@@ -18,6 +18,7 @@ export interface IProduct extends Document {
     category: string | Types.ObjectId | ICategory;
     suppliers?: string[] | Types.ObjectId[] | ISupplier[];
     type: string;
+    stock: number;
     description: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
@@ -29,6 +30,7 @@ const ProductSchema = new Schema<IProduct>({
     name: { type: String, required: true },
     uom: { type: String, required: false },
     threshold: { type: Number, required: true, default: 0 },
+    stock: { type: Number, required: true, default: 0 },
     category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     suppliers: { type: [Schema.Types.ObjectId], ref: 'Supplier', required: false },
     type: { type: String, required: true, default:'Raw Material' },
