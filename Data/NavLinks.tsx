@@ -51,7 +51,7 @@ export const NavLinks = (): INavBarItem[] => {
       icon: <LuShoppingCart />,
       tableids: ['28', '32', '55', '87'],
       subMenu: [
-        {id: '30', tableids:['28', '32', '55', '87'], title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/products/dashboard'},
+        {id: '30', tableids:['28', '32', '55', '87'], title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/products'},
         { id: "33", tableids:['32'], title: "Categories", icon: <MdOutlineCategory />, link: "/dashboard/products/categories" },
         { id: "31", tableids:['55'], title: "Batches", icon: <RxStack />, link: "/dashboard/products/batches" },
         { id: "32", tableids:['28'], title: "Types", icon: <BsCartPlus />, link: "/dashboard/products/types" },
@@ -64,7 +64,7 @@ export const NavLinks = (): INavBarItem[] => {
       icon: <LiaRecycleSolid />,
       tableids: ['8', '88', '91'],
       subMenu: [
-        {id: '40', tableids: ['8', '88'], title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/processing/dashboard'},
+        {id: '40', tableids: ['8', '88'], title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/processing'},
         {id: '106', tableids: ['91'], title:'Labourers', icon: <GrUserWorker />, link: '/dashboard/processing/labourers'},
         { id: "41", tableids:['8'], title: "Production", icon: <FiRefreshCw />, link: "/dashboard/processing/production" },
         { id: "42", tableids:['88'], title: "Goods", icon: <CiBag1 />, link: "/dashboard/processing/goods" },
@@ -76,7 +76,7 @@ export const NavLinks = (): INavBarItem[] => {
       icon: <LuBaggageClaim />,
       tableids: ['33', '12', '99'],
       subMenu: [
-        {id: '50', tableids: ['33', '12', '99'], title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/distribution/dashboard'},
+        {id: '50', tableids: ['33', '12', '99'], title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/distribution'},
         { id: "51", tableids: ['33'], title: "Customers", icon: <HiOutlineUsers />, link: "/dashboard/distribution/customers" },
         { id: "52", tableids: ['12'], title: "Packaging Mat.", icon: <LuPillBottle />, link: "/dashboard/distribution/packaging-materials" },
         { id: "53", tableids: ['99'], title: "Packaging", icon: <TfiPackage />, link: "/dashboard/distribution/packaging" },
@@ -88,7 +88,7 @@ export const NavLinks = (): INavBarItem[] => {
       icon: <HiOutlineCash />,
       tableids: ['82', '86', '83', '97'],
       subMenu: [
-        {id: '60', tableids: ['82', '86', '83', '97'], title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/transactions/dashboard'},
+        {id: '60', tableids: ['82', '86', '83', '97'], title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/transactions'},
         { id: "61", tableids: ['82'], title: "Sales", icon: <PiCashRegisterLight />, link: "/dashboard/transactions/sales" },
         { id: "62", tableids: ['86'], title: "Orders", icon: <LuGitPullRequest />, link: "/dashboard/transactions/orders" },
         { id: "63", tableids: ['83'], title: "Returns", icon: <TbCashOff />, link: "/dashboard/transactions/returns" },
@@ -108,7 +108,7 @@ export const NavLinks = (): INavBarItem[] => {
       icon: <TbTool />,
       tableids: ['92', '93', '94'],
       subMenu: [
-        { id: '140', tableids: ['92', '93', '94'], title: 'Dashboard', icon: <TbDashboard />, link: '/dashboard/equipment/dashboard' },
+        { id: '140', tableids: ['92', '93', '94'], title: 'Dashboard', icon: <TbDashboard />, link: '/dashboard/equipment' },
         { id: '142', tableids: ['93'], title: 'Categories', icon: <LiaToolsSolid />, link: '/dashboard/equipment/categories' },
         { id: '141', tableids: ['92'], title: 'Types', icon: <PiCompassToolDuotone />, link: '/dashboard/equipment/types' },
         { id: '143', tableids: ['94'], title: 'Items', icon: <PiToolbox />, link: '/dashboard/equipment/items' },
