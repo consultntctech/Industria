@@ -8,6 +8,7 @@ import { QuanityOrPrice } from "@/types/Types";
 import { useState } from "react";
 import EquipCardComp from "./EquipCardComp";
 import EquipGroupBarChart from "./EquipGroupBarChart";
+import EquipMonthlyRadarChart from "./EquipMonthlyRadarChart";
 
 const EquipmentDashboard = () => {
     const [limit, setLimit] = useState<number>(6);
@@ -44,6 +45,7 @@ const EquipmentDashboard = () => {
 
             <div className="flex flex-col gap-8 w-full">
                 <EquipGroupBarChart isPending={isPending} group={equipmentStats?.groupedByType} category={equipmentStats?.groupedByCategory} type={type} groupType={group} limit={limit} />
+                <EquipMonthlyRadarChart isPending={isPending} data={equipmentStats?.monthly} type={type} limit={limit} />
             </div>
           </div>
       </div>

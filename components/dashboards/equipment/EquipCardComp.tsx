@@ -32,7 +32,7 @@ const EquipCardComp = ({data, isPending, type}:EquipCardCompProps) => {
 
     const maintenance = {
         title: 'Maintenance',
-        titleIcon: <MdOutlineChecklist color="red" />,
+        titleIcon: <MdOutlineChecklist color="crimson" />,
         centerText: type==='quantity'? `${data?.Maintenance.count}` : ` ${currency?.symbol || ''} ${data?.Maintenance?.price}`,
         bottomText: 'Equipment in maintenance',
     }

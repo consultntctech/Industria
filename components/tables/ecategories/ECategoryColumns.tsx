@@ -1,14 +1,14 @@
 import { Deleter, Editor, Linker } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
-import { ICategory } from "@/lib/models/category.model";
+import { IECategory } from "@/lib/models/ecategory.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IUser } from "@/lib/models/user.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
 
-export const CategoryColumns = (
-    handleEdit: (category:ICategory)=>void,
-    handleDelete: (category:ICategory)=>void,
+export const ECategoryColumns = (
+    handleEdit: (category:IECategory)=>void,
+    handleDelete: (category:IECategory)=>void,
 ):GridColDef[]=>{
 
     return [
@@ -32,11 +32,11 @@ export const CategoryColumns = (
             field:'org',
             headerName: 'Organization',
             width:170,
-            valueFormatter: (_, row:ICategory)=>{
+            valueFormatter: (_, row:IECategory)=>{
                 const orga = row?.org as IOrganization;
                 return orga ? orga.name : '';
             },
-            valueGetter: (_, row:ICategory)=>{
+            valueGetter: (_, row:IECategory)=>{
                 const orga = row?.org as IOrganization;
                 return orga ? orga.name : '';
             },
@@ -51,11 +51,11 @@ export const CategoryColumns = (
             field:'createdBy',
             headerName: 'Created By',
             width:170,
-            valueFormatter: (_, row:ICategory)=>{
+            valueFormatter: (_, row:IECategory)=>{
                 const creator = row?.createdBy as IUser;
                 return creator ? creator.name : row?.creator;
             },
-            valueGetter: (_, row:ICategory)=>{
+            valueGetter: (_, row:IECategory)=>{
                 const creator = row?.createdBy as IUser;
                 return creator ? creator.name : row?.creator;
             },
@@ -78,10 +78,10 @@ export const CategoryColumns = (
             field: 'createdAt',
             headerName: 'Created',
             width:100,
-            valueFormatter:(_, row:ICategory)=>{
+            valueFormatter:(_, row:IECategory)=>{
                 return formatDate(row?.createdAt)
             },
-            valueGetter:(_, row:ICategory)=>{
+            valueGetter:(_, row:IECategory)=>{
                 return formatDate(row?.createdAt)
             }
         },
@@ -90,10 +90,10 @@ export const CategoryColumns = (
             field: 'updatedAt',
             headerName: 'Modified',
             width:100,
-            valueFormatter:(_, row:ICategory)=>{
+            valueFormatter:(_, row:IECategory)=>{
                 return formatDate(row?.updatedAt)
             },
-            valueGetter:(_, row:ICategory)=>{
+            valueGetter:(_, row:IECategory)=>{
                 return formatDate(row?.updatedAt)
             }
         },
@@ -109,8 +109,8 @@ export const CategoryColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Editor tableId="32" tip="Edit category" onClick={()=>handleEdit(params?.row)} />
-                    <Deleter tableId="32" tip="Delete category" onClick={()=>handleDelete(params?.row)} />
+                    <Editor tableId="93" tip="Edit category" onClick={()=>handleEdit(params?.row)} />
+                    <Deleter tableId="93" tip="Delete category" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

@@ -4,22 +4,22 @@ import { enqueueSnackbar } from "notistack";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import DialogueAlet from "@/components/misc/DialogueAlet";
 import { useSearchParams } from "next/navigation";
-import { ICategory } from "@/lib/models/category.model";
-import { CategoryColumns } from "./CategoryColumns";
-import { deleteCategory, getCategoryById } from "@/lib/actions/category.action";
-import { useFetchProdCats } from "@/hooks/fetch/useFetchProdCats";
+import { IECategory } from "@/lib/models/ecategory.model";
+import { ECategoryColumns } from "./ECategoryColumns";
+import { deleteECategory,  getECategoryById } from "@/lib/actions/ecategory.action";
+import { useFetchECategories } from "@/hooks/fetch/useFetchECategories";
 
-type CategoryTableProps = {
+type ECategoryTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
-    currentCategory:ICategory | null;
-    setCurrentCategory:Dispatch<SetStateAction<ICategory | null>>;
+    currentCategory:IECategory | null;
+    setCurrentCategory:Dispatch<SetStateAction<IECategory | null>>;
 }
 
-const CategoryTable = ({setOpenNew, currentCategory, setCurrentCategory}:CategoryTableProps) => {
+const ECategoryTable = ({setOpenNew, currentCategory, setCurrentCategory}:ECategoryTableProps) => {
     const [showDelete, setShowDelete] = useState(false);
     
 
-    const {categories, isPending, refetch} = useFetchProdCats();
+    const {categories, isPending, refetch} = useFetchECategories();
 
     // console.log('Creator: ', categories[0]?.createdBy)
     const searchParams = useSearchParams();
@@ -32,10 +32,10 @@ const CategoryTable = ({setOpenNew, currentCategory, setCurrentCategory}:Categor
     
             const fetchSupplier = async () => {
                 try {
-                const res = await getCategoryById(categoryId);
+                const res = await getECategoryById(categoryId);
                 if (!isMounted) return;
     
-                const item = res.payload as ICategory;
+                const item = res.payload as IECategory;
                 if (!res.error) {
                     setCurrentCategory(item);
                     handleEdit(item)
@@ -57,14 +57,14 @@ const CategoryTable = ({setOpenNew, currentCategory, setCurrentCategory}:Categor
 
     const paginationModel = { page: 0, pageSize: 15 };
 
-    const handleEdit = (cat:ICategory)=>{
+    const handleEdit = (cat:IECategory)=>{
         setCurrentCategory(cat);
         setOpenNew(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
 
-    const handleDelete = (cat:ICategory)=>{
+    const handleDelete = (cat:IECategory)=>{
         setShowDelete(true);
         setCurrentCategory(cat);
     }
@@ -77,7 +77,7 @@ const CategoryTable = ({setOpenNew, currentCategory, setCurrentCategory}:Categor
     const handleDeleteUser = async()=>{
         try {
             if(!currentCategory) return;
-            const res = await deleteCategory(currentCategory?._id);
+            const res = await deleteECategory(currentCategory?._id);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             handleClose();
             if(!res.error){
@@ -94,7 +94,7 @@ const CategoryTable = ({setOpenNew, currentCategory, setCurrentCategory}:Categor
 
   return (
     <div className='table-main2' >
-        <span className='font-bold text-xl' >Product Categories</span>
+        <span className='font-bold text-xl' >Equipment Categories</span>
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteUser} title="Delete Category" content={content} />
         <div className="flex w-full">
             {
@@ -104,9 +104,9 @@ const CategoryTable = ({setOpenNew, currentCategory, setCurrentCategory}:Categor
                 <Paper className='w-full' sx={{ height: 'auto', }}>
                     <DataGrid
                         loading={isPending}
-                        getRowId={(row:ICategory)=>row._id}
+                        getRowId={(row:IECategory)=>row._id}
                         rows={categories}
-                        columns={CategoryColumns(handleEdit, handleDelete)}
+                        columns={ECategoryColumns(handleEdit, handleDelete)}
                         initialState={{ 
                             pagination: { paginationModel },
                             columns:{
@@ -141,4 +141,4 @@ const CategoryTable = ({setOpenNew, currentCategory, setCurrentCategory}:Categor
   )
 }
 
-export default CategoryTable
+export default ECategoryTable

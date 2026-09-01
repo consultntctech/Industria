@@ -6,6 +6,7 @@ export interface ICategory extends Document {
     _id: string;
     name: string;
     description: string;
+    creator: string;
     org: string | Types.ObjectId | IOrganization;
     createdBy: string | Types.ObjectId | IUser;
     createdAt?: Date;
@@ -15,6 +16,7 @@ export interface ICategory extends Document {
 const CategorySchema = new Schema<ICategory>({
     name: { type: String, required: true },
     description: String,
+    creator: String,
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
 }, {timestamps:true})
