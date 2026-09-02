@@ -27,6 +27,10 @@ const EquipMonthlyRadarChart = ({isPending, data, type,  limit}:EquipMonthlyRada
         data: type === 'quantity' ? data?.Available.map(item=> item?.count) : data?.Available.map(item=> item?.price),
         color: 'teal'
     }
+    const counts = [...data?.Available?.map(item=> item?.count), ...data?.['In Use']?.map(item=> item?.count), ...data?.Maintenance?.map(item=> item?.count)]
+    const prices = [...data?.Available?.map(item=> item?.price), ...data?.['In Use']?.map(item=> item?.price), ...data?.Maintenance?.map(item=> item?.price)]
+
+
     const months = data?.Available.map(item=> item?.month)
   return (
     <div className="flex w-[86vw] md:w-full flex-col gap-4 p-2.5 shadow border border-slate-200 flex-2 rounded-2xl" >
@@ -42,7 +46,7 @@ const EquipMonthlyRadarChart = ({isPending, data, type,  limit}:EquipMonthlyRada
                     available, inUse, maintenance
                 ]}
                 radar={{
-                    max:120,
+                    max:type === 'quantity' ? Math.max(...counts) + 50 : Math.max(...prices) + 50,
                     metrics: months
                 }}
             />
