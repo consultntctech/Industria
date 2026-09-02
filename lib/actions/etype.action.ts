@@ -8,6 +8,7 @@ import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Equipment from "../models/equipment.model";
 import '../models/org.model';
 import '../models/user.model';
+import '../models/ecategory.model'
 
 
 async function attachEquipmentCounts(types: IEType[]): Promise<IEType[]> {

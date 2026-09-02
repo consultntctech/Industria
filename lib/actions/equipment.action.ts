@@ -9,6 +9,7 @@ import '../models/org.model';
 import '../models/user.model';
 import '../models/etype.model';
 import '../models/storage.model';
+import '../models/ecategory.model';
 import { Types } from 'mongoose';
 import { EquipmentStatus, IAllTimeAggregateResult, IAllTimeStatusCount, IEquipmentStatsPayload, IGroupedEquipmentAggregateResult, IGroupedEquipmentCount, IMonthlyAggregateResult, IMonthlyStatusCount } from "@/types/EquipmentTypes";
 

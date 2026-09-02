@@ -14,7 +14,7 @@ const PackagingCostChart = ({ stats, isPending }: PackagingCostChartProps) => {
 
     const xData = packData.map(item=>item.month) || [];
 
-    const max = Math.max(...yData) ?? 300;
+    const max = (Math.max(...yData)) ?? 300;
 
     
     // const yData = sales?.map(item=>item?.quantity);
