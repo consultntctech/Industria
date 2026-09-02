@@ -90,7 +90,7 @@ const ECategoryTable = ({setOpenNew, currentCategory, setCurrentCategory}:ECateg
     }
 
 
-    const content = currentCategory ? `Are you sure you want to delete category ${currentCategory.name}? This action cannot be undone.` : '';
+    const content = currentCategory ? `Are you sure you want to delete category ${currentCategory.name}? This will also delete the types and equipments depending on it. This action cannot be undone.` : '';
 
   return (
     <div className='table-main2' >

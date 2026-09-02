@@ -2,6 +2,7 @@ import {  model, models, Schema, Types } from "mongoose";
 import { IOrganization } from "./org.model";
 import { IUser } from "./user.model";
 import { IECategory } from "./ecategory.model";
+import Equipment from "./equipment.model";
 
 export interface IEType {
     _id: string;
@@ -32,6 +33,19 @@ const ETypeSchema = new Schema<IEType>({
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
 }, {timestamps:true})
     
+
+ETypeSchema.pre('deleteOne', { document: false, query: true }, async function(next) {
+    try {
+        const etypeId = this.getQuery()._id;
+        await Promise.all([
+            Equipment.deleteMany({ type: etypeId }),
+        ]);
+        next();
+    } catch (error) {
+        console.log(error);
+        next(error as Error);
+    }
+});
 
 const EType = models?.EType || model<IEType>('EType', ETypeSchema);
 export default EType;

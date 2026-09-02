@@ -1,33 +1,35 @@
-import { useFetchStorages } from "@/hooks/fetch/useFetchStorages"
-import { IStorage } from "@/lib/models/storage.model"
+import { useFetchETypes } from "@/hooks/fetch/useFetchETypes";
+import { IEType } from "@/lib/models/etype.model"
 import { Autocomplete, CircularProgress, TextField } from "@mui/material"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
-type SearchSelectStoragesProps = {
-    setSelect?: Dispatch<SetStateAction<IStorage | null>>,
-    value?: IStorage | null,
+type SearchSelectEquipTypesProps = {
+    setSelect?: Dispatch<SetStateAction<IEType | null>>,
+    value?: IEType | null,
     width?: number,
     required?:boolean,
 }
-const SearchSelectStorages = ({setSelect, required, value, width}:SearchSelectStoragesProps) => {
-    const {storages, isPending} = useFetchStorages();
+const SearchSelectEquipTypes = ({setSelect, required, value, width}:SearchSelectEquipTypesProps) => {
+    const {types, isPending} = useFetchETypes();
     const [search, setSearch] = useState<string>('');
 
     return(
         <Autocomplete
             disablePortal
-            options={storages}
-            onChange={(_, item:IStorage|null)=>{
+            options={types}
+            onChange={(_, item:IEType|null)=>{
                 // console.log(e.target)
                 if(setSelect){
                     setSelect(item)
                 }
             }}
-            defaultValue={value}
+
             inputValue={search}
             onInputChange={(_, item)=>{
+                // console.log(e.target);
                 setSearch(item);
             }}
+            defaultValue={value}
             loading={isPending}
             isOptionEqualToValue={(option, v)=>option._id === v._id}
             getOptionLabel={(option)=>option?.name}
@@ -37,7 +39,7 @@ const SearchSelectStorages = ({setSelect, required, value, width}:SearchSelectSt
                     {...params}
                     required={required}
                     size="small"
-                    label= "Storage Location"
+                    label= "Type"
                     color="primary"
                     className="rounded"
                     slotProps={{
@@ -59,4 +61,4 @@ const SearchSelectStorages = ({setSelect, required, value, width}:SearchSelectSt
     )
 }
 
-export default SearchSelectStorages
+export default SearchSelectEquipTypes

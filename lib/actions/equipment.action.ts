@@ -30,6 +30,7 @@ export async function getEquipments():Promise<IResponse>{
         .populate('createdBy')
         .populate({path:'type', populate:{path:'category'}})
         .populate('location')
+        .populate('original.currency')
         .populate('org').lean() as unknown as IEquipment[];
         return respond('Equipments found successfully', false, eqs, 200);
     } catch (error) {
@@ -45,6 +46,7 @@ export async function getEquipmentsByOrg(orgId:string):Promise<IResponse>{
         .populate('createdBy')
         .populate({path:'type', populate:{path:'category'}})
         .populate('location')
+        .populate('original.currency')
         .populate('org').lean() as unknown as IEquipment[];
         return respond('Equipments found successfully', false, eqs, 200);
     } catch (error) {
@@ -60,6 +62,7 @@ export async function getEquipmentsByType(typeId:string):Promise<IResponse>{
         .populate('createdBy')
         .populate({path:'type', populate:{path:'category'}})
         .populate('location')
+        .populate('original.currency')
         .populate('org').lean() as unknown as IEquipment[];
         return respond('Equipments found successfully', false, eqs, 200);
     } catch (error) {
@@ -72,7 +75,8 @@ export async function getEquipmentsByType(typeId:string):Promise<IResponse>{
 export async function getEquipmentById(id:string):Promise<IResponse>{
     try {
         await connectDB();
-        const check = await verifyOrgAccess(Equipment, id, "Equipment",[{ path: "org"}, { path: "createdBy"}]);
+        const check = await verifyOrgAccess(Equipment, id, "Equipment",
+          [{ path: "org"}, { path: "createdBy"}, {path:'type'}, {path:'location'}, {path:'original.currency'}]);
         if('allowed' in check === false) return check;
         const eq = check.doc;
         return respond('Equipment found successfully', false, eq, 200);

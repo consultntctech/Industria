@@ -58,7 +58,7 @@ export async function createEType(tp: Partial<IEType>): Promise<IResponse> {
         return respond('Type created successfully', false, newType, 201);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while creating type', true, {}, 500);
+        return respond('Error occured while creating equipment type', true, {}, 500);
     }
 }
 
@@ -69,6 +69,7 @@ export async function getETypes(): Promise<IResponse> {
 
     const types = await EType.find()
       .populate('createdBy')
+      .populate('category')
       .populate('org')
       .lean() as unknown as IEType[];
 
@@ -77,7 +78,7 @@ export async function getETypes(): Promise<IResponse> {
     return respond('Types found successfully', false, typesWithCounts, 200);
   } catch (error) {
     console.log(error);
-    return respond('Error occured while fetching types', true, {}, 500);
+    return respond('Error occured while fetching equipment types', true, {}, 500);
   }
 }
 
@@ -88,6 +89,7 @@ export async function getETypesByOrg(orgId: string): Promise<IResponse> {
     const types = await EType.find({ org: orgId })
       .populate('createdBy')
       .populate('category')
+      .populate('category')
       .populate('org')
       .lean() as unknown as IEType[];
 
@@ -96,7 +98,7 @@ export async function getETypesByOrg(orgId: string): Promise<IResponse> {
     return respond('Types found successfully', false, typesWithCounts, 200);
   } catch (error) {
     console.log(error);
-    return respond('Error occured while fetching types', true, {}, 500);
+    return respond('Error occured while fetching equipment types', true, {}, 500);
   }
 }
 
@@ -105,12 +107,13 @@ export async function getETypesByCategory(categoryId: string): Promise<IResponse
     await connectDB();
     const types = await EType.find({ category: categoryId })
       .populate('createdBy')
+      .populate('category')
       .populate('org')
       .lean() as unknown as IEType[];
     return respond('Types found successfully', false, types, 200);
   } catch (error) {
     console.log(error);
-    return respond('Error occured while fetching types', true, {}, 500);
+    return respond('Error occured while fetching equipment types', true, {}, 500);
   }
 }
 
@@ -119,13 +122,36 @@ export async function getETypesByCategory(categoryId: string): Promise<IResponse
 export async function getETypeById(id: string): Promise<IResponse> {
     try {
         await connectDB();
-        const check = await verifyOrgAccess(EType, id, "EType", [{ path: "org" }, { path: "createdBy" }]);
+        const check = await verifyOrgAccess(EType, id, "EType", [{ path: "org" }, { path: "createdBy" }, { path: "category" }]);
         if ("allowed" in check === false) return check;
         const type = check.doc;
         return respond('Type found successfully', false, type, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching type', true, {}, 500);
+        return respond('Error occured while fetching equipment type', true, {}, 500);
     }
 }
 
+
+export async function updateEType(tp: Partial<IEType>): Promise<IResponse> {
+    try {
+        await connectDB();
+        const updatedType = await EType.findByIdAndUpdate(tp._id, tp, { new: true });
+        return respond('Type updated successfully', false, updatedType, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while updating equipment type', true, {}, 500);
+    }
+}
+
+
+export async function deleteEType(id: string): Promise<IResponse> {
+    try {
+        await connectDB();
+        const deletedType = await EType.deleteOne({ _id: id });
+        return respond('Equipment type deleted successfully', false, deletedType, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while deleting equipment type', true, {}, 500);
+    }
+}

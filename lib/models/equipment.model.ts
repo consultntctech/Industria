@@ -19,6 +19,7 @@ export interface IEquipment {
     status: 'Available' | 'In Use' | 'Maintenance';
     description: string;
     creator: string;
+    purchaseDate: string;
     org: string | Types.ObjectId | IOrganization;
     createdBy: string | Types.ObjectId | IUser;
     createdAt: Date;
@@ -32,11 +33,13 @@ const EquipmentSchema = new Schema<IEquipment>({
     model: String,
     serialNumber: String,
     tag: String,
+    price: { type: Number, default: 0 },
     location: { type: Schema.Types.ObjectId, ref: 'Storage', required: false },
     status: { type: String, enum: ['Available', 'In Use', 'Maintenance'], default: 'Available' },
     original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     description: String,
     creator: String,
+    purchaseDate: String,
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
 }, {timestamps:true})
