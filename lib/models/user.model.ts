@@ -1,6 +1,7 @@
 import {  model, models, Schema, Types } from "mongoose";
 import { IOrganization } from "./org.model";
 import { IRole } from "./role.model";
+import { IDepartment } from "./department.model";
 
 export interface IUser {
     _id: string;
@@ -12,6 +13,7 @@ export interface IUser {
     hasRequestedUpdate?: boolean;
     password:string;
     roles: string[] | Types.ObjectId[] | IRole[];
+    department: string | Types.ObjectId  | IDepartment;
     description: string;
     org: string | Types.ObjectId | IOrganization
     createdAt?: Date;
@@ -24,6 +26,7 @@ const UserSchema = new Schema<IUser>({
     phone: { type: String, required: false },
     hasRequestedUpdate: { type: Boolean, default: false },
     email: { type: String, required: true, unique:true },
+    department: { type: Schema.Types.ObjectId, ref: 'Department', required: false },
     photo: {type:String, default:'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80'},
     password: String,
     roles: { type: [Schema.Types.ObjectId], ref: 'Role', required: false, default: [] },

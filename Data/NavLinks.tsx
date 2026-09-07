@@ -1,5 +1,5 @@
 import { INavBarItem } from "@/types/NavBar.types";
-import { BsCartPlus } from "react-icons/bs";
+import { BsCartPlus, BsHouseUp } from "react-icons/bs";
 import { CiBag1, CiCircleCheck } from "react-icons/ci";
 import { FaRegUser } from "react-icons/fa";
 import { FiRefreshCw } from "react-icons/fi";
@@ -31,8 +31,9 @@ export const NavLinks = (): INavBarItem[] => {
       id: "2",
       title: "Users and Roles",
       icon: <PiUsersThree />,
-      tableids: ['38', '27', '23'],
+      tableids: ['38', '27', '23', '95'],
       subMenu: [
+        {id:'145', tableids:['95'], title:'Departments', icon:<BsHouseUp />, link:'/dashboard/departments'},
         { id: "21", tableids:['38'], title: "Users", icon: <LiaUsersCogSolid />, link: "/dashboard/users" },
         { id: "22", tableids:['27'], title: "Roles", icon: <GrShieldSecurity />, link: "/dashboard/roles" },
         { id: "23", tableids:['23'], title: "Role Templates", icon: <RiShieldFlashLine />, link: "/dashboard/templates" },

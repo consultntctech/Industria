@@ -1,5 +1,5 @@
 import { getForgotByToken } from "@/lib/actions/forgot.action";
-import { getUser, getUsers, getUsersByOrg } from "@/lib/actions/user.action";
+import { getUser, getUsers, getUsersByDepartment, getUsersByOrg } from "@/lib/actions/user.action";
 import { IForgot } from "@/lib/models/forgot.model";
 import { IUser } from "@/lib/models/user.model";
 import { useQuery } from "@tanstack/react-query";
@@ -91,4 +91,24 @@ export const useFetchUserProfile = () => {
         enabled: !!user,
     })
     return {userProfile, isPending, refetch}
+}
+
+
+export const useFetchDepartmentUsers = (departmentId:string) => {
+    const fetchDepartmentUsers = async():Promise<IUser[]>=>{
+        try {
+            const res = await getUsersByDepartment(departmentId);
+            return res.payload as IUser[];
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:users=[], isPending, refetch} = useQuery({
+        queryKey: ['departmentUsers', departmentId],
+        queryFn: fetchDepartmentUsers,
+    })
+
+    return {users, isPending, refetch}
 }

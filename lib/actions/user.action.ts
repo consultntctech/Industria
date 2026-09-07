@@ -13,6 +13,9 @@ import Organization from "../models/org.model";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import "../models/role.model";
 import Forgot from "../models/forgot.model";
+import Department, { IDepartment } from "../models/department.model";
+import { IRole } from "../models/role.model";
+import { Types } from "mongoose";
 // import { createSession, destroySession } from "../session";
 // import { IRole } from "../models/role.model";
 
@@ -20,6 +23,53 @@ import Forgot from "../models/forgot.model";
 // function isRole(obj: unknown): obj is IRole {
 //   return !!obj && typeof obj === 'object' && 'permissions' in obj;
 // }
+export type RoleRef = string | Types.ObjectId | IRole;
+export type DepartmentRef = string | Types.ObjectId | IDepartment;
+
+export const toIdString = (v: RoleRef | DepartmentRef | undefined | null): string | undefined => {
+  if (!v) return undefined;
+  if (typeof v === "string") return v;
+  if (v instanceof Types.ObjectId) return v.toString();
+
+  const id = v._id as unknown as string | Types.ObjectId;
+  return typeof id === "string" ? id : id.toString();
+};
+
+
+export const toIdStrings = (refs: RoleRef[] | undefined): string[] =>
+  (refs ?? [])
+    .map((r) => toIdString(r))
+    .filter((id): id is string => id !== undefined);
+
+
+
+export async function applyDepartmentRoleSwap(data: Partial<IUser>): Promise<void> {
+  // No department change requested -> nothing to do.
+  if (data.department === undefined) return;
+
+  const existingUser = await User.findById(data._id).lean<IUser>();
+  if (!existingUser) return;
+
+  const oldDeptId = toIdString(existingUser.department as DepartmentRef | undefined);
+  const newDeptId = toIdString(data.department as DepartmentRef);
+
+  // Same department as before -> nothing to do.
+  if (oldDeptId && newDeptId && oldDeptId === newDeptId) return;
+
+  const [oldDept, newDept] = await Promise.all([
+    oldDeptId ? Department.findById(oldDeptId).lean<IDepartment>() : null,
+    newDeptId ? Department.findById(newDeptId).lean<IDepartment>() : null,
+  ]);
+
+  const oldDeptRoleIds = new Set(toIdStrings(oldDept?.roles as RoleRef[] | undefined));
+  const newDeptRoleIds = toIdStrings(newDept?.roles as RoleRef[] | undefined);
+  const currentRoleIds = toIdStrings(existingUser.roles as RoleRef[] | undefined);
+  const directRoleIds = currentRoleIds.filter((id) => !oldDeptRoleIds.has(id));
+  const mergedRoleIds = Array.from(new Set([...directRoleIds, ...newDeptRoleIds]));
+
+  data.roles = mergedRoleIds.map((id) => new Types.ObjectId(id));
+}
+
 
 
 export async function createUser(data: Partial<IUser>): Promise<IResponse> {
@@ -33,6 +83,9 @@ export async function createUser(data: Partial<IUser>): Promise<IResponse> {
       return respond("User already exists", true, {}, 400);
     }
 
+    const department = await Department.findById(data.department);
+    if (!department) return respond("Department not found", true, {}, 400);
+
     const password = generatePassword(8);
     const hashedPassword = await encryptPassword(password);
 
@@ -40,6 +93,7 @@ export async function createUser(data: Partial<IUser>): Promise<IResponse> {
       ...data,
       email: data?.email?.toLowerCase(),
       password: hashedPassword,
+      roles: department.roles,
     };
 
     const [newUser, org] = await Promise.all([
@@ -92,6 +146,7 @@ export async function getUsers(): Promise<IResponse> {
     await connectDB();
     const users = (await User.find()
       .populate("org")
+      .populate("department")
       .populate("roles")
       .lean()) as unknown as IUser[];
     return respond("Users found successfully", false, users, 200);
@@ -106,6 +161,7 @@ export async function getUsersByOrg(orgId: string): Promise<IResponse> {
     await connectDB();
     const users = (await User.find({ org: orgId })
       .populate("org")
+      .populate("department")
       .populate("roles")
       .lean()) as unknown as IUser[];
     return respond("Users found successfully", false, users, 200);
@@ -114,6 +170,23 @@ export async function getUsersByOrg(orgId: string): Promise<IResponse> {
     return respond("Error occured while fetching users", true, {}, 500);
   }
 }
+
+
+export async function getUsersByDepartment(departmentId: string): Promise<IResponse> {
+  try {
+    await connectDB();
+    const users = (await User.find({ department: departmentId })
+      .populate("org")
+      .populate("department")
+      .populate("roles")
+      .lean()) as unknown as IUser[];
+    return respond("Users found successfully", false, users, 200);
+  } catch (error) {
+    console.log(error);
+    return respond("Error occured while fetching users", true, {}, 500);
+  }
+}
+
 
 export async function updateAllUsers(
   data: Partial<IUser>[],
@@ -131,6 +204,7 @@ export async function updateAllUsers(
 export async function updateUser(data: Partial<IUser>): Promise<IResponse> {
   try {
     await connectDB();
+    await applyDepartmentRoleSwap(data);
     const updatedUser = await User.findByIdAndUpdate(data._id, data, {
       new: true,
     });
@@ -144,6 +218,7 @@ export async function updateUser(data: Partial<IUser>): Promise<IResponse> {
 export async function updateUserV2(data: Partial<IUser>): Promise<IResponse> {
   try {
     await connectDB();
+    await applyDepartmentRoleSwap(data);
     const user = await User.findByIdAndUpdate(data._id, data, { new: true });
 
     const sessionData: ISession = {
@@ -183,7 +258,7 @@ export async function AssignRolesToUsers(
 export async function getUser(id: string): Promise<IResponse> {
   try {
     await connectDB();
-    const check = await verifyOrgAccess(User, id, "User", [{ path: "org" }]);
+    const check = await verifyOrgAccess(User, id, "User", [{ path: "org" }, { path: "department" }]);
     if ("allowed" in check === false) return check;
     const user = check.doc;
     return respond("User retrieved successfully", false, user, 200);

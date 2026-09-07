@@ -1,0 +1,173 @@
+'use server';
+
+import { IResponse } from "@/types/Types";
+import Department, { IDepartment } from "../models/department.model";
+import { respond } from "../misc";
+import { connectDB } from "../mongoose";
+import '../models/user.model'
+import '../models/org.model'
+import '../models/role.model'
+import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
+import Role from "../models/role.model";
+import User, { IUser } from "../models/user.model";
+import { RoleRef, toIdStrings } from "./user.action";
+import { Types } from "mongoose";
+
+export async function createDepartment(data:Partial<IDepartment>):Promise<IResponse>{
+    try {
+        await connectDB();
+        const department = await Department.create(data);
+        return respond('Department created successfully', false, department, 201);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while creating department', true, {}, 500);
+    }
+}
+
+export async function getDepartments():Promise<IResponse>{
+    try {
+        await connectDB();
+        const departments = await Department.find()
+        .populate('org')
+        .populate('head')
+        .populate('createdBy')
+        .lean() as unknown as IDepartment[];
+        return respond('Departments found successfully', false, departments, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching departments', true, {}, 500);
+    }
+}
+
+export async function getDepartmentsByOrg(orgId:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const departments = await Department.find({ org: orgId })
+        .populate('org')
+        .populate('head')
+        .populate('createdBy')
+        .lean() as unknown as IDepartment[];
+        return respond('Departments found successfully', false, departments, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching departments', true, {}, 500);
+    }
+}
+
+
+export async function assignRolesToDepartment (departmentId: string, roleIds: string[]): Promise<IResponse> {
+    try {
+        await connectDB();
+        const department = await Department.findById(departmentId);
+        if (!department) return respond('Department not found', true, [], 404);
+
+        const roles = await Role.find({ _id: { $in: roleIds } });
+        if (!roles) return respond('Roles not found', true, [], 404);
+
+        await Promise.all([
+            Department.findByIdAndUpdate(departmentId, { roles: roles.map((role) => role._id) }),
+            User.updateMany({ department: departmentId }, { $addToSet: { roles: { $each: roles.map((role) => role._id) } } }),
+        ]);
+        return respond('Roles assigned successfully', false, roles, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while assigning roles to department', true, [], 500);
+    }
+}
+
+
+export async function removeRolesFromDepartment (departmentId: string, roleIds: string[]): Promise<IResponse> {
+    try {
+        await connectDB();
+        const department = await Department.findById(departmentId);
+        if (!department) return respond('Department not found', true, [], 404);
+
+        const roles = await Role.find({ _id: { $in: roleIds } });
+        if (!roles) return respond('Roles not found', true, [], 404);
+
+        await Promise.all([
+            Department.findByIdAndUpdate(departmentId, { roles: roles.map((role) => role._id) }),
+            User.updateMany({ department: departmentId }, { $pull: { roles: { $in: roles.map((role) => role._id) } } }),
+        ]);
+        return respond('Roles removed successfully', false, roles, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while removing roles from department', true, [], 500);
+    }
+}
+
+
+export async function updateDepartment(data:Partial<IDepartment>):Promise<IResponse>{
+    try {
+        await connectDB();
+        const updatedDepartment = await Department.findByIdAndUpdate(data._id, data, { new: true });
+        return respond('Department updated successfully', false, updatedDepartment, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while updating department', true, {}, 500);
+    }
+}
+
+export async function getDepartment(id: string): Promise<IResponse> {
+  try {
+    await connectDB();
+
+    const check = await verifyOrgAccess(Department, id, "Department");
+
+    // If not allowed, return the middleware's response directly
+    if ("allowed" in check === false) return check;
+
+    // Authorized → you can use check.doc safely, fully typed as Department
+    const department = check.doc;
+
+    return respond("Department retrieved successfully", false, department, 200);
+  } catch (error) {
+    console.error(error);
+    return respond("Error occurred retrieving department", true, {}, 500);
+  }
+}
+
+export async function deleteDepartment(id: string): Promise<IResponse> {
+  try {
+    await connectDB();
+
+    const department = await Department.findById(id).lean<IDepartment>();
+    if (!department) {
+      return respond("Department not found", true, {}, 404);
+    }
+
+    const deptRoleIdSet = new Set(toIdStrings(department.roles as RoleRef[] | undefined));
+
+    const usersInDept = await User.find({ department: id }).lean<IUser[]>();
+
+    if (usersInDept.length > 0) {
+      const bulkOps = usersInDept.map((user) => {
+        const currentRoleIds = toIdStrings(user.roles as RoleRef[] | undefined);
+
+        const remainingRoleIds = currentRoleIds.filter(
+          (roleId) => !deptRoleIdSet.has(roleId)
+        );
+
+        return {
+          updateOne: {
+            filter: { _id: user._id },
+            update: {
+              $set: {
+                roles: remainingRoleIds.map((roleId) => new Types.ObjectId(roleId)),
+              },
+              $unset: { department: "" },
+            },
+          },
+        };
+      });
+
+      await User.bulkWrite(bulkOps);
+    }
+
+    const deletedDepartment = await Department.deleteOne({ _id: id });
+    return respond("Department deleted successfully", false, deletedDepartment, 200);
+  } catch (error) {
+    console.log(error);
+    return respond("Error occured while deleting department", true, {}, 500);
+  }
+}

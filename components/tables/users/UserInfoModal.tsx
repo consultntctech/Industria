@@ -6,6 +6,7 @@ import { isDbGlobalAdmin,  isSystemAdmin } from '@/Data/roles/permissions';
 import { formatDate } from '@/functions/dates';
 import { useAuth, useIsGlobalAdmin } from '@/hooks/useAuth';
 import { updateUser } from '@/lib/actions/user.action';
+import { IDepartment } from '@/lib/models/department.model';
 import { IOrganization } from '@/lib/models/org.model';
 import { IRole } from '@/lib/models/role.model';
 import { IUser } from '@/lib/models/user.model';
@@ -30,6 +31,7 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
     const organization = currentUser?.org as IOrganization;
     const [roles, setRoles] = useState<IRole[]>([]);
     const userRoles = currentUser?.roles as IRole[];
+    const department = currentUser?.department as IDepartment;
     const [showDialog, setShowDialog] = useState(false);
 
     const {user} = useAuth();
@@ -123,6 +125,15 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
                 <div className="flex flex-col">
                     <span className="mlabel">Description</span>
                     <span className="mtext">{currentUser?.description || 'None'}</span>
+                </div>
+                <div className="flex flex-col">
+                    <span className="mlabel">Department</span>
+                    {
+                        department ? 
+                        <Linker tableId='95' link={`/dashboard/departments/${department?._id}`}  linkStyle="link mtext" spanStyle='mtext' placeholder={department?.name} />
+                        :
+                        <span className="mtext">Not assigned</span>
+                    }
                 </div>
                 <div className="flex flex-col">
                     <span className="mlabel">Created</span>

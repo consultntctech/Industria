@@ -12,6 +12,8 @@ import { IOrganization } from '@/lib/models/org.model';
 import { useFetchUsers } from '@/hooks/fetch/useFetchUsers';
 import { useAuth, useCanUser } from '@/hooks/useAuth';
 import {  isSystemAdmin } from '@/Data/roles/permissions';
+import { IDepartment } from '@/lib/models/department.model';
+import SearchSelectDepartments from '../shared/inputs/dropdowns/SearchSelectDepartments';
 
 
 type UserCompProps = {
@@ -24,6 +26,7 @@ type UserCompProps = {
 const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompProps) => {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState<Partial<IUser>>({});
+    const [department, setDepartment] = useState<IDepartment | null>(null);
     const [org, setOrg] = useState<string>('');
     const {refetch} = useFetchUsers();
     const {user} = useAuth();
@@ -32,6 +35,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
     const isEditor = useCanUser('38', 'UPDATE');
 
     const organization = currentUser?.org as IOrganization;
+    const savedDepartment = currentUser?.department as IDepartment;
     const formRef = useRef<HTMLFormElement>(null);
       const onChange = (e:ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
         setFormData((pre)=>({
@@ -42,6 +46,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
     useEffect(() => {
         if(currentUser){
             setFormData({...currentUser, org:organization?._id});// Set form data when currentUser changes
+            setDepartment(savedDepartment);
         }
     }, [currentUser])
    
@@ -59,7 +64,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
         setLoading(true);
         
         try {
-          const res = await createUser({...formData, org:isAdmin ? org : user?.org});
+          const res = await createUser({...formData, department:department?._id, org:isAdmin ? org : user?.org});
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success', autoHideDuration:9000});
           if(!res.error){
               formRef.current?.reset();
@@ -79,7 +84,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
         setLoading(true);
         try {
           if(!currentUser) return;
-          const res = await updateUser({...formData, org:org || currentUser.org});
+          const res = await updateUser({...formData, department:department?._id, org:org || currentUser.org});
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
           if(!res.error){
               formRef?.current?.reset();
@@ -117,9 +122,13 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
               openNew && isAdmin &&
               <GenericLabel
                 label='Select organization'
-                input={<SearchSelectOrgs value={organization}  setOrgId={setOrg} required={!!currentUser} />}
+                input={<SearchSelectOrgs value={organization}  setOrgId={setOrg} required={!currentUser} />}
               />
             }
+            <GenericLabel
+              label='Select department'
+              input={<SearchSelectDepartments value={savedDepartment} orgId={org} setSelect={setDepartment} required={!currentUser?.department} />}
+            />
             <TextAreaWithLabel defaultValue={currentUser?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
             {
               (isCreator || isEditor) &&

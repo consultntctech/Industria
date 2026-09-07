@@ -3,6 +3,7 @@ import { Document, model, models, Schema, Types } from "mongoose";
 import User, { IUser } from "./user.model";
 import { IOrganization } from "./org.model";
 import RoleTemplate from "./roletemplate.model";
+import Department from "./department.model";
 
 export interface IRole extends Document{
     _id: string;
@@ -35,6 +36,7 @@ RoleSchema.pre('deleteOne', { document: false, query: true }, async function(nex
         if (!roleId) return next();
         await Promise.all([
             User.updateMany({ roles: roleId }, { $pull: { roles: roleId } }),
+            Department.updateMany({ roles: roleId }, { $pull: { roles: roleId } }),
             RoleTemplate.updateMany({ roles: roleId }, { $pull: { roles: roleId } }),
         ])
         next();

@@ -1,16 +1,15 @@
 import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { IOrganization } from "@/lib/models/org.model";
-import { IEType } from "@/lib/models/etype.model";
 // import { ISessionRole } from "@/types/Types";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { IUser } from "@/lib/models/user.model";
-import { IECategory } from "@/lib/models/ecategory.model";
+import { IDepartment } from "@/lib/models/department.model";
 
-export const ETypeColumns = (
-    handleInfo: (type:IEType)=>void,
-    handleEdit: (type:IEType)=>void,
-    handleDelete: (type:IEType)=>void,
+export const DepartmentColumns = (
+    handleInfo: (type:IDepartment)=>void,
+    handleEdit: (type:IDepartment)=>void,
+    handleDelete: (type:IDepartment)=>void,
 ):GridColDef[]=>{
 
     return [
@@ -19,47 +18,47 @@ export const ETypeColumns = (
             field: 'name',
             headerName: 'Name',
             width:170,
-        },
-        {
-            field: 'category',
-            headerName: 'Category',
-            width:170,
-            valueFormatter: (_, row:IEType)=>{
-                const category = row?.category as IECategory;
-                return category ? category.name : '';
+            valueFormatter: (_, row:IDepartment)=>{
+                return row?.name || '';
             },
-            valueGetter: (_, row:IEType)=>{
-                const category = row?.category as IECategory;
-                return category ? category.name : '';
+            valueGetter: (_, row:IDepartment)=>{
+                return row?.name || '';
             },
             renderCell: (params:GridRenderCellParams)=>{
-                const category = params?.row?.category as IECategory;
+                const dept = params?.row as IDepartment;
                 return (
-                    <Linker link={`/dashboard/equipment/categories?Id=${category?._id}`} tableId="93" placeholder={category?.name} />
+                    <Linker link={`/dashboard/departments/${dept?._id}`} tableId="95" placeholder={dept?.name} />
+                )
+            }
+        },
+        {
+            field: 'head',
+            headerName: 'Head',
+            width:170,
+            valueFormatter: (_, row:IDepartment)=>{
+                const dept = row?.head as IUser;
+                return dept ? dept.name : row?.headName;
+            },
+            valueGetter: (_, row:IDepartment)=>{
+                const dept = row?.head as IUser;
+                return dept ? dept.name : row?.headName;
+            },
+            renderCell: (params:GridRenderCellParams)=>{
+                const dept = params?.row?.head as IUser;
+                return (
+                    <>
+                    {
+                        dept?
+                        <Linker link={`/dashboard/users?Id=${dept?._id}`} linkStyle="link" tableId="38" placeholder={dept?.name} />
+                        :
+                        <span className="">{params?.row?.headName}</span>
+                    }
+                    </>
                 )
             }
         },
 
-        {
-            field: 'qTotal',
-            headerName: 'Quantity',
-            width:100,
-        },
-        {
-            field: 'qAvailable',
-            headerName: 'Available',
-            width:100,
-        },
-        {
-            field: 'qInUse',
-            headerName: 'In Use',
-            width:100,
-        },
-        {
-            field: 'qMaintenance',
-            headerName: 'Maintenance',
-            width:100,
-        },
+       
         {
             field: 'description',
             headerName: 'Note',
@@ -70,11 +69,11 @@ export const ETypeColumns = (
             field:'org',
             headerName: 'Organization',
             width:140,
-            valueFormatter: (_, row:IEType)=>{
+            valueFormatter: (_, row:IDepartment)=>{
                 const org = row?.org as IOrganization;
                 return org ? org.name : '';
             },
-            valueGetter: (_, row:IEType)=>{
+            valueGetter: (_, row:IDepartment)=>{
                 const org = row?.org as IOrganization;
                 return org ? org.name : '';
             },
@@ -90,11 +89,11 @@ export const ETypeColumns = (
             field:'createdBy',
             headerName: 'Created By',
             width:170,
-            valueFormatter: (_, row:IEType)=>{
+            valueFormatter: (_, row:IDepartment)=>{
                 const creator = row?.createdBy as IUser;
                 return  creator.name || row?.creator || '';
             },
-            valueGetter: (_, row:IEType)=>{
+            valueGetter: (_, row:IDepartment)=>{
                 const creator = row?.createdBy as IUser;
                 return  creator.name || row?.creator || '';
             },
@@ -117,10 +116,10 @@ export const ETypeColumns = (
             field: 'createdAt',
             headerName: 'Created',
             width:100,
-            valueFormatter:(_, row:IEType)=>{
+            valueFormatter:(_, row:IDepartment)=>{
                 return formatDate(row?.createdAt)
             },
-            valueGetter:(_, row:IEType)=>{
+            valueGetter:(_, row:IDepartment)=>{
                 return formatDate(row?.createdAt)
             }
         },
@@ -129,10 +128,10 @@ export const ETypeColumns = (
             field: 'updatedAt',
             headerName: 'Modified',
             width:100,
-            valueFormatter:(_, row:IEType)=>{
+            valueFormatter:(_, row:IDepartment)=>{
                 return formatDate(row?.updatedAt)
             },
-            valueGetter:(_, row:IEType)=>{
+            valueGetter:(_, row:IDepartment)=>{
                 return formatDate(row?.updatedAt)
             }
         },
@@ -148,9 +147,9 @@ export const ETypeColumns = (
             // console.log(params.row?.id)
             return(
                 <div className="h-full flex-center gap-3">
-                    <Viewer tableId="93" tip="View equipment type" onClick={()=>handleInfo(params?.row)} />
-                    <Editor tableId="93" tip="Edit equipment type" onClick={()=>handleEdit(params?.row)} />
-                    <Deleter tableId="93" tip="Delete equipment type" onClick={()=>handleDelete(params?.row)} />
+                    <Viewer tableId="95" tip="View department" onClick={()=>handleInfo(params?.row)} />
+                    <Editor tableId="95" tip="Edit department" onClick={()=>handleEdit(params?.row)} />
+                    <Deleter tableId="95" tip="Delete department" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },
