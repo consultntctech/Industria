@@ -3,9 +3,12 @@ import { IDepartment } from "@/lib/models/department.model";
 import { useState } from "react";
 import CustomTabs from "../misc/CustomTabs";
 import { useFetchDepartmentUsers } from "@/hooks/fetch/useFetchUsers";
-// import CustomerSalesTable from "../shared/outputs/departmentDetials/departmentSales/CustomerSalesTable";
-// import CustomerOrdersTable from "../shared/outputs/departmentDetials/departmentOrders/CustomerOrdersTable";
-// import CustomerReturnsTable from "../shared/outputs/departmentDetials/departmentReturns/CustomerReturnsTable";
+import DepartmentInputDetails from "../shared/outputs/departmentDetails/DepartmentInputDetails";
+import DeptUserTable from "../shared/outputs/departmentDetails/departmentUsers/DeptUserTable";
+import { useAuth } from "@/hooks/useAuth";
+import { IUser } from "@/lib/models/user.model";
+import DeptRolesTable from "../shared/outputs/departmentDetails/deptmentRoles/DeptRolesTable";
+
 
 type SingleDepartmentCompProps = {
     department:IDepartment | null
@@ -13,8 +16,11 @@ type SingleDepartmentCompProps = {
 
 const SingleDepartmentComp = ({department}:SingleDepartmentCompProps) => {
     const [activeTab, setActiveTab] = useState('first');
-    const {users, isPending} = useFetchDepartmentUsers(department?._id || '');
-    console.log(users, isPending);
+    const {users, isPending, refetch} = useFetchDepartmentUsers(department?._id || '', false);
+    const hod = department?.head as IUser;
+    const {user} = useAuth();
+    const isHod = user?._id === hod?._id;
+    // console.log(users, isPending);
     // if(!departmentItems) return null;
   return (
     <div className="flex gap-4 flex-col border border-gray-300 p-3 rounded" >
@@ -26,20 +32,20 @@ const SingleDepartmentComp = ({department}:SingleDepartmentCompProps) => {
         //   FourthTabText="Line Items" onClickFourthTab={()=>setActiveTab('fourth')} showFourthTab
         />
   
-        {/* {
+         {
           activeTab === 'first' &&
-          <CustomerSalesTable   isPending={isPending} sales={sales} />
+          <DepartmentInputDetails   department={department} setActiveTab={setActiveTab} employees={users?.length || 0} />
         }
         {
           activeTab === 'second' &&
-          <CustomerOrdersTable orders={orders} isPending={isPending} />
+          <DeptUserTable users={users} isPending={isPending} refetch={refetch} isHod={isHod} currentDepartment={department} />
         }
         
          {
           activeTab === 'third' &&
-          <CustomerReturnsTable isPending={isPending} returns={returns} />
+          <DeptRolesTable department={department} />
         }
-        
+        {/*
         {
           activeTab === 'fourth' &&
           <LineItemsTable  pack={currentPackage} />

@@ -13,6 +13,7 @@ import { IStorage } from '@/lib/models/storage.model';
 import { IOriginalPrice } from '@/types/Types';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
+import { IDepartment } from '@/lib/models/department.model';
 
 type EquipmentInfoModalProps = {
     infoMode:boolean,
@@ -29,6 +30,7 @@ const EquipmentInfoModal = ({infoMode, setInfoMode, currentEquipment, setCurrent
     const location = currentEquipment?.location as IStorage;
     const orignial = currentEquipment?.original as IOriginalPrice;
     const otherCurrency = orignial?.currency as IOtherCurrency;
+    const assigned = currentEquipment?.assignedTo as IDepartment;
 
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
@@ -97,6 +99,15 @@ const EquipmentInfoModal = ({infoMode, setInfoMode, currentEquipment, setCurrent
                     <Linker tableId='77' link={`/dashboard/storage?Id=${location?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={location?.name || 'None'} />
                     :
                     <span className="mtext">Not set</span>
+                }
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Assigned To</span>
+                {
+                    assigned?  
+                    <Linker tableId='95' link={`/dashboard/depatments/${assigned?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={assigned?.name || 'None'} />
+                    :
+                    <span className="mtext">Not assigned</span>
                 }
             </div>
             <div className="flex flex-col">

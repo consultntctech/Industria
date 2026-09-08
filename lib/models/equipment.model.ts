@@ -4,6 +4,7 @@ import { IUser } from "./user.model";
 import { IEType } from "./etype.model";
 import { IStorage } from "./storage.model";
 import { IOriginalPrice } from "@/types/Types";
+import { IDepartment } from "./department.model";
 
 export interface IEquipment {
     _id: string;
@@ -20,6 +21,7 @@ export interface IEquipment {
     description: string;
     creator: string;
     purchaseDate: string;
+    assignedTo: string | Types.ObjectId | IDepartment;
     org: string | Types.ObjectId | IOrganization;
     createdBy: string | Types.ObjectId | IUser;
     createdAt: Date;
@@ -40,6 +42,7 @@ const EquipmentSchema = new Schema<IEquipment>({
     description: String,
     creator: String,
     purchaseDate: String,
+    assignedTo: { type: Schema.Types.ObjectId, ref: 'Department', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
 }, {timestamps:true})

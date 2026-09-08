@@ -10,6 +10,7 @@ import '../models/user.model';
 import '../models/etype.model';
 import '../models/storage.model';
 import '../models/ecategory.model';
+import '../models/department.model';
 import { Types } from 'mongoose';
 import { EquipmentStatus, IAllTimeAggregateResult, IAllTimeStatusCount, IEquipmentStatsPayload, IGroupedEquipmentAggregateResult, IGroupedEquipmentCount, IMonthlyAggregateResult, IMonthlyStatusCount } from "@/types/EquipmentTypes";
 
@@ -31,6 +32,7 @@ export async function getEquipments():Promise<IResponse>{
         .populate('createdBy')
         .populate({path:'type', populate:{path:'category'}})
         .populate('location')
+        .populate('assignedTo')
         .populate('original.currency')
         .populate('org').lean() as unknown as IEquipment[];
         return respond('Equipments found successfully', false, eqs, 200);
@@ -47,6 +49,7 @@ export async function getEquipmentsByOrg(orgId:string):Promise<IResponse>{
         .populate('createdBy')
         .populate({path:'type', populate:{path:'category'}})
         .populate('location')
+        .populate('assignedTo')
         .populate('original.currency')
         .populate('org').lean() as unknown as IEquipment[];
         return respond('Equipments found successfully', false, eqs, 200);
@@ -63,6 +66,7 @@ export async function getEquipmentsByType(typeId:string):Promise<IResponse>{
         .populate('createdBy')
         .populate({path:'type', populate:{path:'category'}})
         .populate('location')
+        .populate('assignedTo')
         .populate('original.currency')
         .populate('org').lean() as unknown as IEquipment[];
         return respond('Equipments found successfully', false, eqs, 200);
@@ -77,7 +81,7 @@ export async function getEquipmentById(id:string):Promise<IResponse>{
     try {
         await connectDB();
         const check = await verifyOrgAccess(Equipment, id, "Equipment",
-          [{ path: "org"}, { path: "createdBy"}, {path:'type'}, {path:'location'}, {path:'original.currency'}]);
+          [{ path: "org"}, { path: "createdBy"}, {path:'type'}, {path:'location'}, {path:'original.currency'}, {path:'assignedTo'}]);
         if('allowed' in check === false) return check;
         const eq = check.doc;
         return respond('Equipment found successfully', false, eq, 200);

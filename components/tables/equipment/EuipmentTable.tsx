@@ -126,6 +126,7 @@ const EuipmentTable = ({setOpenNew, currentEquipment, setCurrentEquipment}:Euipm
                                   description:false,
                                   createdBy:false,
                                   model: false,
+                                  assignedTo: false,
                                   serialNumber: false,
                                   tag: false,
                                   location: false,

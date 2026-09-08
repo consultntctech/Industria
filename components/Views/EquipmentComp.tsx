@@ -20,6 +20,8 @@ import { useFetchEquipment } from "@/hooks/fetch/useFetchEquipment";
 import SearchSelectEquipTypes from "../shared/inputs/dropdowns/SearchSelectEquipTypes";
 import CloseButton from "../misc/CloseButton";
 import SearchSelectStorages from "../shared/inputs/dropdowns/SearchSelectStorages";
+import { IDepartment } from "@/lib/models/department.model";
+import SearchSelectDepartmentsForOrg from "../shared/inputs/dropdowns/SearchSelectDepartmentsForOrg";
 ;
 
 type EquipmentCompProps = {
@@ -37,6 +39,7 @@ const EquipmentComp = ({openNew, setOpenNew, setCurrentEquipment, currentEquipme
     const [useRate, setUseRate] = useState(false);
     const [storage, setStorage] = useState<IStorage | null>(null);
     const [originalAmount, setOriginalAmount] = useState<number>(0);
+    const [assignedTo, setAssignedTo] = useState<IDepartment | null>(null);
     // const [showRate, setShowRate] = useState(false);
 
     const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
@@ -53,6 +56,7 @@ const EquipmentComp = ({openNew, setOpenNew, setCurrentEquipment, currentEquipme
     const savedCurrency = currentEquipment?.original?.currency as IOtherCurrency;
     const savedStorage = currentEquipment?.location as IStorage;
     const original = currentEquipment?.original as IOriginalPrice;
+    const assigned = currentEquipment?.assignedTo as IDepartment;
 
     // const rate = useRate ? (otherCurrency?.rate || 1) : (currentEquipment?.original?.rate || 1);
 
@@ -80,6 +84,7 @@ const EquipmentComp = ({openNew, setOpenNew, setCurrentEquipment, currentEquipme
         setOriginalAmount(Number(original?.amount));
         setStorage(savedStorage);
         setType(savedType);
+        setAssignedTo(assigned);
       }else{
         setData({purchaseDate:new Date().toISOString(), status:'Available'});
       } 
@@ -121,6 +126,7 @@ const EquipmentComp = ({openNew, setOpenNew, setCurrentEquipment, currentEquipme
             price,
             location: storage?._id,
             type: type?._id,
+            assignedTo: assignedTo?._id,
           }
           // console.log('Data: ', equipData)
           const res = await createEquipment(equipData);
@@ -152,7 +158,8 @@ const EquipmentComp = ({openNew, setOpenNew, setCurrentEquipment, currentEquipme
             },
             price,
             location: storage?._id,
-            type: type?._id
+            type: type?._id,
+            assignedTo: assignedTo?._id,
           }
           // console.log('Raw Data: ', resData)
           const res = await updateEquipment(resData);
@@ -212,6 +219,7 @@ const EquipmentComp = ({openNew, setOpenNew, setCurrentEquipment, currentEquipme
             <div className="flex gap-4 flex-col w-full justify-between">
               <div className="flex flex-col gap-4 w-full">
                 <GenericLabel label="Select storage" input={<SearchSelectStorages value={savedStorage} setSelect={setStorage} required={!currentEquipment} />} />
+                <GenericLabel label="Assigned to" input={<SearchSelectDepartmentsForOrg setSelect={setAssignedTo} required={!currentEquipment} value={assigned} />} />
                 <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentEquipment} setSelect={setOtherCurrency} value={savedCurrency} />} />
                 {
                   showRate &&

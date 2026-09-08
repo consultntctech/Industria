@@ -94,11 +94,14 @@ export const useFetchUserProfile = () => {
 }
 
 
-export const useFetchDepartmentUsers = (departmentId:string) => {
+export const useFetchDepartmentUsers = (departmentId:string, showMe:boolean=true) => {
+    const {user} = useAuth();
     const fetchDepartmentUsers = async():Promise<IUser[]>=>{
         try {
             const res = await getUsersByDepartment(departmentId);
-            return res.payload as IUser[];
+            const users = res.payload as IUser[];
+            return users.filter((u) => showMe ? true : u._id !== user?._id)
+            .sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {
             console.log(error);
             return [];

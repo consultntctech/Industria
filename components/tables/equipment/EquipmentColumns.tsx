@@ -9,6 +9,7 @@ import { IEquipment } from "@/lib/models/equipment.model";
 import { IEType } from "@/lib/models/etype.model";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IStorage } from "@/lib/models/storage.model";
+import { IDepartment } from "@/lib/models/department.model";
 
 export const EquipmentColumns = (
     handleInfo: (type:IEquipment)=>void,
@@ -86,6 +87,32 @@ export const EquipmentColumns = (
                 const location = params?.row?.location as IStorage;
                 return (
                     <Linker link={`/dashboard/storage?Id=${location?._id}`} tableId="77" placeholder={location?.name} />
+                )
+            }
+        },
+        {
+            field: 'assignedTo',
+            headerName: 'Assigned To',
+            width:140,
+            valueFormatter: (_, row:IEquipment)=>{
+                const assigned = row?.assignedTo as IDepartment;
+                return assigned ? assigned.name : '';
+            },
+            valueGetter: (_, row:IEquipment)=>{
+                const assigned = row?.assignedTo as IDepartment;
+                return assigned ? assigned.name : '';
+            },
+            renderCell: (params:GridRenderCellParams)=>{
+                const assigned = params?.row?.assignedTo as IDepartment;
+                return (
+                    <>
+                    {
+                        assigned?
+                        <Linker link={`/dashboard/departments/${assigned?._id}`} tableId="95" placeholder={assigned?.name} />
+                        :
+                        <span className="">Not assigned</span>
+                    }
+                    </>
                 )
             }
         },
