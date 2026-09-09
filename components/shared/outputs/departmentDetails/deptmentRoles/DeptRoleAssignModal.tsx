@@ -78,13 +78,13 @@ const DeptRoleAssignModal = ({department, open, setOpen}:DeptRoleAssignModalProp
             <GenericLabel 
                 label='Selection mode'
                 input={
-                <select defaultValue='roles' onChange={(e)=>setMode(e.target.value as 'roles'|'templates')}  className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
+                <select style={{width:280}} defaultValue='roles' onChange={(e)=>setMode(e.target.value as 'roles'|'templates')}  className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
                     <option  value="roles">Roles</option>
                     <option value="templates">Templates</option>
                 </select>
                 }
             />
-            <DialogContentText>
+            <DialogContentText style={{width:280, fontSize:12, color:'black', marginTop:16}} >
                 Select roles to assign to this department
             </DialogContentText>
             <form onSubmit={agreeClick } id="role-component-form">

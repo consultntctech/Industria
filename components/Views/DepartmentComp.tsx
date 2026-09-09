@@ -3,15 +3,15 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
-import { FaChevronUp } from "react-icons/fa";
 import { enqueueSnackbar } from "notistack";
 import { IDepartment } from "@/lib/models/department.model";
 import GenericLabel from "../shared/inputs/GenericLabel";
-import { useFetchRoles } from "@/hooks/fetch/useFetchRoles";
 import {useCanUser } from "@/hooks/useAuth";
 import SearchSelectUsers from "../shared/inputs/dropdowns/SearchSelectUsers";
 import { IUser } from "@/lib/models/user.model";
 import { createDepartment, updateDepartment } from "@/lib/actions/department.action";
+import CloseButton from "../misc/CloseButton";
+import { useFetchDepartments } from "@/hooks/fetch/useFetchDepartments";
 ;
 
 type DepartmentCompProps = {
@@ -29,7 +29,7 @@ const DepartmentComp = ({openNew, setOpenNew, currentDepartment, setCurrentDepar
 
 
     const formRef = useRef<HTMLFormElement>(null);
-    const {refetch} = useFetchRoles();
+    const {refetch} = useFetchDepartments();
     const savedHead = currentDepartment?.head as IUser
     const isCreator = useCanUser('95', 'CREATE');
     const isEditor = useCanUser('95', 'UPDATE');
@@ -145,9 +145,7 @@ const DepartmentComp = ({openNew, setOpenNew, currentDepartment, setCurrentDepar
                     </div>
                 </div>
         
-                <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
-                    <FaChevronUp />
-                </div>
+                <CloseButton onClick={handleClose} />
             </form>
         }
     </div>

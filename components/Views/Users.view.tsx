@@ -43,10 +43,13 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
         }))
     }
 
+    // console.log('Departments: ', savedDepartment)
+
     useEffect(() => {
         if(currentUser){
             setFormData({...currentUser, org:organization?._id});// Set form data when currentUser changes
             setDepartment(savedDepartment);
+            setOrg(organization?._id);
         }
     }, [currentUser])
    
@@ -125,10 +128,13 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
                 input={<SearchSelectOrgs value={organization}  setOrgId={setOrg} required={!currentUser} />}
               />
             }
-            <GenericLabel
-              label='Select department'
-              input={<SearchSelectDepartments value={savedDepartment} orgId={org} setSelect={setDepartment} required={!currentUser?.department} />}
-            />
+            {
+              openNew &&
+              <GenericLabel
+                label='Select department'
+                input={<SearchSelectDepartments value={savedDepartment} orgId={org} setSelect={setDepartment} required={!currentUser?.department} />}
+              />
+            }
             <TextAreaWithLabel defaultValue={currentUser?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
             {
               (isCreator || isEditor) &&

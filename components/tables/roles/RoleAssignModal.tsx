@@ -81,24 +81,26 @@ const RoleAssignModal = ({currentRole,  setCurrentRole, open, setOpen}:RoleAssig
   return (
     <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Assign Role</DialogTitle>
-        <DialogContent>
+        <DialogContent >
+            <div className="my-4">
+                <GenericLabel 
+                    label='Assign to'
+                    input={
+                        <select style={{width:280}} defaultValue='users' onChange={(e)=>setMode(e.target.value as 'users'|'departments')}  className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
+                        <option  value="users">Users</option>
+                        {
+                            editor &&
+                            <option value="departments">Departments</option>
+                        }
+                    </select>
+                    }
+                    />
+            </div>
             {
-                isAdmin &&
+                isAdmin && mode === 'departments' &&
                 <GenericLabel label="Select Organization" input={<SearchSelectOrgs setOrgId={setOrg} width={280} />} />
             }
-            <GenericLabel 
-                label='Assign to'
-                input={
-                <select defaultValue='users' onChange={(e)=>setMode(e.target.value as 'users'|'departments')}  className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
-                    <option  value="users">Users</option>
-                    {
-                        editor &&
-                        <option value="departments">Departments</option>
-                    }
-                </select>
-                }
-            />
-            <DialogContentText>
+            <DialogContentText style={{width:280, fontSize:12, color:'black'}} >
                 {mode === 'users' ?`Select a user to assign this role to`:'Select a department to assign this role to'}
             </DialogContentText>
             <form onSubmit={mode === 'users' ? agreeClick : agreeDepartments} id="role-component-form">

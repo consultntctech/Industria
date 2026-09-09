@@ -2,6 +2,28 @@ import { IResponse } from "@/types/Types"
 import { getWelcomeEmailHTML, renderPasswordResetEmail, WelcomeEmailParams } from "@/utils/emailtemplate";
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
+import { Types } from 'mongoose';
+import {  IRole } from "./models/role.model";
+import { IDepartment } from "./models/department.model";
+
+
+export type RoleRef = string | Types.ObjectId | IRole;
+export type DepartmentRef = string | Types.ObjectId | IDepartment;
+
+export const toIdString = (v: RoleRef | DepartmentRef | undefined | null): string | undefined => {
+  if (!v) return undefined;
+  if (typeof v === "string") return v;
+  if (v instanceof Types.ObjectId) return v.toString();
+
+  const id = v._id as unknown as string | Types.ObjectId;
+  return typeof id === "string" ? id : id.toString();
+};
+
+
+export const toIdStrings = (refs: RoleRef[] | undefined): string[] =>
+  (refs ?? [])
+    .map((r) => toIdString(r))
+    .filter((id): id is string => id !== undefined);
 
 export const respond = (message:string, error:boolean, payload?:object, code?:number):IResponse=>{
     const data:IResponse  = {

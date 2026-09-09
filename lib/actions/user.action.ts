@@ -3,9 +3,13 @@ import { IResponse, ISession } from "@/types/Types";
 import { connectDB } from "../mongoose";
 import {
   comparePassword,
+  DepartmentRef,
   encryptPassword,
   respond,
+  RoleRef,
   sendWelcomeEmail,
+  toIdString,
+  toIdStrings,
 } from "../misc";
 import User, { IUser } from "../models/user.model";
 import { generatePassword } from "@/functions/helpers";
@@ -14,7 +18,6 @@ import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import "../models/role.model";
 import Forgot from "../models/forgot.model";
 import Department, { IDepartment } from "../models/department.model";
-import { IRole } from "../models/role.model";
 import { Types } from "mongoose";
 // import { createSession, destroySession } from "../session";
 // import { IRole } from "../models/role.model";
@@ -23,23 +26,7 @@ import { Types } from "mongoose";
 // function isRole(obj: unknown): obj is IRole {
 //   return !!obj && typeof obj === 'object' && 'permissions' in obj;
 // }
-export type RoleRef = string | Types.ObjectId | IRole;
-export type DepartmentRef = string | Types.ObjectId | IDepartment;
 
-export const toIdString = (v: RoleRef | DepartmentRef | undefined | null): string | undefined => {
-  if (!v) return undefined;
-  if (typeof v === "string") return v;
-  if (v instanceof Types.ObjectId) return v.toString();
-
-  const id = v._id as unknown as string | Types.ObjectId;
-  return typeof id === "string" ? id : id.toString();
-};
-
-
-export const toIdStrings = (refs: RoleRef[] | undefined): string[] =>
-  (refs ?? [])
-    .map((r) => toIdString(r))
-    .filter((id): id is string => id !== undefined);
 
 
 

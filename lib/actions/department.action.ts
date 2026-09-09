@@ -2,7 +2,7 @@
 
 import { IResponse } from "@/types/Types";
 import Department, { IDepartment } from "../models/department.model";
-import { respond } from "../misc";
+import { respond, RoleRef, toIdStrings } from "../misc";
 import { connectDB } from "../mongoose";
 import '../models/user.model'
 import '../models/org.model'
@@ -10,7 +10,6 @@ import '../models/role.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Role from "../models/role.model";
 import User, { IUser } from "../models/user.model";
-import { RoleRef, toIdStrings } from "./user.action";
 import { Types } from "mongoose";
 
 export async function createDepartment(data:Partial<IDepartment>):Promise<IResponse>{
@@ -161,7 +160,7 @@ export async function getDepartment(id: string): Promise<IResponse> {
   try {
     await connectDB();
 
-    const check = await verifyOrgAccess(Department, id, "Department");
+    const check = await verifyOrgAccess(Department, id, "Department", [{ path: "org" }, { path: "createdBy" }, { path: "head" }, { path: "roles" }]);
 
     // If not allowed, return the middleware's response directly
     if ("allowed" in check === false) return check;

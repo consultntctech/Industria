@@ -62,7 +62,7 @@ const DeptRolesTable = ({department}:DeptRolesTableProps) => {
         }
     }
 
-    const content = currentRole ? `Are you sure you want to delete Role: ${currentRole.name}? This will remove this role from all users.` : '';
+    const content = currentRole ? `Are you sure you want to remove role: ${currentRole.name}? This will remove this role from all employees in the department. This won't delete the role itself.` : '';
 
 
   return (
