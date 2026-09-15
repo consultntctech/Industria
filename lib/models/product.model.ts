@@ -20,6 +20,7 @@ export interface IProduct extends Document {
     type: string;
     stock: number;
     description: string;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
     createdAt?: Date;
@@ -35,6 +36,7 @@ const ProductSchema = new Schema<IProduct>({
     suppliers: { type: [Schema.Types.ObjectId], ref: 'Supplier', required: false },
     type: { type: String, required: true, default:'Raw Material' },
     description: String,
+    creator: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})

@@ -13,6 +13,7 @@ export interface IRole extends Document{
         operations:IOperation[];
     },
     description: string;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
     createdAt: string;
@@ -27,6 +28,7 @@ const RoleSchema = new Schema<IRole>({
         operations: { type: [{id:String, name:String, title:String, description:String}] },
     },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
+    creator: String,
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false }
 }, {timestamps:true})
 

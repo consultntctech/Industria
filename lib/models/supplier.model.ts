@@ -12,6 +12,7 @@ export interface ISupplier extends Document {
     email: string;
     description: string;
     isActive: boolean;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization
     createdAt?: Date;
@@ -26,6 +27,7 @@ const SupplierSchema = new Schema<ISupplier>({
     person: String,
     isActive: {type:Boolean, default:true},
     description: String,
+    creator: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})

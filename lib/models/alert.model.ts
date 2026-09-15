@@ -12,6 +12,7 @@ export interface IAlert extends Document {
     item: Types.ObjectId | string;
     itemModel: string;
     receiver: string | Types.ObjectId | IUser;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
     createdAt: string;
@@ -25,6 +26,7 @@ const AlertSchema = new Schema<IAlert>({
     item: { type: Schema.Types.ObjectId, refPath: 'itemModel', required: false },
     itemModel: { type: String, required: false },
     receiver: { type: Schema.Types.ObjectId, ref: 'User', required: false },
+    creator: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})

@@ -49,6 +49,7 @@ export interface IPackage extends Document {
     storages: string[] | Types.ObjectId[] | IStorage[];
     cost: number;
     description: string;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
     createdAt: string;
@@ -84,6 +85,7 @@ const PackageSchema = new Schema<IPackage>({
     storages: [{ type: Schema.Types.ObjectId, ref: 'Storage', default: [] }],
     cost: { type: Number, required: false },
     description: { type: String, required: false },
+    creator: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, { timestamps: true })

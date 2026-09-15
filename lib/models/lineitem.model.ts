@@ -21,6 +21,7 @@ export interface ILineItem extends Document {
     status: string;
     original:IOriginalPrice;
     price: number;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
     createdAt: string;
@@ -38,6 +39,7 @@ const LineItemSchema = new Schema<ILineItem>({
     status: { type: String, required: true, default:'Pending' },
     original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     price: { type: Number, required: false, default:0 },
+    creator: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})

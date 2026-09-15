@@ -18,6 +18,7 @@ export interface IGood extends Document {
     quantity: number;
     quantityLeftToPackage: number;
     threshold: number;
+    creator: string;
     org: string | Types.ObjectId | IOrganization;
     createdBy: string | Types.ObjectId | IUser;
     createdAt: string;
@@ -35,6 +36,7 @@ const GoodSchema = new Schema<IGood>({
     quantityLeftToPackage: {type:Number, default:0},
     quantity: Number,
     batch: { type: Schema.Types.ObjectId, ref: 'Batch', required: false },
+    creator: String,
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     createdAt: Date,
