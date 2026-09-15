@@ -10,6 +10,7 @@ export interface IBatchConfig extends Document {
     type: string;
     mode: string;
     increament: number;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization
     createdAt?: string;
@@ -23,6 +24,7 @@ const BatchConfigSchema = new Schema<IBatchConfig>({
     type: { type: String, required: true },
     mode: { type: String, required: true, default:'Custom' },
     increament: { type: Number, required: true },
+    creator: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})

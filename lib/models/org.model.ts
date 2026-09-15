@@ -15,6 +15,7 @@ export interface IOrganization extends Document {
     scolor: string;
     tcolor: string;
     description: string;
+    creator: string;
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -31,6 +32,7 @@ export const OrganizationSchema = new Schema({
     scolor: String,
     tcolor: String,
     description: String,
+    creator: String,
 }, {timestamps:true})
     
 

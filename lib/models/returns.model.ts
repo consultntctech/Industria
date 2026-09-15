@@ -2,6 +2,7 @@ import { model, models, Schema } from "mongoose";
 import { ISales } from "./sales.model";
 
 export interface IReturns extends ISales{
+    creator: string;
     reason: string;
 }
 
@@ -15,6 +16,7 @@ const ReturnsSchema = new Schema<IReturns>({
     charges: { type: Number, required: false },
     original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     products: { type: [Schema.Types.ObjectId], ref:'LineItem', required: true },
+    creator: String,
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     reason: { type: String, required: true },

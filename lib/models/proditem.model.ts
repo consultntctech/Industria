@@ -26,6 +26,7 @@ export interface IProdItem extends Document {
     reusable: boolean;
     suppliers: string[] | Types.ObjectId[] | ISupplier[];
     description: string;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization
     createdAt: string;
@@ -51,6 +52,7 @@ const ProdItemSchema = new Schema<IProdItem>({
     reusable: { type: Boolean, required: false },
     suppliers: { type: [Schema.Types.ObjectId], ref: 'Supplier', required: false },
     description: String,
+    creator: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})

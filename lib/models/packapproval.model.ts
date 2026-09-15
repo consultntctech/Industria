@@ -11,6 +11,7 @@ export interface IPackApproval extends Document {
     status: string;
     notes: string;
     approver: string | Types.ObjectId | IUser;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
     updatedAt: string;
@@ -23,6 +24,7 @@ const PackApprovalSchema = new Schema<IPackApproval>({
     status: { type: String, required: true, default:'Pending' },
     notes: String,
     approver: { type: Schema.Types.ObjectId, ref: 'User', required: false },
+    creator: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})

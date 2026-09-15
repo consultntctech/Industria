@@ -8,6 +8,7 @@ export interface IStorage extends Document {
     name: string;
     location?: string;
     description?: string;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
     createdAt: string;
@@ -18,6 +19,7 @@ const StorageSchema = new Schema<IStorage>({
     name: { type: String, required: true },
     location: { type: String, required: false },
     description: { type: String, required: false },
+    creator: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})

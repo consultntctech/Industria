@@ -2,6 +2,7 @@ import { model, models, Schema } from "mongoose";
 
 export interface IForgot {
     _id: string;
+    creator: string;
     email: string;
     token: string;
     createdAt: string;
@@ -9,6 +10,7 @@ export interface IForgot {
 }
 
 const ForgotSchema = new Schema<IForgot>({
+    creator: String,
     email: { type: String, required: true },
     token: { type: String, required: true },
 }, {timestamps:true})

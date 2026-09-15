@@ -15,6 +15,7 @@ export interface IUser {
     roles: string[] | Types.ObjectId[] | IRole[];
     department: string | Types.ObjectId  | IDepartment;
     description: string;
+    creator: string;
     org: string | Types.ObjectId | IOrganization
     createdAt?: Date;
     updatedAt?: Date;
@@ -31,6 +32,7 @@ const UserSchema = new Schema<IUser>({
     password: String,
     roles: { type: [Schema.Types.ObjectId], ref: 'Role', required: false, default: [] },
     description: String,
+    creator: String,
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})
     
