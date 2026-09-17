@@ -14,6 +14,7 @@ export interface ISales extends Document {
     price: number;
     discount: number;
     charges: number;
+    creator: string;
     original: IOriginalPrice;
     products: string[] | Types.ObjectId[] | ILineItem[];
     org: string | Types.ObjectId | IOrganization;
@@ -29,6 +30,7 @@ const SalesSchema = new Schema<ISales>({
     price: { type: Number, required: false },
     discount: { type: Number, required: false, default:0 },
     charges: { type: Number, required: false, default:0 },
+    creator: String,
     original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     products: { type: [Schema.Types.ObjectId], ref:'LineItem', required: true },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

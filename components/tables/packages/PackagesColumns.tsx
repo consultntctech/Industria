@@ -1,5 +1,5 @@
 
-import { Deleter,  Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Deleter,  Linker, ViewCreator, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
@@ -203,16 +203,16 @@ export const PackagesColumns = (
             width:170,
             valueFormatter: (_, row:IPackage)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator || '';
             },
             valueGetter: (_, row:IPackage)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator || '';
             },
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
+                    <ViewCreator creator={creator} creatorName={params?.row?.creator} />
                 )
             }
         },
@@ -222,11 +222,11 @@ export const PackagesColumns = (
             width:170,
             valueFormatter: (_, row:IPackage)=>{
                 const supervisor = row?.supervisor as IUser;
-                return supervisor ? supervisor.name : '';
+                return supervisor ? supervisor.name : 'Unknown';
             },
             valueGetter: (_, row:IPackage)=>{
                 const supervisor = row?.supervisor as IUser;
-                return supervisor ? supervisor.name : '';
+                return supervisor ? supervisor.name : 'Unknown';
             },
             renderCell: (params:GridRenderCellParams)=>{
                 const supervisor = params?.row?.supervisor as IUser;

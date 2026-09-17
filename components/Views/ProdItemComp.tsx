@@ -112,7 +112,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
         try {
           const prod: Partial<IProdItem> = {
             ...data, 
-            org:user?.org, suppliers, createdBy:user?._id,
+            org:user?.org, suppliers, createdBy:user?._id, creator: user?.name,
             stock: data.quantity, reusable,
             used: 0, category: category?.label, subcategory: subcategory?.label,
             price,

@@ -55,7 +55,8 @@ const StorageComp = ({openNew, setOpenNew, currentStorage, setCurrentStorage}:St
             const formData:Partial<IStorage> = {
                 ...data,
                 org:user?.org,
-                createdBy:user?._id
+                createdBy:user?._id,
+                creator:user?.name,
             }
             const res = await createStorage(formData);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});

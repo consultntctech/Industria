@@ -10,6 +10,7 @@ export interface IBatch extends Document {
     type: string;
     configType: string;
     isConfig: boolean;
+    creator: string;
     config: string | Types.ObjectId | IBatchConfig;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization
@@ -21,6 +22,7 @@ const BatchSchema = new Schema<IBatch>({
     code: String,
     type: { type: String, default: 'Raw Material' },
     configType: String,
+    creator: String,
     isConfig: { type: Boolean, required: true },
     config: { type: Schema.Types.ObjectId, ref: 'BatchConfig', required: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },

@@ -13,6 +13,10 @@ import { enqueueSnackbar } from "notistack";
 import { ISession } from "@/types/Types";
 import { createSession } from "@/lib/session";
 import { useCanUser } from "@/hooks/useAuth";
+import GenericLabel from "../../inputs/GenericLabel";
+import { IDepartment } from "@/lib/models/department.model";
+import SearchSelectDepartments from "../../inputs/dropdowns/SearchSelectDepartments";
+import { IOrganization } from "@/lib/models/org.model";
 // import { useAuth } from "@/hooks/useAuth";
 
 const ProfileDetails = () => {
@@ -24,6 +28,8 @@ const ProfileDetails = () => {
     const [logo, setLogo] = useState<{url:string, filename:string}>({url:'', filename:''});
     const editor =  useCanUser('38', 'UPDATE');
 
+    const department = userProfile?.department as IDepartment;
+    const org = userProfile?.org as IOrganization;
     // const {user} = useAuth();
     // console.log('User: ', user)
 
@@ -104,6 +110,7 @@ const ProfileDetails = () => {
                         <InputWithLabel defaultValue={userProfile?.address} onChange={onChange} name="address" required placeholder="enter address" label="Address" className="w-full" />
                         <InputWithLabel defaultValue={userProfile?.phone} onChange={onChange} name="phone" required placeholder="enter phone" label="Phone" className="w-full" />
                         <InputWithLabel defaultValue={userProfile?.email} readOnly={!editor} onChange={onChange} name="email" required type="email" placeholder="enter email" label="Email" className="w-full" />
+                        <GenericLabel label="Department" input={<SearchSelectDepartments value={department} disabled orgId={org?._id} />} />
                     </div>
             
                     <div className="flex gap-4 flex-col w-full justify-between">

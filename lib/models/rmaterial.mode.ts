@@ -32,6 +32,7 @@ export interface IRMaterial extends Document {
     price: number;
     yield: number;
     reason: string;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization
     createdAt: string;
@@ -63,6 +64,7 @@ const RMaterialSchema = new Schema<IRMaterial>({
     price: { type: Number, required: true },
     yield: { type: Number, required: false },
     weight: { type: Number, required: false },
+    creator: String,
     reason: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

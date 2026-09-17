@@ -8,6 +8,7 @@ export interface IRoleTemplate extends Document {
     _id: string;
     name: string;
     description: string;
+    creator: string;
     roles: string[] | Types.ObjectId[] | IRole[];
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
@@ -17,6 +18,7 @@ export interface IRoleTemplate extends Document {
 
 const RoleTemplateSchema = new Schema<IRoleTemplate>({
     name: { type: String, required: true },
+    creator: String,
     description: String,
     roles: { type: [Schema.Types.ObjectId], ref: 'Role', required: false, default: [] },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },

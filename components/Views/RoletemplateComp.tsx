@@ -71,7 +71,8 @@ const RoletemplateComp = ({openNew, setOpenNew, currentRoletemplate, setCurrentR
                 ...data,
                 roles: roles?.map(r=>r._id),
                 org:user?.org,
-                createdBy:user?._id
+                createdBy:user?._id,
+                creator:user?.name
             }
             const res = await createRoleTemplate(formData);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});

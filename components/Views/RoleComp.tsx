@@ -81,7 +81,8 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
                     operations
                 },
                 org:user?.org,
-                createdBy:user?._id
+                createdBy:user?._id,
+                creator:user?.name
             }
             const res = await createRole(formData);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});

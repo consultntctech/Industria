@@ -10,7 +10,7 @@ import { IGood } from '@/lib/models/good.model';
 import { IStorage } from '@/lib/models/storage.model';
 import PackInputDetailsModal from './PackInputDetailsModal';
 import { IProduction } from '@/lib/models/production.model';
-import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelpers';
 import { useCanUser } from '@/hooks/useAuth';
 import { IOriginalPrice } from '@/types/Types';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
@@ -150,7 +150,7 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Started By:</span>
-          <Linker tableId='38' linkStyle="link" spanStyle='text-gray-600 flex-1 md:flex-5' link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
+          <ViewCreator creator={creator} creatorName={pack?.creator} spanStyle='text-gray-600 flex-1 md:flex-5' linkStyle="link" />
         </div>
 
         <div className="flex flex-row items-center gap-4">

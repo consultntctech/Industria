@@ -1,4 +1,4 @@
-import { Linker } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Linker, ViewCreator } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatTimestamp } from "@/functions/dates";
 import { getProductCounts } from "@/functions/helpers";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
@@ -99,16 +99,16 @@ export const CustomerReturnsColumns = ():GridColDef[]=>{
             width:170,
             valueFormatter: (_, row:IReturns)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator ||'';
             },
             valueGetter: (_, row:IReturns)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator ||'';
             },
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
+                    <ViewCreator creator={creator} creatorName={params?.row?.creator} />
                 )
             }
         },

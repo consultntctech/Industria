@@ -81,7 +81,7 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
         setLoading(true);
         
         try {
-          const formData:Partial<IProduct> = {...data, name:data?.name?.trim(), org:user?.org, category, suppliers, createdBy:user?._id}
+          const formData:Partial<IProduct> = {...data, name:data?.name?.trim(), org:user?.org, category, suppliers, createdBy:user?._id, creator: user?.name};
           const res = await createProduct(formData);
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
           if(!res.error){

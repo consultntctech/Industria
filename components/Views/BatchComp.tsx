@@ -57,8 +57,8 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
     e.preventDefault();
     setLoading(true);
     try {
-      const batchData:Partial<IBatch> = isConfig ? {...data, isConfig, config, org:user?.org, createdBy:user?._id}
-      : {...data, isConfig,  org:user?.org, createdBy:user?._id}
+      const batchData:Partial<IBatch> = isConfig ? {...data, isConfig, config, org:user?.org, createdBy:user?._id, creator:user?.name}
+      : {...data, isConfig,  org:user?.org, createdBy:user?._id, creator:user?.name}
       const res = await createBatch(batchData);
       enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
       if(!res.error){

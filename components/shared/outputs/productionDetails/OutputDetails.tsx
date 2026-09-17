@@ -54,6 +54,7 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
                     status: 'Pending',
                     createdBy: user?._id,
                     org: user?.org,
+                    creator: user?.name,
                 };
                 const approvalRes = await createProdApproval(approvalData);
                 if (!approvalRes.error) {

@@ -49,7 +49,8 @@ const CurrencyComp = ({currency, refetch, currencyLoading}:CurrencyCompProps) =>
             ...data,
             symbol: data.symbol || currency?.symbol,
             org: user?.org,
-            createdBy: user?._id
+            createdBy: user?._id,
+            creator: user?.name
           }
           const res = await createCurrency(confData);
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});

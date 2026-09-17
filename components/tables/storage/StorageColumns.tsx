@@ -1,4 +1,4 @@
-import { Deleter, Editor, Linker } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Deleter, Editor, Linker, ViewCreator } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { IOrganization } from "@/lib/models/org.model";
 import { IStorage } from "@/lib/models/storage.model";
@@ -87,16 +87,16 @@ export const StorageColumns = (
             width:170,
             valueFormatter: (_, row:IStorage)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator || '';
             },
             valueGetter: (_, row:IStorage)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator || '';
             },
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
+                    <ViewCreator creator={creator} creatorName={params?.row?.creator} />
                 )
             }
         },

@@ -71,7 +71,8 @@ const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApprova
                         org: user?.org,
                         createdBy: user?._id,
                         product: product?._id,
-                        batch
+                        batch,
+                        creator: user?.name
                     }
 
                     const goodsRes = await createGood(goodsData);

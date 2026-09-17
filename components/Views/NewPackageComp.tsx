@@ -129,6 +129,7 @@ const NewPackageComp = () => {
                 quantity: accepted,
                 org: user?.org,
                 createdBy: user?._id,
+                creator: user?.name,
                 packagingMaterial: packItems,
                 goods: goodItems,
                 supervisor: supervisor?._id,
@@ -164,6 +165,7 @@ const NewPackageComp = () => {
                     package: packed._id,
                     status: 'Pending',
                     createdBy: user?._id,
+                    creator: user?.name,
                     org: user?.org,
                 }
                 let LnArray: Partial<ILineItem>[] = [];
@@ -171,6 +173,7 @@ const NewPackageComp = () => {
                     package: packed._id,
                     createdBy: user?._id,
                     status: 'Pending',
+                    creator: user?.name,
                     name: data.name,
                     org: user?.org,
                 }

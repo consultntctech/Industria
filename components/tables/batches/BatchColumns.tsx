@@ -1,4 +1,4 @@
-import { Deleter, Editor, Linker } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Deleter, Editor, Linker, ViewCreator } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { IBatch } from "@/lib/models/batch.model";
 import { IBatchConfig } from "@/lib/models/batchconfig.model";
@@ -85,7 +85,7 @@ export const BatchColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Linker tableId="38" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
+                    <ViewCreator creator={creator} creatorName={params?.row?.creator} />
                 )
             }
         },

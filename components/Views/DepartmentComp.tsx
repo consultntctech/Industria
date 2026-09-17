@@ -72,7 +72,7 @@ const DepartmentComp = ({openNew, setOpenNew, currentDepartment, setCurrentDepar
                 creator:user?.name || '',
                 headName:head?.name || '',
                 org:user?.org,
-                createdBy:user?._id
+                createdBy:user?._id,
             }
             const res = await createDepartment(formData);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});

@@ -1,4 +1,5 @@
 import {  useCanUser } from "@/hooks/useAuth"
+import { IUser } from "@/lib/models/user.model";
 import { ITablePermision } from "@/types/Types";
 import { Tooltip } from "@mui/material";
 import { Url } from "next/dist/shared/lib/router/router";
@@ -23,6 +24,14 @@ type ViewerProps = {
     tip: string;
 } & ITablePermision & ComponentProps<'svg'>
 
+type CreatorProps = {
+    creator?: IUser;
+    creatorName?: string;
+    spanStyle?: string;
+    linkStyle?: string;
+    target?: string;
+}
+
 export const Linker =({tableId, link, placeholder, operation='READ', linkStyle, spanStyle, target}:LinkerProps)=>{
     
     const isViewer = useCanUser(tableId, operation);
@@ -39,6 +48,19 @@ export const Linker =({tableId, link, placeholder, operation='READ', linkStyle, 
     )
 }
 
+export const ViewCreator =({spanStyle, linkStyle, target, creator, creatorName}:CreatorProps)=>{
+
+    return(
+        <>
+        {
+            creator ?
+            <Linker linkStyle={linkStyle} tableId={'38'} link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} operation={'READ'}  spanStyle={spanStyle} target={target} />
+            :
+            <span className={spanStyle} >{creatorName || 'Unknown'}</span>
+        }
+        </>
+    )
+}
 
 export const Viewer =({tableId, operation='READ', tip, className, ...props}:ViewerProps)=>{
         const isViewer = useCanUser(tableId, operation);
@@ -190,3 +212,4 @@ export const Assigner =({tableId, operation='UPDATE', tip, className, ...props}:
         </>
     )
 }
+

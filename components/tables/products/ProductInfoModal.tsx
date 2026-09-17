@@ -1,4 +1,4 @@
-import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelpers';
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
 import { isSystemAdmin } from '@/Data/roles/permissions';
 import { formatDate } from '@/functions/dates';
@@ -88,7 +88,7 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentProduct, setCurrentProd
 
             <div className="flex flex-col">
                 <span className="mlabel">Created By</span>
-                <Linker tableId='38' link={`/dashboard/users?Id=${creator?._id}`} linkStyle='mtext link' spanStyle='mtext' placeholder={creator?.name || 'None'} />
+                <ViewCreator creator={creator} creatorName={currentProduct?.creator} spanStyle='mtext' linkStyle='mtext link' />
             </div>
         </div>
     </InfoModalContainer>

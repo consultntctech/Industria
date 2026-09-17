@@ -131,6 +131,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                 price: totalPrice,
                 org:user?.org,
                 createdBy:user?._id,
+                creator: user?.name,
                 original:{
                     amount: beforeRateNetCharge,
                     rate: rate,

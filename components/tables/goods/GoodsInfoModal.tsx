@@ -11,7 +11,7 @@ import { IProduct } from '@/lib/models/product.model';
 import { IBatch } from '@/lib/models/batch.model';
 import { useAuth } from '@/hooks/useAuth';
 import { isSystemAdmin } from '@/Data/roles/permissions';
-import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelpers';
 
 type GoodsInfoModalProps = {
     infoMode:boolean,
@@ -96,7 +96,7 @@ const GoodsInfoModal = ({infoMode, setInfoMode, currentGood, setCurrentGood}:Goo
 
             <div className="flex flex-col">
                 <span className="mlabel">Created By</span>
-                <Linker linkStyle='link mtext' spanStyle='mtext' tableId="38" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name || 'None'} />
+                <ViewCreator spanStyle='mtext' creator={creator} creatorName={currentGood?.creator} linkStyle='mtext link' />
             </div>
         </div>
     </InfoModalContainer>

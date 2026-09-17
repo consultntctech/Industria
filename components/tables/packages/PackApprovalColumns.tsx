@@ -1,5 +1,5 @@
 
-import { Approver, Linker } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Approver, Linker, ViewCreator } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { IOrganization } from "@/lib/models/org.model";
 import { IPackage } from "@/lib/models/package.model";
@@ -46,16 +46,16 @@ export const PackApprovalColumns = (
             width:170,
             valueFormatter: (_, row:IPackApproval)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator || '';
             },
             valueGetter: (_, row:IPackApproval)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator || '';
             },
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
+                    <ViewCreator creator={creator} creatorName={params?.row?.creator} />
                 )
             }
         },

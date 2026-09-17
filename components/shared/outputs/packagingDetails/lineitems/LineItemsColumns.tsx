@@ -1,4 +1,4 @@
-import { Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Editor, Linker, ViewCreator, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
@@ -194,16 +194,16 @@ export const LineItemsColumns = (
             width:170,
             valueFormatter: (_, row:ILineItem)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator || '';
             },
             valueGetter: (_, row:ILineItem)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator || '';
             },
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Linker tableId="38" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
+                    <ViewCreator creator={creator} creatorName={params?.row?.creator} />
                 )
             }
         },

@@ -11,6 +11,7 @@ export interface IProdApproval extends Document {
     status: string;
     notes: string;
     approver: string | Types.ObjectId | IUser;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
     updatedAt: string;
@@ -22,6 +23,7 @@ const ProdApprovalSchema = new Schema<IProdApproval>({
     production: { type: Schema.Types.ObjectId, ref: 'Production', required: false },
     status: { type: String, required: true },
     notes: String,
+    creator: String,
     approver: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

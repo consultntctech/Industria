@@ -46,6 +46,7 @@ export interface IProduction extends Document {
     approvedBy?: string | Types.ObjectId | IUser;
     notes?: string;
     reviewNotes?: string;
+    creator: string;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
     createdAt: string;
@@ -77,6 +78,7 @@ const ProductionSchema = new Schema<IProduction>({
     approvedBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     notes: String,
     reviewNotes: String,
+    creator: String,
     extraCost: { type: Number, required: false, default: 0 },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

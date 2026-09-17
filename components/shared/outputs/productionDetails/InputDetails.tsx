@@ -9,7 +9,7 @@ import { FaPenToSquare } from 'react-icons/fa6';
 import InputDetailsModal from './InputDetailsModal';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { useCanUser } from '@/hooks/useAuth';
-import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelpers';
 import { enqueueSnackbar } from 'notistack';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import { IOriginalPrice } from '@/types/Types';
@@ -127,7 +127,7 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Started By:</span>
-          <Linker linkStyle="link" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId='38' spanStyle='text-gray-600 flex-1 md:flex-5' />
+          <ViewCreator creator={creator} creatorName={production?.creator} spanStyle='text-gray-600 flex-1 md:flex-5' linkStyle="link" />
         </div>
 
         <div className="flex flex-row items-center gap-4">

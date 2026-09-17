@@ -1,4 +1,4 @@
-import { Linker } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Linker, ViewCreator } from "@/components/PermisionHelpers/PermisionHelpers";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
 import { IPackage } from "@/lib/models/package.model";
@@ -124,16 +124,16 @@ export const StoragePackColumns = ():GridColDef[]=>{
             width:170,
             valueFormatter: (_, row:IPackage)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator || '';
             },
             valueGetter: (_, row:IPackage)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator || '';
             },
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
+                    <ViewCreator creator={creator} creatorName={params?.row?.creator} />
                 )
             }
         },

@@ -10,6 +10,7 @@ export interface IPackApproval extends Document {
     package: string | Types.ObjectId | IPackage;
     status: string;
     notes: string;
+    creator: string;
     approver: string | Types.ObjectId | IUser;
     createdBy: string | Types.ObjectId | IUser;
     org: string | Types.ObjectId | IOrganization;
@@ -22,6 +23,7 @@ const PackApprovalSchema = new Schema<IPackApproval>({
     package: { type: Schema.Types.ObjectId, ref: 'Package', required: false },
     status: { type: String, required: true, default:'Pending' },
     notes: String,
+    creator: String,
     approver: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

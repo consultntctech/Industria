@@ -54,7 +54,8 @@ const BatchConfigComp = () => {
             mode: 'Custom',
             increament: data.increament || batchConfig?.increament,
             org: user?.org,
-            createdBy: user?._id
+            createdBy: user?._id,
+            creator: user?.name
           }
           const res = await createBatchConfig(confData);
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});

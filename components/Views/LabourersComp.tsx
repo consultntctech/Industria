@@ -59,7 +59,7 @@ const LabourersComp = ({openNew, setOpenNew, currentLabourer, setCurrentLabourer
         setLoading(true);
         
         try {
-          const res = await createLabourer({...formData, createdBy:user?._id, org:isAdmin ? org : user?.org});
+          const res = await createLabourer({...formData, createdBy:user?._id, creator:user?.name, org:isAdmin ? org : user?.org});
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
           if(!res.error){
               formRef.current?.reset();

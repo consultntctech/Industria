@@ -1,5 +1,5 @@
 
-import { Approver, Linker } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Approver, Linker, ViewCreator } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { IOrganization } from "@/lib/models/org.model";
 import { IProdApproval } from "@/lib/models/prodapproval.model";
@@ -53,7 +53,7 @@ export const ProdApprovalColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Linker tableId="38" link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
+                    <ViewCreator creator={creator} creatorName={params?.row?.creator} />
                 )
             }
         },

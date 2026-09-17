@@ -1,4 +1,4 @@
-import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelpers';
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
 import { isSystemAdmin } from '@/Data/roles/permissions';
 import { formatDate } from '@/functions/dates';
@@ -181,7 +181,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
 
             <div className="flex flex-col">
                 <span className="mlabel">Started By</span>
-                <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name || 'None'} tableId="38" linkStyle='mtext link' spanStyle='mtext' />
+                <ViewCreator linkStyle='mtext link' creator={creator} creatorName={currentPackage?.creator} spanStyle='mtext' />
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Supervised By</span>

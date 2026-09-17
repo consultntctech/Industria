@@ -10,7 +10,7 @@ import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { IReturns } from '@/lib/models/returns.model';
 import { useAuth } from '@/hooks/useAuth';
 import { isSystemAdmin } from '@/Data/roles/permissions';
-import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelpers';
 import { IOriginalPrice } from '@/types/Types';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 
@@ -97,7 +97,7 @@ const ReturnsInfoModal = ({infoMode, setInfoMode, currentReturn, setCurrentRetur
             
              <div className="flex flex-col">
                 <span className="mlabel">Returned by</span>
-                <Linker tableId='38' link={`/dashboard/users?Id=${creator?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={creator?.name || 'None'} />
+                <ViewCreator creator={creator} creatorName={currentReturn?.creator} spanStyle='mtext' linkStyle='mtext link' />
             </div>
             {
                 isAdmin &&

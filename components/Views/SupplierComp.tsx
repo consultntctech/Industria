@@ -56,7 +56,7 @@ const SupplierComp = ({openNew, setOpenNew, currentSupplier, setCurrentSupplier}
         setLoading(true);
         
         try {
-          const res = await createSupplier({...data, isActive, org:user?.org, createdBy:user?._id});
+          const res = await createSupplier({...data, isActive, org:user?.org, createdBy:user?._id, creator:user?.name});
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
           if(!res.error){
               formRef.current?.reset();

@@ -4,7 +4,7 @@ import { IUser } from "@/lib/models/user.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { IRoleTemplate } from "@/lib/models/roletemplate.model";
 import { IRole } from "@/lib/models/role.model";
-import { Assigner, Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Assigner, Deleter, Editor, Linker, ViewCreator, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 
 export const RoletemplateColumns = (
     handleInfo: (role:IRoleTemplate)=>void,
@@ -82,16 +82,16 @@ export const RoletemplateColumns = (
             width:170,
             valueFormatter: (_, row:IRoleTemplate)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator || '';
             },
             valueGetter: (_, row:IRoleTemplate)=>{
                 const creator = row?.createdBy as IUser;
-                return creator ? creator.name : '';
+                return creator ? creator.name : row?.creator || '';
             },
             renderCell: (params:GridRenderCellParams)=>{
                 const creator = params?.row?.createdBy as IUser;
                 return (
-                    <Linker link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} tableId="38" />
+                    <ViewCreator creator={creator} creatorName={params?.row?.creator} />
                 )
             }
         },

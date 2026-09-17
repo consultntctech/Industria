@@ -12,7 +12,7 @@ import { IPackage } from '@/lib/models/package.model';
 import { IGood } from '@/lib/models/good.model';
 import { useAuth } from '@/hooks/useAuth';
 import { isSystemAdmin } from '@/Data/roles/permissions';
-import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import {  ViewCreator } from '@/components/PermisionHelpers/PermisionHelpers';
 import { IOriginalPrice } from '@/types/Types';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 
@@ -101,7 +101,7 @@ const LineItemsInfoModal = ({infoMode, setInfoMode, currentLineItem, setCurrentL
 
             <div className="flex flex-col">
                 <span className="mlabel">Created By</span>
-                <Linker tableId='38' link={`/dashboard/users?Id=${creator?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={creator?.name || 'None'} />
+                <ViewCreator creator={creator} creatorName={currentLineItem?.creator} spanStyle='mtext' linkStyle='mtext link' />
             </div>
         </div>
     </InfoModalContainer>

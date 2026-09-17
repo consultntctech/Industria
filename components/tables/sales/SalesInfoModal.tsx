@@ -10,7 +10,7 @@ import { ICustomer } from '@/lib/models/customer.model';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { useAuth } from '@/hooks/useAuth';
 import { isSystemAdmin } from '@/Data/roles/permissions';
-import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelpers';
 import { getProductCounts } from '@/functions/helpers';
 import { IOriginalPrice } from '@/types/Types';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
@@ -100,7 +100,7 @@ const SalesInfoModal = ({infoMode, setInfoMode, currentSale, setCurrentSale}:Sal
             
              <div className="flex flex-col">
                 <span className="mlabel">Sales Personnel</span>
-                <Linker link={`/dashboard/users?Id=${creator?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={creator?.name || 'None'} tableId="38" />
+                <ViewCreator creator={creator} creatorName={currentSale?.creator} spanStyle='mtext' linkStyle='mtext link' />
             </div>
             {
                 isAdmin &&

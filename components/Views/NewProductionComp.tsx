@@ -118,6 +118,7 @@ const NewProductionComp = () => {
                 status:'New',
                 org:user?.org,
                 createdBy:user?._id,
+                creator: user?.name,
                 supervisor: supervisor?._id,
                 ingredients: ingredients.map(ing=>({
                     materialId: ing.materialId,

@@ -22,7 +22,7 @@ import { updatePackApproval } from '@/lib/actions/packapproval.action';
 import { updatePackageV2 } from '@/lib/actions/package.action';
 import { IPackApproval } from '@/lib/models/packapproval.model';
 import { publishLineItemsForPackage } from '@/lib/actions/lineitem.action';
-import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
+import { Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelpers';
 // import { IBatch } from '@/lib/models/batch.model';
 
 type ApprovalsApprovalInfoModalProps = {
@@ -133,7 +133,7 @@ const ApprovalsApprovalInfoModal = ({openNew, refetch, setOpenNew, currentApprov
                         </div>
                         <div className="flex flex-row items-center gap-4">
                             <span className="truncate w-1/2 md:w-1/5" >Submitted By:</span>
-                            <Linker tableId='38' linkStyle="mtext link" spanStyle='mtext' link={`/dashboard/users?Id=${creator?._id}`} placeholder={creator?.name} />
+                            <ViewCreator creator={creator} creatorName={currentApproval?.creator} linkStyle='mtext link' spanStyle='mtext' />
                         </div>
                         <div className="flex flex-row items-start gap-4">
                             <span className="truncate w-1/2 md:w-1/5" >Submitted On:</span>

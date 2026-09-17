@@ -135,7 +135,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
         
         try {
           const rmData:Partial<IRMaterial> = {
-            ...data, product: product?._id, batch, createdBy:user?._id, org:user?.org,
+            ...data, product: product?._id, batch, createdBy:user?._id, org:user?.org, creator: user?.name,
             original:{
               amount: originalAmount,
               rate,
