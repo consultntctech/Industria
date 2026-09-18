@@ -233,7 +233,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
                             <InputWithLabel value={price}  name="price" type="number" readOnly min={0} placeholder={`${currency?.symbol}25.5`} label={costLabel} className="w-full" />
                           }
                           <InputWithLabel defaultValue={currentProdItem?.uom} onChange={onChange} name="uom" placeholder='eg. liters' label='Unit of measure' className="w-full" />
-                          <GenericLabel label="Storage" input={<SearchSelectMultipleStorages  placeholder="Storage locations" required={!currentProdItem} value={savedStorages} setSelection={setStorages} />}  />
+                          <GenericLabel label="Storage" input={<SearchSelectMultipleStorages  placeholder="Storage locations" required={storages?.length === 0} value={savedStorages} setSelection={setStorages} />}  />
                           <div className="flex flex-row items-center gap-4">
                               <span className="smallText">This item is reusable</span>
                               <CustomCheckV2 checked={reusable} setChecked={setReusable} />
