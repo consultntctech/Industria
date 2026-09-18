@@ -217,7 +217,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
                   />
                   <GenericLabel
                   label="Select supplier"
-                  input={<SearchSelectLtdMultipleSuppliers value={savedSuppliers} required={!currentMaterial} setSelection={setSuppliers} productId={product?._id || ''} />}
+                  input={<SearchSelectLtdMultipleSuppliers value={savedSuppliers}  setSelection={setSuppliers} productId={product?._id || ''} />}
                   />
                   <GenericLabel 
                     label='Select batch'
@@ -243,7 +243,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
                 />
               <InputWithLabel defaultValue={currentMaterial?.yield} onChange={onChange} name="yield"  type="number" min={1} placeholder="eg. 2" label="Expected yield rate" className="w-full" />
               <InputWithLabel defaultValue={currentMaterial? formatDate(currentMaterial?.dateReceived) : today()} onChange={onChange} max={today()} name="dateReceived" type="date" required={!currentMaterial} label="Date received" className="w-full" />
-              <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentMaterial} setSelect={setOtherCurrency} value={savedCurrency} />} />
+              <GenericLabel label="Select currency" input={<SearchSelectCurrencies  setSelect={setOtherCurrency} value={savedCurrency} />} />
               {
                 showRate &&
                 <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
