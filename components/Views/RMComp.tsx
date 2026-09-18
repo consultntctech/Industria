@@ -197,6 +197,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
     }
 
 
+    // console.log("Suppliers: ", suppliers)
 
   return (
      <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
@@ -217,7 +218,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
                   />
                   <GenericLabel
                   label="Select supplier"
-                  input={<SearchSelectLtdMultipleSuppliers value={savedSuppliers}  setSelection={setSuppliers} productId={product?._id || ''} />}
+                  input={<SearchSelectLtdMultipleSuppliers value={savedSuppliers} required={suppliers.length === 0} setSelection={setSuppliers} productId={product?._id || ''} />}
                   />
                   <GenericLabel 
                     label='Select batch'
@@ -228,7 +229,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
                   <GenericLabel 
                     label='Select storages'
                     input={
-                      <SearchSelectMultipleStorages value={savedStorages} required={!currentMaterial} setSelection={setStorages} />
+                      <SearchSelectMultipleStorages value={savedStorages} required={storages.length === 0} setSelection={setStorages} />
                     }
                     />
                 <GenericLabel 
@@ -253,8 +254,8 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
             </div>
 
             <div className="flex gap-4 flex-col w-full justify-between">
-              <InputWithLabel step={0.0001} onChange={onChange} defaultValue={currentMaterial?.qRejected || 0} name="qRejected" type="number" min={0} placeholder="eg. 50" label="Quantity rejected" className="w-full" />
               <div className="flex flex-col gap-4 w-full">
+              <InputWithLabel step={0.0001} onChange={onChange} defaultValue={currentMaterial?.qRejected || 0} name="qRejected" type="number" min={0} placeholder="eg. 50" label="Quantity rejected" className="w-full" />
                 {
                     showReason &&
                     <TextAreaWithLabel defaultValue={currentMaterial?.reason} name="reason" onChange={onChange} placeholder="enter reason for rejection (if any)" label="Reason for rejection" className="w-full" />

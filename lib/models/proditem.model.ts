@@ -13,6 +13,7 @@ export interface IProdItem extends Document {
     name: string;
     quantity: number;
     price: number;
+    dateReceived: Date,
     category: string;
     subcategory: string;
     uom: string;
@@ -40,6 +41,7 @@ const ProdItemSchema = new Schema<IProdItem>({
     quantity: { type: Number, required: true },
     category: { type: String, required: true },
     subcategory: { type: String, required: true },
+    dateReceived: {type: Date},
     uom: { type: String, required: false, default:'units' },
     threshold: { type: Number, required: false, default:0 },
     unitPrice: { type: Number, required: false },

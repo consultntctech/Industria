@@ -112,6 +112,10 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
                     }
                 </div>
             </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Date received</span>
+                <span className="mtext">{formatDate(currentProdItem?.dateReceived)}</span>
+            </div>
 
             <div className="flex flex-col">
                 <span className="mlabel">Storage</span>

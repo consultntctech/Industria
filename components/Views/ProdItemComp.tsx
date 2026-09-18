@@ -21,6 +21,7 @@ import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurre
 import { IOriginalPrice } from "@/types/Types";
 import { IStorage } from "@/lib/models/storage.model";
 import SearchSelectMultipleStorages from "../shared/inputs/dropdowns/SearchSelectMultipleStorages";
+import { formatDate, today } from "@/functions/dates";
 ;
 
 type ProdItemCompProps = {
@@ -33,7 +34,7 @@ type ProdItemCompProps = {
 const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}:ProdItemCompProps) => {
     const [loading, setLoading] = useState<boolean>(false);
     const [suppliers, setSuppliers] = useState<string[]>([]);
-    const [data, setData] = useState<Partial<IProdItem>>({});
+    const [data, setData] = useState<Partial<IProdItem>>({dateReceived:new Date()});
     const [category, setCategory] = useState<TPackagingProcess | null>(null);
     const [subcategory, setSubcategory] = useState<TPackagingProcess | null>(null);
     const [reusable, setReusable] = useState<boolean>(false);
@@ -75,6 +76,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
         }else{
             setData({});
             setSuppliers([]);
+            setData({dateReceived:new Date()})
         }
     }, [currentProdItem])
 
@@ -212,6 +214,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
                             </select>
                             }
                         />
+                        <InputWithLabel defaultValue={currentProdItem? formatDate(currentProdItem?.dateReceived) : today()} onChange={onChange} max={today()} name="dateReceived" type="date" required={!currentProdItem} label="Date received" className="w-full" />
                         <InputWithLabel defaultValue={currentProdItem?.threshold} onChange={onChange} name="threshold" type="number" min={0} placeholder="0" label="Reorder threshold" className="w-full" />
                         <InputWithLabel defaultValue={currentProdItem?.quantity} onChange={onChange} name="quantity" required type="number" min={1} placeholder="10" label="Enter quantity" className="w-full" />
                         <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentProdItem} setSelect={setOtherCurrency} value={savedCurrency} />} />
