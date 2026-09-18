@@ -114,7 +114,7 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Date received</span>
-                <span className="mtext">{formatDate(currentProdItem?.dateReceived)}</span>
+                <span className="mtext">{currentProdItem?.dateReceived ? formatDate(currentProdItem?.dateReceived) : 'Not set'}</span>
             </div>
 
             <div className="flex flex-col">
