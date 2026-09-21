@@ -7,6 +7,7 @@ import { IOrganization } from "./org.model";
 import { IProdItem } from "./proditem.model";
 import PackApproval from "./packapproval.model";
 import { IOriginalPrice } from "@/types/Types";
+import { IEmployee } from "./employee.model";
 
 export interface IProdItemQuantity {
     materialId: string | Types.ObjectId | IProdItem;
@@ -29,7 +30,7 @@ export interface IGoodsPopulate extends IGood {
 export interface IPackage extends Document {
     _id: string;
     name: string;
-    supervisor: string | Types.ObjectId | IUser;
+    supervisor: string | Types.ObjectId | IEmployee;
     packagingType: string;
     packagingMaterial: IProdItemQuantity[];
     // good: string | Types.ObjectId | IGood;
@@ -60,7 +61,7 @@ export interface IPackage extends Document {
 
 const PackageSchema = new Schema<IPackage>({
     name: { type: String, required: true },
-    supervisor: { type: Schema.Types.ObjectId, ref: 'User', required: false },
+    supervisor: { type: Schema.Types.ObjectId, ref: 'Employee', required: false },
     packagingType: { type: String, required: true },
     packagingMaterial: [{
         materialId: { type: Schema.Types.ObjectId, ref: 'ProdItem', required: false },

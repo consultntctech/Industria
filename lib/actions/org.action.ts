@@ -5,12 +5,27 @@ import Organization, { IOrganization } from "../models/org.model";
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
 import { getSession } from "../session";
+import Currency, { ICurrency } from "../models/currency.model";
+import OtherCurrency from "../models/othercurrency.model";
 // import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
-export async function createOrg(org:Partial<IOrganization>):Promise<IResponse>{
+export async function createOrg(org:Partial<IOrganization>, currency:Partial<ICurrency>):Promise<IResponse>{
     try {
         await connectDB();
         const newOrg = await Organization.create(org);
+        const otherCurrency = {
+            name: currency.name,
+            symbol: currency.symbol,
+            rate: 1,
+            type: 'default',
+            note: '',
+            creator: currency.creator,
+            org: newOrg._id,
+        }
+        await Promise.all([
+            Currency.create({...currency, org: newOrg._id}),
+            OtherCurrency.create(otherCurrency)
+        ]);
         return respond('Organization created successfully', false, newOrg, 201);
     } catch (error) {
         console.log(error);

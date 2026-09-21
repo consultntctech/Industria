@@ -2,12 +2,12 @@
 import { IDepartment } from "@/lib/models/department.model";
 import { useState } from "react";
 import CustomTabs from "../misc/CustomTabs";
-import { useFetchDepartmentUsers } from "@/hooks/fetch/useFetchUsers";
 import DepartmentInputDetails from "../shared/outputs/departmentDetails/DepartmentInputDetails";
 import DeptUserTable from "../shared/outputs/departmentDetails/departmentUsers/DeptUserTable";
 import { useAuth } from "@/hooks/useAuth";
-import { IUser } from "@/lib/models/user.model";
 import DeptRolesTable from "../shared/outputs/departmentDetails/deptmentRoles/DeptRolesTable";
+import { useFetchDepartmentEmployees } from "@/hooks/fetch/useFetchEmployees";
+import { IEmployee } from "@/lib/models/employee.model";
 
 
 type SingleDepartmentCompProps = {
@@ -16,8 +16,8 @@ type SingleDepartmentCompProps = {
 
 const SingleDepartmentComp = ({department}:SingleDepartmentCompProps) => {
     const [activeTab, setActiveTab] = useState('first');
-    const {users, isPending, refetch} = useFetchDepartmentUsers(department?._id || '', false);
-    const hod = department?.head as IUser;
+    const {employees, isPending, refetch} = useFetchDepartmentEmployees(department?._id || '', false);
+    const hod = department?.head as IEmployee;
     const {user} = useAuth();
     const isHod = user?._id === hod?._id;
     // console.log(users, isPending);
@@ -34,11 +34,11 @@ const SingleDepartmentComp = ({department}:SingleDepartmentCompProps) => {
   
          {
           activeTab === 'first' &&
-          <DepartmentInputDetails   department={department} setActiveTab={setActiveTab} employees={users?.length || 0} />
+          <DepartmentInputDetails   department={department} setActiveTab={setActiveTab} employees={employees?.length || 0} />
         }
         {
           activeTab === 'second' &&
-          <DeptUserTable users={users} isPending={isPending} refetch={refetch} isHod={isHod} currentDepartment={department} />
+          <DeptUserTable employees={employees} isPending={isPending} refetch={refetch} isHod={isHod} currentDepartment={department} />
         }
         
          {

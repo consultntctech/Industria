@@ -7,11 +7,11 @@ import { enqueueSnackbar } from "notistack";
 import { IDepartment } from "@/lib/models/department.model";
 import GenericLabel from "../shared/inputs/GenericLabel";
 import {useCanUser } from "@/hooks/useAuth";
-import SearchSelectUsers from "../shared/inputs/dropdowns/SearchSelectUsers";
-import { IUser } from "@/lib/models/user.model";
 import { createDepartment, updateDepartment } from "@/lib/actions/department.action";
 import CloseButton from "../misc/CloseButton";
 import { useFetchDepartments } from "@/hooks/fetch/useFetchDepartments";
+import SearchSelectEmployees from "../shared/inputs/dropdowns/SearchSelectEmployees";
+import { IEmployee } from "@/lib/models/employee.model";
 ;
 
 type DepartmentCompProps = {
@@ -24,13 +24,13 @@ type DepartmentCompProps = {
 const DepartmentComp = ({openNew, setOpenNew, currentDepartment, setCurrentDepartment}:DepartmentCompProps) => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<IDepartment>>({});
-    const [head, setHead] = useState<IUser | null>(null);
+    const [head, setHead] = useState<IEmployee | null>(null);
     const {user} = useAuth();
 
 
     const formRef = useRef<HTMLFormElement>(null);
     const {refetch} = useFetchDepartments();
-    const savedHead = currentDepartment?.head as IUser
+    const savedHead = currentDepartment?.head as IEmployee
     const isCreator = useCanUser('95', 'CREATE');
     const isEditor = useCanUser('95', 'UPDATE');
 
@@ -130,7 +130,7 @@ const DepartmentComp = ({openNew, setOpenNew, currentDepartment, setCurrentDepar
                     <div className="flex gap-4 flex-col w-full">
                         <InputWithLabel defaultValue={currentDepartment?.name} onChange={onChange} name="name" required placeholder="eg. Sales" label="Give it a name" className="w-full" />
                         <GenericLabel label="Select HOD"
-                            input={<SearchSelectUsers value={savedHead} setSelect={setHead}  required />}
+                            input={<SearchSelectEmployees value={savedHead} setSelect={setHead}  required showMe={true} />}
                         />
                     </div>
         

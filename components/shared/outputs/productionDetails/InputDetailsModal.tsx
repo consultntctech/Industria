@@ -10,10 +10,8 @@ import { enqueueSnackbar } from "notistack";
 import GenericLabel from "../../inputs/GenericLabel";
 import { IProduct } from "@/lib/models/product.model";
 import SearchSelectBatches from "../../inputs/dropdowns/SearchSelectBatches";
-import SearchSelectUsers from "../../inputs/dropdowns/SearchSelectUsers";
 import SearchSelectProducts from "../../inputs/dropdowns/SearchSelectProducts";
 import { IBatch } from "@/lib/models/batch.model";
-import { IUser } from "@/lib/models/user.model";
 import {useCanUser } from "@/hooks/useAuth";;
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IOriginalPrice } from "@/types/Types";
@@ -21,6 +19,8 @@ import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
 import SearchSelectCurrencies from "../../inputs/dropdowns/SearchSelectCurrencies";
 import CustomCheckV2 from "@/components/misc/CustomCheckV2";
+import { IEmployee } from "@/lib/models/employee.model";
+import SearchSelectEmployees from "../../inputs/dropdowns/SearchSelectEmployees";
 
 type InputDetailsModalProps = {
     openNew:boolean;
@@ -35,7 +35,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
 
     const [batch, setBatch] = useState<string>('');
     const [productToProduce, setProductToProduce] = useState<IProduct|null>(null);
-    const [supervisor, setSupervisor] = useState<IUser | null>(null);
+    const [supervisor, setSupervisor] = useState<IEmployee | null>(null);
     const [useRate, setUseRate] = useState(false);
     const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
     // const [originalCost, setOriginalCost] = useState(0);
@@ -47,7 +47,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
 
     const batched = production?.batch as IBatch;
     const productToProd = production?.productToProduce as IProduct;
-    const supervisord = production?.supervisor as IUser;
+    const supervisord = production?.supervisor as IEmployee;
     const original = production?.original as IOriginalPrice;
     const savedCurrency = original?.currency as IOtherCurrency;
 
@@ -160,7 +160,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
                     />
                     <GenericLabel
                         label="Select supervisor"
-                        input={<SearchSelectUsers value={supervisord} required={true} setSelect={setSupervisor} />}
+                        input={<SearchSelectEmployees showMe={true} value={supervisord} required={true} setSelect={setSupervisor} />}
                     />
                     <GenericLabel
                         label="Product to produce"

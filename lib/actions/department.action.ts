@@ -11,6 +11,7 @@ import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Role from "../models/role.model";
 import User, { IUser } from "../models/user.model";
 import { Types } from "mongoose";
+import Employee from "../models/employee.model";
 
 export async function createDepartment(data:Partial<IDepartment>):Promise<IResponse>{
     try {
@@ -57,14 +58,18 @@ export async function removeUserFromDepartment(departmentId: string, userId: str
       (roleId) => !deptRoleIdSet.has(roleId)
     );
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      {
-        department: null,
-        roles: remainingRoleIds.map((roleId) => new Types.ObjectId(roleId)),
-      },
-      { new: true }
-    );
+    const [updatedUser] = await Promise.all([
+      User.findByIdAndUpdate(
+        userId,
+        {
+          department: null,
+          roles: remainingRoleIds.map((roleId) => new Types.ObjectId(roleId)),
+        },
+        { new: true }
+      ),
+
+      Employee.findOneAndUpdate({email:user.email?.toLowerCase()}, {department:null}, {new: true}),
+    ])
 
     return respond("User removed successfully", false, updatedUser, 200);
   } catch (error) {

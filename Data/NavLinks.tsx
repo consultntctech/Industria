@@ -6,6 +6,7 @@ import { FiRefreshCw } from "react-icons/fi";
 import { GoPeople } from "react-icons/go";
 import { GrAlert, GrShieldSecurity, GrUserWorker } from "react-icons/gr";
 import { HiOutlineCash, HiOutlineCurrencyDollar, HiOutlineUsers } from "react-icons/hi";
+import { HiOutlineUserGroup } from "react-icons/hi2";
 import { IoAlertCircleOutline, IoSettingsOutline } from "react-icons/io5";
 import { LiaRecycleSolid, LiaShoppingBasketSolid, LiaToolsSolid, LiaUsersCogSolid } from "react-icons/lia";
 import { LuBaggageClaim, LuGitPullRequest, LuLayoutDashboard, LuPillBottle, LuShoppingCart } from "react-icons/lu";
@@ -31,12 +32,13 @@ export const NavLinks = (): INavBarItem[] => {
       id: "2",
       title: "Users and Roles",
       icon: <PiUsersThree />,
-      tableids: ['38', '27', '23', '95'],
+      tableids: ['38', '27', '23', '95', '96'],
       subMenu: [
         {id:'145', tableids:['95'], title:'Departments', icon:<BsHouseUp />, link:'/dashboard/departments'},
         { id: "21", tableids:['38'], title: "Users", icon: <LiaUsersCogSolid />, link: "/dashboard/users" },
         { id: "22", tableids:['27'], title: "Roles", icon: <GrShieldSecurity />, link: "/dashboard/roles" },
         { id: "23", tableids:['23'], title: "Role Templates", icon: <RiShieldFlashLine />, link: "/dashboard/templates" },
+        { id: "96", tableids:['96'], title: "Employees", icon: <HiOutlineUserGroup />, link: "/dashboard/employees" },
       ],
     },
     {

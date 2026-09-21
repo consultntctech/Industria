@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { createCurrency } from "@/lib/actions/currency.action";
 import { enqueueSnackbar } from "notistack";
 import {useCanUser } from "@/hooks/useAuth";import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
+import { useFetchOtherCurrencyByOrg } from "@/hooks/fetch/useFetchOtherCurrency";
 
 type CurrencyCompProps = {
   currency: ICurrency | null | undefined;
@@ -20,6 +21,7 @@ const CurrencyComp = ({currency, refetch, currencyLoading}:CurrencyCompProps) =>
     const [data, setData] = useState<Partial<ICurrency>>({});
     const formRef = useRef<HTMLFormElement>(null);
     const {user} = useAuth();
+    const {refetch:otherCurrencyRefetch} = useFetchOtherCurrencyByOrg();
 
     
     const isConfigurer = useCanUser('48', 'UPDATE');
@@ -57,6 +59,7 @@ const CurrencyComp = ({currency, refetch, currencyLoading}:CurrencyCompProps) =>
           if(!res.error){
               formRef.current?.reset();
               refetch();
+              otherCurrencyRefetch();
           }
         } catch (error) {
           console.log(error);

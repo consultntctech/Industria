@@ -6,7 +6,7 @@ export const Footer = () => {
       <div className="flex-center gap-2 flex-row">
         <span className="font-extralight" >&copy;</span>
         <span className="font-extralight" >{new Date()?.getFullYear()}</span>
-        <Link className="font-extralight underline" target="_blank" href="https://www.consultntctech.com/">NTC Tech</Link>
+        <Link className="font-extralight underline" target="_blank" href="https://sesatechafrica.com/">Sesa Technology Africa</Link>
       </div>
     </footer>
   )

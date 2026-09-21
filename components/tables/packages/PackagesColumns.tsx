@@ -3,6 +3,7 @@ import { Deleter,  Linker, ViewCreator, Viewer } from "@/components/PermisionHel
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
+import { IEmployee } from "@/lib/models/employee.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { IPackage } from "@/lib/models/package.model";
@@ -221,17 +222,17 @@ export const PackagesColumns = (
             headerName: 'Supervised By',
             width:170,
             valueFormatter: (_, row:IPackage)=>{
-                const supervisor = row?.supervisor as IUser;
+                const supervisor = row?.supervisor as IEmployee;
                 return supervisor ? supervisor.name : 'Unknown';
             },
             valueGetter: (_, row:IPackage)=>{
-                const supervisor = row?.supervisor as IUser;
+                const supervisor = row?.supervisor as IEmployee;
                 return supervisor ? supervisor.name : 'Unknown';
             },
             renderCell: (params:GridRenderCellParams)=>{
-                const supervisor = params?.row?.supervisor as IUser;
+                const supervisor = params?.row?.supervisor as IEmployee;
                 return (
-                    <Linker link={`/dashboard/users?Id=${supervisor?._id}`} placeholder={supervisor?.name} tableId="38" />
+                    <Linker link={`/dashboard/employees?Id=${supervisor?._id}`} placeholder={supervisor?.name} tableId="38" />
                 )
             }
         },

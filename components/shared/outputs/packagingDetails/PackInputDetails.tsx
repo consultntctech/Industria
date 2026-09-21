@@ -14,6 +14,7 @@ import { Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelp
 import { useCanUser } from '@/hooks/useAuth';
 import { IOriginalPrice } from '@/types/Types';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
+import { IEmployee } from '@/lib/models/employee.model';
 // import { formatDate } from '@/functions/dates';
 
 type PackInputDetailsProps = {
@@ -26,7 +27,7 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
     const isEditor = useCanUser('99', 'UPDATE');
     
     const batch = pack?.batch as IBatch;
-    const supervisor = pack?.supervisor as IUser;
+    const supervisor = pack?.supervisor as IEmployee;
     const creator = pack?.createdBy as IUser;
     const products = pack?.goods as IGoodsPopulate[]
     const storages = pack?.storages as IStorage[];
@@ -155,7 +156,7 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Supervised By:</span>
-          <Linker tableId='38' linkStyle="link" spanStyle='text-gray-600 flex-1 md:flex-5' link={`/dashboard/users?Id=${supervisor?._id}`} placeholder={supervisor?.name} />
+          <Linker tableId='96' linkStyle="link" spanStyle='text-gray-600 flex-1 md:flex-5' link={`/dashboard/employees?Id=${supervisor?._id}`} placeholder={supervisor?.name} />
         </div>
 
       </div>

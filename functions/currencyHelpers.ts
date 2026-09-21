@@ -13,3 +13,6 @@ export const currencyRate = (original:IOriginalPrice | null, otherCurrency:IOthe
 export const exposeRate = (currentCurrency:IOtherCurrency | null, otherCurrency:IOtherCurrency | null):boolean => {
     return (!!currentCurrency && !!otherCurrency) && (currentCurrency._id === otherCurrency._id) && (currentCurrency.rate !== otherCurrency.rate);
 }
+
+
+

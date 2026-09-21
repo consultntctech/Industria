@@ -49,7 +49,7 @@ const OtherCurrencyComp = ({openNew, setOpenNew, currentOtherCurrency, setCurren
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await createOtherCurrency({...data, org:user?.org, createdBy:user?._id, creator:user?.name});
+            const res = await createOtherCurrency({...data, type:'other', org:user?.org, createdBy:user?._id, creator:user?.name});
             enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
             if(!res.error){
                 formRef.current?.reset();

@@ -1,3 +1,4 @@
+import { useEmployeeHasAccount } from "@/hooks/fetch/useFetchEmployees";
 import { MarkElementProps } from "@mui/x-charts";
 type SeriesDataMap = Record<string, number[]>;
 
@@ -57,3 +58,9 @@ export const MultiCustomMark = (dataMap: SeriesDataMap) =>
       </g>
     );
   };
+
+
+  export const getEmployeeStatus = (email:string):boolean=>{
+    const {hasAccount} = useEmployeeHasAccount(email);
+    return !!hasAccount;
+  }

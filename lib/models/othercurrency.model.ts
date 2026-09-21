@@ -7,6 +7,7 @@ export interface IOtherCurrency {
     name: string;
     symbol: string;
     rate: number;
+    type: 'default' | 'other';
     note: string;
     creator: string
     createdBy: string | Types.ObjectId | IUser;
@@ -16,10 +17,11 @@ export interface IOtherCurrency {
 }
 
 const OtherCurrencySchema = new Schema<IOtherCurrency>({
-    name: { type: String, required: false, default: 'Default'},
-    symbol: { type: String, required: true },
+    name: { type: String, required: false, default: 'Cedi'},
+    symbol: { type: String, required: true, default: 'GH₵' },
     note: String,
     rate: { type: Number, required: true },
+    type: String,
     creator: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

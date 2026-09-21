@@ -1,7 +1,7 @@
 import { IResponse } from "@/types/Types"
 import { getWelcomeEmailHTML, renderPasswordResetEmail, WelcomeEmailParams } from "@/utils/emailtemplate";
 import bcrypt from 'bcrypt';
-import nodemailer from 'nodemailer';
+import nodemailer, { SentMessageInfo } from 'nodemailer';
 import { Types } from 'mongoose';
 import {  IRole } from "./models/role.model";
 import { IDepartment } from "./models/department.model";
@@ -79,7 +79,7 @@ export async function sendWelcomeEmail({
   password,
   appUrl,
   supportEmail,
-}: SendWelcomeEmailOptions): Promise<void> {
+}: SendWelcomeEmailOptions): Promise<SentMessageInfo> {
   const html = getWelcomeEmailHTML({
     companyName,
     companyInitials,
@@ -96,7 +96,7 @@ export async function sendWelcomeEmail({
 
   // console.log(process.env.GMAIL_USER, process.env.GMAIL_PASS)
 
-  await transporter.sendMail({
+  const res = await transporter.sendMail({
     from: `"${companyName}" <${process.env.GMAIL_USER}>`,
     replyTo: supportEmail,
     to,
@@ -105,6 +105,7 @@ export async function sendWelcomeEmail({
   });
   // console.log('Email Response: ', emailRes)
   console.log(`✅ Welcome email sent to ${to}`);
+  return res;
 }
 
 

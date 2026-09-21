@@ -22,7 +22,7 @@ export async function createOtherCurrency(data:Partial<IOtherCurrency>):Promise<
 export async function getOtherCurrencies():Promise<IResponse>{
     try {
         await connectDB();
-        const currencies = await OtherCurrency.find();
+        const currencies = await OtherCurrency.find().populate('createdBy');
         return respond('Currencies found successfully', false, currencies, 200);
     } catch (error) {
         console.log(error);
@@ -33,7 +33,7 @@ export async function getOtherCurrencies():Promise<IResponse>{
 export async function getOtherCurrencyByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
-        const currencies = await OtherCurrency.find({ org: orgId });
+        const currencies = await OtherCurrency.find({ org: orgId }).populate('createdBy');
         return respond('Currencies found successfully', false, currencies, 200);
     } catch (error) {
         console.log(error);

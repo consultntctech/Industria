@@ -17,7 +17,6 @@ import GenericLabel from '../shared/inputs/GenericLabel';
 import SearchSelectPackagingType from '../shared/inputs/dropdowns/SearchSelectPackagingType';
 import SearchSelectAvMultipleProdItems from '../shared/inputs/dropdowns/SearchSelectAvMultipleProdItems';
 import ProdItemSelector from '../misc/ProdItemSelector';
-import SearchSelectUsers from '../shared/inputs/dropdowns/SearchSelectUsers';
 // import CustomCheckV2 from '../misc/CustomCheckV2';
 // import TextInput from '../shared/inputs/TextInput';
 import SearchSelectBatches from '../shared/inputs/dropdowns/SearchSelectBatches';
@@ -31,11 +30,12 @@ import { createLineItems } from '@/lib/actions/lineitem.action';
 import SearchSelectProducts from '../shared/inputs/dropdowns/SearchSelectProducts';
 import GoodsQSelector from '../misc/GoodsQSelector';
 import SearchSelectAvMultipleGoods from '../shared/inputs/dropdowns/SearchSelectAvMultipleGoods';
-import { IUser } from '@/lib/models/user.model';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import SearchSelectCurrencies from '../shared/inputs/dropdowns/SearchSelectCurrencies';
 import { IStorage } from '@/lib/models/storage.model';
 import SearchSelectMultipleStorages from '../shared/inputs/dropdowns/SearchSelectMultipleStorages';
+import SearchSelectEmployees from '../shared/inputs/dropdowns/SearchSelectEmployees';
+import { IEmployee } from '@/lib/models/employee.model';
 
 const NewPackageComp = () => {
     const [loading, setLoading] = useState(false);
@@ -44,7 +44,7 @@ const NewPackageComp = () => {
     // const [good, setGood] = useState<IGood | null>(null);
     // const [useProdBatch, setUseProdBatch] = useState(true);
     const [batch, setBatch] = useState<string>('');
-    const [supervisor, setSupervisor] = useState<IUser | null>(null);
+    const [supervisor, setSupervisor] = useState<IEmployee | null>(null);
     const [storages, setStorages] = useState<IStorage[]>([]);
     // const [cost, setCost] = useState<number>(0);
     const [data, setData] = useState<Partial<IPackage>>({});
@@ -266,7 +266,7 @@ const NewPackageComp = () => {
                 />
                 <GenericLabel
                     label="Supervisor"
-                    input={<SearchSelectUsers required setSelect={setSupervisor} />}
+                    input={<SearchSelectEmployees showMe={true} required setSelect={setSupervisor} />}
                 />
                 <GenericLabel
                     label="Product to package"

@@ -15,7 +15,7 @@ export interface ICurrency extends Document {
 
 const CurrencySchema = new Schema<ICurrency>({
     name: { type: String, required: false, default: 'Default'},
-    symbol: { type: String, required: true },
+    symbol: { type: String, required: true, default: 'GH₵' },
     creator: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

@@ -10,6 +10,7 @@ import ProdApproval from "./prodapproval.model";
 import { IOriginalPrice } from "@/types/Types";
 import { ILabourer } from "./labourer.model";
 import Alert from "./alert.model";
+import { IEmployee } from "./employee.model";
 
 export interface ProdIngredient{
     materialId: string
@@ -26,7 +27,7 @@ export interface IIngredientInProduction {
 export interface IProduction extends Document {
     _id: string;
     name: string;
-    supervisor: string | Types.ObjectId | IUser;
+    supervisor: string | Types.ObjectId | IEmployee;
     labourers: string[] | Types.ObjectId[] | ILabourer[];
     batch: string | Types.ObjectId | IBatch;
     productToProduce: string | Types.ObjectId | IProduct;
@@ -55,7 +56,7 @@ export interface IProduction extends Document {
 
 const ProductionSchema = new Schema<IProduction>({
     name: { type: String, required: true },
-    supervisor: { type: Schema.Types.ObjectId, ref: 'User', required: false },
+    supervisor: { type: Schema.Types.ObjectId, ref: 'Employee', required: false },
     batch: { type: Schema.Types.ObjectId, ref: 'Batch', required: false },
     productToProduce: { type: Schema.Types.ObjectId, ref: 'Product', required: false },
     status: { type: String, required: true },

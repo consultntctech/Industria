@@ -19,6 +19,7 @@ import "../models/role.model";
 import Forgot from "../models/forgot.model";
 import Department, { IDepartment } from "../models/department.model";
 import { Types } from "mongoose";
+import Employee from "../models/employee.model";
 // import { createSession, destroySession } from "../session";
 // import { IRole } from "../models/role.model";
 
@@ -61,6 +62,7 @@ export async function applyDepartmentRoleSwap(data: Partial<IUser>): Promise<voi
 
 export async function createUser(data: Partial<IUser>): Promise<IResponse> {
   let createdUserId: string | undefined;
+  let employeeId: string | undefined;
 
   try {
     await connectDB();
@@ -89,6 +91,22 @@ export async function createUser(data: Partial<IUser>): Promise<IResponse> {
     ]);
 
     createdUserId = newUser._id.toString();
+    const exEmployee = await Employee.findOne({ email: data.email?.toLowerCase() });
+    if(!exEmployee){
+      const employee = await Employee.create({
+        name: data.name,
+        address: data.address,
+        phone: data.phone,
+        email: data.email,
+        photo: data.photo,
+        department: department._id,
+        userAccount: newUser._id,
+        description: data.description,
+        creator: data.creator,
+        org: data.org,
+      });
+      employeeId = employee._id.toString();
+    }
 
     try {
       await sendWelcomeEmail({
@@ -104,10 +122,14 @@ export async function createUser(data: Partial<IUser>): Promise<IResponse> {
         appUrl: "https://industra-app.vercel.app/",
         supportEmail: org?.email || 'akwaaba@sesatechafrica.com',
       });
+      
     } catch (emailError) {
       // Compensating action: undo the user creation since the email leg failed
       console.log("Welcome email failed, rolling back user creation:", emailError);
-      await User.deleteOne({ _id: createdUserId });
+      await Promise.all([
+        User.deleteOne({ _id: createdUserId }),
+        Employee.deleteOne({ _id: employeeId })
+      ]);
       return respond(
         "Failed to send email. Error occured while creating user",
         true,
@@ -192,9 +214,22 @@ export async function updateUser(data: Partial<IUser>): Promise<IResponse> {
   try {
     await connectDB();
     await applyDepartmentRoleSwap(data);
-    const updatedUser = await User.findByIdAndUpdate(data._id, data, {
-      new: true,
-    });
+    const empData = {
+      name: data.name,
+      address: data.address,
+      phone: data.phone,
+      email: data.email,
+      photo: data.photo,
+      department: data.department,
+      userAccount: data._id,
+      description: data.description,
+      creator: data.creator,
+      org: data.org,
+    }
+    const [updatedUser] = await Promise.all([
+      User.findByIdAndUpdate(data._id, data, {new: true,}),
+      Employee.findOneAndUpdate({email:data.email?.toLowerCase()}, empData, {new: true,}),
+    ]);
     return respond("User updated successfully", false, updatedUser, 200);
   } catch (error) {
     console.log(error);
@@ -206,7 +241,22 @@ export async function updateUserV2(data: Partial<IUser>): Promise<IResponse> {
   try {
     await connectDB();
     await applyDepartmentRoleSwap(data);
-    const user = await User.findByIdAndUpdate(data._id, data, { new: true });
+    const empData = {
+      name: data.name,
+      address: data.address,
+      phone: data.phone,
+      email: data.email,
+      photo: data.photo,
+      department: data.department,
+      userAccount: data._id,
+      description: data.description,
+      creator: data.creator,
+      org: data.org,
+    }
+    const [user] = await Promise.all([
+      User.findByIdAndUpdate(data._id, data, { new: true }),
+      Employee.findOneAndUpdate({email:data.email?.toLowerCase()}, empData, { new: true }),
+    ]);
 
     const sessionData: ISession = {
       _id: user._id.toString(),
@@ -245,7 +295,7 @@ export async function AssignRolesToUsers(
 export async function getUser(id: string): Promise<IResponse> {
   try {
     await connectDB();
-    const check = await verifyOrgAccess(User, id, "User", [{ path: "org" }, { path: "department" }]);
+    const check = await verifyOrgAccess(User, id, "User", [{ path: "org" }, { path: "department" }, { path: "roles" }]);
     if ("allowed" in check === false) return check;
     const user = check.doc;
     return respond("User retrieved successfully", false, user, 200);

@@ -242,7 +242,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                         }
                         {
                             lineItems?.length > 0 &&
-                            <span className="font-semibold">Total price: {totalPrice} {currency?.symbol || ''}</span>
+                            <span className="font-semibold">Total price:{currency?.symbol || ''} {totalPrice}</span>
                         }
                     </div>
         

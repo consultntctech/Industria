@@ -9,19 +9,20 @@ import DeptUserInfoModal from './DeptUserInfoModal';
 import { IDepartment } from '@/lib/models/department.model';
 import { removeUserFromDepartment } from '@/lib/actions/department.action';
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
+import { IEmployee } from '@/lib/models/employee.model';
 
 type DeptUserTableProps = {
     isHod: boolean;
     currentDepartment: IDepartment | null;
-    users: IUser[];
+    employees: IEmployee[];
     isPending: boolean;
-    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IUser[], Error>>
+    refetch: (options?: RefetchOptions) => Promise<QueryObserverResult<IEmployee[], Error>>
 }
 
-const DeptUserTable = ({isHod, currentDepartment, users, isPending, refetch}:DeptUserTableProps) => {
+const DeptUserTable = ({isHod, currentDepartment, employees, isPending, refetch}:DeptUserTableProps) => {
     const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
-    const [currentUser, setCurrentUser] = useState<IUser | null>(null);
+    const [currentEmployee, setCurrentEmployee] = useState<IEmployee | null>(null);
 
   
 
@@ -31,26 +32,27 @@ const DeptUserTable = ({isHod, currentDepartment, users, isPending, refetch}:Dep
 
 
 
-    const handleInfo = (user:IUser)=>{
+    const handleInfo = (emp:IEmployee)=>{
         setShowInfo(true);
-        setCurrentUser(user);
+        setCurrentEmployee(emp);
     }
 
-    const handleDelete = (user:IUser)=>{
+    const handleDelete = (emp:IEmployee)=>{
         setShowDelete(true);
-        setCurrentUser(user);
+        setCurrentEmployee(emp);
     }
 
     const handleClose = ()=>{
         setShowInfo(false);
         setShowDelete(false);
-        setCurrentUser(null);
+        setCurrentEmployee(null);
     }
 
     const handleDeleteUser = async()=>{
         try {
-            if(!currentUser || !currentDepartment) return;
-            const res = await removeUserFromDepartment(currentDepartment._id, currentUser._id);
+            if(!currentEmployee || !currentDepartment) return;
+            const account = currentEmployee?.userAccount as IUser;
+            const res = await removeUserFromDepartment(currentDepartment._id, account._id);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             handleClose();
             if(!res.error){
@@ -63,12 +65,12 @@ const DeptUserTable = ({isHod, currentDepartment, users, isPending, refetch}:Dep
     }
 
 
-    const content = currentUser ? `Are you sure you want to remove employee ${currentUser.name} from this department? This will also remove the permissions they inherited from the department.` : '';
+    const content = currentEmployee ? `Are you sure you want to remove employee ${currentEmployee.name} from this department? This will also remove the permissions they inherited from the department.` : '';
 
   return (
     <div className='table-main2' >
         <span className='font-bold text-xl' >Employees</span>
-        <DeptUserInfoModal isHod={isHod} refetch={refetch} infoMode={showInfo} setInfoMode={setShowInfo} currentUser={currentUser} setCurrentUser={setCurrentUser} />
+        <DeptUserInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentEmployee={currentEmployee} setCurrentEmployee={setCurrentEmployee} />
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteUser} title="Remove Employee" content={content} />
         <div className="flex w-full">
             {
@@ -78,8 +80,8 @@ const DeptUserTable = ({isHod, currentDepartment, users, isPending, refetch}:Dep
                 <Paper className='w-full' sx={{ height: 'auto', }}>
                     <DataGrid
                         loading={isPending}
-                        getRowId={(row:IUser)=>row._id}
-                        rows={users}
+                        getRowId={(row:IEmployee)=>row._id}
+                        rows={employees}
                         columns={DeptUserColumns(handleInfo, handleDelete, isHod)}
                         initialState={{ 
                             pagination: { paginationModel },

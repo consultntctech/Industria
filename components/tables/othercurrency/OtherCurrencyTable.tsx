@@ -21,7 +21,7 @@ const OtherCurrencyTable = ({  isSuccess, currency}:OtherCurrencyTableProps) => 
     const [showDelete, setShowDelete] = useState(false);
     const [openNew, setOpenNew] = useState(false);
     const [currentOtherCurrency, setCurrentOtherCurrency] = useState<IOtherCurrency | null>(null);
-    const {currencies, isPending, refetch} = useFetchOtherCurrencyByOrg();
+    const {currencies, isPending, refetch} = useFetchOtherCurrencyByOrg(false);
     
     const searchParams = useSearchParams();
     const StorageId = searchParams.get("Id");
@@ -44,7 +44,7 @@ const OtherCurrencyTable = ({  isSuccess, currency}:OtherCurrencyTableProps) => 
             }
             } catch (error) {
             if (isMounted) {
-                enqueueSnackbar("Error occurred while fetching OtherCurrency location", { variant: "error" });
+                enqueueSnackbar("Error occurred while fetching currency", { variant: "error" });
             }
             }
         };

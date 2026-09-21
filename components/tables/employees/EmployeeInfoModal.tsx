@@ -1,24 +1,34 @@
 import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
+import {  isSystemAdmin } from '@/Data/roles/permissions';
 import { formatDate } from '@/functions/dates';
+import { useAuth } from '@/hooks/useAuth';
+import { IDepartment } from '@/lib/models/department.model';
 import { IEmployee } from '@/lib/models/employee.model';
+import { IOrganization } from '@/lib/models/org.model';
 import { IUser } from '@/lib/models/user.model';
 import Image from 'next/image';
 import Link from 'next/link';
 import  { Dispatch, SetStateAction } from 'react'
 
-type DeptUserInfoModalProps = {
+type EmployeeInfoModalProps = {
     infoMode:boolean,
     setInfoMode:Dispatch<SetStateAction<boolean>>;
     currentEmployee: IEmployee | null;
     setCurrentEmployee:Dispatch<SetStateAction<IEmployee | null>>;
 }
 
-const DeptUserInfoModal = ({infoMode, setInfoMode, currentEmployee, setCurrentEmployee}:DeptUserInfoModalProps) => {
-
+const EmployeeInfoModal = ({infoMode, setInfoMode, currentEmployee, setCurrentEmployee}:EmployeeInfoModalProps) => {
+    const organization = currentEmployee?.org as IOrganization;
+    const department = currentEmployee?.department as IDepartment;
     const account = currentEmployee?.userAccount as IUser;
-    
 
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
+
+  
+    
+   
     const handleClose = ()=>{
         setInfoMode(false);
         setCurrentEmployee(null);
@@ -63,20 +73,39 @@ const DeptUserInfoModal = ({infoMode, setInfoMode, currentEmployee, setCurrentEm
                     <span className="mtext">None</span>
                 }
             </div>
-            
+            {
+                isAdmin &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Organization</span>
+                    <Link href={`/dashboard/organizations?Id=${organization?._id}`} className="mtext link">{organization?.name || 'None'}</Link>
+                </div>
+            }
             <div className="flex flex-col">
                 <span className="mlabel">Description</span>
                 <span className="mtext">{currentEmployee?.description || 'None'}</span>
             </div>
             <div className="flex flex-col">
+                <span className="mlabel">Department</span>
+                {
+                    department ? 
+                    <Linker tableId='95' link={`/dashboard/departments/${department?._id}`}  linkStyle="link mtext" spanStyle='mtext' placeholder={department?.name} />
+                    :
+                    <span className="mtext">Not assigned</span>
+                }
+            </div>
+
+            <div className="flex flex-col">
+                <span className="mlabel">Created By</span>
+                <span className="mtext">{currentEmployee?.creator || 'Unknown'}</span>
+            </div>
+
+            <div className="flex flex-col">
                 <span className="mlabel">Created</span>
                 <span className="mtext">{formatDate(currentEmployee?.createdAt)}</span>
             </div>
-
-        </div>
-       
+        </div>       
     </InfoModalContainer>
   )
 }
 
-export default DeptUserInfoModal
+export default EmployeeInfoModal

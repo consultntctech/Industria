@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useFetchOrgs } from "@/hooks/fetch/useFetchOrgs";
 import { useAuth } from "@/hooks/useAuth";
 import { isSystemAdmin } from "@/Data/roles/permissions";
+import { ICurrency } from "@/lib/models/currency.model";
 
 type OrgCompProps = {
   openNew:boolean;
@@ -65,7 +66,12 @@ const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganizati
       logo: logo.url
     }
     try {
-      const res = await createOrg(orgData);
+      const currencyData:Partial<ICurrency> = {
+        name: 'Default',
+        symbol: 'GH₵',
+        creator: 'System',
+      }
+      const res = await createOrg(orgData, currencyData);
       enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
       if(!res.error){
         formRef.current?.reset();

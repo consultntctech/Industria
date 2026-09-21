@@ -1,34 +1,37 @@
-import { useFetchOrgs } from "@/hooks/fetch/useFetchOrgs"
-import { IOrganization } from "@/lib/models/org.model"
+import { useFetchEmployees } from "@/hooks/fetch/useFetchEmployees";
+import { IEmployee } from "@/lib/models/employee.model";
 import { Autocomplete, CircularProgress, TextField } from "@mui/material"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
-type SearchSelectOrgsProps = {
-    setOrgId?: Dispatch<SetStateAction<string>>,
-    value?: IOrganization | null,
-    disable?: boolean,
+type SearchSelectEmployeesProps = {
+    setSelect?: Dispatch<SetStateAction<IEmployee | null>>,
+    value?: IEmployee | null,
     width?: number,
     required?:boolean,
+    disabled?: boolean,
+    showMe?:boolean,
+    placeholder?:string,
 }
-const SearchSelectOrgs = ({setOrgId, required, disable, value, width}:SearchSelectOrgsProps) => {
-    const {orgs, isPending} = useFetchOrgs();
+const SearchSelectEmployees = ({setSelect, required, value, width, disabled, showMe, placeholder}:SearchSelectEmployeesProps) => {
+    const {employees, isPending} = useFetchEmployees(showMe);
     const [search, setSearch] = useState<string>('');
 
     return(
         <Autocomplete
             disablePortal
-            options={orgs}
-            onChange={(_, item:IOrganization|null)=>{
-                if(setOrgId){
-                    setOrgId(item?._id as string)
+            options={employees}
+            onChange={(_, item:IEmployee|null)=>{
+                // console.log(e.target)
+                if(setSelect){
+                    setSelect(item)
                 }
             }}
+            disabled={disabled}
             defaultValue={value}
             inputValue={search}
             onInputChange={(_, item)=>{
                 setSearch(item);
             }}
-            disabled={disable}
             loading={isPending}
             isOptionEqualToValue={(option, v)=>option._id === v._id}
             getOptionLabel={(option)=>option?.name}
@@ -38,7 +41,7 @@ const SearchSelectOrgs = ({setOrgId, required, disable, value, width}:SearchSele
                     {...params}
                     required={required}
                     size="small"
-                    label= {"Organization"}
+                    label= {placeholder || "Employee"}
                     color="primary"
                     className="rounded"
                     slotProps={{
@@ -60,4 +63,4 @@ const SearchSelectOrgs = ({setOrgId, required, disable, value, width}:SearchSele
     )
 }
 
-export default SearchSelectOrgs
+export default SearchSelectEmployees

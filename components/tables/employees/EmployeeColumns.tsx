@@ -1,25 +1,19 @@
 import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
-import { isDbGlobalAdmin,  isSystemAdmin } from "@/Data/roles/permissions";
 import { formatDate } from "@/functions/dates";
-import { useAuth, useIsGlobalAdmin } from "@/hooks/useAuth";
 import { IDepartment } from "@/lib/models/department.model";
+import { IEmployee } from "@/lib/models/employee.model";
 import { IOrganization } from "@/lib/models/org.model";
-import { IRole } from "@/lib/models/role.model";
-import { IUser } from "@/lib/models/user.model";
 // import { ISessionRole } from "@/types/Types";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import Image from "next/image";
 import Link from "next/link";
-import { Activity } from "react";
 
-export const UserColoumns = (
-    handleInfo: (user:IUser)=>void,
-    handleEdit: (user:IUser)=>void,
-    handleDelete: (user:IUser)=>void,
+export const EmployeeColoumns = (
+    handleInfo: (user:IEmployee)=>void,
+    handleEdit: (user:IEmployee)=>void,
+    handleDelete: (user:IEmployee)=>void,
 ):GridColDef[]=>{
-    const {user} = useAuth();
-    const isGlobal = useIsGlobalAdmin();
-    const isAdmin = isSystemAdmin(user);
+
 
     return [
         {
@@ -30,7 +24,7 @@ export const UserColoumns = (
             filterable:false,
             renderCell: (params:GridRenderCellParams)=>(
                 <div className="relative flex flex-row items-center h-full pb-2 mt-1">
-                    <Image alt="user" height={30} width={30}  objectFit="cover"  className="object-cover rounded-full" src={params.row?.photo} />
+                    <Image alt="employee" height={30} width={30}  objectFit="cover"  className="object-cover rounded-full" src={params.row?.photo} />
                 </div>
             )
         },
@@ -63,11 +57,11 @@ export const UserColoumns = (
             field: 'department',
             headerName: 'Department',
             width:140,
-            valueFormatter: (_, row:IUser)=>{
+            valueFormatter: (_, row:IEmployee)=>{
                 const department = row?.department as IDepartment;
                 return department ? department.name : '';
             },
-            valueGetter: (_, row:IUser)=>{
+            valueGetter: (_, row:IEmployee)=>{
                 const department = row?.department as IDepartment;
                 return department ? department.name : '';
             },
@@ -79,16 +73,15 @@ export const UserColoumns = (
             }
         },
 
-
         {
             field:'org',
             headerName: 'Organization',
             width:140,
-            valueFormatter: (_, row:IUser)=>{
+            valueFormatter: (_, row:IEmployee)=>{
                 const org = row?.org as IOrganization;
                 return org ? org.name : '';
             },
-            valueGetter: (_, row:IUser)=>{
+            valueGetter: (_, row:IEmployee)=>{
                 const org = row?.org as IOrganization;
                 return org ? org.name : '';
             },
@@ -101,13 +94,19 @@ export const UserColoumns = (
         },
 
         {
+            field:'creator',
+            headerName: 'Created By',
+            width:120,
+        },
+
+        {
             field: 'createdAt',
             headerName: 'Created',
             width:100,
-            valueFormatter:(_, row:IUser)=>{
+            valueFormatter:(_, row:IEmployee)=>{
                 return formatDate(row?.createdAt)
             },
-            valueGetter:(_, row:IUser)=>{
+            valueGetter:(_, row:IEmployee)=>{
                 return formatDate(row?.createdAt)
             }
         },
@@ -116,10 +115,10 @@ export const UserColoumns = (
             field: 'updatedAt',
             headerName: 'Modified',
             width:100,
-            valueFormatter:(_, row:IUser)=>{
+            valueFormatter:(_, row:IEmployee)=>{
                 return formatDate(row?.updatedAt)
             },
-            valueGetter:(_, row:IUser)=>{
+            valueGetter:(_, row:IEmployee)=>{
                 return formatDate(row?.updatedAt)
             }
         },
@@ -132,17 +131,13 @@ export const UserColoumns = (
         disableExport: true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
-            const row = params?.row as IUser;
-            const isG = isDbGlobalAdmin(row?.roles as IRole[]);
-            const canSeeActions = (isGlobal || isAdmin) || !isG;
+
             // console.log(params.row?.id)
             return(
                 <div className="h-full gap-3 flex-center">
-                    <Viewer tableId="38" onClick={()=>handleInfo(params?.row)} tip="View user" />
-                    <Activity mode={canSeeActions ? 'visible' : 'hidden' } >
-                        <Editor tableId="38" onClick={()=>handleEdit(params?.row)} tip="Edit user" />
-                        <Deleter tableId="38" onClick={()=>handleDelete(params?.row)} tip="Delete user" />
-                    </Activity>
+                    <Viewer tableId="96" onClick={()=>handleInfo(params?.row)} tip="View employee" />
+                    <Editor tableId="96" onClick={()=>handleEdit(params?.row)} tip="Edit employee" />
+                    <Deleter tableId="96" onClick={()=>handleDelete(params?.row)} tip="Delete employee" />
                 </div>
             )
         },

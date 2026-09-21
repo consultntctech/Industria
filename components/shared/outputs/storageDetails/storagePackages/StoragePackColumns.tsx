@@ -1,6 +1,7 @@
 import { Linker, ViewCreator } from "@/components/PermisionHelpers/PermisionHelpers";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
+import { IEmployee } from "@/lib/models/employee.model";
 import { IPackage } from "@/lib/models/package.model";
 import { IUser } from "@/lib/models/user.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
@@ -142,17 +143,17 @@ export const StoragePackColumns = ():GridColDef[]=>{
             headerName: 'Supervised By',
             width:170,
             valueFormatter: (_, row:IPackage)=>{
-                const supervisor = row?.supervisor as IUser;
+                const supervisor = row?.supervisor as IEmployee;
                 return supervisor ? supervisor.name : '';
             },
             valueGetter: (_, row:IPackage)=>{
-                const supervisor = row?.supervisor as IUser;
+                const supervisor = row?.supervisor as IEmployee;
                 return supervisor ? supervisor.name : '';
             },
             renderCell: (params:GridRenderCellParams)=>{
-                const supervisor = params?.row?.supervisor as IUser;
+                const supervisor = params?.row?.supervisor as IEmployee;
                 return (
-                    <Linker link={`/dashboard/users?Id=${supervisor?._id}`} placeholder={supervisor?.name} tableId="38" />
+                    <Linker link={`/dashboard/employees?Id=${supervisor?._id}`} placeholder={supervisor?.name} tableId="38" />
                 )
             }
         },

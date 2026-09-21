@@ -111,7 +111,7 @@ const ApprovalsApprovalInfoModal = ({openNew, refetch, setOpenNew, currentApprov
         }
     }
 
-    const approveContent = `Are you sure you want to approve this package? This will create ${pack?.accepted} ${pack?.accepted > 1 ? 'quanities':'quantity'} of ${good?.name} (${pack?.weight?.toLowerCase() || 'units'}) in your warehouse.`;
+    const approveContent = `Are you sure you want to approve this package? This will create ${pack?.accepted} ${pack?.accepted > 1 ? 'quanities':'quantity'} of ${good?.name} (${(pack?.weight?.toLowerCase() || '0 unit' ) + ' of weight'}) in your warehouse.`;
     const rejectContent = `Are you sure you want to reject this package? This will send the package for further work.`;
 
   return (

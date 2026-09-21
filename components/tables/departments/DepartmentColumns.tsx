@@ -5,6 +5,7 @@ import { IOrganization } from "@/lib/models/org.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { IUser } from "@/lib/models/user.model";
 import { IDepartment } from "@/lib/models/department.model";
+import { IEmployee } from "@/lib/models/employee.model";
 
 export const DepartmentColumns = (
     handleInfo: (type:IDepartment)=>void,
@@ -36,20 +37,20 @@ export const DepartmentColumns = (
             headerName: 'Head',
             width:170,
             valueFormatter: (_, row:IDepartment)=>{
-                const dept = row?.head as IUser;
+                const dept = row?.head as IEmployee;
                 return dept ? dept.name : row?.headName;
             },
             valueGetter: (_, row:IDepartment)=>{
-                const dept = row?.head as IUser;
+                const dept = row?.head as IEmployee;
                 return dept ? dept.name : row?.headName;
             },
             renderCell: (params:GridRenderCellParams)=>{
-                const dept = params?.row?.head as IUser;
+                const dept = params?.row?.head as IEmployee;
                 return (
                     <>
                     {
                         dept?
-                        <Linker link={`/dashboard/users?Id=${dept?._id}`} linkStyle="link" tableId="38" placeholder={dept?.name} />
+                        <Linker link={`/dashboard/employees?Id=${dept?._id}`} linkStyle="link" tableId="38" placeholder={dept?.name} />
                         :
                         <span className="">{params?.row?.headName}</span>
                     }

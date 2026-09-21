@@ -1,9 +1,12 @@
 'use client'
 import { useSettings } from '@/config/useSettings'
 import { useAuth } from '@/hooks/useAuth'
+// import { deleteAllEmployees, saveUsersAsEmployees } from '@/lib/actions/automation.action';
 import { destroySession } from '@/lib/session'
 import Image from 'next/image'
 import Link from 'next/link'
+// import { enqueueSnackbar } from 'notistack';
+// import { useEffect } from 'react';
 import { FiLogOut } from 'react-icons/fi'
 
 export const Header = () => {
@@ -13,6 +16,14 @@ export const Header = () => {
   const {user} = useAuth();
   // useUpdatedUser();
   // console.log('Loading: ', updateLoading)
+  // useEffect(() => {
+  //   const update = async () => {
+  //     const res = await saveUsersAsEmployees();
+  //     // const res = await deleteAllEmployees();
+  //     enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
+  //   }
+  //   update();
+  // },  [])
 
   if(isPending) return null
 

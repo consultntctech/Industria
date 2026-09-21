@@ -1,3 +1,4 @@
+import { IEmployee } from "./employee.model";
 import { IOrganization } from "./org.model";
 import { IRole } from "./role.model";
 import { IUser } from "./user.model";
@@ -6,7 +7,7 @@ import { model, models, Schema, Types } from "mongoose";
 export interface IDepartment {
     _id: string;
     name: string;
-    head: string | Types.ObjectId | IUser;
+    head: string | Types.ObjectId | IEmployee;
     headName: string;
     description: string;
     roles: string[] | Types.ObjectId[] | IRole[];
@@ -19,7 +20,7 @@ export interface IDepartment {
 
 const DepartmentSchema = new Schema<IDepartment>({
     name: { type: String, required: true },
-    head: { type: Schema.Types.ObjectId, ref: 'User', required: false },
+    head: { type: Schema.Types.ObjectId, ref: 'Employee', required: false },
     roles: { type: [Schema.Types.ObjectId], ref: 'Role', required: false, default: [] },
     headName: String,
     description: String,

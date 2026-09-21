@@ -5,6 +5,7 @@ import { formatDate } from '@/functions/dates';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { useAuth } from '@/hooks/useAuth';
 import { IBatch } from '@/lib/models/batch.model';
+import { IEmployee } from '@/lib/models/employee.model';
 import { IGood } from '@/lib/models/good.model';
 import { IOrganization } from '@/lib/models/org.model';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
@@ -29,7 +30,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
     const creator = currentPackage?.createdBy as IUser;
     // const proditems = currentPackage?.packagingMaterial as IProdItem[];
     const goods = currentPackage?.goods as IGoodsPopulate[];
-    const supervisor = currentPackage?.supervisor as IUser;
+    const supervisor = currentPackage?.supervisor as IEmployee;
     const product = goods?.map((g)=> g?.goodId as IGood)[0];
     const storages = currentPackage?.storages as IStorage[];
     const approver = currentPackage?.approvedBy as IUser;

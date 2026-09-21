@@ -13,6 +13,7 @@ import { Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelp
 import { enqueueSnackbar } from 'notistack';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import { IOriginalPrice } from '@/types/Types';
+import { IEmployee } from '@/lib/models/employee.model';
 // import { formatDate } from '@/functions/dates';
 
 type InputDetailsProps = {
@@ -24,7 +25,7 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
     const [openNew, setOpenNew] = useState(false);
     const productToProduce = production?.productToProduce as IProduct;
     const batch = production?.batch as IBatch;
-    const supervisor = production?.supervisor as IUser;
+    const supervisor = production?.supervisor as IEmployee;
     const creator = production?.createdBy as IUser;
     const {primaryColour} = useSettings();
     const {currency} = useCurrencyConfig();
@@ -132,7 +133,7 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Supervised By:</span>
-          <Linker linkStyle="link" link={`/dashboard/users?Id=${supervisor?._id}`} placeholder={supervisor?.name} tableId='38' spanStyle='text-gray-600 flex-1 md:flex-5' />
+          <Linker linkStyle="link" link={`/dashboard/employees?Id=${supervisor?._id}`} placeholder={supervisor?.name} tableId='96' spanStyle='text-gray-600 flex-1 md:flex-5' />
         </div>
 
       </div>

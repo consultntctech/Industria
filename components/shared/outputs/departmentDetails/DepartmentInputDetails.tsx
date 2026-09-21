@@ -1,9 +1,9 @@
 import { formatDate } from "@/functions/dates";
 // import DepartmentInputDetailsModals from "./DepartmentInputDetailsModals";
-import { IUser } from "@/lib/models/user.model";
 import { Linker } from "@/components/PermisionHelpers/PermisionHelpers";
 import { IDepartment } from "@/lib/models/department.model";
 import { Dispatch, SetStateAction } from "react";
+import { IEmployee } from "@/lib/models/employee.model";
 
 type DepartmentInputDetailsProps = {
     department: IDepartment | null;
@@ -12,7 +12,7 @@ type DepartmentInputDetailsProps = {
 }
 
 const DepartmentInputDetails = ({department, setActiveTab, employees}:DepartmentInputDetailsProps) => {
-    const hod = department?.head as IUser;
+    const hod = department?.head as IEmployee;
 
     const viewEmployees = ()=>{
         setActiveTab('second');
@@ -33,7 +33,7 @@ const DepartmentInputDetails = ({department, setActiveTab, employees}:Department
                     <span className="truncate w-1/2 md:w-1/5" >Head:</span>
                     {
                         hod ?
-                        <Linker tableId="38" placeholder={hod?.name} spanStyle="text-gray-600 flex-1 md:flex-5" linkStyle="link" link={`/dashboard/users?Id=${hod?._id}`} />
+                        <Linker tableId="96" placeholder={hod?.name} spanStyle="text-gray-600 flex-1 md:flex-5" linkStyle="link" link={`/dashboard/employees?Id=${hod?._id}`} />
                         :
                         <span className="text-gray-600 flex-1 md:flex-5" >{department?.headName || 'None'}</span>
                     }

@@ -6,9 +6,7 @@ import InputWithLabel from "../../inputs/InputWithLabel";
 import PrimaryButton from "../../buttons/PrimaryButton";
 import { enqueueSnackbar } from "notistack";
 import GenericLabel from "../../inputs/GenericLabel";
-import SearchSelectUsers from "../../inputs/dropdowns/SearchSelectUsers";
 import { IBatch } from "@/lib/models/batch.model";
-import { IUser } from "@/lib/models/user.model";
 import { IGoodsPopulate, IPackage } from "@/lib/models/package.model";
 import { useRouter } from "next/navigation";
 import SearchSelectPackagingType from "../../inputs/dropdowns/SearchSelectPackagingType";
@@ -25,6 +23,8 @@ import SearchSelectAvMultipleGoods from "../../inputs/dropdowns/SearchSelectAvMu
 import GoodsQSelector from "@/components/misc/GoodsQSelector";
 import {useCanUser } from "@/hooks/useAuth";
 import SearchSelectMultipleStorages from "../../inputs/dropdowns/SearchSelectMultipleStorages";
+import { IEmployee } from "@/lib/models/employee.model";
+import SearchSelectEmployees from "../../inputs/dropdowns/SearchSelectEmployees";
 
 type PackInputDetailsModalProps = {
     openNew:boolean;
@@ -38,7 +38,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
     // const [good, setGood] = useState<IGood | null>(null);
     // const [useProdBatch, setUseProdBatch] = useState(true);
     const [batch, setBatch] = useState<string>('');
-    const [supervisor, setSupervisor] = useState<IUser | null>(null);
+    const [supervisor, setSupervisor] = useState<IEmployee | null>(null);
     const [storages, setStorages] = useState<IStorage[]>([]);
     const [data, setData] = useState<Partial<IPackage>>({});
     const [typed, setTyped] = useState<TPackagingProcess | null>(null);
@@ -51,7 +51,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
     
 
     const batched = pack?.batch as IBatch;
-    const supervisord = pack?.supervisor as IUser;
+    const supervisord = pack?.supervisor as IEmployee;
     const storaged = pack?.storages as IStorage[];
     const goods = pack?.goods as IGoodsPopulate[];
     const savedGoods = goods.map(g=> g.goodId as IGood);
@@ -194,7 +194,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
                         />
                         <GenericLabel
                             label="Supervisor"
-                            input={<SearchSelectUsers value={supervisord} required setSelect={setSupervisor} />}
+                            input={<SearchSelectEmployees showMe={true} value={supervisord} required setSelect={setSupervisor} />}
                         />
                          <GenericLabel
                             label="Product to package"

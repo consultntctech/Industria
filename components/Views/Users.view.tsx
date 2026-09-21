@@ -67,7 +67,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
         setLoading(true);
         
         try {
-          const res = await createUser({...formData, department:department?._id, org:isAdmin ? org : user?.org});
+          const res = await createUser({...formData, department:department?._id, org:isAdmin ? org : user?.org, creator: isAdmin ? 'System' : user?.name});
           enqueueSnackbar(res.message, {variant:res.error ? 'error':'success', autoHideDuration:9000});
           if(!res.error){
               formRef.current?.reset();

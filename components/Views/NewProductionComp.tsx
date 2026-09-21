@@ -5,7 +5,6 @@ import InputWithLabel from "../shared/inputs/InputWithLabel";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
 import SearchSelectBatches from "../shared/inputs/dropdowns/SearchSelectBatches";
 import GenericLabel from "../shared/inputs/GenericLabel";
-import SearchSelectUsers from "../shared/inputs/dropdowns/SearchSelectUsers";
 import SearchSelectProducts from "../shared/inputs/dropdowns/SearchSelectProducts";
 import { IProduct } from "@/lib/models/product.model";
 import SearchSelectAvMultipleRMaterials from "../shared/inputs/dropdowns/SearchSelectAvMultipleRMaterials";
@@ -20,17 +19,18 @@ import { createProduction } from "@/lib/actions/production.action";
 import { useRouter } from "next/navigation";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import SearchSelectBatchesWithRM from "../shared/inputs/dropdowns/SearchSelectBatchesWithRM";
-import { IUser } from "@/lib/models/user.model";
 import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
 import SearchSelectMultipleLabourers from "../shared/inputs/dropdowns/SearchSelectMultipleLabourers";
 import { ILabourer } from "@/lib/models/labourer.model";
+import SearchSelectEmployees from "../shared/inputs/dropdowns/SearchSelectEmployees";
+import { IEmployee } from "@/lib/models/employee.model";
 ;
 
 const NewProductionComp = () => {
     const [loading, setLoading] = useState(false);
     const [batch, setBatch] = useState<string>('');
-    const [supervisor, setSupervisor] = useState<IUser | null>(null);
+    const [supervisor, setSupervisor] = useState<IEmployee | null>(null);
     const [productToProduce, setProductToProduce] = useState<IProduct|null>(null);
     const [productBatchId, setProductBatchId] = useState<string>('');
     const [rawMaterials, setRawMaterials] = useState<IRMaterial[]>([]);
@@ -208,7 +208,7 @@ const NewProductionComp = () => {
                         />
                         <GenericLabel
                             label="Select supervisor"
-                            input={<SearchSelectUsers required={true} setSelect={setSupervisor} placeholder="supervisor" />}
+                            input={<SearchSelectEmployees showMe={true} required={true} setSelect={setSupervisor} placeholder="supervisor" />}
                         />
                         <GenericLabel
                             label="Select labourers"

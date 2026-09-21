@@ -5,6 +5,7 @@ import Currency, { ICurrency } from "../models/currency.model";
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
+import OtherCurrency from "../models/othercurrency.model";
 
 export async function createCurrency(data:Partial<ICurrency>):Promise<IResponse>{
     try {
@@ -13,10 +14,11 @@ export async function createCurrency(data:Partial<ICurrency>):Promise<IResponse>
         let opp;
         if(currency){
            opp =  await Currency.findByIdAndUpdate(currency._id, data, { new: true });
+           await OtherCurrency.findOneAndUpdate({org:data.org, type:'default'}, {name:data.name, symbol:data.symbol}, { new: true });
         }else{
            opp  = await Currency.create(data);
         }
-        return respond('Currency created successfully', false, opp, 201);
+        return respond('Currency saved successfully', false, opp, 201);
     } catch (error) {
         console.log(error);
         return respond('Error occured while creating currency', true, {}, 500);
