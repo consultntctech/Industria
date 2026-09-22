@@ -133,7 +133,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
                 <span className="mtext">{currentPackage?.description || 'None'}</span>
             </div>
             {
-                original &&
+                original && cy?.type !== 'default' &&
                 <div className="flex flex-col">
                     <span className="mlabel">Total Cost</span>
                     <span className="mtext">{`${cy?.symbol || cy?.name || ''}${original?.amount || 0}`}</span>

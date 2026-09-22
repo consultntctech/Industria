@@ -69,7 +69,7 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
                 <span className="mtext">{quantity || 0}</span>
             </div>
                 {
-                    original &&
+                    original && savedCurrency?.type !== 'default' &&
                     <div className="flex flex-col">
                         <span className="mlabel">Amount Received</span>
                         <span className="mtext">{savedCurrency?.symbol || savedCurrency?.name || ''} {original?.amount || '0'}</span>

@@ -132,8 +132,11 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
             
                 <div className="flex gap-4 flex-col w-full justify-between">
                     <div className="flex flex-col gap-4 w-full">
-                        <InputWithLabel defaultValue={ogExtra} type="number" onChange={onChangeCost} name="extraCost" min={0}  placeholder={`eg. ${currency?.symbol}200`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
-                        <InputWithLabel value={finalExtra} type="number"  readOnly min={0}  placeholder={`eg. ${currency?.symbol}200`} label={costLabel} className="w-full" />
+                        <InputWithLabel defaultValue={ogExtra} type="number" onChange={onChangeCost} name="extraCost" min={0} step={0.000001} placeholder={`eg. ${currency?.symbol}200`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                        {
+                            otherCurrency && otherCurrency?.type !== 'default' &&
+                            <InputWithLabel value={finalExtra} type="number"  readOnly min={0}  placeholder={`eg. ${currency?.symbol}200`} label={costLabel} className="w-full" />
+                        }
                         <TextAreaWithLabel defaultValue={production?.notes} name="notes" onChange={onChange} placeholder="enter note" label="Production note" className="w-full" />
                     </div>
                     {

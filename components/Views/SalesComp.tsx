@@ -234,7 +234,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                             <InputWithLabel defaultValue={currentSales?.charges} min={0} step={0.0001} label={otherCurrency ? chargeOtherLabel : chargeLabel} type="number" onChange={onChange} name="charges" />
                         </div>
                         {
-                            otherCurrency &&
+                            otherCurrency && otherCurrency?.type !== 'default' &&
                             <div className="flex gap-4 flex-col w-full md:flex-row ">
                                 <InputWithLabel value={discount} min={0} step={0.0001} label={discountLabel} type="number" readOnly name="discount" />
                                 <InputWithLabel value={charge} min={0} step={0.0001} label={chargeLabel} type="number" readOnly name="charges" />

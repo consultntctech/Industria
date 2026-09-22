@@ -166,11 +166,11 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
                         label="Product to produce"
                         input={<SearchSelectProducts value={productToProd} type="Finished Good" required={true} setSelect={setProductToProduce} />}
                     />
+                    <InputWithLabel onChange={onChange} defaultValue={production?.xquantity} name="xquantity" required type="number" min={1} placeholder="10" label="Expected output quantity" className="w-full" />
                 </div>
             
                 <div className="flex gap-4 flex-col w-full justify-between">
                     <div className="flex flex-col gap-4 w-full">
-                        <InputWithLabel onChange={onChange} defaultValue={production?.xquantity} name="xquantity" required type="number" min={1} placeholder="10" label="Expected output quantity" className="w-full" />
                         <GenericLabel label="Select currency" input={<SearchSelectCurrencies required setSelect={setOtherCurrency} value={savedCurrency} />} />
                         {
                             showRate &&

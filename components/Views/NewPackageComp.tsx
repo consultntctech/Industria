@@ -356,7 +356,7 @@ const NewPackageComp = () => {
                     <GenericLabel label='Select currency' input={<SearchSelectCurrencies setSelect={setOtherCurrency} />} />
                     <InputWithLabel onChange={changeCost}  name="cost" type="number" value={cost} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
                     {
-                        otherCurrency &&
+                        otherCurrency && otherCurrency?.type !== 'default' &&
                         <InputWithLabel type="number" value={finalCost} readOnly label={costLabel} className="w-full" />
                     }
                     <TextAreaWithLabel   name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />

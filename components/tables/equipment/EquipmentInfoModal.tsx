@@ -78,10 +78,13 @@ const EquipmentInfoModal = ({infoMode, setInfoMode, currentEquipment, setCurrent
                 <span className="mlabel">Status</span>
                 <span className="mtext">{currentEquipment?.status}</span>
             </div>
-            <div className="flex flex-col">
-                <span className="mlabel">Price</span>
-                <span className="mtext">{`${otherCurrency?.symbol} ${currentEquipment?.price}` }</span>
-            </div>
+            {
+                otherCurrency && otherCurrency?.type !== 'default' &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Price</span>
+                    <span className="mtext">{`${otherCurrency?.symbol} ${orignial?.amount}` }</span>
+                </div>
+            }
 
             <div className="flex flex-col">
                 <span className="mlabel">{`Price (${currency?.symbol || 'Primary currency'})`}</span>

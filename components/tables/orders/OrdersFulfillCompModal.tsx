@@ -47,6 +47,7 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
     const items = currentOrder?.products as OrderSelectType[];
 
     const price = lineItems.reduce((acc, { price }) => acc + price, 0) || (currentOrder?.price||0);
+    // console.log(price)
 
     const {currency} = useCurrencyConfig();
     const utils = useQueryClient();
@@ -203,7 +204,7 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
                                     <InputWithLabel min={0} step={0.0001} label={otherCurrency ? chargeOtherLabel : chargeLabel} type="number" onChange={handlecostChange} name="charges" />
                                 </div>
                                 {
-                                    otherCurrency &&
+                                    otherCurrency && otherCurrency?.type !== 'default' &&
                                     <div className="flex gap-4 flex-col w-full md:flex-row ">
                                         <InputWithLabel value={discount} min={0} label={discountLabel} type="number" readOnly />
                                         <InputWithLabel value={charge} min={0} label={chargeLabel} type="number" readOnly />

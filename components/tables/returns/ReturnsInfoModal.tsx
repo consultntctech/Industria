@@ -66,7 +66,7 @@ const ReturnsInfoModal = ({infoMode, setInfoMode, currentReturn, setCurrentRetur
                 <span className="mtext">{savedCurrency?.symbol || currency?.symbol || ''} {currentReturn?.charges || '0'}</span>
             </div>
             {
-                original &&
+                original && savedCurrency?.type !== 'default' &&
                 <div className="flex flex-col">
                     <span className="mlabel">{`Total Price`}</span>
                     <span className="mtext">{savedCurrency?.symbol || ''} {amt?.toFixed(2) || '0'}</span>

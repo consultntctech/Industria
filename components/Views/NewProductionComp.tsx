@@ -188,7 +188,7 @@ const NewProductionComp = () => {
     const labourLabel = `Labour cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
     const otherLabourLabel = `Labour cost (${otherCurrency?.symbol || otherCurrency?.name})`;
 
-    const totalLabel = `Total cost (${otherCurrency?.symbol || otherCurrency?.name})`;
+    const totalLabel = `Total cost (${currency?.symbol || currency?.name})`;
 
   return (
      <div className={`flex p-4 lg:p-8 rounded-2xl w-full`}>
@@ -264,10 +264,10 @@ const NewProductionComp = () => {
                                 label="Add production items"
                                 input={<SearchSelectMultipleProdItems setSelection={setProditems} />}
                             /> */}
-                            <InputWithLabel step={0.0001} onChange={onChange} name="labourCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabourLabel : labourLabel} className="w-full" />
                             <InputWithLabel step={0.0001} value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                            <InputWithLabel step={0.0001} onChange={onChange} name="labourCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabourLabel : labourLabel} className="w-full" />
                             {
-                                otherCurrency  &&
+                                otherCurrency  && otherCurrency?.type !== 'default' &&
                                 <InputWithLabel value={finalPrice} readOnly type="number" min={1} placeholder={`${currency?.symbol}1000`} label={totalLabel} className="w-full" />
                             }
                         </div>

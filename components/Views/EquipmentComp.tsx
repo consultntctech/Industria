@@ -228,7 +228,7 @@ const EquipmentComp = ({openNew, setOpenNew, setCurrentEquipment, currentEquipme
                 <InputWithLabel step={0.0001} required={!currentEquipment} defaultValue={original?.amount} onChange={(e)=>setOriginalAmount(Number(e.target.value))} name="originalAmount"  type="number" min={0} placeholder="eg. 25" label={otherCurrency ? otherLabel : currencyLabel} className="w-full" />
                 
                 {
-                  otherCurrency &&
+                  otherCurrency && otherCurrency?.type !== 'default' &&
                   <InputWithLabel step={0.0001} value={price} readOnly  name="price"  type="number"  label={currencyLabel} className="w-full" />
                 }
                 <TextAreaWithLabel defaultValue={currentEquipment?.description} name="description" onChange={onChange} placeholder="enter note" label="Note" className="w-full" />

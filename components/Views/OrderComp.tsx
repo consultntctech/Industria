@@ -121,6 +121,10 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
   const handleUpdate = async(e:React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    if(products.length === 0){
+      enqueueSnackbar('Please select products', {variant:'error'});
+      return;
+    }
     
     try {
       const formData:Partial<IOrder> = {
@@ -199,7 +203,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
                   <InputWithLabel defaultValue={currentOrder?.quantity} onChange={onChange} name="quantity"  min={0} step={0.0001}  label="Enter quantity" className="w-full" /> */}
                   <InputWithLabel defaultValue={original?.amount} placeholder="this is optional"  onChange={(e)=>setCost(Number(e.target.value))} name="price"  min={0} step={0.0001}  label={otherCurrency ? otherLabel : costLabel} className="w-full" />
                   {
-                    otherCurrency &&
+                    otherCurrency && otherCurrency?.type !== 'default' &&
                     <InputWithLabel value={price} placeholder="this is optional"  readOnly  min={0} step={0.0001}  label={costLabel} className="w-full" />
                   }
                   <TextAreaWithLabel defaultValue={currentOrder?.instruction} name="instruction" onChange={onChange} placeholder="enter instruction" label="Order instructions" className="w-full" />

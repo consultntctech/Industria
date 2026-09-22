@@ -142,11 +142,13 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
           <span className="truncate w-1/2 md:w-1/5" >Packaging Cost:</span>
           <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${pack?.cost}`}</span>
         </div>
-
-        <div className="flex flex-row items-center gap-4">
-          <span className="truncate w-1/2 md:w-1/5" >Original Cost:</span>
-          <span className="text-gray-600 flex-1 md:flex-5" >{`${cry?.symbol || cry?.name || ''}${original?.amount || 0}`}</span>
-        </div>
+        {
+          cry?.type !== 'default' &&
+          <div className="flex flex-row items-center gap-4">
+            <span className="truncate w-1/2 md:w-1/5" >Original Cost:</span>
+            <span className="text-gray-600 flex-1 md:flex-5" >{`${cry?.symbol || cry?.name || ''}${original?.amount || 0}`}</span>
+          </div>
+        }
 
 
         <div className="flex flex-row items-center gap-4">

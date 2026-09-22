@@ -44,6 +44,7 @@ const SalesInfoModal = ({infoMode, setInfoMode, currentSale, setCurrentSale}:Sal
     // const discount = (currentSale?.discount || 0) * (original?.rate || 1);
     const amt = Number(currentSale?.price || 0) / Number(original?.rate || 1);
 
+    console.log('Sales: ', currentSale)
     // console.log('Creator:', creator);
     const handleClose = ()=>{
         setInfoMode(false);
@@ -72,7 +73,7 @@ const SalesInfoModal = ({infoMode, setInfoMode, currentSale, setCurrentSale}:Sal
                 <span className="mtext">{savedCurrency?.symbol || currency?.symbol || ''} {currentSale?.charges ?? 0}</span>
             </div>
             {
-                original &&
+                original && savedCurrency?.type !== 'default' &&
                 <div className="flex flex-col">
                     <span className="mlabel">{`Total Price`}</span>
                     <span className="mtext">{savedCurrency?.symbol || ''} {amt?.toFixed(2)}</span>
