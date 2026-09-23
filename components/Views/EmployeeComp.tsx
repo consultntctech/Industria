@@ -45,6 +45,7 @@ const EmployeeComp = ({openNew, setOpenNew, currentEmployee, setCurrentEmployee}
     }
 
     // console.log('Departments: ', savedDepartment)
+    const isReadOnly = !!currentEmployee && hasAccount;
 
     useEffect(() => {
         if(currentEmployee){
@@ -111,7 +112,7 @@ const EmployeeComp = ({openNew, setOpenNew, currentEmployee, setCurrentEmployee}
         <div className="flex flex-col gap-1">
           <span className="title" >{currentEmployee ? 'Edit employee' : 'Add new employee'}</span>
           {
-            hasAccount ?
+            isReadOnly ?
             <span className="greyText" >This employee has a user account. Details have to be updated in the user account</span>
             :
             <span className="greyText" >{currentEmployee ? 'Edit the details of the employee' : 'Create a new employee to handle operations'}</span>
@@ -120,10 +121,10 @@ const EmployeeComp = ({openNew, setOpenNew, currentEmployee, setCurrentEmployee}
 
         <div className="flex flex-col lg:flex-row gap-4 items-stretch">
           <div className="flex gap-4 flex-col w-full">
-            <InputWithLabel readOnly={hasAccount} defaultValue={currentEmployee?.name} onChange={onChange} name="name" required placeholder="enter name" label="Name" className="w-full" />
-            <InputWithLabel readOnly={hasAccount} defaultValue={currentEmployee?.address} onChange={onChange} name="address" required placeholder="enter address" label="Address" className="w-full" />
-            <InputWithLabel readOnly={hasAccount} defaultValue={currentEmployee?.phone} onChange={onChange} name="phone" required placeholder="enter phone" label="Phone" className="w-full" />
-            <InputWithLabel readOnly={hasAccount} defaultValue={currentEmployee?.email} onChange={onChange} name="email" required type="email" placeholder="enter email" label="Email" className="w-full" />
+            <InputWithLabel readOnly={isReadOnly} defaultValue={currentEmployee?.name} onChange={onChange} name="name" required placeholder="enter name" label="Name" className="w-full" />
+            <InputWithLabel readOnly={isReadOnly} defaultValue={currentEmployee?.address} onChange={onChange} name="address" required placeholder="enter address" label="Address" className="w-full" />
+            <InputWithLabel readOnly={isReadOnly} defaultValue={currentEmployee?.phone} onChange={onChange} name="phone" required placeholder="enter phone" label="Phone" className="w-full" />
+            <InputWithLabel readOnly={isReadOnly} defaultValue={currentEmployee?.email} onChange={onChange} name="email" required type="email" placeholder="enter email" label="Email" className="w-full" />
           </div>
 
           <div className="flex gap-4 flex-col w-full justify-between">
@@ -131,19 +132,19 @@ const EmployeeComp = ({openNew, setOpenNew, currentEmployee, setCurrentEmployee}
               openNew && isAdmin &&
               <GenericLabel
                 label='Select organization'
-                input={<SearchSelectOrgs value={organization} disable={hasAccount} setOrgId={setOrg} required={!currentEmployee} />}
+                input={<SearchSelectOrgs value={organization} disable={isReadOnly} setOrgId={setOrg} required={!currentEmployee} />}
               />
             }
             {
               openNew &&
               <GenericLabel
                 label='Select department'
-                input={<SearchSelectDepartments disabled={hasAccount} value={savedDepartment} orgId={org} setSelect={setDepartment} required={!currentEmployee?.department} />}
+                input={<SearchSelectDepartments disabled={isReadOnly} value={savedDepartment} orgId={org} setSelect={setDepartment} required={!currentEmployee?.department} />}
               />
             }
-            <TextAreaWithLabel disabled={hasAccount} defaultValue={currentEmployee?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
+            <TextAreaWithLabel disabled={isReadOnly} defaultValue={currentEmployee?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
             {
-              (isCreator || isEditor) && !hasAccount &&
+              (isCreator || isEditor) && !isReadOnly &&
               <PrimaryButton disabled={currentEmployee ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentEmployee ? "Update" : "Submit"} className="w-full mt-4" />
             }
           </div>
