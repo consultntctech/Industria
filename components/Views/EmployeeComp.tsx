@@ -113,7 +113,7 @@ const EmployeeComp = ({openNew, setOpenNew, currentEmployee, setCurrentEmployee}
           <span className="title" >{currentEmployee ? 'Edit employee' : 'Add new employee'}</span>
           {
             isReadOnly ?
-            <span className="greyText" >This employee has a user account. Details have to be updated in the user account</span>
+            <span className="text-[0.8rem] font-medium text-red-700" >This employee has a user account. Details have to be updated in the user account</span>
             :
             <span className="greyText" >{currentEmployee ? 'Edit the details of the employee' : 'Create a new employee to handle operations'}</span>
           }
