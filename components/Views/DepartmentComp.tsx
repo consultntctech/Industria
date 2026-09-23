@@ -12,6 +12,9 @@ import CloseButton from "../misc/CloseButton";
 import { useFetchDepartments } from "@/hooks/fetch/useFetchDepartments";
 import SearchSelectEmployees from "../shared/inputs/dropdowns/SearchSelectEmployees";
 import { IEmployee } from "@/lib/models/employee.model";
+import { isSystemAdmin } from "@/Data/roles/permissions";
+import { IOrganization } from "@/lib/models/org.model";
+import SearchSelectOrgs from "../shared/inputs/dropdowns/SearchSelectOrgs";
 ;
 
 type DepartmentCompProps = {
@@ -27,18 +30,24 @@ const DepartmentComp = ({openNew, setOpenNew, currentDepartment, setCurrentDepar
     const [head, setHead] = useState<IEmployee | null>(null);
     const {user} = useAuth();
 
+    const [org, setOrg] = useState<string>('');
+
 
     const formRef = useRef<HTMLFormElement>(null);
     const {refetch} = useFetchDepartments();
     const savedHead = currentDepartment?.head as IEmployee
     const isCreator = useCanUser('95', 'CREATE');
     const isEditor = useCanUser('95', 'UPDATE');
+    const organization = currentDepartment?.org as IOrganization;
+
+    const isAdmin = isSystemAdmin(user);
 
     
     useEffect(()=>{
         if(currentDepartment){
             setData({...currentDepartment});
             setHead(savedHead);
+            setOrg(organization?._id);
         }else{
             setData({});
         }
@@ -51,6 +60,7 @@ const DepartmentComp = ({openNew, setOpenNew, currentDepartment, setCurrentDepar
         setOpenNew(false);
         setCurrentDepartment(null);
         setData({});
+        setOrg('');
     }
 
     const onChange = (e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -71,7 +81,7 @@ const DepartmentComp = ({openNew, setOpenNew, currentDepartment, setCurrentDepar
                 roles:[],
                 creator:user?.name || '',
                 headName:head?.name || '',
-                org:user?.org,
+                org: isAdmin ? org : user?.org,
                 createdBy:user?._id,
             }
             const res = await createDepartment(formData);
@@ -99,6 +109,7 @@ const DepartmentComp = ({openNew, setOpenNew, currentDepartment, setCurrentDepar
                 ...data,
                 head:head?._id,
                 headName:head?.name || '',
+                org: organization?._id || org,
             }
             const res = await updateDepartment(formData);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -128,6 +139,12 @@ const DepartmentComp = ({openNew, setOpenNew, currentDepartment, setCurrentDepar
         
                 <div className="flex flex-col lg:flex-row gap-4 items-stretch">
                     <div className="flex gap-4 flex-col w-full">
+                        {
+                            isAdmin &&
+                            <GenericLabel label="Select organization"
+                                input={<SearchSelectOrgs value={organization} setOrgId={setOrg} />}
+                            />
+                        }
                         <InputWithLabel defaultValue={currentDepartment?.name} onChange={onChange} name="name" required placeholder="eg. Sales" label="Give it a name" className="w-full" />
                         <GenericLabel label="Select HOD"
                             input={<SearchSelectEmployees value={savedHead} setSelect={setHead}  required showMe={true} />}
