@@ -147,7 +147,7 @@ const DepartmentComp = ({openNew, setOpenNew, currentDepartment, setCurrentDepar
                         }
                         <InputWithLabel defaultValue={currentDepartment?.name} onChange={onChange} name="name" required placeholder="eg. Sales" label="Give it a name" className="w-full" />
                         <GenericLabel label="Select HOD"
-                            input={<SearchSelectEmployees value={savedHead} setSelect={setHead}  required showMe={true} />}
+                            input={<SearchSelectEmployees value={savedHead} setSelect={setHead}  required={!isAdmin} showMe={true} />}
                         />
                     </div>
         
