@@ -120,7 +120,7 @@ const LineItemsTable = ({ pack}:LineItemTableProps) => {
                                   package: false,
                                   name: false,
                                   batch: false,
-                                  good: false,
+                                  product: false,
                                   original:false,
                                   createdBy:false,
                                   createdAt:false,

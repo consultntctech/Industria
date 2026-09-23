@@ -62,7 +62,8 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
               // console.log('Good: ', product)
               return (
                 <span key={index} >
-                  <Linker tableId='88' linkStyle="link" spanStyle='text-gray-600 truncate' link={`/dashboard/processing/goods?Id=${product?._id}`} placeholder={`${item?.quantity} x ${product?.name} (${production?.name})`} />
+                  {/* <Linker tableId='88' linkStyle="link" spanStyle='text-gray-600 truncate' link={`/dashboard/processing/goods?Id=${product?._id}`} placeholder={`${item?.quantity} x ${product?.name} (${production?.name})`} /> */}
+                  <span onClick={()=>setActiveTab('fourth')}  className='text-blue-600 underline cursor-pointer flex-1 md:flex-5' >{`${item?.quantity} x ${product?.name} (${production?.name})`}</span>
                   {index < products.length -1 && ', '}
                 </span>
               )

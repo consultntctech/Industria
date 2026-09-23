@@ -10,6 +10,7 @@ import '../models/product.model'
 import '../models/batch.model'
 import '../models/good.model'
 import '../models/package.model'
+import '../models/customer.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
 interface LineItemQuery {
@@ -78,6 +79,7 @@ export async function getLineItems (): Promise<IResponse> {
         populate('package').
         populate('original.currency').
         populate('createdBy').
+        populate('soldTo').
         populate('org').lean() as unknown as ILineItem[];
         return respond('Line items found successfully', false, lineItems, 200);
     } catch (error) {
@@ -172,6 +174,7 @@ export async function getLineItemsByProduct (productId: string): Promise<IRespon
         populate('good').
         populate('package').
         populate('original.currency').
+        populate('soldTo').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
         return respond('Line items found successfully', false, lineItems, 200);
@@ -226,6 +229,7 @@ export async function getLineItemsByProductAndOrg (productId: string, orgId:stri
         populate('product').
         populate('good').
         populate('package').
+        populate('soldTo').
         populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
@@ -247,6 +251,7 @@ export async function getLineItemsByPackage (packageId: string): Promise<IRespon
         .populate('original.currency')
         .populate('createdBy')
         .populate('batch')
+        .populate('soldTo')
         .populate('org').lean() as unknown as ILineItem[];
         return respond('Line items found successfully', false, lineItems, 200);
     } catch (error) {
@@ -263,6 +268,7 @@ export async function getLineItemsByPackageAndOrg (packageId: string, org:string
         .populate('product')
         .populate('good')
         .populate('package')
+        .populate('soldTo')
         .populate('original.currency')
         .populate('createdBy')
         .populate('batch')
@@ -284,6 +290,7 @@ export async function getLineItemsByOrg (org: string): Promise<IResponse> {
         .populate('package')
         .populate('original.currency')
         .populate('createdBy')
+        .populate('soldTo')
         .populate('batch')
         .populate('org').lean() as unknown as ILineItem[];
         return respond('Line items found successfully', false, lineItems, 200);
@@ -304,6 +311,7 @@ export async function getLineItem (id: string): Promise<IResponse> {
             { path: "package" },
             { path: "original.currency" },
             { path: "createdBy" },
+            { path: "soldTo" },
             { path: "org" },
         ]);
         if ("allowed" in check === false) return check;

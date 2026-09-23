@@ -20,6 +20,7 @@ export const ProductColumns = (
             headerName: 'Name',
             width:120,
         },
+        
 
         {
             field: 'type',

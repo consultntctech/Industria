@@ -10,7 +10,16 @@ import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 export async function createCategory(cat:Partial<ICategory>):Promise<IResponse>{
     try {
         await connectDB();
-        const newCat = await Category.create(cat);
+        const newData = {
+            ...cat,
+            lowerName: cat?.name?.trim()?.toLowerCase(),
+            org: cat?.org?.toString()
+        };
+        const oldCat = await Category.findOne({ lowerName: newData?.lowerName, org: newData?.org });
+        if (oldCat) {
+            return respond('Category already exists', true, {}, 400);
+        }
+        const newCat = await Category.create(newData);
         return respond('Category created successfully', false, newCat, 201);
     } catch (error) {
         console.log(error);

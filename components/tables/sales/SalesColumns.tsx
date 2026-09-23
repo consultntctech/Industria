@@ -73,7 +73,7 @@ export const SalesColoumns = (
                     <div className="flex flex-row items-center gap-1 flex-wrap">
                     {items?.map((item, index) => (
                         <span key={item?.id}>
-                        <Linker tableId="28" link={`/dashboard/products/types?Id=${item?.id}`} placeholder={`${item?.quantity} x ${item?.name}`} />
+                        <Linker tableId='99' key={item?.id} link={`/dashboard/distribution/packaging/${item?.package?.toString()}`} linkStyle="mtext link" spanStyle='mtext' placeholder={`${item?.name} x ${item?.quantity}`} />
                         {index < items.length - 1 ? ', ':''}
                         </span>
                     ))}

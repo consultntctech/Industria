@@ -2,6 +2,7 @@ import { Editor, Linker, ViewCreator, Viewer } from "@/components/PermisionHelpe
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
+import { ICustomer } from "@/lib/models/customer.model";
 import { IGood } from "@/lib/models/good.model";
 import { ILineItem } from "@/lib/models/lineitem.model";
 import { IOrganization } from "@/lib/models/org.model";
@@ -122,6 +123,25 @@ export const LineItemsColumns = (
             field: 'status',
             headerName: 'Status',
             width:100,
+        },
+        {
+            field:'soldTo',
+            headerName: 'Sold To',
+            width:170,
+            valueFormatter: (_, row:ILineItem)=>{
+                const customer = row?.soldTo as ICustomer;
+                return customer ? customer.name : '';
+            },
+            valueGetter: (_, row:ILineItem)=>{
+                const customer = row?.soldTo as ICustomer;
+                return customer ? customer.name : '';
+            },
+            renderCell: (params:GridRenderCellParams)=>{
+                const customer = params?.row?.soldTo as ICustomer;
+                return (
+                    <Linker tableId="33" link={`/dashboard/distribution/customers?Id=${customer?._id}`} placeholder={customer?.name} />
+                )
+            }
         },
         {
             field:'package',

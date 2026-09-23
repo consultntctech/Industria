@@ -14,11 +14,16 @@ import RMaterial from "../models/rmaterial.mode";
 export async function createProduct(data:Partial<IProduct>):Promise<IResponse>{
     try {
         await connectDB();
-        const oldProduct = await Product.findOne({ name: data.name, type:data.type, org: data.org });
+        const newData = {
+            ...data,
+            lowerName: data?.name?.trim()?.toLowerCase(),
+            org: data?.org?.toString()
+        }
+        const oldProduct = await Product.findOne({ lowerName: newData?.lowerName, type:newData.type, org: newData.org });
         if (oldProduct) {
             return respond('Product already exists', true, {}, 400);
         }
-        const product = await Product.create(data);
+        const product = await Product.create(newData);
         return respond('Product created successfully', false, product, 201);
     } catch (error) {
         console.log(error);

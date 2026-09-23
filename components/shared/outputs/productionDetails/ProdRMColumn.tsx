@@ -21,6 +21,12 @@ export const ProdRMColumns = (
                 const material = row?.materialId as IRMaterial;
                 return material ? material?.materialName : '';
             },
+            renderCell: (params:GridRenderCellParams)=>{
+                const material = params?.row?.materialId as IRMaterial;
+                return (
+                    <Linker tableId="87" link={`/dashboard/products/raw-materials?Id=${material?._id}`} placeholder={material?.materialName} />
+                )
+            }
         },
 
         {
@@ -80,12 +86,12 @@ export const ProdRMColumns = (
             valueFormatter: (_, row:IRMaterialPopulate)=>{
                 const material = row?.materialId as IRMaterial;
                 const product = material?.product as IProduct;
-                return `${row?.weight} ${product?.uom || 'units'}`
+                return `${row?.weight || 0} ${product?.uom || 'units'}`
             },
             valueGetter: (_, row:IRMaterialPopulate)=>{
                 const material = row?.materialId as IRMaterial;
                 const product = material?.product as IProduct;
-                return `${row?.weight} ${product?.uom || 'units'}`
+                return `${row?.weight || 0} ${product?.uom || 'units'}`
             },
         },
         

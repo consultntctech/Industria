@@ -18,7 +18,7 @@ const InfoModalContainer = ({handleClose, infoMode, children}:InfoModalContainer
         aria-describedby="modal-modal-description"
         className='flex size-full justify-end'
     >
-        <div className="flex flex-col min-w-72 h-full bg-white rounded-l-lg p-4 overflow-y-scroll scrollbar-custom">
+        <div className="flex flex-col min-w-72 max-w-80 h-full bg-white rounded-l-lg p-4 overflow-y-scroll scrollbar-custom">
             <div onClick={handleClose}  className="flex gap-1 cursor-pointer items-center mb-5 w-fit">
                <IoIosArrowRoundBack size={24} /> 
                <span>Close</span>

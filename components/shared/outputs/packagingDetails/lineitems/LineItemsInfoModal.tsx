@@ -12,9 +12,10 @@ import { IPackage } from '@/lib/models/package.model';
 import { IGood } from '@/lib/models/good.model';
 import { useAuth } from '@/hooks/useAuth';
 import { isSystemAdmin } from '@/Data/roles/permissions';
-import {  ViewCreator } from '@/components/PermisionHelpers/PermisionHelpers';
+import {  Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelpers';
 import { IOriginalPrice } from '@/types/Types';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
+import { ICustomer } from '@/lib/models/customer.model';
 
 type LineItemsInfoModalProps = {
     infoMode:boolean,
@@ -32,6 +33,8 @@ const LineItemsInfoModal = ({infoMode, setInfoMode, currentLineItem, setCurrentL
     const batch = currentLineItem?.batch as IBatch;
     const {currency} = useCurrencyConfig();
     const {user} = useAuth();
+
+    const customer = currentLineItem?.soldTo as ICustomer;
 
     const original = currentLineItem?.original  as IOriginalPrice;
     const currentCurrency = original?.currency as IOtherCurrency;
@@ -68,6 +71,13 @@ const LineItemsInfoModal = ({infoMode, setInfoMode, currentLineItem, setCurrentL
                 <span className="mlabel">Status</span>
                 <span className="mtext">{currentLineItem?.status}</span>
             </div>
+            {
+                customer &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Sold To</span>
+                    <Linker tableId="33" link={`/dashboard/distribution/customers?Id=${customer?._id}`} placeholder={customer?.name} />
+                </div>
+            }
 
             <div className="flex flex-col">
                 <span className="mlabel">Batch</span>

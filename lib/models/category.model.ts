@@ -5,6 +5,7 @@ import { IUser } from "./user.model";
 export interface ICategory extends Document {
     _id: string;
     name: string;
+    lowerName: string;
     description: string;
     creator: string;
     org: string | Types.ObjectId | IOrganization;
@@ -15,6 +16,7 @@ export interface ICategory extends Document {
 
 const CategorySchema = new Schema<ICategory>({
     name: { type: String, required: true },
+    lowerName: { type: String, lowercase:true },
     description: String,
     creator: String,
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

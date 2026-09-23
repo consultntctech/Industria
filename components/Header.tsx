@@ -1,6 +1,7 @@
 'use client'
 import { useSettings } from '@/config/useSettings'
 import { useAuth } from '@/hooks/useAuth'
+// import { updateAllCategoryWithLowerCaseName } from '@/lib/actions/automation.action';
 // import { deleteAllEmployees, saveUsersAsEmployees } from '@/lib/actions/automation.action';
 import { destroySession } from '@/lib/session'
 import Image from 'next/image'
@@ -18,7 +19,7 @@ export const Header = () => {
   // console.log('Loading: ', updateLoading)
   // useEffect(() => {
   //   const update = async () => {
-  //     const res = await saveUsersAsEmployees();
+  //     const res = await updateAllCategoryWithLowerCaseName();
   //     // const res = await deleteAllEmployees();
   //     enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
   //   }
