@@ -6,6 +6,7 @@ import { respond } from "../misc";
 import { connectDB } from "../mongoose";
 import '../models/org.model';
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
+import { IOrganization } from "../models/org.model";
 
 export async function createCategory(cat:Partial<ICategory>):Promise<IResponse>{
     try {
@@ -15,6 +16,7 @@ export async function createCategory(cat:Partial<ICategory>):Promise<IResponse>{
             lowerName: cat?.name?.trim()?.toLowerCase(),
             org: cat?.org?.toString()
         };
+        // console.log('Org ID: ', newData.org)
         const oldCat = await Category.findOne({ lowerName: newData?.lowerName, org: newData?.org });
         if (oldCat) {
             return respond('Category already exists', true, {}, 400);
@@ -69,7 +71,18 @@ export async function getCategoryById(id:string):Promise<IResponse>{
 export async function updateCategory(cat:Partial<ICategory>):Promise<IResponse>{
     try {
         await connectDB();
-        const updatedCat = await Category.findByIdAndUpdate(cat._id, cat, { new: true });
+        const org =  cat?.org as IOrganization;
+        const newData = {
+            ...cat,
+            lowerName: cat?.name?.trim()?.toLowerCase(),
+            org: org?._id
+        }
+        // console.log('Org ID: ', newData.org)
+        const oldCategory = await Category.findOne({lowerName: newData.lowerName, org: newData.org});
+        if (oldCategory && (oldCategory?._id?.toString() !== cat._id)) {
+            return respond('Category already exists', true, {}, 400);
+        }
+        const updatedCat = await Category.findByIdAndUpdate(newData._id, newData, { new: true });
         return respond('Category updated successfully', false, updatedCat, 200);
     } catch (error) {
         console.log(error);

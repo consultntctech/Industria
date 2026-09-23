@@ -10,6 +10,7 @@ import '../models/category.model';
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import LineItem from "../models/lineitem.model";
 import RMaterial from "../models/rmaterial.mode";
+import { IOrganization } from "../models/org.model";
 
 export async function createProduct(data:Partial<IProduct>):Promise<IResponse>{
     try {
@@ -17,7 +18,6 @@ export async function createProduct(data:Partial<IProduct>):Promise<IResponse>{
         const newData = {
             ...data,
             lowerName: data?.name?.trim()?.toLowerCase(),
-            org: data?.org?.toString()
         }
         const oldProduct = await Product.findOne({ lowerName: newData?.lowerName, type:newData.type, org: newData.org });
         if (oldProduct) {
@@ -122,12 +122,19 @@ export async function getProductsByOrg(orgId: string): Promise<IResponse> {
 export async function updateProduct(data:Partial<IProduct>):Promise<IResponse>{
     try {
         await connectDB();
-        const oldProduct = await Product.findOne({ name: data.name, type:data.type, org: data.org });
+        const org =  data?.org as IOrganization;
+        const newData = {
+            ...data,
+            lowerName: data?.name?.trim()?.toLowerCase(),
+            org: org?._id
+        }
+
+        const oldProduct = await Product.findOne({ lowerName: newData.lowerName, type:newData.type, org: newData.org });
         // console.log(oldProduct?._id?.toString(), data._id);
-        if (oldProduct?._id?.toString() !== data._id) {
+        if ( oldProduct && (oldProduct?._id?.toString() !== newData._id)) {
             return respond('Product already exists', true, {}, 400);
         }
-        const updatedProduct = await Product.findByIdAndUpdate(data._id, data, { new: true });
+        const updatedProduct = await Product.findByIdAndUpdate(newData._id, newData, { new: true });
         return respond('Product updated successfully', false, updatedProduct, 200);
     } catch (error) {
         console.log(error);
