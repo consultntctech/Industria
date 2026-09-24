@@ -28,7 +28,8 @@ const SearchSelectTable = ({setSelect, required, value, width}:SearchSelectTable
     const gloAdmin:ITable = {
         id:'15',
         name: 'Global Admin',
-        description: 'Everything in the organization'
+        description: 'Everything in the organization',
+        level: 5
     }
 
     return(

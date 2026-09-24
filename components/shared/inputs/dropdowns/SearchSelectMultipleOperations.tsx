@@ -3,12 +3,13 @@ import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { Autocomplete, Checkbox, Chip,  TextField } from "@mui/material";
 // import { useFetchProditem } from "@/hooks/fetch/useFetchProditem";
-import { IOperation } from "@/types/Types";
+import { IOperation, ITable } from "@/types/Types";
 import { OperationData } from "@/Data/roles/operation";
 
 
 type SearchSelectMultipleOperationsProps = {
     setSelection:Dispatch<SetStateAction<IOperation[]>>;
+    table: ITable | null;
     // selection:string[];
     // fixedSelection?:ISupplier[];
     width?:number;
@@ -16,7 +17,7 @@ type SearchSelectMultipleOperationsProps = {
     value?:IOperation[];
 }
 
-const SearchSelectMultipleOperations = ({setSelection,  width, required, value}:SearchSelectMultipleOperationsProps) => {
+const SearchSelectMultipleOperations = ({setSelection, table,  width, required, value}:SearchSelectMultipleOperationsProps) => {
     const [search, setSearch] = useState<string>('');
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
     const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -29,7 +30,7 @@ const SearchSelectMultipleOperations = ({setSelection,  width, required, value}:
         multiple
         filterSelectedOptions
         defaultValue={value}
-        options={OperationData}
+        options={OperationData(table)}
         onChange={(_, items:IOperation[])=>{
             // const fixed = fixedSelection ?? [];
             // const uniqueSelection = items.filter(

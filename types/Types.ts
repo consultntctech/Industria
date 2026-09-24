@@ -73,6 +73,7 @@ export interface ITable {
     id: string;
     name: string;
     description: string;
+    level: number;
 }
 
 export interface IMonthlyStats {

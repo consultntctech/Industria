@@ -11,6 +11,8 @@ import { useFetchEmployees } from '@/hooks/fetch/useFetchEmployees';
 import { deleteEmployee, getEmployee } from '@/lib/actions/employee.action';
 import EmployeeInfoModal from './EmployeeInfoModal';
 import { EmployeeColoumns } from './EmployeeColumns';
+import { createUserFromEmployee } from '@/lib/actions/user.action';
+import { IUser } from '@/lib/models/user.model';
 
 type EmployeesTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -21,6 +23,7 @@ type EmployeesTableProps = {
 const EmployeesTable = ({setOpenNew, currentEmployee, setCurrentEmployee}:EmployeesTableProps) => {
     const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
+    const [showAddUser, setShowAddUser] = useState(false);
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
     const {employees, isPending, refetch} = useFetchEmployees();
@@ -79,7 +82,13 @@ const EmployeesTable = ({setOpenNew, currentEmployee, setCurrentEmployee}:Employ
     const handleClose = ()=>{
         setShowInfo(false);
         setShowDelete(false);
+        setShowAddUser(false);
         setCurrentEmployee(null);
+    }
+
+    const handleShowUser = (emp: IEmployee)=>{
+        setCurrentEmployee(emp); 
+        setShowAddUser(true);
     }
 
     const handleDeleteUser = async()=>{
@@ -98,6 +107,37 @@ const EmployeesTable = ({setOpenNew, currentEmployee, setCurrentEmployee}:Employ
     }
 
 
+    const handleAddUser = async()=>{
+        try {
+            if(!currentEmployee) return;
+            const userData:Partial<IUser> = {
+                name: currentEmployee.name,
+                email: currentEmployee.email?.toLowerCase()?.trim(),
+                department: currentEmployee.department,
+                address: currentEmployee.address,
+                phone: currentEmployee.phone,
+                description: currentEmployee.description,
+                creator: currentEmployee.creator,
+                org: currentEmployee.org,
+            }
+            setShowAddUser(false);
+            const res = await createUserFromEmployee(userData);
+            enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
+            handleClose();
+            if(!res.error){
+                refetch();
+            }
+        } catch (error) {
+            console.log(error);
+            enqueueSnackbar('Error occured while adding user account', {variant:'error'});
+        }finally{
+            setShowAddUser(false);
+        }
+    }
+
+
+    const addContent = currentEmployee ? `You're about to add a user account for employee ${currentEmployee.name}. This will create a new user account with the same details as the employee.` : '';
+
     const content = currentEmployee ? `Are you sure you want to delete employee ${currentEmployee.name}? This won't affect their user accout, however, cannot be undone.` : '';
 
   return (
@@ -105,6 +145,7 @@ const EmployeesTable = ({setOpenNew, currentEmployee, setCurrentEmployee}:Employ
         <span className='font-bold text-xl' >Employees</span>
         <EmployeeInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentEmployee={currentEmployee} setCurrentEmployee={setCurrentEmployee} />
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteUser} title="Delete Employee" content={content} />
+        <DialogueAlet open={showAddUser} handleClose={handleClose} agreeClick={handleAddUser} title="Add User Account" content={addContent} />
         <div className="flex w-full">
             {
                 // loading ? 
@@ -115,7 +156,7 @@ const EmployeesTable = ({setOpenNew, currentEmployee, setCurrentEmployee}:Employ
                         loading={isPending}
                         getRowId={(row:IEmployee)=>row._id}
                         rows={employees}
-                        columns={EmployeeColoumns(handleInfo, handleEdit, handleDelete)}
+                        columns={EmployeeColoumns(handleInfo, handleEdit, handleDelete, handleShowUser)}
                         initialState={{ 
                             pagination: { paginationModel },
                             columns:{

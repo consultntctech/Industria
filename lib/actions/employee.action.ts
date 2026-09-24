@@ -10,10 +10,49 @@ import '../models/department.model';
 import '../models/org.model';
 
 
+export async function checkEmployeeForUser(email:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        let empData;
+        const [employee, user] = await Promise.all([
+            Employee.findOne({ email: email.toLowerCase()?.trim() }),
+            User.findOne({ email: email.toLowerCase()?.trim() }),
+        ]);
+        if(employee){
+            return respond('Employee already exists', true, {}, 400);
+        }
+        if(user && !employee){
+            empData = {
+                name: user.name,
+                email: user.email,
+                org: user.org,
+                department: user.department,
+                userAccount: user._id,
+                description: user.description,
+                creator: user.creator,
+                photo: user.photo,
+                address: user.address,
+                phone: user.phone,
+            }
+            return respond(`A user account already exists for the email ${email}. You can only import the user data into this record.`, true, empData, 422);
+        }
+        return respond('Employee found successfully', false, empData, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching employee', true, {}, 500);
+    }
+}
+
+
+
 export async function createEmployee(data:Partial<IEmployee>):Promise<IResponse>{
     try {
         await connectDB();
-        const employee = await Employee.create(data);
+        const emp = await Employee.findOne({ email: data.email?.toLowerCase()?.trim() });
+        if(emp){
+            return respond('Employee already exists', true, {}, 400);
+        }
+        const employee = await Employee.create({... data, email: data?.email?.toLowerCase()?.trim()});
         return respond('Employee created successfully', false, employee, 201);
     } catch (error) {
         console.log(error);

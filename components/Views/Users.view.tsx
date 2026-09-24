@@ -4,7 +4,7 @@ import { FaChevronUp } from 'react-icons/fa';
 import { enqueueSnackbar } from 'notistack';
 import TextAreaWithLabel from '../shared/inputs/TextAreaWithLabel';
 import PrimaryButton from '../shared/buttons/PrimaryButton';
-import { createUser, updateUser } from '@/lib/actions/user.action';
+import { checkUserForEmployee, createUser, updateUser } from '@/lib/actions/user.action';
 import { IUser } from '@/lib/models/user.model';
 import SearchSelectOrgs from '../shared/inputs/dropdowns/SearchSelectOrgs';
 import GenericLabel from '../shared/inputs/GenericLabel';
@@ -14,6 +14,7 @@ import { useAuth, useCanUser } from '@/hooks/useAuth';
 import {  isSystemAdmin } from '@/Data/roles/permissions';
 import { IDepartment } from '@/lib/models/department.model';
 import SearchSelectDepartments from '../shared/inputs/dropdowns/SearchSelectDepartments';
+import DialogueAlet from '../misc/DialogueAlet';
 
 
 type UserCompProps = {
@@ -27,6 +28,7 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState<Partial<IUser>>({});
     const [department, setDepartment] = useState<IDepartment | null>(null);
+    const [showEmployee, setShowEmployee] = useState<boolean>(false);
     const [org, setOrg] = useState<string>('');
     const {refetch} = useFetchUsers();
     const {user} = useAuth();
@@ -59,6 +61,34 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
         setOrg('');
         formRef.current?.reset();
         setFormData({});
+    }
+
+    const handleShowEmployee = async()=>{
+        setLoading(true);
+        setShowEmployee(false);
+        try {
+            if(!formData.email){
+                enqueueSnackbar('Email is required', {variant:'error'});
+                setLoading(false);
+                return;
+            };
+            const res = await checkUserForEmployee(formData.email);
+            if(res.code === 422){
+              setShowEmployee(true);
+              setLoading(false);
+              return;
+            }else if(res.code !== 200){
+              enqueueSnackbar(res.message, {variant:'error'});
+              setLoading(false);
+              return;
+            }else{
+              formRef.current?.requestSubmit();
+            }
+        } catch (error) {
+            console.log(error);
+            enqueueSnackbar('Error occured while checking user for employee account', {variant:'error'});
+            setLoading(false);
+        }
     }
     
 
@@ -102,10 +132,20 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
         }
     }
 
+    const handleEmployee = async()=>{
+      formRef?.current?.requestSubmit();
+      setShowEmployee(false);
+    }
+
+    const handleCloseEmployee = ()=>{
+      setShowEmployee(false);
+      setLoading(false);
+    }
+
 
   return (
      <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
-      
+      <DialogueAlet open={showEmployee} handleClose={handleCloseEmployee} agreeClick={handleEmployee} title="Employee found" content={`An employee record already exists for the email '${formData?.email}'. Proceeding will overwrite the details of the employee`} agreeText="Proceed" disagreeText="Cancel" />
       <form ref={formRef} onSubmit={currentUser ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
         <div className="flex flex-col gap-1">
           <span className="title" >{currentUser ? 'Edit user' : 'Add new user'}</span>
@@ -137,8 +177,21 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
             }
             <TextAreaWithLabel defaultValue={currentUser?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
             {
-              (isCreator || isEditor) &&
-              <PrimaryButton disabled={currentUser ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentUser ? "Update" : "Submit"} className="w-full mt-4" />
+              currentUser ?
+             <>
+             {
+               isEditor &&
+              <PrimaryButton disabled={!isEditor} loading={loading} type="submit"  text={loading?"loading" : "Update"} className="w-full mt-4" />
+             }
+             </>
+
+             :
+             <>
+             {
+               isCreator &&
+              <PrimaryButton disabled={!isCreator} loading={loading} type="button" onClick={ handleShowEmployee} text={loading?"loading" : "Submit"} className="w-full mt-4" />
+             }
+             </>
             }
           </div>
         </div>

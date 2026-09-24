@@ -11,6 +11,8 @@ import UserInfoModal from './UserInfoModal'
 import { useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/useAuth'
 import { isSystemAdmin } from '@/Data/roles/permissions'
+import { IEmployee } from '@/lib/models/employee.model';
+import { createEmployee } from '@/lib/actions/employee.action';
 
 type UserTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -21,6 +23,7 @@ type UserTableProps = {
 const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => {
     const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
+    const [showEmployee, setShowEmployee] = useState<boolean>(false);
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
     const {users, isPending, refetch} = useFetchUsers(false);
@@ -80,6 +83,12 @@ const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => 
         setShowInfo(false);
         setShowDelete(false);
         setCurrentUser(null);
+        setShowEmployee(false);
+    }
+
+    const handleEmployee = (user:IUser)=>{
+        setCurrentUser(user);
+        setShowEmployee(true);
     }
 
     const handleDeleteUser = async()=>{
@@ -97,7 +106,38 @@ const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => 
         }
     }
 
+    const handleAddEmployee = async()=>{
+        try {
+            if(!currentUser) return;
+            const empData:Partial<IEmployee> = {
+                name: currentUser.name,
+                address: currentUser.address,
+                phone: currentUser.phone,
+                email: currentUser.email,
+                department: currentUser.department,
+                userAccount: currentUser._id,
+                description: currentUser.description,
+                creator: currentUser.creator,
+                org: currentUser.org,
+            }
+            setShowEmployee(false);
+            const res = await createEmployee(empData);
+            enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
+            handleClose();
+            if(!res.error){
+                refetch();
+                setShowEmployee(false);
+            }
+        } catch (error) {
+            console.log(error);
+            enqueueSnackbar('Error occured while adding employee', {variant:'error'});
+        }finally{
+            setShowEmployee(false);
+        }
+    }
 
+
+    const addEmployeContent = currentUser ? `You're about to add an employee record for the user ${currentUser.name}. This will create a new employee account with the same details as the user.` : '';
     const content = currentUser ? `Are you sure you want to delete user ${currentUser.name} ? This action cannot be undone.` : '';
 
   return (
@@ -105,6 +145,7 @@ const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => 
         <span className='font-bold text-xl' >Users</span>
         <UserInfoModal refetch={refetch} infoMode={showInfo} setInfoMode={setShowInfo} currentUser={currentUser} setCurrentUser={setCurrentUser} />
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteUser} title="Delete User" content={content} />
+        <DialogueAlet open={showEmployee} handleClose={handleClose} agreeClick={handleAddEmployee} title="Add Employee" content={addEmployeContent} />
         <div className="flex w-full">
             {
                 // loading ? 
@@ -115,7 +156,7 @@ const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => 
                         loading={isPending}
                         getRowId={(row:IUser)=>row._id}
                         rows={users}
-                        columns={UserColoumns(handleInfo, handleEdit, handleDelete)}
+                        columns={UserColoumns(handleInfo, handleEdit, handleDelete, handleEmployee)}
                         initialState={{ 
                             pagination: { paginationModel },
                             columns:{

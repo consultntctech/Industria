@@ -1,4 +1,4 @@
-import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Deleter, Editor, EmployeeMaker, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { isDbGlobalAdmin,  isSystemAdmin } from "@/Data/roles/permissions";
 import { formatDate } from "@/functions/dates";
 import { useAuth, useIsGlobalAdmin } from "@/hooks/useAuth";
@@ -16,6 +16,7 @@ export const UserColoumns = (
     handleInfo: (user:IUser)=>void,
     handleEdit: (user:IUser)=>void,
     handleDelete: (user:IUser)=>void,
+    handleEmployee: (user:IUser)=>void,
 ):GridColDef[]=>{
     const {user} = useAuth();
     const isGlobal = useIsGlobalAdmin();
@@ -139,6 +140,7 @@ export const UserColoumns = (
             return(
                 <div className="h-full gap-3 flex-center">
                     <Viewer tableId="38" onClick={()=>handleInfo(params?.row)} tip="View user" />
+                    <EmployeeMaker tableId="96" onClick={()=>handleEmployee(params?.row)} tip="Add employee record for user" />
                     <Activity mode={canSeeActions ? 'visible' : 'hidden' } >
                         <Editor tableId="38" onClick={()=>handleEdit(params?.row)} tip="Edit user" />
                         <Deleter tableId="38" onClick={()=>handleDelete(params?.row)} tip="Delete user" />

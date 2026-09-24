@@ -156,7 +156,7 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
                             {
                                 oldOperations  &&
                                 <GenericLabel label="Select operations"
-                                input={<SearchSelectMultipleOperations value={oldOperations} setSelection={setOperations}  />}
+                                input={<SearchSelectMultipleOperations table={table} value={oldOperations} setSelection={setOperations}  />}
                                 />
                             }
                             </>
@@ -166,7 +166,7 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
                                     input={<SearchSelectTable value={oldTable} setSelect={setTable}  required />}
                                 />
                                 <GenericLabel label="Select operations"
-                                    input={<SearchSelectMultipleOperations value={oldOperations} setSelection={setOperations}  />}
+                                    input={<SearchSelectMultipleOperations table={table} value={oldOperations} setSelection={setOperations}  />}
                                 />
                             </>
                         }

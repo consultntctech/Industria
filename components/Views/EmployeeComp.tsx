@@ -12,8 +12,9 @@ import {  isSystemAdmin } from '@/Data/roles/permissions';
 import { IDepartment } from '@/lib/models/department.model';
 import SearchSelectDepartments from '../shared/inputs/dropdowns/SearchSelectDepartments';
 import { IEmployee } from '@/lib/models/employee.model';
-import { createEmployee, updateEmployee } from '@/lib/actions/employee.action';
+import { checkEmployeeForUser, createEmployee, updateEmployee } from '@/lib/actions/employee.action';
 import { useEmployeeHasAccount, useFetchEmployees } from '@/hooks/fetch/useFetchEmployees';
+import DialogueAlet from '../misc/DialogueAlet';
 
 
 type UserCompProps = {
@@ -26,8 +27,10 @@ type UserCompProps = {
 const EmployeeComp = ({openNew, setOpenNew, currentEmployee, setCurrentEmployee}:UserCompProps) => {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState<Partial<IEmployee>>({});
+    const [empData, setEmpData] = useState<Partial<IEmployee>>({});
     const [department, setDepartment] = useState<IDepartment | null>(null);
     const [org, setOrg] = useState<string>('');
+    const [showUser, setShowUser] = useState<boolean>(false);
     const {refetch} = useFetchEmployees();
     const {hasAccount} = useEmployeeHasAccount(currentEmployee?.email as string);
     const {user} = useAuth();
@@ -104,10 +107,63 @@ const EmployeeComp = ({openNew, setOpenNew, currentEmployee, setCurrentEmployee}
         }
     }
 
+    const handleShowUser = async()=>{
+      setLoading(true);
+      setShowUser(false);
+      try {
+        if(!formData.email){
+          enqueueSnackbar('Email is required', {variant:'error'});
+          setLoading(false);
+          return;
+        };
+        const res = await checkEmployeeForUser(formData.email);
+        if(res.code === 422){
+          setShowUser(true);
+          setLoading(false);
+          setEmpData(res.payload as IEmployee);
+          return;
+        }else if(res.code !== 200){
+          enqueueSnackbar(res.message, {variant:'error'});
+          setLoading(false);
+          return;
+        }else{
+          formRef.current?.requestSubmit();
+        }
+      } catch (error) {
+        console.log(error);
+        enqueueSnackbar('Error occured while checking employee for user account', {variant:'error'});
+        setLoading(false);
+      }
+    }
+
+    const handleCloseUser = ()=>{
+      setShowUser(false);
+      setLoading(false);
+    }
+
+    const handleUser = async()=>{
+      setShowUser(false);
+      setLoading(true);
+      try {
+        const res = await createEmployee(empData);
+        enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
+        if(!res.error){
+            formRef.current?.reset();
+            setOpenNew(false);
+            refetch();
+        }
+      } catch (error) {
+        console.log(error)
+        enqueueSnackbar('Error occured while creating user account', {variant:'error'});
+      }finally{
+        setLoading(false);
+      }
+    }
+
 
   return (
      <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
-      
+      <DialogueAlet open={showUser} handleClose={handleCloseUser} agreeClick={handleUser} title="User found" content={`A user account already exists for the email '${formData?.email}'. You can only import the user data into this record.`} agreeText="Proceed" disagreeText="Cancel" />
       <form ref={formRef} onSubmit={currentEmployee ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
         <div className="flex flex-col gap-1">
           <span className="title" >{currentEmployee ? 'Edit employee' : 'Add new employee'}</span>
@@ -144,8 +200,17 @@ const EmployeeComp = ({openNew, setOpenNew, currentEmployee, setCurrentEmployee}
             }
             <TextAreaWithLabel disabled={isReadOnly} defaultValue={currentEmployee?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
             {
-              (isCreator || isEditor) && !isReadOnly &&
-              <PrimaryButton disabled={currentEmployee ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentEmployee ? "Update" : "Submit"} className="w-full mt-4" />
+              !isReadOnly &&
+              <>
+              {
+                !!currentEmployee  && isEditor &&
+                <PrimaryButton disabled={!isEditor} loading={loading} type="submit" text={loading?"loading" : "Update"} className="w-full mt-4" />
+              }
+              {
+                !currentEmployee && isCreator &&
+                <PrimaryButton disabled={!isCreator} loading={loading} type="button" onClick={ handleShowUser} text={loading?"loading" :  "Submit"} className="w-full mt-4" />
+              }
+              </>
             }
           </div>
         </div>

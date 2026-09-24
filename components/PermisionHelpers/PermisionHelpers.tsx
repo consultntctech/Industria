@@ -4,12 +4,14 @@ import { ITablePermision } from "@/types/Types";
 import { Tooltip } from "@mui/material";
 import { Url } from "next/dist/shared/lib/router/router";
 import Link from "next/link";
-import { ComponentProps } from "react";
+import { ComponentProps, ReactElement } from "react";
+import { BsFillPersonVcardFill } from "react-icons/bs";
 import { GoInfo, GoPencil } from "react-icons/go";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { IoSettingsOutline, IoTrashBinOutline } from "react-icons/io5";
 import { LiaRedoAltSolid, LiaUndoAltSolid } from "react-icons/lia";
 import { PiRadioButtonBold } from "react-icons/pi";
+import { TiUserAddOutline } from "react-icons/ti";
 import { twMerge } from "tailwind-merge";
 
 type LinkerProps = {
@@ -22,7 +24,10 @@ type LinkerProps = {
 
 type ViewerProps = {
     tip: string;
+    icon? : ReactElement;
 } & ITablePermision & ComponentProps<'svg'>
+
+
 
 type CreatorProps = {
     creator?: IUser;
@@ -213,3 +218,40 @@ export const Assigner =({tableId, operation='UPDATE', tip, className, ...props}:
     )
 }
 
+
+export const UserMaker =({tableId, operation='UPDATE', tip, className, ...props}:ViewerProps)=>{
+        const under = useCanUser(tableId, operation);
+
+
+    return(
+        <>
+        {
+            under ?
+            <Tooltip title={tip}>
+                <TiUserAddOutline  {...props}   className={twMerge('cursor-pointer text-blue-700', className)} />
+            </Tooltip>
+            :
+            null
+        }
+        </>
+    )
+}
+
+
+export const EmployeeMaker =({tableId, operation='UPDATE', tip, className, ...props}:ViewerProps)=>{
+        const under = useCanUser(tableId, operation);
+
+
+    return(
+        <>
+        {
+            under ?
+            <Tooltip title={tip}>
+                <BsFillPersonVcardFill   {...props}   className={twMerge('cursor-pointer text-blue-700', className)} />
+            </Tooltip>
+            :
+            null
+        }
+        </>
+    )
+}

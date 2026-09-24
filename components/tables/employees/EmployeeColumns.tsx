@@ -1,4 +1,4 @@
-import { Deleter, Editor, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Deleter, Editor, Linker, UserMaker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { IDepartment } from "@/lib/models/department.model";
 import { IEmployee } from "@/lib/models/employee.model";
@@ -9,9 +9,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const EmployeeColoumns = (
-    handleInfo: (user:IEmployee)=>void,
-    handleEdit: (user:IEmployee)=>void,
-    handleDelete: (user:IEmployee)=>void,
+    handleInfo: (emp:IEmployee)=>void,
+    handleEdit: (emp:IEmployee)=>void,
+    handleDelete: (emp:IEmployee)=>void,
+    handleAddUser: (emp:IEmployee)=>void,
 ):GridColDef[]=>{
 
 
@@ -137,6 +138,7 @@ export const EmployeeColoumns = (
                 <div className="h-full gap-3 flex-center">
                     <Viewer tableId="96" onClick={()=>handleInfo(params?.row)} tip="View employee" />
                     <Editor tableId="96" onClick={()=>handleEdit(params?.row)} tip="Edit employee" />
+                    <UserMaker tableId="38" onClick={()=>handleAddUser(params?.row)} tip="Add user account for employee" />
                     <Deleter tableId="96" onClick={()=>handleDelete(params?.row)} tip="Delete employee" />
                 </div>
             )
