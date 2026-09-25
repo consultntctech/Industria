@@ -12,6 +12,8 @@ import {  isSystemAdmin } from "@/Data/roles/permissions";
 export const useFetchUsers = (showMe:boolean=true, showAdmins:boolean=true) => {
     const {user} = useAuth();
     const global = useIsGlobalAdmin();
+    console.log(global, showAdmins)
+
     const isAdmin = isSystemAdmin(user);
     const fetchUsers = async():Promise<IUser[]>=>{
         try {
