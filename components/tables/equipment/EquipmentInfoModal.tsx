@@ -108,7 +108,7 @@ const EquipmentInfoModal = ({infoMode, setInfoMode, currentEquipment, setCurrent
                 <span className="mlabel">Assigned To</span>
                 {
                     assigned?  
-                    <Linker tableId='95' link={`/dashboard/depatments/${assigned?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={assigned?.name || 'None'} />
+                    <Linker tableId='95' link={`/dashboard/departments/${assigned?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={assigned?.name || 'None'} />
                     :
                     <span className="mtext">Not assigned</span>
                 }
