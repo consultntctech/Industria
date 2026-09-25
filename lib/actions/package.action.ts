@@ -19,7 +19,7 @@ import ProdItem, { IProdItem } from "../models/proditem.model";
 import LineItem from "../models/lineitem.model";
 import { getISOWeek, getISOWeekYear } from "@/functions/helpers";
 import Alert, { IAlert } from "../models/alert.model";
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 
 export async function createPackage(data: Partial<IPackage>): Promise<IResponse> {
   const session = await (await connectDB()).startSession();
@@ -735,7 +735,7 @@ export async function getLastSixMonthsPackagesByOrg(org:string): Promise<IRespon
         const packages = await Package.aggregate([
             {
                 $match: {
-                    org,
+                    org: new mongoose.Types.ObjectId(org),
                     createdAt: { $gte: sixMonthsAgo },
                     quantity: { $ne: null }
                 }
@@ -1057,7 +1057,7 @@ export async function getPackageStatsByOrg(
         // At least one Available or Returned item
         $match: {
           statuses: { $in: ["Available", "Returned"] },
-          org
+          org: new Types.ObjectId(org)
         }
       },
       {
@@ -1084,7 +1084,7 @@ export async function getPackageStatsByOrg(
       {
         $match: {
           createdAt: { $gte: last7DaysStart },
-          org
+          org: new Types.ObjectId(org)
         }
       },
       {
@@ -1137,7 +1137,7 @@ export async function getPackageStatsByOrg(
     const weeklyAgg = await Package.aggregate([
       {
         $match: {
-          createdAt: { $gte: last7WeeksStart }, org
+          createdAt: { $gte: last7WeeksStart }, org: new Types.ObjectId(org)
         }
       },
       {
@@ -1309,7 +1309,7 @@ export async function getPackagedProductStatsByOrg(
           status: { $in: ["Available", "Returned"] },
           package: { $ne: null },
           product: { $ne: null },
-          org
+          org: new Types.ObjectId(org)
         },
       },
       {

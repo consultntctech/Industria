@@ -1,4 +1,4 @@
-import { Deleter, Editor, Linker, ViewCreator, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
+import { Editor, Linker, ViewCreator, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 // import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
@@ -12,7 +12,7 @@ import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 export const GoodColumns = (
     handleInfo: (user:IGood)=>void,
     handleEdit: (user:IGood)=>void,
-    handleDelete: (user:IGood)=>void,
+    // handleDelete: (user:IGood)=>void,
 ):GridColDef[]=>{
     // const {currency} = useCurrencyConfig();
 
@@ -191,7 +191,7 @@ export const GoodColumns = (
                 <div className="h-full flex-center gap-3">
                     <Viewer tableId="88" tip="View Goods" onClick={()=>handleInfo(params?.row)} />
                     <Editor tableId="88" tip="Edit Goods" onClick={()=>handleEdit(params?.row)} />
-                    <Deleter tableId="88" tip="Delete Goods" onClick={()=>handleDelete(params?.row)} />
+                    {/* <Deleter tableId="88" tip="Delete Goods" onClick={()=>handleDelete(params?.row)} /> */}
                 </div>
             )
         },

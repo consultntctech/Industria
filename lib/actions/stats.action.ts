@@ -190,7 +190,7 @@ export async function getMonthlyTransactionSummaryByOrg(
         const orderResult = await Order.aggregate([
             {
                 $match: {
-                    org,
+                    org: new Types.ObjectId(org),
                     createdAt: { $gte: startUTC, $lt: endUTC }
                 }
             },
@@ -237,7 +237,7 @@ export async function getMonthlyTransactionSummaryByOrg(
         const salesResult = await Sales.aggregate([
             {
                 $match: {
-                    org,
+                    org: new Types.ObjectId(org),
                     createdAt: { $gte: startUTC, $lt: endUTC }
                 }
             },
@@ -253,7 +253,7 @@ export async function getMonthlyTransactionSummaryByOrg(
         const returnResult = await Returns.aggregate([
             {
                 $match: {
-                    org,
+                    org: new Types.ObjectId(org),
                     createdAt: { $gte: startUTC, $lt: endUTC }
                 }
             },
@@ -486,7 +486,7 @@ export async function getMonthlyTransactionCountsByOrg(org:string): Promise<IRes
         /* ---------- SALES ---------- */
         const sales = await Sales.aggregate([
             {
-                $match: {org}
+                $match: {org: new Types.ObjectId(org)}
             },
             {
                 $group: {
@@ -504,7 +504,7 @@ export async function getMonthlyTransactionCountsByOrg(org:string): Promise<IRes
         /* ---------- RETURNS ---------- */
         const returns = await Returns.aggregate([
             {
-                $match: {org}
+                $match: {org: new Types.ObjectId(org)}
             },
             {
                 $group: {
@@ -521,7 +521,7 @@ export async function getMonthlyTransactionCountsByOrg(org:string): Promise<IRes
 
         /* ---------- ORDERS: PENDING ---------- */
         const pendingOrders = await Order.aggregate([
-            { $match: { status: "Pending", org } },
+            { $match: { status: "Pending", org: new Types.ObjectId(org) } },
             {
                 $group: {
                     _id: {
@@ -537,7 +537,7 @@ export async function getMonthlyTransactionCountsByOrg(org:string): Promise<IRes
 
         /* ---------- ORDERS: FULFILLED ---------- */
         const fulfilledOrders = await Order.aggregate([
-            { $match: { status: "Fulfilled", org } },
+            { $match: { status: "Fulfilled", org: new Types.ObjectId(org) } },
             {
                 $group: {
                     _id: {
@@ -555,7 +555,7 @@ export async function getMonthlyTransactionCountsByOrg(org:string): Promise<IRes
         const delayedOrders = await Order.aggregate([
             {
                 $match: {
-                    org,
+                    org: new Types.ObjectId(org),
                     status: { $ne: "Fulfilled" },
                     deadline: { $exists: true, $ne: null },
                     $expr: {
@@ -738,7 +738,7 @@ export async function getOrderAndSalesStatsByOrg(org:string): Promise<IResponse>
             Order.aggregate([
                 {
                     $match: {
-                        org,
+                        org: new Types.ObjectId(org),
                         price: { $ne: null },
                         createdAt: { $gte: startDate, $lte: endDate }
                     }
@@ -756,7 +756,7 @@ export async function getOrderAndSalesStatsByOrg(org:string): Promise<IResponse>
             Sales.aggregate([
                 {
                     $match: {
-                        org,
+                        org: new Types.ObjectId(org),
                         price: { $ne: null },
                         createdAt: { $gte: startDate, $lte: endDate }
                     }
@@ -869,7 +869,7 @@ export async function getStatsByOrg(org:string): Promise<IResponse> {
 
       const agg = await model.aggregate([
         {
-            $match: {org}
+            $match: {org: new Types.ObjectId(org)}
         },
         {
           $group: {
@@ -995,7 +995,7 @@ export async function getGlobalFinanceStatsByOrg(org:string): Promise<IResponse>
             const data = await model.aggregate([
                 {
                     $match: {
-                        org,
+                        org: new Types.ObjectId(org),
                         createdAt: { $gte: startDate, $lte: endDate },
                         [field]: { $ne: null }
                     }
@@ -1351,7 +1351,7 @@ export async function getDashboardStatsByOrg(org:string): Promise<IResponse> {
             totalAccepted: number;
             totalValue: number;
         }>([
-            { $match: { qAccepted: { $gt: 0 }, org } },
+            { $match: { qAccepted: { $gt: 0 }, org: new Types.ObjectId(org) } },
             {
                 $group: {
                     _id: null,
@@ -1405,16 +1405,16 @@ export async function getDashboardStatsByOrg(org:string): Promise<IResponse> {
             totalOrders,
             fulfilledThisMonth,
         ] = await Promise.all([
-            Order.countDocuments({ status: 'Pending', org }),
-            Order.countDocuments({ status: 'Fulfilled', org }),
+            Order.countDocuments({ status: 'Pending', org: new Types.ObjectId(org) }),
+            Order.countDocuments({ status: 'Fulfilled', org: new Types.ObjectId(org) }),
             Order.countDocuments({
-                org,
+                org: new Types.ObjectId(org),
                 status: { $ne: 'Fulfilled' },
                 deadline: { $lt: new Date().toISOString() },
             }),
-            Order.countDocuments({org}),
+            Order.countDocuments({org: new Types.ObjectId(org)}),
             Order.countDocuments({
-                org,
+                org: new Types.ObjectId(org),
                 status: 'Fulfilled',
                 fulfilledAt: {
                     $gte: new Date(
@@ -1433,12 +1433,12 @@ export async function getDashboardStatsByOrg(org:string): Promise<IResponse> {
 
         /* ================= SALES & RETURNS ================= */
         const salesAgg = await Sales.aggregate<{ _id: null; total: number }>([
-            { $match: {org}},
+            { $match: {org: new Types.ObjectId(org)}},
             { $group: { _id: null, total: { $sum: '$price' } } },
         ]);
 
         const returnsAgg = await Returns.aggregate<{ _id: null; total: number }>([
-            { $match: {org}},
+            { $match: {org: new Types.ObjectId(org)}},
             { $group: { _id: null, total: { $sum: '$price' } } },
         ]);
 
@@ -1449,7 +1449,7 @@ export async function getDashboardStatsByOrg(org:string): Promise<IResponse> {
         const months = getLast7Months();
 
         const rawInv = await RMaterial.aggregate<{ _id: string; value: number }>([
-            {$match: {org}},
+            {$match: {org: new Types.ObjectId(org)}},
             {
                 $project: {
                     key: {
@@ -1466,7 +1466,7 @@ export async function getDashboardStatsByOrg(org:string): Promise<IResponse> {
         ]);
 
         const finishedInv = await LineItem.aggregate<{ _id: string; value: number }>([
-            { $match: { status: { $ne: 'Pending' }, org } },
+            { $match: { status: { $ne: 'Pending' }, org: new Types.ObjectId(org) } },
             {
                 $project: {
                     key: {
@@ -1494,7 +1494,7 @@ export async function getDashboardStatsByOrg(org:string): Promise<IResponse> {
             _id: string;
             value: number;
         }>([
-            {$match: {org}},
+            {$match: {org: new Types.ObjectId(org)}},
             {
                 $project: {
                     week: {
@@ -1520,7 +1520,7 @@ export async function getDashboardStatsByOrg(org:string): Promise<IResponse> {
             _id: string;
             value: number;
         }>([
-            { $match: { status: 'Approved', org } },
+            { $match: { status: 'Approved', org: new Types.ObjectId(org) } },
             {
                 $project: {
                     week: {
@@ -1566,7 +1566,7 @@ export async function getDashboardStatsByOrg(org:string): Promise<IResponse> {
             {
                 $match: {
                     status: 'Approved',
-                    org,
+                    org: new Types.ObjectId(org),
                     updatedAt: {
                         $gte: sevenDaysAgo,
                         $lte: today,
@@ -1879,7 +1879,7 @@ export async function getCostStatsByOrg(org: string): Promise<IResponse> {
 
         /* ================= PRODUCTION (pCost, labourCost, extraCost) ================= */
         const productionAgg = await Production.aggregate([
-            { $match: { org, createdAt: { $gte: startDate, $lte: endDate } } },
+            { $match: { org: new Types.ObjectId(org), createdAt: { $gte: startDate, $lte: endDate } } },
             {
                 $group: {
                     _id: {
@@ -1901,7 +1901,7 @@ export async function getCostStatsByOrg(org: string): Promise<IResponse> {
         const packageAgg = await Package.aggregate([
             {
                 $match: {
-                    org,
+                    org: new Types.ObjectId(org),
                     createdAt: { $gte: startDate, $lte: endDate },
                     cost: { $ne: null },
                 },
@@ -1919,7 +1919,7 @@ export async function getCostStatsByOrg(org: string): Promise<IResponse> {
         const rawMaterialAgg = await RMaterial.aggregate([
             {
                 $match: {
-                    org,
+                    org: new Types.ObjectId(org),
                     createdAt: { $gte: startDate, $lte: endDate },
                     price: { $ne: null },
                 },
@@ -1937,7 +1937,7 @@ export async function getCostStatsByOrg(org: string): Promise<IResponse> {
         const prodItemAgg = await ProdItem.aggregate([
             {
                 $match: {
-                    org,
+                    org: new Types.ObjectId(org),
                     createdAt: { $gte: startDate, $lte: endDate },
                     price: { $ne: null },
                 },

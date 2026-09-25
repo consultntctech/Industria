@@ -13,7 +13,7 @@ import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 export async function createProdApproval(data: Partial<IProdApproval>): Promise<IResponse> {
   try {
     await connectDB();
-    const approval = await ProdApproval.findOne({ production: data.production });
+    const approval = await ProdApproval.findOne({ production: data.production, status: 'Pending' });
     if (approval) {
         const updatedApproval = await ProdApproval.findByIdAndUpdate(approval._id, data, { new: true });
         return respond("Approval request sent successfully", false, updatedApproval, 200);

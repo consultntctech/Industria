@@ -14,7 +14,7 @@ import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 export async function createPackApproval(data: Partial<IPackApproval>): Promise<IResponse> {
   try {
     await connectDB();
-    const approval = await PackApproval.findOne({ package: data.package });
+    const approval = await PackApproval.findOne({ package: data.package, status: 'Pending' });
     if (approval) {
         const updatedApproval = await PackApproval.findByIdAndUpdate(approval._id, data, { new: true });
         return respond("Approval request sent successfully", false, updatedApproval, 200);

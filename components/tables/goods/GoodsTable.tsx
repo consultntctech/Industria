@@ -1,4 +1,4 @@
-import DialogueAlet from '@/components/misc/DialogueAlet'
+// import DialogueAlet from '@/components/misc/DialogueAlet'
 import { Paper } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { enqueueSnackbar } from 'notistack'
@@ -6,7 +6,7 @@ import  { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { IGood } from '@/lib/models/good.model'
 import { useFetchGoods } from '@/hooks/fetch/useFetchGoods'
-import { deleteGood, getGood } from '@/lib/actions/good.action'
+import {  getGood } from '@/lib/actions/good.action'
 import GoodsInfoModal from './GoodsInfoModal'
 import { GoodColumns } from './GoodsColumns'
 
@@ -18,9 +18,9 @@ type GoodTableProps = {
 
 const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => {
     const [showInfo, setShowInfo] = useState(false);
-    const [showDelete, setShowDelete] = useState(false);
+    // const [showDelete, setShowDelete] = useState(false);
 
-    const {goods, isPending, refetch} = useFetchGoods();
+    const {goods, isPending} = useFetchGoods();
     const searchParams = useSearchParams();
     const GoodId = searchParams.get("Id");
 
@@ -68,40 +68,40 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
         setCurrentGood(item);
     }
 
-    const handleDelete = (item:IGood)=>{
-        setShowDelete(true);
-        setCurrentGood(item);
-    }
+    // const handleDelete = (item:IGood)=>{
+    //     setShowDelete(true);
+    //     setCurrentGood(item);
+    // }
 
-    const handleClose = ()=>{
-        setShowInfo(false);
-        setShowDelete(false);
-        setCurrentGood(null);
-    }
+    // const handleClose = ()=>{
+    //     setShowInfo(false);
+    //     // setShowDelete(false);
+    //     setCurrentGood(null);
+    // }
 
-    const handleDeleteItem = async()=>{
-        try {
-            if(!currentGood) return;
-            const res = await deleteGood(currentGood?._id);
-            enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
-            handleClose();
-            if(!res.error){
-                refetch();
-            }
-        } catch (error) {
-            console.log(error);
-            enqueueSnackbar('Error occured while deleting goods', {variant:'error'});
-        }
-    }
+    // const handleDeleteItem = async()=>{
+    //     try {
+    //         if(!currentGood) return;
+    //         const res = await deleteGood(currentGood?._id);
+    //         enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
+    //         handleClose();
+    //         if(!res.error){
+    //             refetch();
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //         enqueueSnackbar('Error occured while deleting goods', {variant:'error'});
+    //     }
+    // }
 
 
-    const content = currentGood ? `Are you sure you want to delete Finished Goods ${currentGood.name} ? This will also delete all packaged items for these goods.` : '';
+    // const content = currentGood ? `Are you sure you want to delete Finished Goods ${currentGood.name} ? This will also delete all packaged items for these goods.` : '';
 
   return (
     <div className='table-main2' >
         <span className='font-bold text-xl' >Goods</span>
         <GoodsInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentGood={currentGood} setCurrentGood={setCurrentGood} />
-        <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteItem} title="Delete Good" content={content} />
+        {/* <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteItem} title="Delete Good" content={content} /> */}
         <div className="flex w-full">
             {
                 // loading ? 
@@ -112,7 +112,7 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
                         loading={isPending}
                         getRowId={(row:IGood)=>row._id}
                         rows={goods}
-                        columns={GoodColumns(handleInfo, handleEdit, handleDelete)}
+                        columns={GoodColumns(handleInfo, handleEdit, /* handleDelete, */)}
                         initialState={{ 
                             pagination: { paginationModel },
                             columns:{

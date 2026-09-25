@@ -11,6 +11,7 @@ import '../models/customer.model'
 import '../models/othercurrency.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Alert from "../models/alert.model";
+import { Types } from "mongoose";
 
 
 export async function createOrder(data:Partial<IOrder>):Promise<IResponse>{
@@ -278,7 +279,7 @@ export async function getOrdersByOrgGroupedByMonth(org:string): Promise<IRespons
         const orders = await Order.aggregate([
             {
                 $match: {
-                    price: { $ne: null }, org,
+                    price: { $ne: null }, org: new Types.ObjectId(org),
                     createdAt: {
                         $gte: startDate,
                         $lte: endDate
@@ -386,7 +387,7 @@ export async function getOrdersByOrgQuantityGroupedByMonth(org:string): Promise<
         const orders = await Order.aggregate([
             {
                 $match: {
-                    quantity: { $ne: null }, org
+                    quantity: { $ne: null }, org: new Types.ObjectId(org)
                 }
             },
             {
@@ -494,14 +495,14 @@ export const getOrderStatsByOrg = async (org:string): Promise<IResponse> => {
 
         const [pending, fulfilled, delayed] = await Promise.all([
             // Pending orders
-            Order.countDocuments({ status: 'Pending', org }),
+            Order.countDocuments({ status: 'Pending', org: new Types.ObjectId(org) }),
 
             // Fulfilled orders
-            Order.countDocuments({ status: 'Fulfilled', org }),
+            Order.countDocuments({ status: 'Fulfilled', org: new Types.ObjectId(org) }),
 
             // Delayed orders (deadline < today AND not fulfilled)
             Order.countDocuments({
-                org,
+                org: new Types.ObjectId(org),
                 status: { $ne: 'Fulfilled' },
                 deadline: { $exists: true, $ne: null },
                 $expr: {

@@ -11,6 +11,7 @@ import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import LineItem from "../models/lineitem.model";
 import RMaterial from "../models/rmaterial.mode";
 import { IOrganization } from "../models/org.model";
+import { Types } from "mongoose";
 
 export async function createProduct(data:Partial<IProduct>):Promise<IResponse>{
     try {
@@ -265,7 +266,7 @@ export async function getProductStatsByOrg(org:string): Promise<IResponse> {
 
         const products = await Product.aggregate<IProductStats>([
             {
-                $match: { org }
+                $match: { org: new Types.ObjectId(org) }
             },
             // Lookup raw materials
             {
@@ -458,7 +459,7 @@ export async function getAllProductsWithStockByOrg(org:string): Promise<IRespons
 
         const products = await Product.aggregate<IProductWithStock>([
             {
-                $match: {org: org}
+                $match: {org: new Types.ObjectId(org)}
             },
             // 🔹 Populate category
             {

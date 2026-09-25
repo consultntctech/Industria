@@ -321,7 +321,7 @@ export async function getBatchesWithLineItemsByOrg(orgId: string): Promise<IResp
             {
                 $match: {
                     status: "Available",
-                    org: orgId
+                    org: new mongoose.Types.ObjectId(orgId)
                 }
             },
             {

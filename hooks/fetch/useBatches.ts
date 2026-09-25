@@ -36,7 +36,7 @@ export const useFetchBatchesWithRMaterials = () => {
             if(!user) return [];
             const res = isAdmin ? await getBatchesWithGoods() : await getBatchesWithGoodsByOrg(user?.org);
             const data = res.payload as IBatch[];
-            console.log('Batch: ', res)
+            // console.log('Batch: ', res)
             return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {
             console.log(error);

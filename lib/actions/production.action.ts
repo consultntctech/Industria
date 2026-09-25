@@ -922,7 +922,7 @@ export async function getProductionStatsByOrg(org:string): Promise<IResponse> {
     const result = await Production.aggregate([
       {
         $match: {
-          org,
+          org: new Types.ObjectId(org),
           status: "Approved",
           createdAt: { $gte: start, $lte: now },
         },
