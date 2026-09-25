@@ -435,12 +435,7 @@ export async function getPackagesByOrg(orgId:string):Promise<IResponse>{
         .populate('batch')
         .populate('original.currency')
         .populate('storages')
-        .populate({
-          path:'packagingMaterial',
-          populate:{
-            path:'materialId'
-          }
-        })
+        .populate('packagingMaterial.materialId')
         .populate('org').lean() as unknown as IPackage[];
         return respond('Packages found successfully', false, packages, 200);
     } catch (error) {
