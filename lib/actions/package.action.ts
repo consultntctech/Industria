@@ -13,6 +13,7 @@ import '../models/proditem.model'
 import '../models/product.model'
 import '../models/othercurrency.model'
 import '../models/production.model'
+import '../models/employee.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Good from "../models/good.model";
 import PackApproval from "../models/packapproval.model";
