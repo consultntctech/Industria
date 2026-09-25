@@ -8,6 +8,7 @@ import BatchConfig, { IBatchConfig } from "../models/batchconfig.model";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import RMaterial from "../models/rmaterial.mode";
 import LineItem from "../models/lineitem.model";
+import mongoose from "mongoose";
 
 export async function createBatch(data: Partial<IBatch>): Promise<IResponse> {
   try {
@@ -238,7 +239,7 @@ export async function getBatchesWithGoodsByOrg(orgId:string):Promise<IResponse>{
             {
                 $match: {
                     qAccepted: { $gt: 0 },
-                    org: orgId
+                    org: new mongoose.Types.ObjectId(orgId)
                 }
             },
             {
@@ -247,9 +248,9 @@ export async function getBatchesWithGoodsByOrg(orgId:string):Promise<IResponse>{
                 }
             }
         ]);
-
+        // console.log('Aceepted goods: ', acceptedBatches)
         const batchIds = acceptedBatches.map(b => b._id);
-
+        // console.log('Batch: ', batchIds)
         // If nothing found, return empty
         if (batchIds.length === 0) {
             return respond("No batches with accepted goods found", false, [], 200);
