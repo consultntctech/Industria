@@ -18,11 +18,12 @@ export const useFetchUsers = (showMe:boolean=true, showAdmins:boolean=true) => {
             if(!user) return [];
             const res = isAdmin ? await getUsers() : await getUsersByOrg(user?.org);
             const users = res.payload as IUser[];
+            console.log('Users 2: ', users)
             return users
-            .filter(()=>{
-                if (showAdmins) return true;
-                return !global;
-            })
+            // .filter((item)=>{
+            //     if (showAdmins) return item;
+            //     return !global;
+            // })
             ?.filter((u) => showMe ? true : u._id !== user?._id)
             ?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {

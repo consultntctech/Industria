@@ -261,11 +261,11 @@ export async function getUsers(): Promise<IResponse> {
 export async function getUsersByOrg(orgId: string): Promise<IResponse> {
   try {
     await connectDB();
-    const users = (await User.find({ org: orgId })
+    const users = await User.find({ org: orgId })
       .populate("org")
       .populate("department")
       .populate("roles")
-      .lean()) as unknown as IUser[];
+      .lean() as unknown as IUser[];
     return respond("Users found successfully", false, users, 200);
   } catch (error) {
     console.log(error);

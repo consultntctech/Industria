@@ -25,6 +25,7 @@ const SearchSelectMultipleUsers = ({setSelection, showMe, showAdmins, width, req
     const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
     // console.log('IDS: ',users.map((item)=>item._id))
+    console.log('Users: ', users)
 
   return (
     <Autocomplete
