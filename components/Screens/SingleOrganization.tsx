@@ -1,13 +1,13 @@
 'use client'
 import Title from "../misc/Title"
 
-import { useFetchOrgById } from "@/hooks/fetch/useFetchOrgs"
+import {  useFetchUserOrg } from "@/hooks/fetch/useFetchOrgs"
 import SingleOrgComp from "../Views/SingleOrgComp"
 import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
 
 
 const SingleOrganization = () => {
-  const {org, isPending, refetch} = useFetchOrgById()
+  const {org, isPending, refetch} = useFetchUserOrg()
 
   return (
     <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">

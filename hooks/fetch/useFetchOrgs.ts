@@ -1,4 +1,4 @@
-import { getOrg, getOrgs } from "@/lib/actions/org.action";
+import { getOrg, getOrgById, getOrgs } from "@/lib/actions/org.action";
 import { IOrganization } from "@/lib/models/org.model"
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
@@ -49,5 +49,28 @@ export const useFetchOrgById = ()=>{
         enabled: !!user,
     })
 
+    return {org, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchUserOrg = ()=>{
+    const {user} = useAuth();
+    const fetchUserOrg = async():Promise<IOrganization | null>=>{
+        try {
+            if(!user) return null;
+            const res = await getOrgById(user?.org);
+            const org = res.payload as IOrganization;
+            return org;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+    
+    const {data:org, isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['userOrg', user?.org],
+        queryFn: fetchUserOrg,
+        enabled: !!user,
+    })
     return {org, isPending, refetch, isSuccess}
 }
