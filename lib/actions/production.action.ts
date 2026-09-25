@@ -12,6 +12,7 @@ import '../models/product.model'
 import '../models/batch.model'
 import '../models/othercurrency.model'
 import '../models/labourer.model'
+import '../models/employee.model'
 import Alert, { IAlert } from "../models/alert.model";
 
 
