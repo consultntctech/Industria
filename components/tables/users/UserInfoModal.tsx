@@ -4,7 +4,7 @@ import { Linker } from '@/components/PermisionHelpers/PermisionHelpers';
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
 import { isDbGlobalAdmin,  isSystemAdmin } from '@/Data/roles/permissions';
 import { formatDate } from '@/functions/dates';
-import { useAuth, useIsGlobalAdmin } from '@/hooks/useAuth';
+import { useAuth, useCanUser, useIsGlobalAdmin } from '@/hooks/useAuth';
 import { updateUser } from '@/lib/actions/user.action';
 import { IDepartment } from '@/lib/models/department.model';
 import { IOrganization } from '@/lib/models/org.model';
@@ -35,10 +35,11 @@ const UserInfoModal = ({infoMode, setInfoMode, currentUser, setCurrentUser, refe
     const [showDialog, setShowDialog] = useState(false);
 
     const {user} = useAuth();
+    const isuserAble = useCanUser('38', 'UPDATE');
     const isAdmin = isSystemAdmin(user);
     const isGlobal = useIsGlobalAdmin();
     const isG = isDbGlobalAdmin(currentUser?.roles);
-    const canSeeActions = (isGlobal || isAdmin) || !isG;
+    const canSeeActions = (isGlobal || isAdmin ) || (!isG && isuserAble);
 
     useEffect(()=>{
         if(currentUser){

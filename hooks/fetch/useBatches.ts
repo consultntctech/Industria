@@ -1,4 +1,4 @@
-import { getBatches, getBatchesByOrg, getBatchesWithGoods, getBatchesWithGoodsByOrg, getBatchesWithLineItems, getBatchesWithLineItemsByOrg } from "@/lib/actions/batch.action";
+import { getBatches, getBatchesByOrg, getBatchesWithGoods,  getBatchesWithLineItems, getBatchesWithLineItemsByOrg } from "@/lib/actions/batch.action";
 import { IBatch } from "@/lib/models/batch.model"
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
@@ -12,7 +12,7 @@ export const useBatches = (type?:'Raw Material'|'Finished Good' |'Packaging') =>
             if(!user) return [];
             const res = isAdmin ? await getBatches() : await getBatchesByOrg(user?.org as string);
             const data = res.payload as IBatch[];
-            const batches = data.filter(batch=> !type ? true : batch.type === type);
+            const batches = data.filter(batch=> !type ? batch : batch.type === type);
             return batches.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {
             console.log(error);
@@ -34,8 +34,9 @@ export const useFetchBatchesWithRMaterials = () => {
     const fetchBatches = async ():Promise<IBatch[]> => {
         try {
             if(!user) return [];
-            const res = isAdmin ? await getBatchesWithGoods() : await getBatchesWithGoodsByOrg(user?.org);
+            const res = isAdmin ? await getBatchesWithGoods() : await getBatchesByOrg(user?.org);
             const data = res.payload as IBatch[];
+            console.log('Batch: ', data)
             return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {
             console.log(error);

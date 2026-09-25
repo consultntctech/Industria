@@ -6,13 +6,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { enqueueSnackbar } from "notistack";
 import { useAuth, useIsGlobalAdmin } from "../useAuth";
-import {  isSystemAdmin } from "@/Data/roles/permissions";
+import {  isDbGlobalAdmin, isSystemAdmin } from "@/Data/roles/permissions";
+import { IRole } from "@/lib/models/role.model";
 // import { IRole } from "@/lib/models/role.model";
 
 export const useFetchUsers = (showMe:boolean=true, showAdmins:boolean=true) => {
     const {user} = useAuth();
     const global = useIsGlobalAdmin();
-    console.log(global, showAdmins)
+    // console.log(global, showAdmins)
 
     const isAdmin = isSystemAdmin(user);
     const fetchUsers = async():Promise<IUser[]>=>{
@@ -20,12 +21,14 @@ export const useFetchUsers = (showMe:boolean=true, showAdmins:boolean=true) => {
             if(!user) return [];
             const res = isAdmin ? await getUsers() : await getUsersByOrg(user?.org);
             const users = res.payload as IUser[];
-            console.log('Users 2: ', users)
+            // console.log('Users 2: ', users)
             return users
-            // .filter((item)=>{
-            //     if (showAdmins) return item;
-            //     return !global;
-            // })
+            .filter((item)=>{
+                const roles = item?.roles as IRole[];
+                const isGobal = isDbGlobalAdmin(roles);
+                if (showAdmins) return item;
+                return global ? item : !isGobal;
+            })
             ?.filter((u) => showMe ? true : u._id !== user?._id)
             ?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {
