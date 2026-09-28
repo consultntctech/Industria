@@ -64,7 +64,7 @@ const PackageTable = () => {
     }
 
 
-    const content = currentPackage ? `Are you sure you want to delete Package: ${currentPackage.name} ? This action cannot be undone.` : '';
+    const content = currentPackage ? `Are you sure you want to delete Package: ${currentPackage.name}? It'll delete the line items, sales and returns that may have come from it. This action cannot be undone.` : '';
 
   return (
     <div className='table-main2' >
