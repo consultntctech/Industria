@@ -33,7 +33,7 @@ const SalesTable = ({setOpenNew, currentSales, setCurrentSales}:SalesTableProps)
     const {sales, isPending, refetch} = useFetchSales(isToday);
     const {currency} = useCurrencyConfig();
     const salesAmount = sales?.reduce((acc, curr) => acc + curr.price, 0);
-    // console.log('Sales: ', sales)
+    console.log('Sales: ', sales)
     const utils = useQueryClient();
     const searchParams = useSearchParams();
     const SalesId = searchParams.get("Id");

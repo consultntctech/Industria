@@ -48,23 +48,23 @@ export function getProductCounts(items: ILineItem[]):ISoldItem[] {
   const counts = new Map<string, { name: string; quantity: number, package?: string }>();
 
   for (const item of items) {
-    const product = item.product as IProduct; // fully populated
+    const product = item?.product as IProduct; // fully populated
 
-    if (!counts.has(product._id)) {
-      counts.set(product._id, {
-        name: product.name,
+    if (!counts.has(product?._id)) {
+      counts.set(product?._id, {
+        name: product?.name || item?.name || 'Unknown product',
         quantity: 1,
-        package: item?.package?.toString()
+        package: item?.package?.toString() || 'Unknown package'
       });
     } else {
-      counts.get(product._id)!.quantity++;
+      counts.get(product?._id)!.quantity++;
     }
   }
 
   return Array.from(counts, ([id, data]) => ({
     id,
-    name: data.name,
-    quantity: data.quantity,
+    name: data?.name,
+    quantity: data?.quantity,
     package: data?.package
   }));
 }

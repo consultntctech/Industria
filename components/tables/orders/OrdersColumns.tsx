@@ -47,11 +47,11 @@ export const OrdersColumns = (
             width:170,
             valueFormatter: (_, row:IOrder)=>{
                 const products = row?.products as OrderSelectType[];
-                return products?.map(item => `${item.quantity} x ${item.product.name}`).join(', ');
+                return products?.map(item => `${item?.quantity} x ${item?.product?.name || 'Unknown product'}`).join(', ');
             },
             valueGetter: (_, row:IOrder)=>{
                 const products = row?.products as OrderSelectType[];
-                return products?.map(item => `${item.quantity} x ${item.product.name}`).join(', ');
+                return products?.map(item => `${item?.quantity} x ${item?.product?.name || 'Unknown product'}`).join(', ');
             },
             renderCell: (params:GridRenderCellParams)=>{
                 const products = params?.row?.products as OrderSelectType[];
@@ -59,7 +59,7 @@ export const OrdersColumns = (
                     <>
                     {
                         products?.map((item, index)=>(
-                            <Linker link={`/dashboard/products/types?Id=${item?.product?._id}`} tableId="28" placeholder={`${item?.quantity} x ${item?.product?.name}${index < products.length - 1 ? ', ':''}`} key={index} />
+                            <Linker link={`/dashboard/products/types?Id=${item?.product?._id}`} tableId="28" placeholder={`${item?.quantity} x ${item?.product?.name || 'Unknown Product'}${index < products.length - 1 ? ', ':''}`} key={index} />
                         ))
                     }
                     </>

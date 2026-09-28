@@ -59,7 +59,7 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
                 <span className="mlabel">Products</span>
                 {
                     products?.map((item, index)=>(
-                        <Linker tableId='28' linkStyle="mtext link" spanStyle='mtext' placeholder={`${item?.quantity} x ${item?.product?.name}`} link={`/dashboard/products/types?Id=${item?.product?._id}`} key={index} />
+                        <Linker tableId='28' linkStyle="mtext link" spanStyle='mtext' placeholder={`${item?.quantity} x ${item?.product?.name || 'Unknown Product'}${index < products.length - 1 ? ', ':''}`} link={`/dashboard/products/types?Id=${item?.product?._id}`} key={index} />
                     ))
                 }
                 {/* <Linker tableId='28' linkStyle="mtext link" spanStyle='mtext' placeholder={product?.name} link={`/dashboard/products/types?Id=${product?._id}`} /> */}
