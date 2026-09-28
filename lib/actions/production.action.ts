@@ -1116,6 +1116,24 @@ export async function deleteProduction(id: string): Promise<IResponse> {
         }
       }
 
+      // for (const ing of production.ingredients) {
+      //   if (!ing.materialId) continue; // guards against a null/undefined ref
+
+      //   const materialId = ing.materialId.toString();
+      //   const quantityUsed = Number(ing.quantity) || 0;
+      //   if (quantityUsed <= 0) continue;
+
+      //   const result = await RMaterial.updateOne(
+      //     { _id: materialId },
+      //     { $inc: { qAccepted: quantityUsed } },
+      //     { session }
+      //   );
+
+      //   if (result.matchedCount === 0) {
+      //     console.warn(`Raw material ${materialId} no longer exists, skipping restore`);
+      //   }
+      // }
+
       // 3️⃣ Delete the production
       const deletedProduction = await Production.deleteOne({ _id: id }, { session });
 

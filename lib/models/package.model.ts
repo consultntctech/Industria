@@ -8,6 +8,8 @@ import { IProdItem } from "./proditem.model";
 import PackApproval from "./packapproval.model";
 import { IOriginalPrice } from "@/types/Types";
 import { IEmployee } from "./employee.model";
+import Alert from "./alert.model";
+import LineItem from "./lineitem.model";
 
 export interface IProdItemQuantity {
     materialId: string | Types.ObjectId | IProdItem;
@@ -92,15 +94,57 @@ const PackageSchema = new Schema<IPackage>({
 }, { timestamps: true })
 
 
-PackageSchema.pre('deleteOne', { document: false, query: true }, async function(next) {
-    try {
-        const packId = this.getQuery()._id;
-        if (!packId) return next();
+type Id = string | Types.ObjectId;
 
-        await PackApproval.deleteMany({ package: packId });
+async function cascadeFromPackages(ids: Id[]) {
+    if (!ids.length) return;
+    await Promise.all([
+        PackApproval.deleteMany({ package: { $in: ids } }),
+        Alert.deleteMany({ item: { $in: ids }, itemModel: 'Package' }),
+        LineItem.deleteMany({ package: { $in: ids } }), // fires the LineItem deleteMany hook, which removes sales and returns
+    ]);
+}
+
+// Package.deleteOne({...})
+PackageSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
+    try {
+        const pack = await this.model.findOne(this.getQuery()).select('_id');
+        if (pack) await cascadeFromPackages([pack._id]);
         next();
     } catch (error) {
-        console.log(error);
+        next(error as Error);
+    }
+});
+
+// doc.deleteOne()
+PackageSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
+    try {
+        await cascadeFromPackages([this._id]);
+        next();
+    } catch (error) {
+        next(error as Error);
+    }
+});
+
+// Package.deleteMany({...}), which is what the Production cascade uses
+PackageSchema.pre('deleteMany', async function (next) {
+    try {
+        const packs = await this.model.find(this.getQuery()).select('_id');
+        await cascadeFromPackages(packs.map(p => p._id));
+        next();
+    } catch (error) {
+        next(error as Error);
+    }
+});
+
+// Package.findOneAndDelete / findByIdAndDelete
+PackageSchema.pre('findOneAndDelete', async function (next) {
+    try {
+        const pack = await this.model.findOne(this.getQuery()).select('_id');
+        if (pack) await cascadeFromPackages([pack._id]);
+        next();
+    } catch (error) {
+        next(error as Error);
     }
 });
 

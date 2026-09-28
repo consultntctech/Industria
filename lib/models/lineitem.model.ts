@@ -8,6 +8,8 @@ import { Schema } from "mongoose";
 import { IBatch } from "./batch.model";
 import { ICustomer } from "./customer.model";
 import { IOriginalPrice } from "@/types/Types";
+import Sales from "./sales.model";
+import Returns from "./returns.model";
 
 export interface ILineItem extends Document {
     _id: string;
@@ -43,6 +45,60 @@ const LineItemSchema = new Schema<ILineItem>({
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})
+
+
+
+// async function cascadeFromLineItems(ids: Types.ObjectId[]) {
+//     if (!ids.length) return;
+//     await Promise.all([
+//         Sales.deleteMany({ products: { $in: ids } }),
+//         Returns.deleteMany({ products: { $in: ids } })
+//     ]);
+// }
+
+// Query form: LineItem.deleteOne({...})
+LineItemSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
+    try {
+        const item = await this.model.findOne(this.getQuery()).select('_id');
+        if (item) await cascadeFromLineItems([item._id]);
+        next();
+    } catch (error) {
+        next(error as Error);
+    }
+});
+
+// Document form: doc.deleteOne()
+type Id = string | Types.ObjectId;
+
+async function cascadeFromLineItems(ids: Id[]) {
+    if (!ids.length) return;
+    await Promise.all([
+        Sales.deleteMany({ products: { $in: ids } }),
+        Returns.deleteMany({ products: { $in: ids } })
+    ]);
+}
+
+// LineItem.deleteMany({...})
+LineItemSchema.pre('deleteMany', async function (next) {
+    try {
+        const items = await this.model.find(this.getQuery()).select('_id');
+        await cascadeFromLineItems(items.map(i => i._id));
+        next();
+    } catch (error) {
+        next(error as Error);
+    }
+});
+
+// LineItem.findOneAndDelete / findByIdAndDelete
+LineItemSchema.pre('findOneAndDelete', async function (next) {
+    try {
+        const item = await this.model.findOne(this.getQuery()).select('_id');
+        if (item) await cascadeFromLineItems([item._id]);
+        next();
+    } catch (error) {
+        next(error as Error);
+    }
+});
 
 
 const LineItem = models?.LineItem || model<ILineItem>('LineItem', LineItemSchema);

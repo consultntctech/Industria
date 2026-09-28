@@ -5,6 +5,8 @@ import { IProduction } from "./production.model";
 import { IBatch } from "./batch.model";
 import Package from "./package.model";
 import { IProduct } from "./product.model";
+import Alert from "./alert.model";
+import LineItem from "./lineitem.model";
 
 export interface IGood extends Document {
     _id: string;
@@ -43,15 +45,39 @@ const GoodSchema = new Schema<IGood>({
     updatedAt: Date,
 }, { timestamps: true })
 
-GoodSchema.pre('deleteOne', { document: false, query: true }, async function(next) {
+type Id = string | Types.ObjectId;
+
+GoodSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
     try {
-        const goodId = this.getQuery()._id;
-        if (!goodId) return next();
-        await Package.updateMany({ good: goodId }, {approvalStatus:'Pending'});
+        const good = await this.model.findOne(this.getQuery()).select('_id');
+        if (!good) return next();
+
+        await Promise.all([
+            Package.deleteMany({ 'goods.goodId': good._id }),
+            cascadeFromGoods([good._id]),
+        ]);
         next();
     } catch (error) {
-        console.log(error);
+        next(error as Error);
+    }
+});
+
+
+async function cascadeFromGoods(ids: Id[]) {
+    if (!ids.length) return;
+    await Promise.all([
+        Alert.deleteMany({ item: { $in: ids }, itemModel: 'Good' }), // only if you use this
+        LineItem.deleteMany({ good: { $in: ids } }), // fires the LineItem deleteMany hook, then sales and returns
+    ]);
+}
+
+GoodSchema.pre('deleteMany', async function (next) {
+    try {
+        const goods = await this.model.find(this.getQuery()).select('_id');
+        await cascadeFromGoods(goods.map(g => g._id));
         next();
+    } catch (error) {
+        next(error as Error);
     }
 });
 

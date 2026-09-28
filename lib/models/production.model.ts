@@ -11,6 +11,8 @@ import { IOriginalPrice } from "@/types/Types";
 import { ILabourer } from "./labourer.model";
 import Alert from "./alert.model";
 import { IEmployee } from "./employee.model";
+import Package from "./package.model";
+import Good from "./good.model";
 
 export interface ProdIngredient{
     materialId: string
@@ -121,6 +123,25 @@ ProductionSchema.post('save', async function(doc, next) {
                 updatedAt: doc.updatedAt
             });
         }
+    } catch (error) {
+        next(error as Error);
+    }
+});
+
+
+ProductionSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
+    try {
+        const prod = await this.model.findOne(this.getQuery()).select('_id');
+        if (!prod) return next();
+
+        const prodId = prod._id;
+        await Promise.all([
+            Alert.deleteMany({ item: prodId, itemModel: 'Production' }),
+            Package.deleteMany({ production: prodId }), // Package hook removes its line items
+            Good.deleteMany({ production: prodId }),    // Good hook (below) removes its line items
+            ProdApproval.deleteMany({ production: prodId }),
+        ]);
+        next();
     } catch (error) {
         next(error as Error);
     }

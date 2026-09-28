@@ -3,7 +3,7 @@ import { IUser } from "./user.model";
 import { IOrganization } from "./org.model";
 import { ICategory } from "./category.model";
 import { ISupplier } from "./supplier.model";
-import ProdApproval from "./prodapproval.model";
+import Order from "./order.model";
 
 export interface IProductWithStock extends IProduct {
     stock: number;
@@ -44,15 +44,53 @@ const ProductSchema = new Schema<IProduct>({
 }, {timestamps:true})
 
 
-ProductSchema.pre('deleteOne', { document: false, query: true }, async function(next) {
-    try {
-        const prodId = this.getQuery()._id;
-        if (!prodId) return next();
+type Id = string | Types.ObjectId;
 
-        await ProdApproval.deleteMany({ production: prodId });
+async function cascadeFromProducts(ids: Id[]) {
+    if (!ids.length) return;
+    await Order.deleteMany({ 'products.product': { $in: ids } });
+}
+
+// Product.deleteOne({...})
+ProductSchema.pre('deleteOne', { document: false, query: true }, async function (next) {
+    try {
+        const prod = await this.model.findOne(this.getQuery()).select('_id');
+        if (prod) await cascadeFromProducts([prod._id]);
         next();
     } catch (error) {
-        console.log(error);
+        next(error as Error);
+    }
+});
+
+// doc.deleteOne()
+ProductSchema.pre('deleteOne', { document: true, query: false }, async function (next) {
+    try {
+        await cascadeFromProducts([this._id]);
+        next();
+    } catch (error) {
+        next(error as Error);
+    }
+});
+
+// Product.deleteMany({...})
+ProductSchema.pre('deleteMany', async function (next) {
+    try {
+        const prods = await this.model.find(this.getQuery()).select('_id');
+        await cascadeFromProducts(prods.map(p => p._id));
+        next();
+    } catch (error) {
+        next(error as Error);
+    }
+});
+
+// Product.findOneAndDelete / findByIdAndDelete
+ProductSchema.pre('findOneAndDelete', async function (next) {
+    try {
+        const prod = await this.model.findOne(this.getQuery()).select('_id');
+        if (prod) await cascadeFromProducts([prod._id]);
+        next();
+    } catch (error) {
+        next(error as Error);
     }
 });
 

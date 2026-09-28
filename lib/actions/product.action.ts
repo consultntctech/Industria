@@ -12,6 +12,7 @@ import LineItem from "../models/lineitem.model";
 import RMaterial from "../models/rmaterial.mode";
 import { IOrganization } from "../models/org.model";
 import { Types } from "mongoose";
+import Production from "../models/production.model";
 
 export async function createProduct(data:Partial<IProduct>):Promise<IResponse>{
     try {
@@ -566,10 +567,34 @@ export async function getAllProductsWithStockByOrg(org:string): Promise<IRespons
 
 
 
-export async function deleteProduct(id:string):Promise<IResponse>{
+export async function deleteProduct(id: string): Promise<IResponse> {
     try {
         await connectDB();
+
+        const [inProduction, inRMaterial] = await Promise.all([
+            Production.exists({ productToProduce: id }),
+            RMaterial.exists({ product: id }),
+        ]);
+
+        if (inProduction || inRMaterial) {
+            const reasons = [
+                inProduction && 'productions',
+                inRMaterial && 'raw materials',
+            ].filter(Boolean).join(' and ');
+
+            return respond(
+                `Cannot delete this product because it is used in ${reasons}`,
+                true,
+                {},
+                409
+            );
+        }
+
         const deletedProduct = await Product.deleteOne({ _id: id });
+        if (deletedProduct.deletedCount === 0) {
+            return respond('Product not found', true, {}, 404);
+        }
+
         return respond('Product deleted successfully', false, deletedProduct, 200);
     } catch (error) {
         console.log(error);

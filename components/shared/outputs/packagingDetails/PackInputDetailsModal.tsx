@@ -57,7 +57,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
     const savedGoods = goods.map(g=> g.goodId as IGood);
     const gooded = savedGoods[0];
     const savedProduct = gooded?.product as IProduct;
-    const savedGoodItems = goods.map(g=> ({goodId: (g.goodId as IGood)._id as string, quantity: g.quantity}));
+    const savedGoodItems = goods.map(g=> ({goodId: (g.goodId as IGood)?._id as string, quantity: g.quantity}));
     
     // console.log('Good Batch: ', goodBatch)
     // console.log('Gooded: ', gooded)
@@ -82,7 +82,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
     }, [pack]);
     
     useEffect(() => {
-        const validIds = new Set(newGoods.map(g => g._id));
+        const validIds = new Set(newGoods.map(g => g?._id));
         setGoodItems(prev => prev.filter(ing => validIds.has(ing.goodId)));
         setData(pre=>({...pre}));
     }, [newGoods])

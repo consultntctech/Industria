@@ -11,6 +11,7 @@ import '../models/othercurrency.model';
 import '../models/storage.model';
 import Product, { IProduct } from "../models/product.model";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
+import Production from "../models/production.model";
 
 export async function createRMaterial(data: Partial<IRMaterial>): Promise<IResponse> {
   try {
@@ -211,10 +212,25 @@ export async function getRMaterial(id:string):Promise<IResponse>{
     }
 }
 
-export async function deleteRMaterial(id:string):Promise<IResponse>{
+export async function deleteRMaterial(id: string): Promise<IResponse> {
     try {
         await connectDB();
+
+        const inUse = await Production.exists({ 'ingredients.materialId': id });
+        if (inUse) {
+            return respond(
+                'Cannot delete this raw material because it is used in one or more productions',
+                true,
+                {},
+                409
+            );
+        }
+
         const deletedMaterial = await RMaterial.deleteOne({ _id: id });
+        if (deletedMaterial.deletedCount === 0) {
+            return respond('Raw Material not found', true, {}, 404);
+        }
+
         return respond('Raw Material deleted successfully', false, deletedMaterial, 200);
     } catch (error) {
         console.log(error);

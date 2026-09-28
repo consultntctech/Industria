@@ -45,7 +45,7 @@ const ProductionTable = () => {
     }
 
 
-    const content = currentProduction ? `Are you sure you want to delete production ${currentProduction?.name} ? This action cannot be undone.` : '';
+    const content = currentProduction ? `Are you sure you want to delete production ${currentProduction?.name}? It'll delete the packages, line items, sales and returns that may have come from it. This action cannot be undone.` : '';
 
   return (
     <div className='table-main2' >
