@@ -55,7 +55,12 @@ const GoodsInfoModal = ({infoMode, setInfoMode, currentGood, setCurrentGood}:Goo
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Product</span>
-                <Linker tableId='28' spanStyle='mtext' placeholder={product?.name} link={`/dashboard/products/types?Id=${product?._id}`} linkStyle="mtext link" />
+                {
+                    product ?
+                    <Linker tableId='28' spanStyle='mtext' placeholder={product?.name} link={`/dashboard/products/types?Id=${product?._id}`} linkStyle="mtext link" />
+                    :
+                    <span className="mtext">Unknown</span>
+                }
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Production</span>
