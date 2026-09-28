@@ -552,3 +552,15 @@ export async function loginUser(data: Partial<IUser>): Promise<IResponse> {
 //     return respond("Error occurred while updating user", true, {}, 500);
 //   }
 // }
+
+
+export const getUserByEmail = async(email:string):Promise<IResponse> => {
+  try {
+    await connectDB();
+    const user = await User.findOne({ email: email.toLowerCase()?.trim() }).populate('org');
+    return respond('User found successfully', false, user, 200);
+  } catch (error) {
+    console.log(error);
+    return respond('Error occured while fetching user', true, {}, 500);
+  }
+}

@@ -1,8 +1,6 @@
 'use client'
 import { useSettings } from '@/config/useSettings'
 import { useAuth } from '@/hooks/useAuth'
-// import { updateAllCategoryWithLowerCaseName } from '@/lib/actions/automation.action';
-// import { deleteAllEmployees, saveUsersAsEmployees } from '@/lib/actions/automation.action';
 import { destroySession } from '@/lib/session'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -19,7 +17,8 @@ export const Header = () => {
   // console.log('Loading: ', updateLoading)
   // useEffect(() => {
   //   const update = async () => {
-  //     const res = await updateAllCategoryWithLowerCaseName();
+  //     const res = await getEmployeeByEmail('essandoh.segu@gmail.com');
+  //     console.log('Employee: ', res)
   //     // const res = await deleteAllEmployees();
   //     enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
   //   }

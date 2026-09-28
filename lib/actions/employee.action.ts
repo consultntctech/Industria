@@ -159,3 +159,28 @@ export async function deleteEmployee(id:string):Promise<IResponse>{
         return respond('Error occured while deleting employee', true, {}, 500);
     }
 }
+
+
+
+export const getEmployeeByEmail = async(email:string):Promise<IResponse> => {
+  try {
+    await connectDB();
+    const user = await Employee.findOne({ email: email.toLowerCase()?.trim() }).populate('org');
+    return respond('Employee found successfully', false, user, 200);
+  } catch (error) {
+    console.log(error);
+    return respond('Error occured while fetching user', true, {}, 500);
+  }
+}
+
+
+export const deleteEmployeeByEmail = async(email:string):Promise<IResponse> => {
+  try {
+    await connectDB();
+    const user = await Employee.findOneAndDelete({ email: email.toLowerCase()?.trim() });
+    return respond('Employee deleted successfully', false, user, 200);
+  } catch (error) {
+    console.log(error);
+    return respond('Error occured while deleting user', true, {}, 500);
+  }
+}
