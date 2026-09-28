@@ -66,13 +66,14 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
     const handleShowEmployee = async()=>{
         setLoading(true);
         setShowEmployee(false);
+        if(!user) return;
         try {
             if(!formData.email){
                 enqueueSnackbar('Email is required', {variant:'error'});
                 setLoading(false);
                 return;
             };
-            const res = await checkUserForEmployee(formData.email);
+            const res = await checkUserForEmployee(formData.email, user.org);
             if(res.code === 422){
               setShowEmployee(true);
               setLoading(false);

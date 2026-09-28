@@ -18,6 +18,7 @@ export interface IOrder extends Document {
     creator: string;
     description: string;
     status: string;
+    amountReceived: number;
     deadlineAlertSent: boolean;
     original: IOriginalPrice;
     createdBy: string | Types.ObjectId | IUser;
@@ -37,6 +38,7 @@ const OrderSchema = new Schema<IOrder>({
     fulfilledAt: { type: String, required: false },
     description: { type: String, required: false },
     status: { type: String, required: true, default: 'Pending' },
+    amountReceived: { type: Number, required: false, default: 0 },
     deadlineAlertSent: {type:Boolean, required:false, default:false},
     original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },

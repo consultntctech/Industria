@@ -68,17 +68,26 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
                 <span className="mlabel">Quantity</span>
                 <span className="mtext">{quantity || 0}</span>
             </div>
-                {
-                    original && savedCurrency?.type !== 'default' &&
+            {
+                currentOrder?.status === 'Fulfilled' &&
+                <>
+                    {
+                        original && savedCurrency?.type !== 'default' &&
+                        <div className="flex flex-col">
+                            <span className="mlabel">{`Actual Price ${savedCurrency ? (savedCurrency?.symbol) : '(Other currency)'}`}</span>
+                            <span className="mtext">{savedCurrency?.symbol || savedCurrency?.name || ''} {original?.amount || '0'}</span>
+                        </div>
+                    }
                     <div className="flex flex-col">
-                        <span className="mlabel">Amount Received</span>
-                        <span className="mtext">{savedCurrency?.symbol || savedCurrency?.name || ''} {original?.amount || '0'}</span>
+                        <span className="mlabel">{`Actual Price (${currency?.symbol || 'Primary currency'})`}</span>
+                        <span className="mtext">{currency?.symbol || ''} {currentOrder?.price || '0'} </span>
                     </div>
-                
-                }
+
+                </>
+            }
                 <div className="flex flex-col">
                     <span className="mlabel">{`Amount Received (${currency?.symbol || 'Primary currency'})`}</span>
-                    <span className="mtext">{currency?.symbol || ''} {currentOrder?.price || '0'} </span>
+                    <span className="mtext">{currency?.symbol || ''} {currentOrder?.amountReceived || '0'} </span>
                 </div>
             <div className="flex flex-col">
                 <span className="mlabel">Status</span>

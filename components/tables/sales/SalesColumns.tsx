@@ -89,6 +89,11 @@ export const SalesColoumns = (
             width:100,
         },
         {
+            field: 'amountReceived',
+            headerName: `Amount received ${currency?.symbol || ''}`,
+            width:100,
+        },
+        {
             field: 'discount',
             headerName: `Discount ${currency?.symbol || ''}`,
             width:100,
@@ -100,8 +105,17 @@ export const SalesColoumns = (
             headerName: `Charges ${currency?.symbol || ''}`,
             width:100,
         },
-
-        
+        {
+            field: 'ordered',
+            headerName: 'Ordered',
+            width:100,
+            valueFormatter:(_, row:ISales)=>{
+                return row?.ordered ? 'Yes' : 'No';
+            },
+            valueGetter:(_, row:ISales)=>{
+                return row?.ordered ? 'Yes' : 'No';
+            }
+        },
 
         {
             field:'org',

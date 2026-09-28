@@ -96,7 +96,8 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
         creator: user?.name,
         createdBy:user?._id,
         quantity: qty,
-        price,
+        price: 0,
+        amountReceived:price,
         original:{
           amount: cost,
           rate: rate,

@@ -10,7 +10,7 @@ import '../models/department.model';
 import '../models/org.model';
 
 
-export async function checkEmployeeForUser(email:string):Promise<IResponse>{
+export async function checkEmployeeForUser(email:string, orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         let empData;
@@ -20,6 +20,9 @@ export async function checkEmployeeForUser(email:string):Promise<IResponse>{
         ]);
         if(employee){
             return respond('Employee already exists', true, {}, 400);
+        }
+        if(user && user.org?.toString() !== orgId){
+            return respond(`Access denied`, true, {}, 403);
         }
         if(user && !employee){
             empData = {

@@ -5,6 +5,7 @@ import { IOrganization } from "./org.model";
 import { ILineItem } from "./lineitem.model";
 import { model } from "mongoose";
 import { IOriginalPrice } from "@/types/Types";
+import { IOrder } from "./order.model";
 
 export interface ISales extends Document {
     _id: string;
@@ -15,6 +16,8 @@ export interface ISales extends Document {
     discount: number;
     charges: number;
     creator: string;
+    order : string | Types.ObjectId | IOrder;
+    ordered: boolean;
     original: IOriginalPrice;
     products: string[] | Types.ObjectId[] | ILineItem[];
     org: string | Types.ObjectId | IOrganization;
@@ -31,6 +34,8 @@ const SalesSchema = new Schema<ISales>({
     discount: { type: Number, required: false, default:0 },
     charges: { type: Number, required: false, default:0 },
     creator: String,
+    order: { type: Schema.Types.ObjectId, ref: 'Order', required: false },
+    ordered: { type: Boolean, required: false, default: false },
     original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     products: { type: [Schema.Types.ObjectId], ref:'LineItem', required: true },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

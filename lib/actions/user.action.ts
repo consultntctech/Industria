@@ -59,7 +59,7 @@ export async function applyDepartmentRoleSwap(data: Partial<IUser>): Promise<voi
 }
 
 
-export async function checkUserForEmployee(email: string): Promise<IResponse> {
+export async function checkUserForEmployee(email: string, orgId: string): Promise<IResponse> {
   try {
     await connectDB();
     const [user, employee] = await Promise.all([
@@ -69,6 +69,9 @@ export async function checkUserForEmployee(email: string): Promise<IResponse> {
 
     if(user){
       return respond('User already exists', true, {}, 400);
+    }
+    if(employee && employee?.org?.toString() !== orgId){
+      return respond(`Access denied`, true, {}, 403);
     }
     if(employee && !user){
       // console.log('Employee: ', employee)

@@ -135,6 +135,9 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
                 createdBy:user?._id,
                 charges: constData.charges,
                 discount: constData.discount,
+                ordered: true,
+                order: currentOrder?._id,
+                creator: user?.name,
                 original:{
                     amount: totalChages,
                     rate: rate,
@@ -147,6 +150,12 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
                 const orderData:Partial<IOrder> = {
                     _id: currentOrder?._id,
                     status: 'Fulfilled',
+                    price: totalPrice,
+                    original: {
+                        amount: totalChages,
+                        rate: rate,
+                        currency: otherCurrency?._id as string,
+                    },
                     fulfilledAt: new Date().toISOString(),
                 }
                 const orderRes = await updateOrder(orderData);

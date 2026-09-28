@@ -164,6 +164,8 @@ const SalesTable = ({setOpenNew, currentSales, setCurrentSales}:SalesTableProps)
                                   createdBy:false,
                                   createdAt:false,
                                   updatedAt:false,
+                                  ordered:false,
+                                  amountReceived:false,
                                   org:false,
                                   narration:false,
                                   discount:false,
