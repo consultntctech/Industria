@@ -33,21 +33,29 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
     const savedCurrency = original?.currency as IOtherCurrency;
 
     const isEditor = useCanUser('8', 'UPDATE');
-    const isRawReader = useCanUser('87', 'READ');
-    const isUserReader = useCanUser('38', 'READ');
+    // const isRawReader = useCanUser('87', 'READ');
+    // const isUserReader = useCanUser('38', 'READ');
 
     const handleClickOnRawMaterials = ()=>{
-      if(isRawReader){
-        setActiveTab('third');
+      if(isEditor){
+        setActiveTab('fourth');
       }else{
         enqueueSnackbar('You do not have permission to view raw materials', {variant:'error'});
       }
     }
     const handleClickOnLaboureres = ()=>{
-      if(isUserReader){
-        setActiveTab('second');
+      if(isEditor){
+        setActiveTab('third');
       }else{
         enqueueSnackbar('You do not have permission to view labourers', {variant:'error'});
+      }
+    }
+
+    const handleClickOnEmployees = ()=>{
+      if(isEditor){
+        setActiveTab('second');
+      }else{
+        enqueueSnackbar('You do not have permission to view employees', {variant:'error'});
       }
     }
 
@@ -79,6 +87,10 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
           <Linker linkStyle="link" link={`/dashboard/products/batches?Id=${batch?._id}`} placeholder={batch?.code} tableId='55' spanStyle='text-gray-600 flex-1 md:flex-5' />
         </div>
 
+        <div className="flex flex-row items-center gap-4">
+          <span className="truncate w-1/2 md:w-1/5" >Employees:</span>
+          <span onClick={handleClickOnEmployees}  className="text-blue-600 underline cursor-pointer" >{Number(production?.employees?.length || 0)}</span>
+        </div>
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Labourers:</span>
           <span onClick={handleClickOnLaboureres}  className="text-blue-600 underline cursor-pointer" >{Number(production?.labourers?.length || 0)}</span>
