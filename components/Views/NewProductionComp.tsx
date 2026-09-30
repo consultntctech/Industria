@@ -25,6 +25,7 @@ import SearchSelectMultipleLabourers from "../shared/inputs/dropdowns/SearchSele
 import { ILabourer } from "@/lib/models/labourer.model";
 import SearchSelectEmployees from "../shared/inputs/dropdowns/SearchSelectEmployees";
 import { IEmployee } from "@/lib/models/employee.model";
+import SearchSelectMultipleEmployees from "../shared/inputs/dropdowns/SearchSelectMultipleEmployees";
 ;
 
 const NewProductionComp = () => {
@@ -43,6 +44,7 @@ const NewProductionComp = () => {
     const [productionCost, setProductionCost] = useState(0);
     const [userOverrodeCost, setUserOverrodeCost] = useState(false);
     const [labourers, setLabourers] = useState<ILabourer[]>([]);
+    const [employees, setEmployees] = useState<IEmployee[]>([]);
     // const [labourCost, setLabourCost] = useState(0);
 
     const router = useRouter();
@@ -120,6 +122,7 @@ const NewProductionComp = () => {
                 createdBy:user?._id,
                 creator: user?.name,
                 supervisor: supervisor?._id,
+                employees: employees?.map(emp=>emp._id),
                 ingredients: ingredients.map(ing=>({
                     materialId: ing.materialId,
                     quantity: ing.qUsed,
@@ -209,6 +212,10 @@ const NewProductionComp = () => {
                         <GenericLabel
                             label="Select supervisor"
                             input={<SearchSelectEmployees showMe={true} required={true} setSelect={setSupervisor} placeholder="supervisor" />}
+                        />
+                        <GenericLabel
+                            label="Select employees"
+                            input={<SearchSelectMultipleEmployees  setSelection={setEmployees} placeholder="employees" showMe={true} />}
                         />
                         <GenericLabel
                             label="Select labourers"

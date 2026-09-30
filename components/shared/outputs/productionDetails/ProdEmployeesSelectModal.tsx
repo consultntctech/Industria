@@ -8,31 +8,31 @@ import { FaChevronUp } from "react-icons/fa";
 import { updateProduction } from "@/lib/actions/production.action";
 import { enqueueSnackbar } from "notistack";
 import GenericLabel from "../../inputs/GenericLabel";
-import { ILabourer } from "@/lib/models/labourer.model";
-import SearchSelectMultipleLabourers from "../../inputs/dropdowns/SearchSelectMultipleLabourers";
+import { IEmployee } from "@/lib/models/employee.model";
+import SearchSelectMultipleEmployees from "../../inputs/dropdowns/SearchSelectMultipleEmployees";
 
-type ProdLabourersSelectModalProps = {
-    openLab:boolean;
-    setOpenLab: Dispatch<SetStateAction<boolean>>;
+type ProdEmployeesSelectModalProps = {
+    openEmployees:boolean;
+    setOpenEmployees: Dispatch<SetStateAction<boolean>>;
     production: IProduction | null;
 }
 
-const ProdLabourersSelectModal = ({ openLab, setOpenLab, production }: ProdLabourersSelectModalProps) => {
+const ProdEmployeesSelectModal = ({openEmployees, setOpenEmployees, production }: ProdEmployeesSelectModalProps) => {
     const [loading, setLoading] = useState(false);
-    const [labourers, setLabourers] = useState<ILabourer[]>([]);
+    const [employees, setEmployees] = useState<IEmployee[]>([]);
     const isEditor = useCanUser('8', 'UPDATE');
-    const labs = production?.labourers as ILabourer[];
+    const emps = production?.employees as IEmployee[];
 
     const formRef = useRef<HTMLFormElement>(null);
 
     useEffect(()=>{
         if(production){
-            setLabourers(labs);
+            setEmployees(emps);
         }
     }, [production])
 
     const handleClose = ()=>{
-        setOpenLab(false);
+        setOpenEmployees(false);
     }
 
     const handleSubmit = async(e:React.FormEvent<HTMLFormElement>)=>{
@@ -42,7 +42,7 @@ const ProdLabourersSelectModal = ({ openLab, setOpenLab, production }: ProdLabou
         try {
             const prodData:Partial<IProduction> = {
                 ...production,
-                labourers: labourers.map(lab=>lab._id),
+                employees: employees.map(lab=>lab._id),
             }
            const res = await updateProduction(prodData);
            enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -53,18 +53,18 @@ const ProdLabourersSelectModal = ({ openLab, setOpenLab, production }: ProdLabou
            }
          } catch (error) {
            console.log(error);
-           enqueueSnackbar('Error occured while updating production labourers', {variant:'error'});
+           enqueueSnackbar('Error occured while updating production employees', {variant:'error'});
          }finally{
            setLoading(false);
          }
      }
 
   return (
-    <ModalContainer  open={openLab} handleClose={handleClose}>
+    <ModalContainer  open={openEmployees} handleClose={handleClose}>
         <div className="flex w-[90%] md:w-[50%] max-h-[95%]">
             <form ref={formRef} onSubmit={ handleSubmit}  className="formBox overflow-y-scroll scrollbar-custom  h-full relative p-4 flex-col gap-8 w-full" >
                 <div className="flex flex-col gap-1">
-                    <span className="title" >Edit production labourers</span>
+                    <span className="title" >Edit production employees</span>
                     <span className="greyText" >You cannot edit the production after submitting for approval.</span>
                 </div>
         
@@ -72,11 +72,11 @@ const ProdLabourersSelectModal = ({ openLab, setOpenLab, production }: ProdLabou
                     <div className="flex gap-4 flex-col w-full">
                         <div className="flex flex-col gap-4 w-full">
                             {
-                               openLab &&
+                            openEmployees &&
                                 <>
                                     <GenericLabel
-                                        label="Select labourers"
-                                        input={<SearchSelectMultipleLabourers placeholder="labourers" value={labs} setSelection={setLabourers} />}
+                                        label="Select employees"
+                                        input={<SearchSelectMultipleEmployees showMe placeholder="employees" value={emps} setSelection={setEmployees} />}
                                     />
                                     
                                 </>
@@ -103,4 +103,4 @@ const ProdLabourersSelectModal = ({ openLab, setOpenLab, production }: ProdLabou
   )
 }
 
-export default ProdLabourersSelectModal
+export default ProdEmployeesSelectModal

@@ -6,6 +6,7 @@ import { ProductionLabourersColumns } from './ProductionLabourersColumns';
 import { useState } from "react";
 import ProdLabourersSelectModal from "./ProdLabourersSelectModal";
 import { ILabourer } from "@/lib/models/labourer.model";
+import { useCanUser } from "@/hooks/useAuth";
 
 type ProductionLabourersTableProps = {
   production: IProduction | null;
@@ -15,6 +16,7 @@ const ProductionLabourersTable = ({ production }: ProductionLabourersTableProps)
   const [openLab, setOpenLab] = useState(false);
   const labourers = (production?.labourers || []) as unknown as ILabourer[];
   const paginationModel = { page: 0, pageSize: 15 };
+  const isEditor = useCanUser('8', 'UPDATE');
   const handleEdit = ()=>{
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setOpenLab(true);
@@ -24,7 +26,7 @@ const ProductionLabourersTable = ({ production }: ProductionLabourersTableProps)
         <div className="flex flex-row items-center gap-6">
             <span className='font-bold text-xl' >Production Labourers</span>
             {
-                production?.status !== 'Pending Approval' &&
+                !(production?.status === 'Pending Approval' || production?.status === 'Approved') && isEditor &&
                 <Tooltip title="Edit production labourers">
                     <GoPencil onClick={handleEdit}  className="cursor-pointer text-blue-700" />
                 </Tooltip>

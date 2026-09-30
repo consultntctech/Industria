@@ -8,6 +8,7 @@ import ProdRMTable from "../shared/outputs/productionDetails/ProdRMTable";
 // import ProdItemsTable from "../shared/outputs/productionDetails/ProdItemsTable";
 import ProductionContentModal from "../shared/outputs/productionDetails/ProductionContentModal";
 import ProductionLabourersTable from '../shared/outputs/productionDetails/ProductionLabourersTable';
+import ProdEmployeesTable from "../shared/outputs/productionDetails/ProdEmployeesTable";
 
 
 type SingleProductionCompProps = {
@@ -23,11 +24,13 @@ const SingleProductionComp = ({production}:SingleProductionCompProps) => {
     <div className="flex gap-4 flex-col border border-gray-300 p-3 rounded" >
       <CustomTabs 
         FirstTabText="Details" activeTab={activeTab} onClickFirstTab={()=>setActiveTab('first')}
-        SecondTabText="Labourers" onClickSecondTab={()=>setActiveTab('second')}
+        SecondTabText="Employees" onClickSecondTab={()=>setActiveTab('second')}
         // ThirdTabText="Production Materials" onClickThirdTab={()=>setActiveTab('third')}
-        ThirdTabText="Raw Materials" onClickThirdTab={()=>setActiveTab('third')}
-        FourthTabText="Output" onClickFourthTab={()=>setActiveTab('fourth')}
+        ThirdTabText="Labourers" onClickThirdTab={()=>setActiveTab('third')}
+        FourthTabText="Raw Materials" onClickFourthTab={()=>setActiveTab('fourth')}
         showSecondTab={true}  showThirdTab={true} showFourthTab={true}
+        showFifthTab={true}
+        FifthTabText="Output" onClickFifthTab={()=>setActiveTab('fifth')}
       />
 
       {
@@ -35,15 +38,19 @@ const SingleProductionComp = ({production}:SingleProductionCompProps) => {
         <InputDetails production={production} setActiveTab={setActiveTab} />
       }
       {
-        activeTab === 'fourth' &&
+        activeTab === 'second' &&
+        <ProdEmployeesTable production={production} />
+      }
+      {
+        activeTab === 'fifth' &&
         <OutputDetails production={production} />
       }
       {
-        activeTab === 'third' &&
+        activeTab === 'fourth' &&
         <ProdRMTable setOpenNew={setOpenNew}  production={production} />
       }
       {
-        activeTab === 'second' &&
+        activeTab === 'third' &&
         <ProductionLabourersTable production={production} />
       }
       <ProductionContentModal openNew={openNew} setOpenNew={setOpenNew}  production={production} />

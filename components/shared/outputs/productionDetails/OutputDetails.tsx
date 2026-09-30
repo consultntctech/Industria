@@ -117,7 +117,7 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
 
                     <div className="flex flex-row items-center gap-4">
                         <span className="truncate w-1/2 md:w-1/5" >Extra Cost:</span>
-                        <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.extraCost || 0}`}</span>
+                        <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.extraCost?.toFixed(3) || 0}`}</span>
                     </div>
                     {/* <div className="flex flex-row items-center gap-4">
                         <span className="truncate w-1/2 md:w-1/5" >Total Cost:</span>
