@@ -21,6 +21,7 @@ export interface IGood extends Document {
     quantityLeftToPackage: number;
     threshold: number;
     canBeRaw: boolean;
+    raw: number;
     org: string | Types.ObjectId | IOrganization;
     creator: string;
     createdBy: string | Types.ObjectId | IUser;
@@ -39,6 +40,7 @@ const GoodSchema = new Schema<IGood>({
     threshold: {type:Number, default:0},
     quantityLeftToPackage: {type:Number, default:0},
     quantity: Number,
+    raw: {type:Number, default:0},
     creator: String,
     batch: { type: Schema.Types.ObjectId, ref: 'Batch', required: false },
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },

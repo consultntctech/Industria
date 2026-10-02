@@ -8,6 +8,7 @@ import User from "../models/user.model";
 import Employee from "../models/employee.model";
 import Product from "../models/product.model";
 import Category from "../models/category.model";
+import Good from "../models/good.model";
 
 export async function updateCurrencies(){
     try {
@@ -99,6 +100,19 @@ export async function updateAllCategoryWithLowerCaseName(){
         const categories = await Category.find();
         await Promise.all(categories.map((category)=>Category.updateOne({_id:category._id}, {lowerName: category.name?.trim()?.toLowerCase()})));
         return respond('All categories updated successfully', false, {}, 200);
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+export async function UpdateAllGoodsWithRaw(){
+    try {
+        await connectDB();
+        const goods = await Good.find();
+        await Promise.all(
+            goods.map((good)=>Good.updateOne({_id:good._id}, {raw: 0})));
+        return respond('All goods updated successfully', false, {}, 200);
     } catch (error) {
         console.log(error)
     }

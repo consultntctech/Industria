@@ -68,8 +68,16 @@ const GoodsInfoModal = ({infoMode, setInfoMode, currentGood, setCurrentGood}:Goo
             </div>
             
             <div className="flex flex-col">
-                <span className="mlabel">Quanity</span>
+                <span className="mlabel">Initial Quantity</span>
                 <span className="mtext">{currentGood?.quantity}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Finished Quantity</span>
+                <span className="mtext">{currentGood?.quantityLeftToPackage}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Raw Quantity</span>
+                <span className="mtext">{currentGood?.raw || 0}</span>
             </div>
 
             {/* <div className="flex flex-col">

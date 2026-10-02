@@ -1,5 +1,6 @@
 import { Editor, Linker, ViewCreator, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
+import { useCanUser } from "@/hooks/useAuth";
 // import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IBatch } from "@/lib/models/batch.model";
 import { IGood } from "@/lib/models/good.model";
@@ -7,14 +8,18 @@ import { IOrganization } from "@/lib/models/org.model";
 import { IProduct } from "@/lib/models/product.model";
 import { IProduction } from "@/lib/models/production.model";
 import { IUser } from "@/lib/models/user.model";
+import { Tooltip } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { LiaShoppingBasketSolid } from "react-icons/lia";
 
 export const GoodColumns = (
     handleInfo: (user:IGood)=>void,
     handleEdit: (user:IGood)=>void,
+    handleRawMaterial: (user:IGood)=>void,
     // handleDelete: (user:IGood)=>void,
 ):GridColDef[]=>{
     // const {currency} = useCurrencyConfig();
+    const isEditor = useCanUser('88', 'UPDATE');
 
     return [
        
@@ -73,9 +78,24 @@ export const GoodColumns = (
         },
         {
             field:'quantity',
-            headerName: 'Quantity',
+            headerName: 'Initial Quantity',
+            width:120,
+            headerAlign: 'center',
+            align: 'center',
+        },
+        {
+            field: 'quantityLeftToPackage',
+            headerName: 'Finished Quantity',
             width:100,
             headerAlign: 'center',
+            align: 'center',
+        },
+        {
+            field: 'raw',
+            headerName: 'Raw Quantity',
+            width:100,
+            headerAlign: 'center',
+            align: 'center',
         },
         // {
         //     field:'unitPrice',
@@ -191,6 +211,12 @@ export const GoodColumns = (
                 <div className="h-full flex-center gap-3">
                     <Viewer tableId="88" tip="View Goods" onClick={()=>handleInfo(params?.row)} />
                     <Editor tableId="88" tip="Edit Goods" onClick={()=>handleEdit(params?.row)} />
+                    {
+                        isEditor &&
+                        <Tooltip title="Deem Goods as Raw Materials">
+                            <LiaShoppingBasketSolid onClick={()=>handleRawMaterial(params?.row)} className="text-blue-700 cursor-pointer" />
+                        </Tooltip>
+                    }
                     {/* <Deleter tableId="88" tip="Delete Goods" onClick={()=>handleDelete(params?.row)} /> */}
                 </div>
             )

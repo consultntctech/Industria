@@ -6,9 +6,10 @@ import  { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { IGood } from '@/lib/models/good.model'
 import { useFetchGoods } from '@/hooks/fetch/useFetchGoods'
-import {  getGood } from '@/lib/actions/good.action'
+import {  getGood, updateGood } from '@/lib/actions/good.action'
 import GoodsInfoModal from './GoodsInfoModal'
 import { GoodColumns } from './GoodsColumns'
+import DialogueAlertWithInput from '@/components/misc/DialogueAlertWithInput';
 
 type GoodTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -18,11 +19,17 @@ type GoodTableProps = {
 
 const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => {
     const [showInfo, setShowInfo] = useState(false);
+    const [showRaw, setShowRaw] = useState(false);
+    const [raw, setRaw] = useState(0);
     // const [showDelete, setShowDelete] = useState(false);
 
-    const {goods, isPending} = useFetchGoods();
+    const {goods, isPending, refetch} = useFetchGoods();
     const searchParams = useSearchParams();
     const GoodId = searchParams.get("Id");
+    const goodCount = Number(currentGood?.quantityLeftToPackage || 0) + Number(currentGood?.raw || 0);
+    const finished = goodCount - raw;
+
+  
 
     useEffect(() => {
         if (!GoodId) return;
@@ -68,16 +75,41 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
         setCurrentGood(item);
     }
 
+    const handleRawMaterial = (item:IGood)=>{
+        setShowRaw(true);
+        setCurrentGood(item);
+    }
+
     // const handleDelete = (item:IGood)=>{
     //     setShowDelete(true);
     //     setCurrentGood(item);
     // }
 
-    // const handleClose = ()=>{
-    //     setShowInfo(false);
-    //     // setShowDelete(false);
-    //     setCurrentGood(null);
-    // }
+    const handleClose = ()=>{
+        setShowInfo(false);
+        // setShowDelete(false);
+        setCurrentGood(null);
+        setShowRaw(false);
+        setRaw(0);
+    }
+
+    const handleUpdateRaw = async()=>{
+        if(!currentGood) return;
+        if(raw > goodCount){
+            enqueueSnackbar(`You can only deem ${goodCount} raw materials`, {variant:'error'});
+            return;
+        }
+        const goodData: Partial<IGood> = {
+            ...currentGood,
+            raw, canBeRaw: true, quantityLeftToPackage: finished
+        }
+        const res = await updateGood(goodData);
+        enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
+        handleClose();
+        if(!res.error){
+            refetch();
+        }
+    }
 
     // const handleDeleteItem = async()=>{
     //     try {
@@ -100,6 +132,24 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
   return (
     <div className='table-main2' >
         <span className='font-bold text-xl' >Goods</span>
+        <DialogueAlertWithInput 
+            open={showRaw} 
+            handleClose={handleClose} 
+            agreeClick={handleUpdateRaw} 
+            title="Deem Raw Materials" 
+            content="The value you provide here will be deducted from the finished quantity. This value can be changed any time." 
+            onChange={(e)=>setRaw(Number(e.target.value))}
+            type='number'
+            defaultValue={currentGood?.raw}
+            required
+            error={raw > goodCount}
+            helperText={`You can only deem ${goodCount} raw materials`}
+            slotProps={{
+                htmlInput:{
+                    min:0, max: goodCount, step:0.0001
+                }
+            }}
+        />
         <GoodsInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentGood={currentGood} setCurrentGood={setCurrentGood} />
         {/* <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteItem} title="Delete Good" content={content} /> */}
         <div className="flex w-full">
@@ -112,7 +162,7 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
                         loading={isPending}
                         getRowId={(row:IGood)=>row._id}
                         rows={goods}
-                        columns={GoodColumns(handleInfo, handleEdit, /* handleDelete, */)}
+                        columns={GoodColumns(handleInfo, handleEdit, /* handleDelete, */ handleRawMaterial)}
                         initialState={{ 
                             pagination: { paginationModel },
                             columns:{
