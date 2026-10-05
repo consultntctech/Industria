@@ -96,8 +96,8 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
           <span onClick={handleClickOnLaboureres}  className="text-blue-600 underline cursor-pointer" >{Number(production?.labourers?.length || 0)}</span>
         </div>
         <div className="flex flex-row items-center gap-4">
-          <span className="truncate w-1/2 md:w-1/5" >Raw Materials:</span>
-          <span onClick={handleClickOnRawMaterials}  className="text-blue-600 underline cursor-pointer" >{production?.ingredients?.length}</span>
+          <span className="truncate w-1/2 md:w-1/5" >Products:</span>
+          <span onClick={handleClickOnRawMaterials}  className="text-blue-600 underline cursor-pointer" >{Number(production?.ingredients?.length || 0) + Number(production?.goods?.length || 0)}</span>
         </div>
 
         <div className="flex flex-row items-center gap-4">

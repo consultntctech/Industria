@@ -1,7 +1,7 @@
 'use server'
 
 import {  IResponse } from "@/types/Types";
-import Production, { IProduction, ProdIngredient } from "../models/production.model";
+import Production, { IGoodInProduction, IProduction, ProdIngredient } from "../models/production.model";
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
 import RMaterial, { IRMaterial } from "../models/rmaterial.mode";
@@ -15,9 +15,9 @@ import '../models/labourer.model'
 import '../models/employee.model'
 import Alert, { IAlert } from "../models/alert.model";
 
-
 import { ClientSession, Types } from 'mongoose';
 import Product from "../models/product.model";
+import Good, { IGood } from "../models/good.model";
 
 interface IIngredientInput {
   materialId: Types.ObjectId;
@@ -48,42 +48,71 @@ interface IProductionIngredientInput {
 }
 
 
+interface IGoodLean {
+  _id: Types.ObjectId;
+  name: string;
+  raw: number;
+  threshold: number;
+}
+
+const toIdString = (id: string | Types.ObjectId | IGood): string =>
+  typeof id === "string"
+    ? id
+    : id instanceof Types.ObjectId
+      ? id.toString()
+      : id._id.toString();
+
+const normalizeGoods = (goods: IGoodInProduction[] = []) =>
+  goods.map(g => ({
+    materialId: toIdString(g.materialId),
+    quantity: g.quantity,
+    weight: g.weight || 0
+}));
+
+
+
+const buildUsageMap = (
+  items: { materialId: string | Types.ObjectId | { _id: string }; quantity: number }[] = []
+): Map<string, number> => {
+  const usage = new Map<string, number>();
+  for (const item of items) {
+    if (!item.materialId || item.quantity <= 0) continue;
+    const key = toIdString(item.materialId as string | Types.ObjectId | IGood);
+    usage.set(key, (usage.get(key) ?? 0) + item.quantity);
+  }
+  return usage;
+};
+
 export async function createProduction(
   data: Partial<IProduction>
 ): Promise<IResponse> {
+  let session: ClientSession | null = null;
+
   try {
     await connectDB();
 
-    const session: ClientSession = await mongoose.startSession();
+    session = await mongoose.startSession();
     session.startTransaction();
 
-    try {
-      // 1️⃣ Create production
-      const [newProduction] = await Production.create([data], { session });
+    // 1. Create production
+    const [newProduction] = await Production.create([data], { session });
 
-      const ingredients: IIngredientInput[] = (data.ingredients ?? []) as IIngredientInput[];
+    // 2. Build usage maps for both lists
+    const materialUsageMap = buildUsageMap(data.ingredients as IIngredientInput[]);
+    const goodUsageMap = buildUsageMap(data.goods);
 
-      if (!ingredients.length) {
-        await session.commitTransaction();
-        session.endSession();
-        return respond("Production created successfully", false, newProduction, 201);
-      }
+    if (!materialUsageMap.size && !goodUsageMap.size) {
+      await session.commitTransaction();
+      return respond("Production created successfully", false, newProduction, 201);
+    }
 
-      // 2️⃣ Map material usage
-      const materialUsageMap = new Map<string, number>();
+    const alerts: Partial<IAlert>[] = [];
 
-      for (const ing of ingredients) {
-        if (!ing.materialId || ing.quantity <= 0) continue;
+    // ───────────── Raw materials (ingredients) ─────────────
+    if (materialUsageMap.size) {
+      const materialIds = [...materialUsageMap.keys()].map(id => new Types.ObjectId(id));
 
-        const key = ing.materialId.toString();
-        materialUsageMap.set(key, (materialUsageMap.get(key) ?? 0) + ing.quantity);
-      }
-
-      const materialIds = [...materialUsageMap.keys()].map(
-        id => new Types.ObjectId(id)
-      );
-
-      // 3️⃣ Fetch raw materials
+      // 3. Fetch raw materials
       const rawMaterials = await RMaterial.find(
         { _id: { $in: materialIds } },
         { materialName: 1, qAccepted: 1, product: 1 }
@@ -97,17 +126,16 @@ export async function createProduction(
         if (mat.product) productIds.add(mat.product.toString());
       }
 
-      // 4️⃣ Validate stock & prepare bulk updates
-      const bulkOps: {
+      // 4. Validate stock and prepare bulk updates
+      const materialOps: {
         updateOne: {
-          filter: { _id: Types.ObjectId };
+          filter: { _id: Types.ObjectId; qAccepted: { $gte: number } };
           update: { $inc: { qAccepted: number } };
         };
       }[] = [];
 
       for (const [materialId, quantityUsed] of materialUsageMap.entries()) {
         const material = rawMaterialMap.get(materialId);
-
         if (!material) {
           throw new Error(`Raw material not found: ${materialId}`);
         }
@@ -118,22 +146,23 @@ export async function createProduction(
           );
         }
 
-        bulkOps.push({
+        materialOps.push({
           updateOne: {
-            filter: { _id: new Types.ObjectId(materialId) },
+            // the $gte guard protects against concurrent updates
+            filter: { _id: new Types.ObjectId(materialId), qAccepted: { $gte: quantityUsed } },
             update: { $inc: { qAccepted: -quantityUsed } }
           }
         });
 
-        // Update local copy for alerts
-        material.qAccepted -= quantityUsed;
+        material.qAccepted -= quantityUsed; // local copy for alerts
       }
 
-      if (bulkOps.length) {
-        await RMaterial.bulkWrite(bulkOps, { session });
+      const materialResult = await RMaterial.bulkWrite(materialOps, { session });
+      if (materialResult.matchedCount !== materialOps.length) {
+        throw new Error("Raw material stock changed while creating production. Please retry.");
       }
 
-      // 5️⃣ Fetch products (thresholds)
+      // 5. Fetch product thresholds
       const products = await Product.find(
         { _id: { $in: [...productIds].map(id => new Types.ObjectId(id)) } },
         { threshold: 1 }
@@ -144,41 +173,27 @@ export async function createProduction(
         productThresholdMap.set(p._id.toString(), p.threshold);
       }
 
-      // 6️⃣ Aggregate remaining qAccepted per product
+      // 6. Aggregate remaining qAccepted per product
       const productStockAgg = await RMaterial.aggregate<IProductStockAgg>([
         {
           $match: {
-            product: {
-              $in: [...productIds].map(id => new Types.ObjectId(id))
-            }
+            product: { $in: [...productIds].map(id => new Types.ObjectId(id)) }
           }
         },
-        {
-          $group: {
-            _id: "$product",
-            totalRemaining: { $sum: "$qAccepted" }
-          }
-        }
+        { $group: { _id: "$product", totalRemaining: { $sum: "$qAccepted" } } }
       ]).session(session);
 
-      const productRemainingMap = new Map<string, number>();
+      // 7a. Product-level alerts
       for (const row of productStockAgg) {
-        productRemainingMap.set(row._id.toString(), row.totalRemaining);
-      }
-
-      // 7️⃣ Build alerts
-      const alerts: Partial<IAlert>[] = [];
-
-      // 🔔 Product-level alerts
-      for (const [productId, remaining] of productRemainingMap.entries()) {
-        const threshold = productThresholdMap.get(productId) ?? 0;
+        const remaining = row.totalRemaining;
+        const threshold = productThresholdMap.get(row._id.toString()) ?? 0;
 
         if (remaining <= threshold) {
           alerts.push({
             title: "Product Stock Critical",
             body: `Total remaining raw materials have reached the threshold (${remaining}).`,
             type: "error",
-            item: new Types.ObjectId(productId),
+            item: new Types.ObjectId(row._id.toString()),
             itemModel: "Product",
             createdBy: data.createdBy,
             org: data.org
@@ -188,7 +203,7 @@ export async function createProduction(
             title: "Product Stock Warning",
             body: `Total remaining raw materials are low (${remaining}).`,
             type: "warning",
-            item: new Types.ObjectId(productId),
+            item: new Types.ObjectId(row._id.toString()),
             itemModel: "Product",
             createdBy: data.createdBy,
             org: data.org
@@ -196,12 +211,11 @@ export async function createProduction(
         }
       }
 
-      // 🔔 Raw-material-level alerts
+      // 7b. Raw-material-level alerts
       for (const material of rawMaterials) {
-        const threshold =
-          material.product
-            ? productThresholdMap.get(material.product.toString()) ?? 0
-            : 0;
+        const threshold = material.product
+          ? productThresholdMap.get(material.product.toString()) ?? 0
+          : 0;
 
         if (material.qAccepted <= threshold) {
           alerts.push({
@@ -225,33 +239,102 @@ export async function createProduction(
           });
         }
       }
-
-      if (alerts.length) {
-        await Alert.insertMany(alerts, { session });
-      }
-
-      // 8️⃣ Commit
-      await session.commitTransaction();
-      session.endSession();
-
-      return respond("Production created successfully", false, newProduction, 201);
-
-    } catch (err) {
-      await session.abortTransaction();
-      session.endSession();
-
-      const message = err instanceof Error ? err.message : "Unknown error";
-      console.error("Transaction aborted:", message);
-      return respond(message, true, {}, 500);
     }
 
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    console.error("Outer error:", message);
-    return respond("Error occurred while creating production", true, {}, 500);
+    // ───────────── Goods ─────────────
+    if (goodUsageMap.size) {
+      const goodIds = [...goodUsageMap.keys()].map(id => new Types.ObjectId(id));
+
+      const goodDocs = await Good.find(
+        { _id: { $in: goodIds } },
+        { name: 1, raw: 1, threshold: 1 }
+      ).session(session).lean<IGoodLean[]>();
+
+      const goodMap = new Map<string, IGoodLean>(
+        goodDocs.map(g => [g._id.toString(), g])
+      );
+
+      const goodOps: {
+        updateOne: {
+          filter: { _id: Types.ObjectId; raw: { $gte: number } };
+          update: { $inc: { raw: number } };
+        };
+      }[] = [];
+
+      for (const [goodId, quantityUsed] of goodUsageMap.entries()) {
+        const good = goodMap.get(goodId);
+        if (!good) {
+          throw new Error(`Good not found: ${goodId}`);
+        }
+
+        if (good.raw < quantityUsed) {
+          throw new Error(
+            `Insufficient raw stock for ${good.name}. Available: ${good.raw}, Required: ${quantityUsed}`
+          );
+        }
+
+        goodOps.push({
+          updateOne: {
+            filter: { _id: new Types.ObjectId(goodId), raw: { $gte: quantityUsed } },
+            update: { $inc: { raw: -quantityUsed } }
+          }
+        });
+
+        good.raw -= quantityUsed; // local copy for alerts
+      }
+
+      const goodResult = await Good.bulkWrite(goodOps, { session });
+      if (goodResult.matchedCount !== goodOps.length) {
+        throw new Error("Raw stock of a good changed while creating production. Please retry.");
+      }
+
+      for (const good of goodDocs) {
+        const threshold = good.threshold ?? 0;
+
+        if (good.raw <= threshold) {
+          alerts.push({
+            title: "Processed Goods Stock Critical",
+            body: `${good.name} has reached its raw threshold (${good.raw}).`,
+            type: "error",
+            item: good._id,
+            itemModel: "Good",
+            createdBy: data.createdBy,
+            org: data.org
+          });
+        } else if (good.raw <= threshold + 5) {
+          alerts.push({
+            title: "Processed Goods Stock Warning",
+            body: `${good.name} is running low on raw stock (${good.raw}).`,
+            type: "warning",
+            item: good._id,
+            itemModel: "Good",
+            createdBy: data.createdBy,
+            org: data.org
+          });
+        }
+      }
+    }
+
+    // 8. Insert all alerts, then commit
+    if (alerts.length) {
+      await Alert.insertMany(alerts, { session });
+    }
+
+    await session.commitTransaction();
+
+    return respond("Production created successfully", false, newProduction, 201);
+
+  } catch (err) {
+    if (session?.inTransaction()) {
+      await session.abortTransaction();
+    }
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("Create production aborted:", message);
+    return respond(message, true, {}, 500);
+  } finally {
+    await session?.endSession();
   }
 }
-
 
 export async function updateProductionIngredients(
   data: Partial<IProduction>
@@ -517,6 +600,179 @@ export async function updateProductionIngredients(
 
 
 
+
+export async function updateProductionGoods(
+  data: Partial<IProduction>
+): Promise<IResponse> {
+  let session: mongoose.ClientSession | null = null;
+
+  try {
+    await connectDB();
+
+    const productionId = data._id;
+    if (!productionId) {
+      return respond("Missing production ID", true, {}, 400);
+    }
+
+    session = await mongoose.startSession();
+    session.startTransaction();
+
+    // 1. Fetch existing production
+    const existingProduction = await Production.findById(productionId).session(session);
+
+    if (!existingProduction) {
+      await session.abortTransaction();
+      return respond("Production not found", true, {}, 404);
+    }
+
+    // 2. Normalize goods
+    const oldGoods = normalizeGoods(existingProduction.goods);
+    const newGoods = normalizeGoods(data.goods);
+
+    // 3. Lookup maps
+    const oldMap = new Map(oldGoods.map(g => [g.materialId, g]));
+    const newMap = new Map(newGoods.map(g => [g.materialId, g]));
+
+    // 4. Compute net changes (quantity diffs drive the stock adjustment)
+    const allIds = new Set([...oldMap.keys(), ...newMap.keys()]);
+    const netChanges = new Map<string, number>();
+    let hasAnyChange = false;
+
+    for (const id of allIds) {
+      const oldVal = oldMap.get(id) ?? { quantity: 0, weight: 0 };
+      const newVal = newMap.get(id) ?? { quantity: 0, weight: 0 };
+
+      const qtyDiff = newVal.quantity - oldVal.quantity;
+      if (qtyDiff !== 0) {
+        netChanges.set(id, qtyDiff);
+        hasAnyChange = true;
+      }
+      if (newVal.weight !== oldVal.weight) {
+        hasAnyChange = true;
+      }
+    }
+
+    if (!hasAnyChange) {
+      await session.commitTransaction();
+      return respond("No changes detected", false, existingProduction, 200);
+    }
+
+    // 5. Fetch goods affected by quantity changes
+    const goodIds = [...netChanges.keys()].map(id => new Types.ObjectId(id));
+
+    const goodDocs = await Good.find(
+      { _id: { $in: goodIds } },
+      { name: 1, raw: 1, threshold: 1 }
+    ).session(session).lean<IGoodLean[]>();
+
+    const goodMap = new Map<string, IGoodLean>(
+      goodDocs.map(g => [g._id.toString(), g])
+    );
+
+    // 6. Validate stock and prepare updates
+    const bulkOps: {
+      updateOne: {
+        filter: { _id: Types.ObjectId; raw?: { $gte: number } };
+        update: { $inc: { raw: number } };
+      };
+    }[] = [];
+
+    for (const [goodId, diff] of netChanges.entries()) {
+      const good = goodMap.get(goodId);
+      if (!good) {
+        throw new Error(`Good not found: ${goodId}`);
+      }
+
+  
+
+      if (diff > 0 && good.raw < diff) {
+        throw new Error(
+          `Insufficient raw stock for ${good.name}. Available: ${good.raw}, Required: ${diff}`
+        );
+      }
+
+      bulkOps.push({
+        updateOne: {
+          // the raw >= diff guard protects against concurrent updates
+          filter: {
+            _id: new Types.ObjectId(goodId),
+            ...(diff > 0 ? { raw: { $gte: diff } } : {})
+          },
+          update: { $inc: { raw: -diff } }
+        }
+      });
+
+      good.raw -= diff; // update local copy for alerts
+    }
+
+    const bulkResult = await Good.bulkWrite(bulkOps, { session });
+    if (bulkResult.matchedCount !== bulkOps.length) {
+      throw new Error("Raw stock changed while updating. Please retry.");
+    }
+
+    // 7. Alerts (only for goods whose raw stock went down)
+    const alerts: Partial<IAlert>[] = [];
+
+    for (const good of goodDocs) {
+      const diff = netChanges.get(good._id.toString()) ?? 0;
+      if (diff <= 0) continue;
+
+      const threshold = good.threshold ?? 0;
+
+      if (good.raw <= threshold) {
+        alerts.push({
+          title: "Processed Goods Stock Critical",
+          body: `${good.name} has reached its raw threshold (${good.raw}).`,
+          type: "error",
+          item: good._id,
+          itemModel: "Good",
+          createdBy: data.createdBy,
+          org: data.org
+        });
+      } else if (good.raw <= threshold + 5) {
+        alerts.push({
+          title: "Processed Goods Stock Warning",
+          body: `${good.name} is running low on raw stock (${good.raw}).`,
+          type: "warning",
+          item: good._id,
+          itemModel: "Good",
+          createdBy: data.createdBy,
+          org: data.org
+        });
+      }
+    }
+
+    if (alerts.length) {
+      await Alert.insertMany(alerts, { session });
+    }
+
+    // 8. Update production (leave ingredients alone so a stale payload can't overwrite them)
+    const { ingredients: _ignored, ...rest } = data;
+
+    const updatedProduction = await Production.findByIdAndUpdate(
+      productionId,
+      { ...rest, goods: newGoods },
+      { new: true, session }
+    );
+
+    await session.commitTransaction();
+
+    return respond("Production goods updated successfully", false, updatedProduction, 200);
+
+  } catch (err) {
+    if (session?.inTransaction()) {
+      await session.abortTransaction();
+    }
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("Goods update aborted:", message);
+    return respond(message, true, {}, 500);
+  } finally {
+    await session?.endSession();
+  }
+}
+
+
+
 export async function getProductions():Promise<IResponse>{
     try {
         await connectDB();
@@ -596,7 +852,8 @@ export async function getProduction(id: string): Promise<IResponse> {
         { path: "createdBy" },
         { path: "batch" },
         // {path: 'proditems'},
-        {path: 'ingredients', populate: {path:'materialId', populate:[{path:'batch'}, {path:'product'}]}}
+        {path: 'ingredients', populate: {path:'materialId', populate:[{path:'batch'}, {path:'product'}]}},
+        {path: 'goods', populate: {path:'materialId', populate:[{path:'batch'}, {path:'product'}, {path:'production'}]}}
       ]
     );
 
@@ -1081,76 +1338,97 @@ export async function getProductionStatsByOrg(org:string): Promise<IResponse> {
 
 
 
+
 export async function deleteProduction(id: string): Promise<IResponse> {
+  let session: ClientSession | null = null;
+
   try {
     await connectDB();
 
-    const session = await mongoose.startSession();
+    session = await mongoose.startSession();
     session.startTransaction();
 
-    try {
-      // 1️⃣ Fetch the production to be deleted
-      const production = await Production.findById(id).session(session);
-      if (!production) {
-        await session.abortTransaction();
-        session.endSession();
-        return respond("Production not found", true, {}, 404);
-      }
+    // 1. Fetch the production to be deleted
+    const production = await Production.findById(id).session(session);
+    if (!production) {
+      await session.abortTransaction();
+      return respond("Production not found", true, {}, 404);
+    }
 
-      // 2️⃣ Restore raw materials’ qAccepted
-      for (const ing of production.ingredients) {
-        const materialId = ing.materialId.toString();
-        const quantityUsed = Number(ing.quantity) || 0;
+    // 2. Restore raw materials' qAccepted
+    const materialUsageMap = buildUsageMap(production.ingredients as IIngredientInput[]);
 
-        if (quantityUsed > 0) {
-          const material = await RMaterial.findById(materialId).session(session);
-          if (!material) {
-            throw new Error(`Raw material not found: ${materialId}`);
-          }
+    if (materialUsageMap.size) {
+      const materialIds = [...materialUsageMap.keys()].map(mid => new Types.ObjectId(mid));
 
-          // Restore the used quantity
-          await RMaterial.findByIdAndUpdate(
-            materialId,
-            { $inc: { qAccepted: quantityUsed } },
-            { session }
-          );
+      const existing = await RMaterial.find(
+        { _id: { $in: materialIds } },
+        { _id: 1 }
+      ).session(session).lean<{ _id: Types.ObjectId }[]>();
+
+      const existingIds = new Set(existing.map(m => m._id.toString()));
+      for (const mid of materialUsageMap.keys()) {
+        if (!existingIds.has(mid)) {
+          throw new Error(`Raw material not found: ${mid}`);
         }
       }
 
-      // for (const ing of production.ingredients) {
-      //   if (!ing.materialId) continue; // guards against a null/undefined ref
-
-      //   const materialId = ing.materialId.toString();
-      //   const quantityUsed = Number(ing.quantity) || 0;
-      //   if (quantityUsed <= 0) continue;
-
-      //   const result = await RMaterial.updateOne(
-      //     { _id: materialId },
-      //     { $inc: { qAccepted: quantityUsed } },
-      //     { session }
-      //   );
-
-      //   if (result.matchedCount === 0) {
-      //     console.warn(`Raw material ${materialId} no longer exists, skipping restore`);
-      //   }
-      // }
-
-      // 3️⃣ Delete the production
-      const deletedProduction = await Production.deleteOne({ _id: id }, { session });
-
-      // 4️⃣ Commit transaction
-      await session.commitTransaction();
-      session.endSession();
-
-      return respond("Production deleted successfully", false, deletedProduction, 200);
-    } catch (err) {
-      await session.abortTransaction();
-      session.endSession();
-      console.error("Transaction aborted:", (err as Error).message);
-      return respond((err as Error).message, true, {}, 500);
+      await RMaterial.bulkWrite(
+        [...materialUsageMap.entries()].map(([mid, qty]) => ({
+          updateOne: {
+            filter: { _id: new Types.ObjectId(mid) },
+            update: { $inc: { qAccepted: qty } }
+          }
+        })),
+        { session }
+      );
     }
-  } catch (error) {
-    console.error("Database connection or outer error:", (error as Error).message);
-    return respond("Error occurred while deleting production", true, {}, 500);
+
+    // 3. Restore goods' raw stock
+    const goodUsageMap = buildUsageMap(production.goods);
+
+    if (goodUsageMap.size) {
+      const goodIds = [...goodUsageMap.keys()].map(gid => new Types.ObjectId(gid));
+
+      const existing = await Good.find(
+        { _id: { $in: goodIds } },
+        { _id: 1 }
+      ).session(session).lean<{ _id: Types.ObjectId }[]>();
+
+      const existingIds = new Set(existing.map(g => g._id.toString()));
+      for (const gid of goodUsageMap.keys()) {
+        if (!existingIds.has(gid)) {
+          throw new Error(`Good not found: ${gid}`);
+        }
+      }
+
+      await Good.bulkWrite(
+        [...goodUsageMap.entries()].map(([gid, qty]) => ({
+          updateOne: {
+            filter: { _id: new Types.ObjectId(gid) },
+            update: { $inc: { raw: qty } }
+          }
+        })),
+        { session }
+      );
+    }
+
+    // 4. Delete the production
+    const deletedProduction = await Production.deleteOne({ _id: id }, { session });
+
+    // 5. Commit
+    await session.commitTransaction();
+
+    return respond("Production deleted successfully", false, deletedProduction, 200);
+
+  } catch (err) {
+    if (session?.inTransaction()) {
+      await session.abortTransaction();
+    }
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("Delete production aborted:", message);
+    return respond(message, true, {}, 500);
+  } finally {
+    await session?.endSession();
   }
 }

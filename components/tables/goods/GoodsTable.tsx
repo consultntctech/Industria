@@ -101,7 +101,7 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
         }
         const goodData: Partial<IGood> = {
             ...currentGood,
-            raw, canBeRaw: true, quantityLeftToPackage: finished
+            raw, quantityLeftToPackage: finished
         }
         const res = await updateGood(goodData);
         enqueueSnackbar(res.message, {variant:res.error?'error':'success'});

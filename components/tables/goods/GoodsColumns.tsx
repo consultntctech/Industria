@@ -13,9 +13,9 @@ import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { LiaShoppingBasketSolid } from "react-icons/lia";
 
 export const GoodColumns = (
-    handleInfo: (user:IGood)=>void,
-    handleEdit: (user:IGood)=>void,
-    handleRawMaterial: (user:IGood)=>void,
+    handleInfo: (item:IGood)=>void,
+    handleEdit: (item:IGood)=>void,
+    handleRawMaterial: (item:IGood)=>void,
     // handleDelete: (user:IGood)=>void,
 ):GridColDef[]=>{
     // const {currency} = useCurrencyConfig();

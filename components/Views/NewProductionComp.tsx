@@ -26,6 +26,10 @@ import { ILabourer } from "@/lib/models/labourer.model";
 import SearchSelectEmployees from "../shared/inputs/dropdowns/SearchSelectEmployees";
 import { IEmployee } from "@/lib/models/employee.model";
 import SearchSelectMultipleEmployees from "../shared/inputs/dropdowns/SearchSelectMultipleEmployees";
+import SearchSelectBatchesWithFinshed from "../shared/inputs/dropdowns/SearchSelectBatchesWithFinshed";
+import { IGood } from "@/lib/models/good.model";
+import SearchSelectMultipleGoodsWithRM from "../shared/inputs/dropdowns/SearchSelectMultipleGoodsWithRM";
+import GoodQSelector from "../misc/GoodQSelector";
 ;
 
 const NewProductionComp = () => {
@@ -45,6 +49,9 @@ const NewProductionComp = () => {
     const [userOverrodeCost, setUserOverrodeCost] = useState(false);
     const [labourers, setLabourers] = useState<ILabourer[]>([]);
     const [employees, setEmployees] = useState<IEmployee[]>([]);
+    const [goodBatch, setGoodBatch] = useState<string>('');
+    const [goods, setGoods] = useState<IGood[]>([]);
+    const [finishedIngredients, setFinishedIngredients] = useState<IIngredient[]>([]);
     // const [labourCost, setLabourCost] = useState(0);
 
     const router = useRouter();
@@ -83,8 +90,9 @@ const NewProductionComp = () => {
         setProductionCost(Number(value));
         setUserOverrodeCost(true);
     }
-
-    const inputQuantity = ingredients?.reduce((acc, cur)=> acc + (cur.qUsed || 0), 0);
+    const rawQuantity = ingredients?.reduce((acc, cur)=> acc + (cur.qUsed || 0), 0);
+    const finishedQuantity = finishedIngredients?.reduce((acc, cur)=> acc + (cur.qUsed || 0), 0);
+    const inputQuantity = rawQuantity + finishedQuantity;
     const labourCost = Number(data?.labourCost || 0) * Number(otherCurrency?.rate || 1);
     const pCost = productionCost * Number(otherCurrency?.rate || 1);
 
@@ -124,6 +132,11 @@ const NewProductionComp = () => {
                 supervisor: supervisor?._id,
                 employees: employees?.map(emp=>emp._id),
                 ingredients: ingredients.map(ing=>({
+                    materialId: ing.materialId,
+                    quantity: ing.qUsed,
+                    weight: ing.weight
+                })),
+                goods: finishedIngredients.map(ing=>({
                     materialId: ing.materialId,
                     quantity: ing.qUsed,
                     weight: ing.weight
@@ -174,6 +187,33 @@ const NewProductionComp = () => {
             const materialId = name.replace('wt-', '');
             const weightVal = parseFloat(value) || 0;
             setIngredients(pre=>{
+                const existing = pre.find(ing=>ing.materialId === materialId);
+                if(existing){
+                    return pre.map(ing=>ing.materialId === materialId ? {...ing, weight: weightVal} : ing);
+                }else{
+                    return [...pre, {materialId, qUsed: 0, weight: weightVal}];
+                }
+            })
+        }
+    }
+    const onChangeFinishedInput = (e:React.ChangeEvent<HTMLInputElement>)=>{
+        const { value, name} = e.target;
+        
+        if (name.startsWith('qty-')) {
+            const materialId = name.replace('qty-', '');
+            const qty = parseInt(value, 10) || 0;
+            setFinishedIngredients(pre=>{
+                const existing = pre.find(ing=>ing.materialId === materialId);
+                if(existing){
+                    return pre.map(ing=>ing.materialId === materialId ? {...ing, qUsed: qty} : ing);
+                }else{
+                    return [...pre, {materialId, qUsed: qty, weight: 0}];
+                }
+            })
+        } else if (name.startsWith('wt-')) {
+            const materialId = name.replace('wt-', '');
+            const weightVal = parseFloat(value) || 0;
+            setFinishedIngredients(pre=>{
                 const existing = pre.find(ing=>ing.materialId === materialId);
                 if(existing){
                     return pre.map(ing=>ing.materialId === materialId ? {...ing, weight: weightVal} : ing);
@@ -236,7 +276,7 @@ const NewProductionComp = () => {
                         <div className="flex flex-col gap-4 w-full">
                             <GenericLabel
                                 label="Pick a batch to select raw materials"
-                                input={<SearchSelectBatchesWithRM required={true} setSelect={setProductBatchId} />}
+                                input={<SearchSelectBatchesWithRM  setSelect={setProductBatchId} />}
                             />
                             <GenericLabel
                                 label="Select raw materials"
@@ -267,10 +307,38 @@ const NewProductionComp = () => {
                                     </div>
                                 </div>
                             }
-                            {/* <GenericLabel
-                                label="Add production items"
-                                input={<SearchSelectMultipleProdItems setSelection={setProditems} />}
-                            /> */}
+                            <GenericLabel
+                                label="Select finished batch"
+                                input={<SearchSelectBatchesWithFinshed  setSelect={setGoodBatch} />}
+                            />
+                            <GenericLabel
+                                label="Select finished goods"
+                                input={<SearchSelectMultipleGoodsWithRM  setSelection={setGoods} batchId={goodBatch} />}
+                            />
+                            {
+                                goods?.length > 0 &&
+                                <div className="flex flex-col w-full border border-gray-200 p-2  gap-2 rounded-xl">
+                                    <span className="subtitle text-gray-500 gap-2" >Finished Goods</span>
+                                    <div className="flex flex-row flex-wrap items-center gap-2">
+                                        {
+                                            goods.map((material, index)=>{
+                                                const ingredient = finishedIngredients.find(ing => ing.materialId === material._id);
+                                                return (
+                                                <GoodQSelector 
+                                                    key={index} 
+                                                    material={material} 
+                                                    inputId={material?._id} 
+                                                    onChangeInput={onChangeFinishedInput} 
+                                                    name={material?.serialName}
+                                                    quantity={ingredient?.qUsed}
+                                                    weight={ingredient?.weight}
+                                                />
+                                                )
+                                            })
+                                        }
+                                    </div>
+                                </div>
+                            }
                             <InputWithLabel step={0.0001} value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
                             <InputWithLabel step={0.0001} onChange={onChange} name="labourCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabourLabel : labourLabel} className="w-full" />
                             {

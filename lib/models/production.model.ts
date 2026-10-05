@@ -12,7 +12,7 @@ import { ILabourer } from "./labourer.model";
 import Alert from "./alert.model";
 import { IEmployee } from "./employee.model";
 import Package from "./package.model";
-import Good from "./good.model";
+import Good, { IGood } from "./good.model";
 
 export interface ProdIngredient{
     materialId: string
@@ -22,6 +22,12 @@ export interface ProdIngredient{
 
 export interface IIngredientInProduction {
     materialId: string | Types.ObjectId | IRMaterial;
+    quantity: number;
+    weight: number;
+}
+
+export interface IGoodInProduction {
+    materialId: string | Types.ObjectId | IGood;
     quantity: number;
     weight: number;
 }
@@ -36,6 +42,7 @@ export interface IProduction extends Document {
     productToProduce: string | Types.ObjectId | IProduct;
     status:string;
     ingredients: IIngredientInProduction[];
+    goods: IGoodInProduction[];
     proditems?: string[] | Types.ObjectId[] | IProdItem[];
     original:IOriginalPrice;
     inputQuantity: number;
@@ -66,6 +73,11 @@ const ProductionSchema = new Schema<IProduction>({
     status: { type: String, required: true },
     ingredients: [{
         materialId: { type: Schema.Types.ObjectId, ref: 'RMaterial', required: true },
+        quantity: { type: Number, required: true },
+        weight: { type: Number, required: false },
+    }],
+    goods: [{
+        materialId: { type: Schema.Types.ObjectId, ref: 'Good', required: true },
         quantity: { type: Number, required: true },
         weight: { type: Number, required: false },
     }],

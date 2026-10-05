@@ -80,11 +80,11 @@ export const ProductionColumns = (
             width:120,
             valueFormatter:(_, row:IProduction)=>{
                 const cost = row?.productionCost as number || 0;
-                return `${cost}`;
+                return `${cost?.toFixed(3)}`;
             },
             valueGetter:(_, row:IProduction)=>{
                 const cost = row?.productionCost as number || 0;
-                return `${cost}`;
+                return `${cost?.toFixed(3)}`;
             }
         },
         {

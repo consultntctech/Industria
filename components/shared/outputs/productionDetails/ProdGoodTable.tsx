@@ -2,34 +2,34 @@ import { Paper, Tooltip } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 // import { enqueueSnackbar } from 'notistack'
 import  { Dispatch, SetStateAction } from 'react'
-import {  IRMaterial, IRMaterialPopulate } from '@/lib/models/rmaterial.mode'
 // import { deleteRMaterial } from '@/lib/actions/rmaterial.action'
-import { ProdRMColumns } from './ProdRMColumn'
 import { IProduction } from '@/lib/models/production.model'
 import { GoPencil } from 'react-icons/go'
 import { useCanUser } from '@/hooks/useAuth'
+import { ProdGoodColumns } from './ProdGoodColumns';
+import { IGood, IGoodPopulate } from '@/lib/models/good.model';
 
-type ProdRMTableProps = {
-    setOpenNew:Dispatch<SetStateAction<boolean>>;
+type ProdGoodTableProps = {
+    setOpenGoods:Dispatch<SetStateAction<boolean>>;
     // setOpenItem:Dispatch<SetStateAction<boolean>>;
     production: IProduction | null;
 }
 
-const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
+const ProdGoodTable = ({setOpenGoods, production}:ProdGoodTableProps) => {
 
-    const materials = production?.ingredients as unknown as IRMaterialPopulate[];
+    const goods = production?.goods as unknown as IGoodPopulate[];
     const isEditor = useCanUser('8', 'UPDATE');
 
-    // console.log('Materials: ', materials);
+    // console.log('Materials: ', goods);
 
 
-    // console.log('Materials: ', materials)
+    // console.log('Materials: ', goods)
 
 
     const paginationModel = { page: 0, pageSize: 15 };
 
     const handleEdit = ()=>{
-        setOpenNew(true);
+        setOpenGoods(true);
         // setOpenItem(false);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -58,7 +58,7 @@ const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
   return (
     <div className='table-main2' >
         <div className="flex flex-row items-center gap-6">
-            <span className='font-bold text-base' >Raw Materials</span>
+            <span className='font-bold text-base' >Unfinished Goods</span>
             {
                 !(production?.status === 'Pending Approval' || production?.status === 'Approved') && isEditor &&
                 <Tooltip title="Edit production content">
@@ -74,14 +74,20 @@ const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
                 <Paper className='w-full' sx={{ height: 'auto', }}>
                     <DataGrid
                         loading={!production}
-                        getRowId={(row:IRMaterialPopulate)=>{
-                            const material = row?.materialId as IRMaterial;
-                            return material?._id;
+                        getRowId={(row:IGoodPopulate)=>{
+                            const good = row?.materialId as IGood;
+                            return good?._id;
                         }}
-                        rows={materials}
-                        columns={ProdRMColumns( )}
+                        rows={goods}
+                        columns={ProdGoodColumns( )}
                         initialState={{ 
                             pagination: { paginationModel },
+                            columns:{
+                                columnVisibilityModel:{
+                                    serialName:false,
+                                    weight:false
+                                }
+                            }
                             
                          }}
                         pageSizeOptions={[5, 10, 15, 20, 30, 50, 100]}
@@ -106,4 +112,4 @@ const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
   )
 }
 
-export default ProdRMTable
+export default ProdGoodTable

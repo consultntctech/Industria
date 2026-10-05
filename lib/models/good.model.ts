@@ -20,7 +20,6 @@ export interface IGood extends Document {
     quantity: number;
     quantityLeftToPackage: number;
     threshold: number;
-    canBeRaw: boolean;
     raw: number;
     org: string | Types.ObjectId | IOrganization;
     creator: string;
@@ -29,6 +28,14 @@ export interface IGood extends Document {
     updatedAt: string;
 }
 
+
+export interface IGoodPopulate extends IGood {
+    quantity: number;
+    materialId: string | Types.ObjectId | IGood;
+    weight: number;
+}
+
+
 const GoodSchema = new Schema<IGood>({
     name: String,
     serialName: String,
@@ -36,7 +43,6 @@ const GoodSchema = new Schema<IGood>({
     production: { type: Schema.Types.ObjectId, ref: 'Production', required: false },
     product: { type: Schema.Types.ObjectId, ref: 'Product', required: false },
     // unitPrice: Number,
-    canBeRaw: {type:Boolean, default:false},
     threshold: {type:Number, default:0},
     quantityLeftToPackage: {type:Number, default:0},
     quantity: Number,

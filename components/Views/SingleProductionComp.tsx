@@ -4,11 +4,10 @@ import CustomTabs from "../misc/CustomTabs"
 import { IProduction } from "@/lib/models/production.model";
 import InputDetails from "../shared/outputs/productionDetails/InputDetails";
 import OutputDetails from "../shared/outputs/productionDetails/OutputDetails";
-import ProdRMTable from "../shared/outputs/productionDetails/ProdRMTable";
 // import ProdItemsTable from "../shared/outputs/productionDetails/ProdItemsTable";
-import ProductionContentModal from "../shared/outputs/productionDetails/ProductionContentModal";
 import ProductionLabourersTable from '../shared/outputs/productionDetails/ProductionLabourersTable';
 import ProdEmployeesTable from "../shared/outputs/productionDetails/ProdEmployeesTable";
+import ProdProductsComp from "../shared/outputs/productionDetails/ProdProductsComp";
 
 
 type SingleProductionCompProps = {
@@ -17,7 +16,7 @@ type SingleProductionCompProps = {
 
 const SingleProductionComp = ({production}:SingleProductionCompProps) => {
   const [activeTab, setActiveTab] = useState<string>('first');
-  const [openNew, setOpenNew] = useState(false);
+  
   // const [openItem, setOpenItem] = useState(false);
 
   return (
@@ -27,7 +26,7 @@ const SingleProductionComp = ({production}:SingleProductionCompProps) => {
         SecondTabText="Employees" onClickSecondTab={()=>setActiveTab('second')}
         // ThirdTabText="Production Materials" onClickThirdTab={()=>setActiveTab('third')}
         ThirdTabText="Labourers" onClickThirdTab={()=>setActiveTab('third')}
-        FourthTabText="Raw Materials" onClickFourthTab={()=>setActiveTab('fourth')}
+        FourthTabText="Products" onClickFourthTab={()=>setActiveTab('fourth')}
         showSecondTab={true}  showThirdTab={true} showFourthTab={true}
         showFifthTab={true}
         FifthTabText="Output" onClickFifthTab={()=>setActiveTab('fifth')}
@@ -47,13 +46,13 @@ const SingleProductionComp = ({production}:SingleProductionCompProps) => {
       }
       {
         activeTab === 'fourth' &&
-        <ProdRMTable setOpenNew={setOpenNew}  production={production} />
+        <ProdProductsComp production={production} />
       }
       {
         activeTab === 'third' &&
         <ProductionLabourersTable production={production} />
       }
-      <ProductionContentModal openNew={openNew} setOpenNew={setOpenNew}  production={production} />
+      
     </div>
   )
 }

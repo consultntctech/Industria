@@ -1,4 +1,4 @@
-import { getAvailableGoods, getAvailableGoodsByOrg, getAvailableGoodsByOrgAndProduct, getAvailableGoodsByProduct, getGoods, getGoodsByOrg } from "@/lib/actions/good.action";
+import { getAvailableGoods, getAvailableGoodsByOrg, getAvailableGoodsByOrgAndProduct, getAvailableGoodsByProduct, getGoods, getGoodsByOrg, getGoodsWithRawRawMaterialsByOrgAndBatch } from "@/lib/actions/good.action";
 import { IGood } from "@/lib/models/good.model";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
@@ -70,6 +70,29 @@ export const useFetchAvailableGoodsByProduct = (productId:string) => {
         queryKey: ['availableGoodsByProduct', productId],
         queryFn: fetchAvailableGoods,
         enabled: !!productId && !!user,
+    })
+    return {goods, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchGoodsWithRawMaterialsByOrgAndBatch = (batchId:string) => {
+    const { user } = useAuth();
+    const fetchGoods = async ():Promise<IGood[]> => {
+        try {
+            if(!user) return [];
+            const res =  await getGoodsWithRawRawMaterialsByOrgAndBatch(user?.org, batchId);
+            const data = res.payload as IGood[];
+            return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }           
+
+    const {data:goods=[], isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['goodsWithRawRawMaterialsByOrg', user?.org, batchId],
+        queryFn: fetchGoods,
+        enabled: !!user?.org && !!user,
     })
     return {goods, isPending, refetch, isSuccess}
 }

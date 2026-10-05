@@ -1,17 +1,17 @@
-import {  useFetchBatchesWithRMaterials } from "@/hooks/fetch/useBatches"
+import {  useFetchBatchesWithFinshedMaterials } from "@/hooks/fetch/useBatches"
 import { IBatch } from "@/lib/models/batch.model"
 import { Autocomplete, CircularProgress, TextField } from "@mui/material"
 import { Dispatch, Fragment, SetStateAction, useState } from "react"
 
-type SearchSelectBatchesWithRMProps = {
+type SearchSelectBatchesWithFinshedProps = {
     setSelect?: Dispatch<SetStateAction<string>>,
     value?: IBatch | null,
     width?: number,
     required?:boolean,
     // type?:'Raw Material'|'Finished Good'
 }
-const SearchSelectBatchesWithRM = ({setSelect,  required, value, width}:SearchSelectBatchesWithRMProps) => {
-    const {batches, isPending} = useFetchBatchesWithRMaterials();
+const SearchSelectBatchesWithFinshed = ({setSelect,  required, value, width}:SearchSelectBatchesWithFinshedProps) => {
+    const {batches, isPending} = useFetchBatchesWithFinshedMaterials();
     const [search, setSearch] = useState<string>('');
 
     return(
@@ -60,4 +60,4 @@ const SearchSelectBatchesWithRM = ({setSelect,  required, value, width}:SearchSe
     )
 }
 
-export default SearchSelectBatchesWithRM
+export default SearchSelectBatchesWithFinshed

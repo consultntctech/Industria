@@ -112,6 +112,24 @@ export async function getAvailableGoodsByOrg(orgId:string):Promise<IResponse>{
     }
 }
 
+
+export async function getGoodsWithRawRawMaterialsByOrgAndBatch(orgId:string, batchId:string):Promise<IResponse>{
+    try {
+        await connectDB();
+        const goods = await Good.find({ org: orgId, batch:batchId, raw: { $gt: 0 } }).
+        populate({path:'production', populate:{path:'productToProduce'}}).
+        populate('batch').
+        populate('createdBy').
+        populate('product').
+        populate('org').lean() as unknown as IGood[];
+        return respond('Finished goods found successfully', false, goods, 200);
+    } catch (error) {
+        console.log(error);
+        return respond('Error occured while fetching finished goods', true, {}, 500);
+    }
+}
+
+
 export async function getAvailableGoodsByProduct(productId:string):Promise<IResponse>{
     try {
         await connectDB();

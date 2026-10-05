@@ -1,4 +1,4 @@
-import { getBatches, getBatchesByOrg, getBatchesWithGoods, getBatchesWithGoodsByOrg, getBatchesWithLineItems, getBatchesWithLineItemsByOrg } from "@/lib/actions/batch.action";
+import { getBatches, getBatchesByOrg, getBatchesWithFinishedGoodsByOrg, getBatchesWithGoods, getBatchesWithGoodsByOrg, getBatchesWithLineItems, getBatchesWithLineItemsByOrg } from "@/lib/actions/batch.action";
 import { IBatch } from "@/lib/models/batch.model"
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
@@ -46,6 +46,30 @@ export const useFetchBatchesWithRMaterials = () => {
 
     const {data:batches=[], isPending, refetch, isSuccess} = useQuery({
         queryKey: ['batches-with-rmaterials'],
+        queryFn: fetchBatches,
+        enabled: !!user
+    })
+    return {batches, isPending, refetch, isSuccess}
+}
+
+
+export const useFetchBatchesWithFinshedMaterials = () => {
+    const {user} = useAuth();
+    const fetchBatches = async ():Promise<IBatch[]> => {
+        try {
+            if(!user) return [];
+            const res = await getBatchesWithFinishedGoodsByOrg(user?.org);
+            const data = res.payload as IBatch[];
+            // console.log('Batch: ', res)
+            return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
+        } catch (error) {
+            console.log(error);
+            return [];
+        }
+    }
+
+    const {data:batches=[], isPending, refetch, isSuccess} = useQuery({
+        queryKey: ['batches-with-finished-materials'],
         queryFn: fetchBatches,
         enabled: !!user
     })
