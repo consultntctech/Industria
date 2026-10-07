@@ -36,6 +36,7 @@ export interface IProduction extends Document {
     _id: string;
     name: string;
     supervisor: string | Types.ObjectId | IEmployee;
+    supervisors: string[] | Types.ObjectId[] | IEmployee[];
     employees: string[] | Types.ObjectId[] | IEmployee[];
     labourers: string[] | Types.ObjectId[] | ILabourer[];
     batch: string | Types.ObjectId | IBatch;
@@ -67,6 +68,7 @@ export interface IProduction extends Document {
 const ProductionSchema = new Schema<IProduction>({
     name: { type: String, required: true },
     supervisor: { type: Schema.Types.ObjectId, ref: 'Employee', required: false },
+    supervisors: [{ type: Schema.Types.ObjectId, ref: 'Employee', required: false }],
     employees: [{ type: Schema.Types.ObjectId, ref: 'Employee', required: false }],
     batch: { type: Schema.Types.ObjectId, ref: 'Batch', required: false },
     productToProduce: { type: Schema.Types.ObjectId, ref: 'Product', required: false },

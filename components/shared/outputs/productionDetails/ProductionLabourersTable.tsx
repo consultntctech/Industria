@@ -24,7 +24,7 @@ const ProductionLabourersTable = ({ production }: ProductionLabourersTableProps)
   return (
     <div className='table-main2' >
         <div className="flex flex-row items-center gap-6">
-            <span className='font-bold text-xl' >Production Labourers</span>
+            <span className='font-bold text-base' >Labourers</span>
             {
                 !(production?.status === 'Pending Approval' || production?.status === 'Approved') && isEditor &&
                 <Tooltip title="Edit production labourers">

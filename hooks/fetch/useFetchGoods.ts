@@ -79,7 +79,7 @@ export const useFetchGoodsWithRawMaterialsByOrgAndBatch = (batchId:string) => {
     const { user } = useAuth();
     const fetchGoods = async ():Promise<IGood[]> => {
         try {
-            if(!user) return [];
+            if(!user || !batchId) return [];
             const res =  await getGoodsWithRawRawMaterialsByOrgAndBatch(user?.org, batchId);
             const data = res.payload as IGood[];
             return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
@@ -92,7 +92,7 @@ export const useFetchGoodsWithRawMaterialsByOrgAndBatch = (batchId:string) => {
     const {data:goods=[], isPending, refetch, isSuccess} = useQuery({
         queryKey: ['goodsWithRawRawMaterialsByOrg', user?.org, batchId],
         queryFn: fetchGoods,
-        enabled: !!user?.org && !!user,
+        enabled: !!user?.org && !!user && !!batchId,
     })
     return {goods, isPending, refetch, isSuccess}
 }

@@ -9,6 +9,7 @@ import Employee from "../models/employee.model";
 import Product from "../models/product.model";
 import Category from "../models/category.model";
 import Good from "../models/good.model";
+import Production from "../models/production.model";
 
 export async function updateCurrencies(){
     try {
@@ -113,6 +114,19 @@ export async function UpdateAllGoodsWithRaw(){
         await Promise.all(
             goods.map((good)=>Good.updateOne({_id:good._id}, {raw: 0})));
         return respond('All goods updated successfully', false, {}, 200);
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+export async function updateProductionSupervisors(){
+    try {
+        await connectDB();
+        const productions = await Production.find();
+        await Promise.all(
+            productions.map((prod)=>Production.updateOne({_id:prod._id}, {supervisors: [prod?.supervisor]})));
+        return respond('All productions updated successfully', false, {}, 200);
     } catch (error) {
         console.log(error)
     }

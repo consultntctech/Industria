@@ -23,7 +23,6 @@ import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/li
 import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
 import SearchSelectMultipleLabourers from "../shared/inputs/dropdowns/SearchSelectMultipleLabourers";
 import { ILabourer } from "@/lib/models/labourer.model";
-import SearchSelectEmployees from "../shared/inputs/dropdowns/SearchSelectEmployees";
 import { IEmployee } from "@/lib/models/employee.model";
 import SearchSelectMultipleEmployees from "../shared/inputs/dropdowns/SearchSelectMultipleEmployees";
 import SearchSelectBatchesWithFinshed from "../shared/inputs/dropdowns/SearchSelectBatchesWithFinshed";
@@ -35,7 +34,7 @@ import GoodQSelector from "../misc/GoodQSelector";
 const NewProductionComp = () => {
     const [loading, setLoading] = useState(false);
     const [batch, setBatch] = useState<string>('');
-    const [supervisor, setSupervisor] = useState<IEmployee | null>(null);
+    const [supervisors, setSupervisors] = useState<IEmployee[]>([]);
     const [productToProduce, setProductToProduce] = useState<IProduct|null>(null);
     const [productBatchId, setProductBatchId] = useState<string>('');
     const [rawMaterials, setRawMaterials] = useState<IRMaterial[]>([]);
@@ -129,7 +128,7 @@ const NewProductionComp = () => {
                 org:user?.org,
                 createdBy:user?._id,
                 creator: user?.name,
-                supervisor: supervisor?._id,
+                supervisors: supervisors?.map(sup=>sup._id),
                 employees: employees?.map(emp=>emp._id),
                 ingredients: ingredients.map(ing=>({
                     materialId: ing.materialId,
@@ -250,8 +249,8 @@ const NewProductionComp = () => {
                             input={<SearchSelectBatches type="Finished Good" required={true} setSelect={setBatch} />}
                         />
                         <GenericLabel
-                            label="Select supervisor"
-                            input={<SearchSelectEmployees showMe={true} required={true} setSelect={setSupervisor} placeholder="supervisor" />}
+                            label="Select supervisors"
+                            input={<SearchSelectMultipleEmployees showMe={true} required={true} setSelection={setSupervisors} placeholder="supervisors" />}
                         />
                         <GenericLabel
                             label="Select employees"

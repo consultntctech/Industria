@@ -17,8 +17,8 @@ export const Header = () => {
   // console.log('Loading: ', updateLoading)
   // useEffect(() => {
   //   const update = async () => {
-  //     const res = await getEmployeeByEmail('essandoh.segu@gmail.com');
-  //     console.log('Employee: ', res)
+  //     const res = await updateProductionSupervisors();
+  //     // console.log('Employee: ', res)
   //     // const res = await deleteAllEmployees();
   //     enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});
   //   }

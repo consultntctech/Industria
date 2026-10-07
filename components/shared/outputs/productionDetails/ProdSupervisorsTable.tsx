@@ -7,17 +7,17 @@ import { IEmployee } from '@/lib/models/employee.model';
 import { ProdEmployeeColumns } from './ProdEmployeeColumns';
 import { IProduction } from '@/lib/models/production.model';
 import { GoPencil } from 'react-icons/go';
-import ProdEmployeesSelectModal from './ProdEmployeesSelectModal';
+import ProdSupervisorsSelectModal from './ProdSupervisorsSelectModal';
 
-type ProdEmployeesTableProps = {
+type ProdSupervisorsTableProps = {
    production: IProduction | null;
 }
 
-const ProdEmployeesTable = ({production}:ProdEmployeesTableProps) => {
-    const [openEmployees, setOpenEmployees] = useState(false);
+const ProdSupervisorsTable = ({production}:ProdSupervisorsTableProps) => {
+    const [openSupervisors, setOpenSupervisors] = useState(false);
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
-    const employees = (production?.employees || []) as unknown as IEmployee[];
+    const supervisors = (production?.supervisors || []) as unknown as IEmployee[];
 
     const isEditor = useCanUser('8', 'UPDATE');
 
@@ -26,7 +26,7 @@ const ProdEmployeesTable = ({production}:ProdEmployeesTableProps) => {
     const paginationModel = { page: 0, pageSize: 15 };
 
     const handleEdit = ()=>{
-        setOpenEmployees(true);
+        setOpenSupervisors(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -39,15 +39,15 @@ const ProdEmployeesTable = ({production}:ProdEmployeesTableProps) => {
   return (
     <div className='table-main2' >
        <div className="flex flex-row items-center gap-6">
-            <span className='font-bold text-base' >Employees</span>
+            <span className='font-bold text-base' >Supervisors</span>
             {
                 !(production?.status === 'Pending Approval' || production?.status === 'Approved') && isEditor &&
-                <Tooltip title="Edit production labourers">
+                <Tooltip title="Edit production supervisors">
                     <GoPencil onClick={handleEdit}  className="cursor-pointer text-blue-700" />
                 </Tooltip>
             }
         </div>
-        <ProdEmployeesSelectModal openEmployees={openEmployees} setOpenEmployees={setOpenEmployees} production={production} />
+        <ProdSupervisorsSelectModal openSupervisors={openSupervisors} setOpenSupervisors={setOpenSupervisors} production={production} />
         <div className="flex w-full">
             {
                 // loading ? 
@@ -57,7 +57,7 @@ const ProdEmployeesTable = ({production}:ProdEmployeesTableProps) => {
                     <DataGrid
                         // loading={isPending}
                         getRowId={(row:IEmployee)=>row._id}
-                        rows={employees}
+                        rows={supervisors}
                         columns={ProdEmployeeColumns()}
                         initialState={{ 
                             pagination: { paginationModel },
@@ -94,4 +94,4 @@ const ProdEmployeesTable = ({production}:ProdEmployeesTableProps) => {
   )
 }
 
-export default ProdEmployeesTable
+export default ProdSupervisorsTable
