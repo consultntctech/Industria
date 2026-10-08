@@ -1,6 +1,6 @@
-import { FaChevronUp } from "react-icons/fa"
+// import { FaChevronUp } from "react-icons/fa"
 import ModalContainer from "../ModalContainer"
-import { IoIosClose } from "react-icons/io"
+// import { IoIosClose } from "react-icons/io"
 import { useEffect, useRef, useState } from "react";
 import { IProduction } from "@/lib/models/production.model";
 import InputWithLabel from "../../inputs/InputWithLabel";
@@ -18,12 +18,11 @@ import CustomCheckV2 from "@/components/misc/CustomCheckV2";
 ;
 
 type OutputDetailsModalsProps = {
-    openNew:boolean;
-    setOpenNew: (open:boolean)=>void;
     production:IProduction | null;
+    // openWizard: (screen: number) => void;
 }
 
-const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModalsProps) => {
+const OutputDetailsModals = ({production}:OutputDetailsModalsProps) => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<IProduction>>({});
     const [useRate, setUseRate] = useState(false);
@@ -95,7 +94,7 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
           if(!res.error){
               formRef.current?.reset();
-              setOpenNew(false);
+            //   setOpenNew(false);
               window.location.reload();
           }
         } catch (error) {
@@ -110,7 +109,7 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
     const otherLabel = `Extra cost on production (${otherCurrency?.symbol || otherCurrency?.name})`;
 
   return (
-     <ModalContainer open={openNew} handleClose={()=>setOpenNew(false)}>
+     <ModalContainer open={true} handleClose={()=>{}}>
       <div className={`flex w-[90%] md:w-[50%]`}>
         <form ref={formRef} onSubmit={handleSubmit}  className="formBox p-4 flex-col gap-8 w-full relative" >
             <div className="flex flex-col gap-1">
@@ -146,12 +145,12 @@ const OutputDetailsModals = ({production, openNew, setOpenNew}:OutputDetailsModa
                 </div>
             </div>
     
-            <div className="flex w-fit transition-all absolute top-1 right-1 hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={()=>setOpenNew(false)} >
+            {/* <div className="flex w-fit transition-all absolute top-1 right-1 hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={()=>setOpenNew(false)} >
                 <IoIosClose className="text-red-700" />
             </div>
             <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={()=>setOpenNew(false)} >
                 <FaChevronUp />
-            </div>
+            </div> */}
         </form>
       </div>
     </ModalContainer>

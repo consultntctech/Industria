@@ -5,7 +5,6 @@ import Production, { IGoodInProduction, IProduction, ProdIngredient } from "../m
 import { respond } from "../misc";
 import { connectDB } from "../mongoose";
 import RMaterial, { IRMaterial } from "../models/rmaterial.mode";
-import mongoose from "mongoose";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import '../models/user.model'
 import '../models/product.model'
@@ -15,7 +14,8 @@ import '../models/labourer.model'
 import '../models/employee.model'
 import Alert, { IAlert } from "../models/alert.model";
 
-import { ClientSession, Types } from 'mongoose';
+import mongoose, { ClientSession, Types } from 'mongoose';
+
 import Product from "../models/product.model";
 import Good, { IGood } from "../models/good.model";
 
@@ -82,6 +82,16 @@ const buildUsageMap = (
   }
   return usage;
 };
+
+
+type ItemInput = {
+  materialId: string | Types.ObjectId | { _id: string | Types.ObjectId };
+  quantity: number;
+  weight?: number;
+};
+type Item = { materialId: string; quantity: number; weight: number };
+type AlertMeta = { createdBy?: unknown; org?: unknown };
+
 
 export async function createProduction(
   data: Partial<IProduction>
@@ -804,7 +814,7 @@ export async function getProductionsByOrg(orgId:string):Promise<IResponse>{
 }
 
 
-export async function updateProduction(data: Partial<IProduction>): Promise<IResponse> {
+export async function updateProductionV2(data: Partial<IProduction>): Promise<IResponse> {
     try {
         await connectDB();
 
@@ -837,6 +847,306 @@ export async function updateProduction(data: Partial<IProduction>): Promise<IRes
     }
 }
 
+
+
+
+
+
+
+// Normalizes ids to strings and merges duplicate materialIds so the maps below can't silently drop rows
+function normalizeItems(items?: ItemInput[]): Item[] {
+  const merged = new Map<string, Item>();
+  for (const i of items ?? []) {
+    const id =
+      typeof i.materialId === "string"
+        ? i.materialId
+        : i.materialId instanceof Types.ObjectId
+          ? i.materialId.toString()
+          : i.materialId._id.toString();
+
+    const prev = merged.get(id);
+    merged.set(id, {
+      materialId: id,
+      quantity: (prev?.quantity ?? 0) + i.quantity,
+      weight: (prev?.weight ?? 0) + (i.weight || 0),
+    });
+  }
+  return [...merged.values()];
+}
+
+// Quantity diffs drive stock changes. Weight changes only count as "changed".
+function diffItems(oldItems: Item[], newItems: Item[]) {
+  const oldMap = new Map(oldItems.map(i => [i.materialId, i]));
+  const newMap = new Map(newItems.map(i => [i.materialId, i]));
+  const qtyChanges = new Map<string, number>();
+  let changed = false;
+
+  for (const id of new Set([...oldMap.keys(), ...newMap.keys()])) {
+    const o = oldMap.get(id) ?? { quantity: 0, weight: 0 };
+    const n = newMap.get(id) ?? { quantity: 0, weight: 0 };
+    const qtyDiff = n.quantity - o.quantity;
+    if (qtyDiff !== 0) {
+      qtyChanges.set(id, qtyDiff);
+      changed = true;
+    }
+    if (n.weight !== o.weight) changed = true;
+  }
+  return { qtyChanges, changed };
+}
+
+function levelAlert(
+  remaining: number,
+  threshold: number,
+  labels: { critical: [string, string]; warning: [string, string] },
+  item: unknown,
+  itemModel: string,
+  meta: AlertMeta
+): Partial<IAlert> | null {
+  if (remaining <= threshold) {
+    return { title: labels.critical[0], body: labels.critical[1], type: "error", item, itemModel, ...meta } as Partial<IAlert>;
+  }
+  if (remaining <= threshold + 5) {
+    return { title: labels.warning[0], body: labels.warning[1], type: "warning", item, itemModel, ...meta } as Partial<IAlert>;
+  }
+  return null;
+}
+
+async function applyIngredientStock(
+  changes: Map<string, number>,
+  session: ClientSession,
+  meta: AlertMeta
+): Promise<Partial<IAlert>[]> {
+  if (changes.size === 0) return [];
+
+  const materials = await RMaterial.find(
+    { _id: { $in: [...changes.keys()].map(id => new Types.ObjectId(id)) } },
+    { materialName: 1, qAccepted: 1, product: 1 }
+  ).session(session).lean<IRawMaterialLean[]>();
+
+  const matMap = new Map(materials.map(m => [m._id.toString(), m]));
+  const productIds = new Set<string>();
+  const ops: any[] = [];
+
+  for (const [id, diff] of changes) {
+    const mat = matMap.get(id);
+    if (!mat) throw new Error(`Raw material not found: ${id}`);
+
+    if (diff > 0 && mat.qAccepted < diff) {
+      throw new Error(
+        `Insufficient stock for ${mat.materialName}. Available: ${mat.qAccepted}, Required: ${diff}`
+      );
+    }
+
+    ops.push({
+      updateOne: {
+        // the $gte guard protects against concurrent updates
+        filter: { _id: new Types.ObjectId(id), ...(diff > 0 ? { qAccepted: { $gte: diff } } : {}) },
+        update: { $inc: { qAccepted: -diff } },
+      },
+    });
+
+    mat.qAccepted -= diff; // local copy for alerts
+    if (diff > 0 && mat.product) productIds.add(mat.product.toString());
+  }
+
+  const res = await RMaterial.bulkWrite(ops, { session });
+  if (res.matchedCount !== ops.length) {
+    throw new Error("Raw material stock changed while updating. Please retry.");
+  }
+
+  const alerts: Partial<IAlert>[] = [];
+  const productObjIds = [...productIds].map(id => new Types.ObjectId(id));
+
+  const products = productObjIds.length
+    ? await Product.find({ _id: { $in: productObjIds } }, { threshold: 1 })
+        .session(session).lean<IProductLean[]>()
+    : [];
+  const thresholdMap = new Map(products.map(p => [p._id.toString(), p.threshold]));
+
+  // Product level alerts
+  if (productObjIds.length) {
+    const agg = await RMaterial.aggregate<IProductStockAgg>([
+      { $match: { product: { $in: productObjIds } } },
+      { $group: { _id: "$product", totalRemaining: { $sum: "$qAccepted" } } },
+    ]).session(session);
+
+    for (const row of agg) {
+      const threshold = thresholdMap.get(row._id.toString()) ?? 0;
+      const a = levelAlert(
+        row.totalRemaining,
+        threshold,
+        {
+          critical: ["Product Stock Critical", `Total remaining raw materials have reached the threshold (${row.totalRemaining}).`],
+          warning: ["Product Stock Warning", `Total remaining raw materials are low (${row.totalRemaining}).`],
+        },
+        row._id, "Product", meta
+      );
+      if (a) alerts.push(a);
+    }
+  }
+
+  // Raw material level alerts (only those whose stock went down)
+  for (const mat of materials) {
+    if ((changes.get(mat._id.toString()) ?? 0) <= 0) continue;
+    const threshold = mat.product ? thresholdMap.get(mat.product.toString()) ?? 0 : 0;
+    const a = levelAlert(
+      mat.qAccepted,
+      threshold,
+      {
+        critical: ["Raw Material Stock Critical", `${mat.materialName} has reached its threshold (${mat.qAccepted}).`],
+        warning: ["Raw Material Stock Warning", `${mat.materialName} is running low (${mat.qAccepted}).`],
+      },
+      mat._id, "RMaterial", meta
+    );
+    if (a) alerts.push(a);
+  }
+
+  return alerts;
+}
+
+async function applyGoodStock(
+  changes: Map<string, number>,
+  session: ClientSession,
+  meta: AlertMeta
+): Promise<Partial<IAlert>[]> {
+  if (changes.size === 0) return [];
+
+  const goods = await Good.find(
+    { _id: { $in: [...changes.keys()].map(id => new Types.ObjectId(id)) } },
+    { name: 1, raw: 1, threshold: 1 }
+  ).session(session).lean<IGoodLean[]>();
+
+  const goodMap = new Map(goods.map(g => [g._id.toString(), g]));
+  const ops: any[] = [];
+
+  for (const [id, diff] of changes) {
+    const good = goodMap.get(id);
+    if (!good) throw new Error(`Good not found: ${id}`);
+
+    if (diff > 0 && good.raw < diff) {
+      throw new Error(
+        `Insufficient raw stock for ${good.name}. Available: ${good.raw}, Required: ${diff}`
+      );
+    }
+
+    ops.push({
+      updateOne: {
+        filter: { _id: new Types.ObjectId(id), ...(diff > 0 ? { raw: { $gte: diff } } : {}) },
+        update: { $inc: { raw: -diff } },
+      },
+    });
+
+    good.raw -= diff;
+  }
+
+  const res = await Good.bulkWrite(ops, { session });
+  if (res.matchedCount !== ops.length) {
+    throw new Error("Raw stock changed while updating. Please retry.");
+  }
+
+  const alerts: Partial<IAlert>[] = [];
+  for (const good of goods) {
+    if ((changes.get(good._id.toString()) ?? 0) <= 0) continue;
+    const a = levelAlert(
+      good.raw,
+      good.threshold ?? 0,
+      {
+        critical: ["Processed Goods Stock Critical", `${good.name} has reached its raw threshold (${good.raw}).`],
+        warning: ["Processed Goods Stock Warning", `${good.name} is running low on raw stock (${good.raw}).`],
+      },
+      good._id, "Good", meta
+    );
+    if (a) alerts.push(a);
+  }
+  return alerts;
+}
+
+export async function updateProduction(data: Partial<IProduction>): Promise<IResponse> {
+  let session: ClientSession | null = null;
+
+  try {
+    await connectDB();
+
+    if (!data._id) return respond("Missing production ID", true, {}, 400);
+
+    session = await mongoose.startSession();
+    session.startTransaction();
+
+    const existing = await Production.findById(data._id).session(session);
+    if (!existing) {
+      await session.abortTransaction();
+      return respond("Production not found", true, {}, 404);
+    }
+
+    const oldStatus = existing.status;
+    const meta: AlertMeta = {
+      createdBy: data.createdBy ?? existing.createdBy,
+      org: data.org ?? existing.org,
+    };
+
+    // Split off the sections that need special handling. Everything else is a plain update.
+    const { _id, ingredients, goods, ...rest } = data;
+    const update: Record<string, unknown> = { ...rest };
+    const alerts: Partial<IAlert>[] = [];
+
+    // Ingredients (only if the caller sent them)
+    if (ingredients !== undefined) {
+      const oldItems = normalizeItems(existing.ingredients);
+      const newItems = normalizeItems(ingredients);
+      const { qtyChanges } = diffItems(oldItems, newItems);
+
+      alerts.push(...(await applyIngredientStock(qtyChanges, session, meta)));
+      update.ingredients = newItems;
+    }
+
+    // Goods (only if the caller sent them)
+    if (goods !== undefined) {
+      const oldItems = normalizeItems(existing.goods);
+      const newItems = normalizeItems(goods);
+      const { qtyChanges } = diffItems(oldItems, newItems);
+
+      alerts.push(...(await applyGoodStock(qtyChanges, session, meta)));
+      update.goods = newItems;
+    }
+
+    // Everything else, including labourerAllocations, costs, notes and status
+    const updated = await Production.findByIdAndUpdate(
+      _id,
+      { $set: update },
+      { new: true, session }
+    );
+
+    // Approval alert
+    if (updated && oldStatus !== "Approved" && updated.status === "Approved") {
+      alerts.push({
+        title: "Production Approved",
+        body: `Production ${updated.name} has been approved.`,
+        type: "success",
+        item: updated._id,
+        itemModel: "Production",
+        receiver: updated.createdBy,
+        createdBy: updated.createdBy,
+        org: updated.org,
+      } as Partial<IAlert>);
+    }
+
+    if (alerts.length) await Alert.insertMany(alerts, { session });
+
+    await session.commitTransaction();
+    return respond("Production updated successfully", false, updated, 200);
+  } catch (err) {
+    if (session?.inTransaction()) await session.abortTransaction();
+    const message = err instanceof Error ? err.message : "Unknown error";
+    console.error("Production update aborted:", message);
+    return respond(message, true, {}, 500);
+  } finally {
+    await session?.endSession();
+  }
+}
+
+
+
+
 export async function getProduction(id: string): Promise<IResponse> {
   try {
     await connectDB();
@@ -847,6 +1157,7 @@ export async function getProduction(id: string): Promise<IResponse> {
         { path: "productToProduce" },
         { path: "supervisors" },
         { path: "employees", populate: { path: "department" } },
+        { path: "labourerAllocations.labourer" },
         { path: "labourers" },
         { path: "original.currency" },
         { path: "createdBy" },

@@ -7,9 +7,10 @@ import ProdSupervisorsTable from "./ProdSupervisorsTable";
 
 type ProdWorkersCompProps = {
     production: IProduction | null;
+    openWizard: (screen: number) => void;
 }
 
-const ProdWorkersComp = ({ production }: ProdWorkersCompProps) => {
+const ProdWorkersComp = ({ production, openWizard }:ProdWorkersCompProps) => {
     const [activeTab, setActiveTab] = useState('first');
   return (
     <div className="flex flex-col gap-5" >
@@ -22,15 +23,15 @@ const ProdWorkersComp = ({ production }: ProdWorkersCompProps) => {
        
         {
             activeTab === 'first' &&
-            <ProdSupervisorsTable production={production} />
+            <ProdSupervisorsTable production={production} openWizard={openWizard} />
         }
         {
             activeTab === 'second' &&
-            <ProdEmployeesTable production={production} />
+            <ProdEmployeesTable production={production} openWizard={openWizard} />
         }
         {
             activeTab === 'third' &&
-            <ProductionLabourersTable production={production} />
+            <ProductionLabourersTable production={production} openWizard={openWizard} />
         }
     </div>
   )

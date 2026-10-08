@@ -8,7 +8,7 @@ import { IProdItem } from "./proditem.model";
 import { Schema } from "mongoose";
 import ProdApproval from "./prodapproval.model";
 import { IOriginalPrice } from "@/types/Types";
-import { ILabourer } from "./labourer.model";
+import { ILabourer } from './labourer.model';
 import Alert from "./alert.model";
 import { IEmployee } from "./employee.model";
 import Package from "./package.model";
@@ -32,13 +32,21 @@ export interface IGoodInProduction {
     weight: number;
 }
 
+export interface IProdLabourerAllocation {
+    labourer: string | Types.ObjectId | ILabourer;
+    hoursWorked: number;
+    cost: number;
+    isOverridden: boolean;
+}
+
 export interface IProduction extends Document {
     _id: string;
     name: string;
     supervisor: string | Types.ObjectId | IEmployee;
     supervisors: string[] | Types.ObjectId[] | IEmployee[];
     employees: string[] | Types.ObjectId[] | IEmployee[];
-    labourers: string[] | Types.ObjectId[] | ILabourer[];
+    // labourers: string[] | Types.ObjectId[] | ILabourer[];
+    labourerAllocations: IProdLabourerAllocation[];
     batch: string | Types.ObjectId | IBatch;
     productToProduce: string | Types.ObjectId | IProduct;
     status:string;
@@ -90,7 +98,13 @@ const ProductionSchema = new Schema<IProduction>({
     xquantity: { type: Number, required: false, default: 0 },
     rejQuantity: { type: Number, required: false, default: 0 },
     lossQuantity: { type: Number, required: false, default: 0 },
-    labourers: [{ type: Schema.Types.ObjectId, ref: 'Labourer', required: false }],
+    // labourers: [{ type: Schema.Types.ObjectId, ref: 'Labourer', required: false }],
+    labourerAllocations: [{
+        labourer: { type: Schema.Types.ObjectId, ref: 'Labourer', required: true },
+        hoursWorked: { type: Number, required: false },
+        cost: { type: Number, required: false },
+        isOverridden: { type: Boolean, required: false, default: false },
+    }],
     productionCost: { type: Number, required: false },
     labourCost: { type: Number, required: false, default: 0 },
     pCost: { type: Number, required: false, default: 0 },

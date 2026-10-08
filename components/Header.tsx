@@ -17,7 +17,7 @@ export const Header = () => {
   // console.log('Loading: ', updateLoading)
   // useEffect(() => {
   //   const update = async () => {
-  //     const res = await updateProductionSupervisors();
+  //     const res = await updateProductionLabourers();
   //     // console.log('Employee: ', res)
   //     // const res = await deleteAllEmployees();
   //     enqueueSnackbar(res?.message, {variant:res?.error ? 'error':'success'});

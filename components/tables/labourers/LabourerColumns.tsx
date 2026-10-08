@@ -40,6 +40,17 @@ export const LabourerColoumns = (
             width:150,
         },
         {
+            field: 'rate',
+            headerName: 'Hourly Rate',
+            width:100,
+            valueFormatter: (_, row:ILabourer)=>{
+                return row?.rate ? row?.rate.toFixed(4) : 0;
+            },
+            valueGetter: (_, row:ILabourer)=>{
+                return row?.rate ? row?.rate.toFixed(4) : 0;
+            },
+        },
+        {
             field: 'note',
             headerName: 'Note',
             width:250,

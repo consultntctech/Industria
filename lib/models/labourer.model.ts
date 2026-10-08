@@ -8,6 +8,7 @@ export interface ILabourer {
     address: string;
     phone: string;
     email: string;
+    rate: number;
     note: string;
     org: string | Types.ObjectId | IOrganization;
     creator: string;
@@ -21,6 +22,7 @@ const LabourerSchema = new Schema<ILabourer>({
     address:{type:String, required:true},
     phone:{type:String, required:true},
     email:{type:String, required:false},
+    rate:{type:Number, required:false},
     note:{type:String, required:false},
     org:{type:Schema.Types.ObjectId, ref:'Organization', required:true},
     creator:String,

@@ -9,7 +9,6 @@ import SearchSelectProducts from "../shared/inputs/dropdowns/SearchSelectProduct
 import { IProduct } from "@/lib/models/product.model";
 import SearchSelectAvMultipleRMaterials from "../shared/inputs/dropdowns/SearchSelectAvMultipleRMaterials";
 import { IRMaterial } from "@/lib/models/rmaterial.mode";
-import RMQSelector from "../misc/RMQSelector";
 import { IIngredient } from "@/types/Types";
 // import SearchSelectMultipleProdItems from "../shared/inputs/dropdowns/SearchSelectMultipleProdItems";
 import { IProduction } from "@/lib/models/production.model";
@@ -28,7 +27,9 @@ import SearchSelectMultipleEmployees from "../shared/inputs/dropdowns/SearchSele
 import SearchSelectBatchesWithFinshed from "../shared/inputs/dropdowns/SearchSelectBatchesWithFinshed";
 import { IGood } from "@/lib/models/good.model";
 import SearchSelectMultipleGoodsWithRM from "../shared/inputs/dropdowns/SearchSelectMultipleGoodsWithRM";
-import GoodQSelector from "../misc/GoodQSelector";
+// import GoodQSelector from "../misc/GoodQSelector";
+import GoodQSelectorV2 from "../shared/outputs/productionDetails/newProd/GoodQSelectorV2";
+import RMQSelectorV2 from "../shared/outputs/productionDetails/newProd/RMQSelectorV2";
 ;
 
 const NewProductionComp = () => {
@@ -291,12 +292,12 @@ const NewProductionComp = () => {
                                             rawMaterials.map((material, index)=>{
                                                 const ingredient = ingredients.find(ing => ing.materialId === material._id);
                                                 return (
-                                                <RMQSelector 
+                                                <RMQSelectorV2 
                                                     key={index} 
                                                     material={material} 
                                                     inputId={material?._id} 
                                                     onChangeInput={onChangeInput} 
-                                                    name={material?.materialName}
+                                                    // name={material?.materialName}
                                                     quantity={ingredient?.qUsed}
                                                     weight={ingredient?.weight}
                                                 />
@@ -323,12 +324,12 @@ const NewProductionComp = () => {
                                             goods.map((material, index)=>{
                                                 const ingredient = finishedIngredients.find(ing => ing.materialId === material._id);
                                                 return (
-                                                <GoodQSelector 
+                                                <GoodQSelectorV2 
                                                     key={index} 
                                                     material={material} 
                                                     inputId={material?._id} 
                                                     onChangeInput={onChangeFinishedInput} 
-                                                    name={material?.serialName}
+                                                    // name={material?.serialName}
                                                     quantity={ingredient?.qUsed}
                                                     weight={ingredient?.weight}
                                                 />

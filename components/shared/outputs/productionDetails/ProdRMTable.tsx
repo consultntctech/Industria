@@ -1,7 +1,6 @@
 import { Paper, Tooltip } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 // import { enqueueSnackbar } from 'notistack'
-import  { Dispatch, SetStateAction } from 'react'
 import {  IRMaterial, IRMaterialPopulate } from '@/lib/models/rmaterial.mode'
 // import { deleteRMaterial } from '@/lib/actions/rmaterial.action'
 import { ProdRMColumns } from './ProdRMColumn'
@@ -10,12 +9,11 @@ import { GoPencil } from 'react-icons/go'
 import { useCanUser } from '@/hooks/useAuth'
 
 type ProdRMTableProps = {
-    setOpenNew:Dispatch<SetStateAction<boolean>>;
-    // setOpenItem:Dispatch<SetStateAction<boolean>>;
     production: IProduction | null;
+    openWizard: (screen: number) => void;
 }
 
-const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
+const ProdRMTable = ({openWizard, production}:ProdRMTableProps) => {
 
     const materials = production?.ingredients as unknown as IRMaterialPopulate[];
     const isEditor = useCanUser('8', 'UPDATE');
@@ -28,11 +26,11 @@ const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
 
     const paginationModel = { page: 0, pageSize: 15 };
 
-    const handleEdit = ()=>{
-        setOpenNew(true);
-        // setOpenItem(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    // const handleEdit = ()=>{
+    //     setOpenNew(true);
+    //     // setOpenItem(false);
+    //     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // }
 
     
 
@@ -62,7 +60,7 @@ const ProdRMTable = ({setOpenNew, production}:ProdRMTableProps) => {
             {
                 !(production?.status === 'Pending Approval' || production?.status === 'Approved') && isEditor &&
                 <Tooltip title="Edit production content">
-                    <GoPencil onClick={handleEdit}  className="cursor-pointer text-blue-700" />
+                    <GoPencil onClick={()=>openWizard(2)}  className="cursor-pointer text-blue-700" />
                 </Tooltip>
             }
         </div>

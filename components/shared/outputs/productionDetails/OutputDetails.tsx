@@ -1,12 +1,12 @@
 import { IProduction } from "@/lib/models/production.model";
 import PrimaryButton from "../../buttons/PrimaryButton";
 import { useState } from "react";
-import OutputDetailsModals from "./OutputDetailsModals";
+// import OutputDetailsModals from "./OutputDetailsModals";
 import { FaPenToSquare } from "react-icons/fa6";
 import { useSettings } from "@/config/useSettings";
 import { Tooltip } from "@mui/material";
 import { enqueueSnackbar } from "notistack";
-import { updateProduction } from "@/lib/actions/production.action";
+import { updateProduction, updateProductionV2 } from "@/lib/actions/production.action";
 import DialogueAlet from "@/components/misc/DialogueAlet";
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
@@ -18,10 +18,11 @@ import {useCanUser } from "@/hooks/useAuth";;
 
 type OutputDetailsProps = {
     production: IProduction | null;
+    openWizard: (screen: number) => void;
 }
 
-const OutputDetails = ({production}:OutputDetailsProps) => {
-    const [openNew, setOpenNew] = useState(false);
+const OutputDetails = ({production, openWizard}:OutputDetailsProps) => {
+    // const [openNew, setOpenNew] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
     const {primaryColour} = useSettings();
     const {currency} = useCurrencyConfig();
@@ -45,7 +46,7 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
                 ...production,
                 status:'Pending Approval',
             };
-            const res = await updateProduction(updateData);
+            const res = await updateProductionV2(updateData);
             if(!res.error){
                 setOpenDialog(false);
                 const approvalData:Partial<IProdApproval> = {
@@ -68,6 +69,22 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
         }
     }
 
+    const closeProduction = async() =>{
+        try {
+            const updateData:Partial<IProduction> = {
+                ...production,
+                status:'Completed',
+            };
+            const res = await updateProduction(updateData);
+            if(!res.error){
+                enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
+                window.location.reload();
+            }
+        } catch (error) {
+            console.log(error);
+            enqueueSnackbar('Error occured while closing production', {variant:'error'});
+        }
+    }
 
   return (
      <div className="formBox p-3 flex-col gap-4 relative">
@@ -80,16 +97,16 @@ const OutputDetails = ({production}:OutputDetailsProps) => {
             </div>
             {
                 isEditor &&
-                <PrimaryButton onClick={()=>setOpenNew(true)} className="w-fit px-3" type="button" text="Complete Production" />
+                <PrimaryButton onClick={closeProduction} className="w-fit px-3" type="button" text="Complete Production" />
             }
             </>
         }
-        <OutputDetailsModals production={production} openNew={openNew} setOpenNew={setOpenNew} />
+        {/* <OutputDetailsModals production={production} openWizard={openWizard} /> */}
         <DialogueAlet open={openDialog} handleClose={()=>setOpenDialog(false)} agreeClick={handleAgreeClick} title={title} content={content} />
             {
                 ((production?.status === 'In Progress') || (production?.status === 'Completed')) &&
                 <Tooltip title="Edit Output Details">
-                    <FaPenToSquare onClick={()=>setOpenNew(true)} color={primaryColour} className='cursor-pointer absolute top-1 right-1' />
+                    <FaPenToSquare onClick={()=>openWizard(5)} color={primaryColour} className='cursor-pointer absolute top-1 right-1' />
                 </Tooltip>
             }
             {

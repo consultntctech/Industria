@@ -1,7 +1,8 @@
 'use client'
 import { PermissionGuard } from "@/hooks/permissions/PermissionProvider"
 import Title from "../misc/Title"
-import NewProductionComp from "../Views/NewProductionComp"
+// import NewProductionComp from "../Views/NewProductionComp"
+import NewProductionCompV2 from '../Views/NewProductionCompV2';
 
 const NewProduction = () => {
   return (
@@ -12,7 +13,8 @@ const NewProduction = () => {
             <Title showback={false} title="New" isLink={false} />
         </div>
         <PermissionGuard tableId={['8']} operation="CREATE" >
-          <NewProductionComp/>
+          {/* <NewProductionComp/> */}
+          <NewProductionCompV2/>
         </PermissionGuard>
     </div>
   )

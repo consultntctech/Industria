@@ -1,7 +1,7 @@
 import { useSettings } from '@/config/useSettings';
 import { IBatch } from '@/lib/models/batch.model';
 import { IProduct } from '@/lib/models/product.model';
-import { IProduction } from '@/lib/models/production.model';
+import { IProdLabourerAllocation, IProduction } from '@/lib/models/production.model';
 import { IUser } from '@/lib/models/user.model';
 import { Tooltip } from '@mui/material';
 import  { Dispatch, SetStateAction, useState } from 'react'
@@ -13,14 +13,16 @@ import { Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelp
 import { enqueueSnackbar } from 'notistack';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import { IOriginalPrice } from '@/types/Types';
+import { ILabourer } from '@/lib/models/labourer.model';
 // import { formatDate } from '@/functions/dates';
 
 type InputDetailsProps = {
     production: IProduction | null;
     setActiveTab: Dispatch<SetStateAction<string>>;
+    openWizard: (screen: number) => void;
 }
 
-const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
+const InputDetails = ({production, setActiveTab, openWizard}:InputDetailsProps) => {
     const [openNew, setOpenNew] = useState(false);
     const productToProduce = production?.productToProduce as IProduct;
     const batch = production?.batch as IBatch;
@@ -30,6 +32,8 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
     const {currency} = useCurrencyConfig();
     const original = production?.original as IOriginalPrice;
     const savedCurrency = original?.currency as IOtherCurrency;
+    const allocations = production?.labourerAllocations as IProdLabourerAllocation[];
+    const labourers = allocations.map((alloc)=>alloc.labourer as ILabourer);
 
     const isEditor = useCanUser('8', 'UPDATE');
     // const isRawReader = useCanUser('87', 'READ');
@@ -58,12 +62,14 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
       }
     }
 
+    
+
   return (
     <div className="formBox p-3 flex-col gap-4 relative">
         {
             !(production?.status === 'Pending Approval' || production?.status === 'Approved') && isEditor &&
             <Tooltip title="Edit Production Details">
-                <FaPenToSquare onClick={()=>setOpenNew(true)} color={primaryColour} className='cursor-pointer absolute top-1 right-1' />
+                <FaPenToSquare onClick={()=>openWizard(1)} color={primaryColour} className='cursor-pointer absolute top-1 right-1' />
             </Tooltip>
         }
         <InputDetailsModal production={production} openNew={openNew} setOpenNew={setOpenNew} />
@@ -92,7 +98,7 @@ const InputDetails = ({production, setActiveTab}:InputDetailsProps) => {
         </div>
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Labourers:</span>
-          <span onClick={handleClickOnLaboureres}  className="text-blue-600 underline cursor-pointer" >{Number(production?.labourers?.length || 0)}</span>
+          <span onClick={handleClickOnLaboureres}  className="text-blue-600 underline cursor-pointer" >{Number(labourers?.length || 0)}</span>
         </div>
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Products:</span>

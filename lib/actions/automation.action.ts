@@ -131,3 +131,22 @@ export async function updateProductionSupervisors(){
         console.log(error)
     }
 }
+
+
+// export async function updateProductionLabourers(){
+//     try {
+//         await connectDB();
+//         const productions = await Production.find();
+//         await Promise.all(
+
+//             productions.map((prod)=>Production.updateOne({_id:prod._id}, {labourerAllocations: prod?.labourers.map(item=>({
+//                 labourer: item,
+//                 hoursWorked: 0,
+//                 cost: 0,
+//                 isOverridden: false
+//             })) } )));
+//         return respond('All productions updated successfully', false, {}, 200);
+//     } catch (error) {
+//         console.log(error)
+//     }
+// }

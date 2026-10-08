@@ -57,6 +57,12 @@ const LabourerInfoModal = ({infoMode, setInfoMode, currentLabourer, setCurrentLa
                 <span className="mlabel">Address</span>
                 <span className="mtext">{currentLabourer?.address || 'None'}</span>
             </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Hourly Rate</span>
+                <span className="mtext">{currentLabourer?.rate ? currentLabourer?.rate.toFixed(4) : 0}</span>
+            </div>
+
+            
             
             {
                 isAdmin &&

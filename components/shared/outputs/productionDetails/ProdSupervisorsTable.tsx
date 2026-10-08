@@ -1,20 +1,21 @@
 import { Paper, Tooltip } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-import  { useState } from 'react'
+// import  { useState } from 'react'
 import { useAuth, useCanUser } from '@/hooks/useAuth'
 import { isSystemAdmin } from '@/Data/roles/permissions'
 import { IEmployee } from '@/lib/models/employee.model';
 import { ProdEmployeeColumns } from './ProdEmployeeColumns';
 import { IProduction } from '@/lib/models/production.model';
 import { GoPencil } from 'react-icons/go';
-import ProdSupervisorsSelectModal from './ProdSupervisorsSelectModal';
+// import ProdSupervisorsSelectModal from './ProdSupervisorsSelectModal';
 
 type ProdSupervisorsTableProps = {
    production: IProduction | null;
+   openWizard: (screen: number) => void;
 }
 
-const ProdSupervisorsTable = ({production}:ProdSupervisorsTableProps) => {
-    const [openSupervisors, setOpenSupervisors] = useState(false);
+const ProdSupervisorsTable = ({production, openWizard}:ProdSupervisorsTableProps) => {
+    // const [openSupervisors, setOpenSupervisors] = useState(false);
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
     const supervisors = (production?.supervisors || []) as unknown as IEmployee[];
@@ -25,10 +26,10 @@ const ProdSupervisorsTable = ({production}:ProdSupervisorsTableProps) => {
 
     const paginationModel = { page: 0, pageSize: 15 };
 
-    const handleEdit = ()=>{
-        setOpenSupervisors(true);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    // const handleEdit = ()=>{
+    //     setOpenSupervisors(true);
+    //     window.scrollTo({ top: 0, behavior: 'smooth' });
+    // }
 
 
 
@@ -43,11 +44,11 @@ const ProdSupervisorsTable = ({production}:ProdSupervisorsTableProps) => {
             {
                 !(production?.status === 'Pending Approval' || production?.status === 'Approved') && isEditor &&
                 <Tooltip title="Edit production supervisors">
-                    <GoPencil onClick={handleEdit}  className="cursor-pointer text-blue-700" />
+                    <GoPencil onClick={()=>openWizard(4)}  className="cursor-pointer text-blue-700" />
                 </Tooltip>
             }
         </div>
-        <ProdSupervisorsSelectModal openSupervisors={openSupervisors} setOpenSupervisors={setOpenSupervisors} production={production} />
+        {/* <ProdSupervisorsSelectModal openSupervisors={openSupervisors} setOpenSupervisors={setOpenSupervisors} production={production} /> */}
         <div className="flex w-full">
             {
                 // loading ? 

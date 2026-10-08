@@ -8,9 +8,10 @@ import ProductionGoodsModal from "./ProductionGoodsModal";
 
 type ProdProductsCompProps = {
     production: IProduction | null;
+    openWizard: (screen: number) => void;
 }
 
-const ProdProductsComp = ({ production }: ProdProductsCompProps) => {
+const ProdProductsComp = ({ production, openWizard }:ProdProductsCompProps) => {
     const [activeTab, setActiveTab] = useState('first');
     const [openNew, setOpenNew] = useState(false);
     const [openGoods, setOpenGoods] = useState(false);
@@ -25,11 +26,11 @@ const ProdProductsComp = ({ production }: ProdProductsCompProps) => {
         <ProductionGoodsModal openGoods={openGoods} setOpenGoods={setOpenGoods}  production={production} />
         {
             activeTab === 'first' &&
-            <ProdRMTable setOpenNew={setOpenNew}  production={production} />
+            <ProdRMTable openWizard={openWizard}  production={production}  />
         }
         {
             activeTab === 'second' &&
-            <ProdGoodTable setOpenGoods={setOpenGoods}  production={production} />
+            <ProdGoodTable openWizard={openWizard}  production={production} />
         }
     </div>
   )

@@ -92,7 +92,7 @@ const SearchSelectMultipleGoodsWithRM = ({setSelection, batchId,  width, require
                 {...params}
                 required={required}
                 size="small"
-                label= "Raw Materials"
+                label= "Processed Materials"
                 color="primary"
                 // defaultValue={value}
                 className="rounded"

@@ -113,14 +113,17 @@ const LabourersComp = ({openNew, setOpenNew, currentLabourer, setCurrentLabourer
           </div>
 
           <div className="flex gap-4 flex-col w-full justify-between">
-            {
-              openNew && isAdmin &&
-              <GenericLabel
-                label='Select organization'
-                input={<SearchSelectOrgs value={organization}  setOrgId={setOrg} required={!!currentLabourer} />}
-              />
-            }
-            <TextAreaWithLabel defaultValue={currentLabourer?.note} name="note" onChange={onChange} placeholder="enter note" label="Additional Note" className="w-full" />
+            <div className="flex gap-4 flex-col w-full">
+              <InputWithLabel defaultValue={currentLabourer?.rate} onChange={onChange} name="rate"  type="number" min={0} step={0.0001} placeholder="enter rate" label="Hourly rate" className="w-full" />
+              {
+                openNew && isAdmin &&
+                <GenericLabel
+                  label='Select organization'
+                  input={<SearchSelectOrgs value={organization}  setOrgId={setOrg} required={!!currentLabourer} />}
+                />
+              }
+              <TextAreaWithLabel defaultValue={currentLabourer?.note} name="note" onChange={onChange} placeholder="enter note" label="Additional Note" className="w-full" />
+            </div>
             {
               (isCreator || isEditor) &&
               <PrimaryButton disabled={currentLabourer ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentLabourer ? "Update" : "Submit"} className="w-full mt-4" />
