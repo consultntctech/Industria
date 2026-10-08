@@ -237,7 +237,6 @@ const NewProductionCompV2 = () => {
         labourCost: labourCostInCurrency,
         extraCost: 0,
         pCost: pCostInCurrency,
-        labourers: labourers?.map((lab) => lab._id),
         labourerAllocations: Object.values(labourAllocations).map((alloc) => ({labourer: alloc.labourerId, hoursWorked: alloc.hoursWorked, cost: alloc.totalCost, isOverridden: alloc.isOverridden})),  
         productionCost: finalPrice,
         original: {

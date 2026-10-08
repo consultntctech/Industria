@@ -20,8 +20,8 @@ import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import SearchSelectBatchesWithRM from "../shared/inputs/dropdowns/SearchSelectBatchesWithRM";
 import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
-import SearchSelectMultipleLabourers from "../shared/inputs/dropdowns/SearchSelectMultipleLabourers";
-import { ILabourer } from "@/lib/models/labourer.model";
+// import SearchSelectMultipleLabourers from "../shared/inputs/dropdowns/SearchSelectMultipleLabourers";
+// import { ILabourer } from "@/lib/models/labourer.model";
 import { IEmployee } from "@/lib/models/employee.model";
 import SearchSelectMultipleEmployees from "../shared/inputs/dropdowns/SearchSelectMultipleEmployees";
 import SearchSelectBatchesWithFinshed from "../shared/inputs/dropdowns/SearchSelectBatchesWithFinshed";
@@ -47,7 +47,7 @@ const NewProductionComp = () => {
     // const [totalProd, setTotalProd] = useState(0);
     const [productionCost, setProductionCost] = useState(0);
     const [userOverrodeCost, setUserOverrodeCost] = useState(false);
-    const [labourers, setLabourers] = useState<ILabourer[]>([]);
+    // const [labourers, setLabourers] = useState<ILabourer[]>([]);
     const [employees, setEmployees] = useState<IEmployee[]>([]);
     const [goodBatch, setGoodBatch] = useState<string>('');
     const [goods, setGoods] = useState<IGood[]>([]);
@@ -146,7 +146,7 @@ const NewProductionComp = () => {
                 labourCost,
                 extraCost:0,
                 pCost,
-                labourers: labourers?.map(lab=>lab._id),
+                // labourers: labourers?.map(lab=>lab._id),
                 productionCost: finalPrice,
                 original:{
                     amount: rawCost,
@@ -257,10 +257,10 @@ const NewProductionComp = () => {
                             label="Select employees"
                             input={<SearchSelectMultipleEmployees  setSelection={setEmployees} placeholder="employees" showMe={true} />}
                         />
-                        <GenericLabel
+                        {/* <GenericLabel
                             label="Select labourers"
                             input={<SearchSelectMultipleLabourers  setSelection={setLabourers} placeholder="labourers" />}
-                        />
+                        /> */}
                         <GenericLabel
                             label="Product to produce"
                             input={<SearchSelectProducts type="Finished Good" required={true} setSelect={setProductToProduce} />}

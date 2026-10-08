@@ -1,5 +1,5 @@
 import { IProduction } from "@/lib/models/production.model";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction,  useRef, useState } from "react";
 import ModalContainer from "../ModalContainer";
 import PrimaryButton from "../../buttons/PrimaryButton";
 import { useCanUser } from "@/hooks/useAuth";
@@ -7,9 +7,9 @@ import { IoIosClose } from "react-icons/io";
 import { FaChevronUp } from "react-icons/fa";
 import { updateProduction } from "@/lib/actions/production.action";
 import { enqueueSnackbar } from "notistack";
-import GenericLabel from "../../inputs/GenericLabel";
-import { ILabourer } from "@/lib/models/labourer.model";
-import SearchSelectMultipleLabourers from "../../inputs/dropdowns/SearchSelectMultipleLabourers";
+// import GenericLabel from "../../inputs/GenericLabel";
+// import { ILabourer } from "@/lib/models/labourer.model";
+// import SearchSelectMultipleLabourers from "../../inputs/dropdowns/SearchSelectMultipleLabourers";
 
 type ProdLabourersSelectModalProps = {
     openLab:boolean;
@@ -19,17 +19,17 @@ type ProdLabourersSelectModalProps = {
 
 const ProdLabourersSelectModal = ({ openLab, setOpenLab, production }: ProdLabourersSelectModalProps) => {
     const [loading, setLoading] = useState(false);
-    const [labourers, setLabourers] = useState<ILabourer[]>([]);
+    // const [labourers, setLabourers] = useState<ILabourer[]>([]);
     const isEditor = useCanUser('8', 'UPDATE');
-    const labs = production?.labourers as ILabourer[];
+    // const labs = production?.labourers as ILabourer[];
 
     const formRef = useRef<HTMLFormElement>(null);
 
-    useEffect(()=>{
-        if(production){
-            setLabourers(labs);
-        }
-    }, [production])
+    // useEffect(()=>{
+    //     if(production){
+    //         setLabourers(labs);
+    //     }
+    // }, [production])
 
     const handleClose = ()=>{
         setOpenLab(false);
@@ -42,7 +42,7 @@ const ProdLabourersSelectModal = ({ openLab, setOpenLab, production }: ProdLabou
         try {
             const prodData:Partial<IProduction> = {
                 ...production,
-                labourers: labourers.map(lab=>lab._id),
+                // labourers: labourers.map(lab=>lab._id),
             }
            const res = await updateProduction(prodData);
            enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -74,10 +74,10 @@ const ProdLabourersSelectModal = ({ openLab, setOpenLab, production }: ProdLabou
                             {
                                openLab &&
                                 <>
-                                    <GenericLabel
+                                    {/* <GenericLabel
                                         label="Select labourers"
                                         input={<SearchSelectMultipleLabourers placeholder="labourers" value={labs} setSelection={setLabourers} />}
-                                    />
+                                    /> */}
                                     
                                 </>
                             }
