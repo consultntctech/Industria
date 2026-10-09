@@ -219,7 +219,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
                         
                         {/* <InputWithLabel onChange={onChange} name="unitCost" required type="number" min={0} placeholder="enter price" label="Unit cost" className="w-full" /> */}
                         {/* <InputWithLabel value={quantity} onChange={onChange} readOnly max={ (good?.quantityLeftToPackage || 0) + (accepted||0)}   name="quantity" type="number" min={0} placeholder="enter quantity" label="Quantity to package" className="w-full" /> */}
-                        <InputWithLabel defaultValue={pack?.rejected} step={0.0001} onChange={onChange} name="rejected" type="number" readOnly   label="No. of goods rejected" className="w-full" />
+                        <InputWithLabel defaultValue={pack?.rejected} step={0.01} onChange={onChange} name="rejected" type="number" readOnly   label="No. of goods rejected" className="w-full" />
                         {
                             (newGoods.length > 0) && quantity > 0 &&
                             <InputWithLabel value={accepted} readOnly onChange={onChange} name="accepted" type="number"  label="No. of goods for sales" className="w-full" />

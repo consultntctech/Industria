@@ -110,7 +110,7 @@ const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setC
                         showRate &&
                         <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
                     }
-                    <InputWithLabel step={0.0001} defaultValue={price} onChange={(e)=>setPrice(Number(e.target.value))} name="price" placeholder="eg. S1234" label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                    <InputWithLabel step={0.01} min={0} defaultValue={price} onChange={(e)=>setPrice(Number(e.target.value))} name="price" placeholder="eg. S1234" label={otherCurrency ? otherLabel : costLabel} className="w-full" />
                     {
                         otherCurrency &&
                         <InputWithLabel readOnly value={cost} placeholder="eg. S1234" label={costLabel} className="w-full" />

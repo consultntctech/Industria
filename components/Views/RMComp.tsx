@@ -249,25 +249,25 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
                 showRate &&
                 <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
               }
-              <InputWithLabel step={0.0001} required={!currentMaterial} defaultValue={currentMaterial?.unitPrice} onChange={onChange} name="unitPrice"  type="number" min={0} placeholder="eg. 25" label="Enter unit price" className="w-full" />
-              <InputWithLabel step={0.0001} required={!currentMaterial} defaultValue={currentMaterial?.qReceived} onChange={onChange} name="qReceived" type="number" min={0} placeholder="eg. 1000" label="Quantity received" className="w-full" />
+              <InputWithLabel step={0.01} required={!currentMaterial} defaultValue={currentMaterial?.unitPrice} onChange={onChange} name="unitPrice"  type="number" min={0} placeholder="eg. 25" label="Enter unit price" className="w-full" />
+              <InputWithLabel step={0.01} required={!currentMaterial} defaultValue={currentMaterial?.qReceived} onChange={onChange} name="qReceived" type="number" min={0} placeholder="eg. 1000" label="Quantity received" className="w-full" />
             </div>
 
             <div className="flex gap-4 flex-col w-full justify-between">
               <div className="flex flex-col gap-4 w-full">
-              <InputWithLabel step={0.0001} onChange={onChange} defaultValue={currentMaterial?.qRejected || 0} name="qRejected" type="number" min={0} placeholder="eg. 50" label="Quantity rejected" className="w-full" />
+              <InputWithLabel step={0.01} onChange={onChange} defaultValue={currentMaterial?.qRejected || 0} name="qRejected" type="number" min={0} placeholder="eg. 50" label="Quantity rejected" className="w-full" />
                 {
                     showReason &&
                     <TextAreaWithLabel defaultValue={currentMaterial?.reason} name="reason" onChange={onChange} placeholder="enter reason for rejection (if any)" label="Reason for rejection" className="w-full" />
                 }
-                <InputWithLabel step={0.0001} defaultValue={currentMaterial?.charges} onChange={onChange} name="charges"  type="number" min={0} placeholder="eg. 20" label="Addtional Charges" className="w-full" />
-                <InputWithLabel step={0.0001} defaultValue={currentMaterial?.discount} onChange={onChange} name="discount"  type="number" min={0} placeholder="eg. 20" label="Discount" className="w-full" />
-                <InputWithLabel step={0.0001} value={originalAmount} readOnly   type="number"  label={otherCurrency? otherLabel : currencyLabel} className="w-full" />
+                <InputWithLabel step={0.01} defaultValue={currentMaterial?.charges} onChange={onChange} name="charges"  type="number" min={0} placeholder="eg. 20" label="Addtional Charges" className="w-full" />
+                <InputWithLabel step={0.01} defaultValue={currentMaterial?.discount} onChange={onChange} name="discount"  type="number" min={0} placeholder="eg. 20" label="Discount" className="w-full" />
+                <InputWithLabel step={0.01} value={originalAmount} readOnly   type="number"  label={otherCurrency? otherLabel : currencyLabel} className="w-full" />
                 {
                   otherCurrency &&
-                  <InputWithLabel step={0.0001} value={price} readOnly  name="price"  type="number"  label={currencyLabel} className="w-full" />
+                  <InputWithLabel step={0.01} value={price} readOnly  name="price"  type="number"  label={currencyLabel} className="w-full" />
                 }
-                <InputWithLabel onChange={onChange} step={0.0001} defaultValue={currentMaterial?.weight || 0} required={!currentMaterial}  name="weight"  type="number"  label="Total weight" className="w-full" />
+                <InputWithLabel onChange={onChange} step={0.01} defaultValue={currentMaterial?.weight || 0} required={!currentMaterial}  name="weight"  type="number"  label="Total weight" className="w-full" />
                 <TextAreaWithLabel defaultValue={currentMaterial?.note} name="note" onChange={onChange} placeholder="enter note" label="Note" className="w-full" />
               </div>
               {

@@ -40,8 +40,8 @@ const GoodQSelectorV2: React.FC<GoodQSelectorV2Props> = ({
           <input
             id={`qty-${inputId}`}
             type="number"
-            min={0.0001}
-            step={0.0001}
+            min={0}
+            step={0.01}
             required
             max={material?.raw}
             name={`qty-${inputId}`}
@@ -58,8 +58,8 @@ const GoodQSelectorV2: React.FC<GoodQSelectorV2Props> = ({
           <input
             id={`wt-${inputId}`}
             type="number"
-            step="0.0001"
-            min={0.0001}
+            step="0.01"
+            min={0}
             required
             name={`wt-${inputId}`}
             value={weight || ""}

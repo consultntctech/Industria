@@ -219,7 +219,7 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
                                 showRate &&
                                 <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
                             }
-                            <InputWithLabel value={cost} onChange={changeCost} step={0.00001} name="cost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                            <InputWithLabel value={cost} onChange={changeCost} step={0.01} name="cost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
                             {
                                 otherCurrency &&
                                 <InputWithLabel value={price} readOnly type="number" min={1} placeholder={`${currency?.symbol}1000`} label={costLabel} className="w-full" />

@@ -209,8 +209,8 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
                                     }
                                 </div>
                                 <div className="flex gap-4 flex-col w-full md:flex-row ">
-                                    <InputWithLabel  min={0} step={0.0001} label={otherCurrency ? discountOtherLabel : discountLabel} type="number" onChange={handlecostChange} name="discount" />
-                                    <InputWithLabel min={0} step={0.0001} label={otherCurrency ? chargeOtherLabel : chargeLabel} type="number" onChange={handlecostChange} name="charges" />
+                                    <InputWithLabel  min={0} step={0.01} label={otherCurrency ? discountOtherLabel : discountLabel} type="number" onChange={handlecostChange} name="discount" />
+                                    <InputWithLabel min={0} step={0.01} label={otherCurrency ? chargeOtherLabel : chargeLabel} type="number" onChange={handlecostChange} name="charges" />
                                 </div>
                                 {
                                     otherCurrency && otherCurrency?.type !== 'default' &&

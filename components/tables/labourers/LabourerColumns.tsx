@@ -44,10 +44,10 @@ export const LabourerColoumns = (
             headerName: 'Hourly Rate',
             width:100,
             valueFormatter: (_, row:ILabourer)=>{
-                return row?.rate ? row?.rate.toFixed(4) : 0;
+                return row?.rate ? row?.rate.toFixed(2) : 0;
             },
             valueGetter: (_, row:ILabourer)=>{
-                return row?.rate ? row?.rate.toFixed(4) : 0;
+                return row?.rate ? row?.rate.toFixed(2) : 0;
             },
         },
         {

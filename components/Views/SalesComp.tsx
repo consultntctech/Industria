@@ -230,14 +230,14 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                         </div>
 
                         <div className="flex gap-4 flex-col w-full md:flex-row ">
-                            <InputWithLabel defaultValue={currentSales?.discount} min={0} step={0.0001} label={otherCurrency ? discountOtherLabel : discountLabel} type="number" onChange={onChange} name="discount" />
-                            <InputWithLabel defaultValue={currentSales?.charges} min={0} step={0.0001} label={otherCurrency ? chargeOtherLabel : chargeLabel} type="number" onChange={onChange} name="charges" />
+                            <InputWithLabel defaultValue={currentSales?.discount} min={0} step={0.01} label={otherCurrency ? discountOtherLabel : discountLabel} type="number" onChange={onChange} name="discount" />
+                            <InputWithLabel defaultValue={currentSales?.charges} min={0} step={0.01} label={otherCurrency ? chargeOtherLabel : chargeLabel} type="number" onChange={onChange} name="charges" />
                         </div>
                         {
                             otherCurrency && otherCurrency?.type !== 'default' &&
                             <div className="flex gap-4 flex-col w-full md:flex-row ">
-                                <InputWithLabel value={discount} min={0} step={0.0001} label={discountLabel} type="number" readOnly name="discount" />
-                                <InputWithLabel value={charge} min={0} step={0.0001} label={chargeLabel} type="number" readOnly name="charges" />
+                                <InputWithLabel value={discount} min={0} step={0.01} label={discountLabel} type="number" readOnly name="discount" />
+                                <InputWithLabel value={charge} min={0} step={0.01} label={chargeLabel} type="number" readOnly name="charges" />
                             </div>
                         }
                         {

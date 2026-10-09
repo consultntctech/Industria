@@ -111,7 +111,7 @@ const StepMaterialsAndGoods: React.FC<StepMaterialsAndGoodsProps> = ({
       </div>
 
       <InputWithLabel
-        step={0.0001}
+        step={0.01}
         value={productionCost}
         onChange={onchangeProdCost}
         name="productionCost"

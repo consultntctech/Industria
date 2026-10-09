@@ -339,8 +339,8 @@ const NewProductionComp = () => {
                                     </div>
                                 </div>
                             }
-                            <InputWithLabel step={0.0001} value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
-                            <InputWithLabel step={0.0001} onChange={onChange} name="labourCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabourLabel : labourLabel} className="w-full" />
+                            <InputWithLabel step={0.01} value={productionCost} onChange={onchangeProdCost} name="productionCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                            <InputWithLabel step={0.01} onChange={onChange} name="labourCost" type="number" min={1} placeholder={`${currency?.symbol}1000`} label={otherCurrency ? otherLabourLabel : labourLabel} className="w-full" />
                             {
                                 otherCurrency  && otherCurrency?.type !== 'default' &&
                                 <InputWithLabel value={finalPrice} readOnly type="number" min={1} placeholder={`${currency?.symbol}1000`} label={totalLabel} className="w-full" />

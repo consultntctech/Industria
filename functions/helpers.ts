@@ -2,6 +2,7 @@
 import { ILineItem } from "@/lib/models/lineitem.model";
 import { IOrder } from "@/lib/models/order.model";
 import { IProduct } from "@/lib/models/product.model";
+import { IProduction } from "@/lib/models/production.model";
 import { IRMaterial } from "@/lib/models/rmaterial.mode";
 import { IRole } from "@/lib/models/role.model";
 import { INavBarItem } from "@/types/NavBar.types";
@@ -271,3 +272,12 @@ export const getWeight = (material:IRMaterial, ingredients:IIngredient[])=>{
 }
 
 
+
+export const hasChangedOutput = (production:IProduction|null, data:Partial<IProduction>):boolean=>{
+  if(production?.outputQuantity?.toString()?.trim() !== data?.outputQuantity?.toString()?.trim()?.trim()) return true;
+  if(production?.rejQuantity?.toString()?.trim() !== data?.rejQuantity?.toString()?.trim()?.trim()) return true;
+  if(production?.lossQuantity?.toString()?.trim() !== data?.lossQuantity?.toString()?.trim()?.trim()) return true;
+  if(production?.extraCost?.toString()?.trim() !== data?.extraCost?.toString()?.trim()?.trim()) return true;
+  if(production?.notes?.trim() !== data?.notes?.trim()?.trim()) return true;
+  return false;
+}

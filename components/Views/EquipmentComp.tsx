@@ -225,11 +225,11 @@ const EquipmentComp = ({openNew, setOpenNew, setCurrentEquipment, currentEquipme
                   showRate &&
                   <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
                 }
-                <InputWithLabel step={0.0001} required={!currentEquipment} defaultValue={original?.amount} onChange={(e)=>setOriginalAmount(Number(e.target.value))} name="originalAmount"  type="number" min={0} placeholder="eg. 25" label={otherCurrency ? otherLabel : currencyLabel} className="w-full" />
+                <InputWithLabel step={0.01} required={!currentEquipment} defaultValue={original?.amount} onChange={(e)=>setOriginalAmount(Number(e.target.value))} name="originalAmount"  type="number" min={0} placeholder="eg. 25" label={otherCurrency ? otherLabel : currencyLabel} className="w-full" />
                 
                 {
                   otherCurrency && otherCurrency?.type !== 'default' &&
-                  <InputWithLabel step={0.0001} value={price} readOnly  name="price"  type="number"  label={currencyLabel} className="w-full" />
+                  <InputWithLabel step={0.01} value={price} readOnly  name="price"  type="number"  label={currencyLabel} className="w-full" />
                 }
                 <TextAreaWithLabel defaultValue={currentEquipment?.description} name="description" onChange={onChange} placeholder="enter note" label="Note" className="w-full" />
               </div>

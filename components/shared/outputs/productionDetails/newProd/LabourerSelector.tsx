@@ -56,8 +56,8 @@ const LabourerSelector: React.FC<LabourerSelectorProps> = ({
           <label className="block text-xs font-medium text-slate-500 mb-1">{label}</label>
           <input
             type="number"
-            min={0.0001}
-            step={0.0001}
+            min={0}
+            step={0.01}
             value={allocation.hoursWorked || ""}
             onChange={handleHoursChange}
             placeholder="0"
@@ -85,7 +85,7 @@ const LabourerSelector: React.FC<LabourerSelectorProps> = ({
             <input
               type="number"
               min={0}
-              step={0.0001}
+              step={0.01}
               value={allocation.totalCost || ""}
               onChange={handleCostChange}
               placeholder="0.00"

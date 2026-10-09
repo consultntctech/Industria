@@ -146,7 +146,7 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
             helperText={`You can only deem ${goodCount} raw materials`}
             slotProps={{
                 htmlInput:{
-                    min:0, max: goodCount, step:0.0001
+                    min:0, max: goodCount, step:0.01
                 }
             }}
         />

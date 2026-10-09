@@ -114,7 +114,7 @@ const LabourersComp = ({openNew, setOpenNew, currentLabourer, setCurrentLabourer
 
           <div className="flex gap-4 flex-col w-full justify-between">
             <div className="flex gap-4 flex-col w-full">
-              <InputWithLabel defaultValue={currentLabourer?.rate} onChange={onChange} name="rate"  type="number" min={0} step={0.0001} placeholder="enter rate" label="Hourly rate" className="w-full" />
+              <InputWithLabel defaultValue={currentLabourer?.rate} onChange={onChange} name="rate"  type="number" min={0} step={0.01} placeholder="enter rate" label="Hourly rate" className="w-full" />
               {
                 openNew && isAdmin &&
                 <GenericLabel

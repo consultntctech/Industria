@@ -60,6 +60,7 @@ const NewProductionCompV2 = () => {
 
   const [data, setData] = useState<Partial<IProduction>>({});
   const [totalPrice, setTotalPrice] = useState(0);
+  const [disableBtn, setDisableBtn] = useState(false);
 
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
@@ -250,6 +251,7 @@ const NewProductionCompV2 = () => {
       const res = await createProduction(prodData);
       enqueueSnackbar(res.message, { variant: res.error ? "error" : "success" });
       if (!res.error) {
+        setDisableBtn(true);
         formRef.current?.reset();
         const payload = res.payload as IProduction;
         router.push(`/dashboard/processing/production/${payload?._id}`);
@@ -451,7 +453,7 @@ const validateAndNext = () => {
           ) : (
             isCreator && (
               <PrimaryButton
-                disabled={!isCreator || loading}
+                disabled={!isCreator || loading || disableBtn}
                 loading={loading}
                 type="button"
                 onClick={() => formRef.current?.requestSubmit()}

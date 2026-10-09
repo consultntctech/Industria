@@ -320,7 +320,7 @@ const NewPackageComp = () => {
                 
                 {/* <InputWithLabel onChange={onChange} name="unitCost" required type="number" min={0} placeholder="enter price" label="Unit cost" className="w-full" /> */}
                 {/* <InputWithLabel onChange={onChange} max={ good?.quantityLeftToPackage}   name="quantity" required type="number" min={0} placeholder="enter quantity" label="Quantity to package" className="w-full" /> */}
-                <InputWithLabel onChange={onChange} step={0.0001} name="rejected" type="number" max={quantity}   label="No. of goods rejected" className="w-full" />
+                <InputWithLabel onChange={onChange} step={0.01} name="rejected" type="number" max={quantity}   label="No. of goods rejected" className="w-full" />
                 {
                     goods && (quantity > 0) &&
                     <InputWithLabel value={accepted} readOnly onChange={onChange} name="accepted" type="number"  label="No. of goods for sales" className="w-full" />
@@ -329,7 +329,7 @@ const NewPackageComp = () => {
 
             <div className="flex gap-4 flex-col w-full justify-between">
                 <div className="flex flex-col gap-4 w-full">
-                    <InputWithLabel onChange={onChange} step={0.0001}  name="weight" required  placeholder="eg. 25kg" label="Package weight" className="w-full" />
+                    <InputWithLabel onChange={onChange} step={0.01}  name="weight" required  placeholder="eg. 25kg" label="Package weight" className="w-full" />
                     <GenericLabel
                         label="Storage"
                         input={<SearchSelectMultipleStorages  setSelection={setStorages} placeholder='Storage locations' />}

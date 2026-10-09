@@ -24,8 +24,8 @@ const RMQSelector = ({material, quantity, weight, inputId, onChangeInput, name, 
   return (
     <div className={`border-[0.5px] flex flex-row items-end gap-2 border-gray-200 p-2 rounded relative ${className}`} {...props}>
         <span className="smallText" >{`${product?.name || material?.materialName} (${batch?.code})`}</span>
-        <input className="border-b border-gray-300 outline-none text-center w-24" required value={qtyValue} placeholder="Quantity" name={`qty-${inputId}`} id={`qty-${inputId}`} onChange={onChangeInput} step={0.0001} type="number" max={material?.qAccepted} min={0} />
-        <input className="border-b border-gray-300 outline-none text-center w-24" required value={wtValue} placeholder="Weight" name={`wt-${inputId}`} id={`wt-${inputId}`} onChange={onChangeInput} type="number" min={0} step="0.0001" />
+        <input className="border-b border-gray-300 outline-none text-center w-24" required value={qtyValue} placeholder="Quantity" name={`qty-${inputId}`} id={`qty-${inputId}`} onChange={onChangeInput} step={0.01} type="number" max={material?.qAccepted} min={0} />
+        <input className="border-b border-gray-300 outline-none text-center w-24" required value={wtValue} placeholder="Weight" name={`wt-${inputId}`} id={`wt-${inputId}`} onChange={onChangeInput} type="number" min={0} step="0.01" />
     </div>
   )
 }

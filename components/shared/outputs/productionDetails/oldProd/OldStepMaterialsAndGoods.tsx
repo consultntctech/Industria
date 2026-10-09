@@ -136,7 +136,7 @@ const OldStepMaterialsAndGoods: React.FC<OldStepMaterialsAndGoodsProps> = ({
       </div>
       <div className="flex relative">
         <InputWithLabel
-          step={0.0001}
+          step={0.01}
           value={productionCost}
           // defaultValue={Number(production?.pCost || 0)/Number(currency?.rate || 1)}
           onChange={onchangeProdCost}

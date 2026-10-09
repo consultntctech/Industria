@@ -10,7 +10,7 @@ import { updateProduction, updateProductionV2 } from "@/lib/actions/production.a
 import DialogueAlet from "@/components/misc/DialogueAlet";
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
-import { IProduct } from "@/lib/models/product.model";
+// import { IProduct } from "@/lib/models/product.model";
 import { useAuth } from "@/hooks/useAuth";
 import { IProdApproval } from "@/lib/models/prodapproval.model";
 import { createProdApproval } from "@/lib/actions/prodapproval.action";
@@ -31,7 +31,7 @@ const OutputDetails = ({production, openWizard}:OutputDetailsProps) => {
     const isEditor = useCanUser('8', 'UPDATE');
 
 
-    const productToProduce = production?.productToProduce as IProduct;
+    // const productToProduce = production?.productToProduce as IProduct;
     const yieldRate =  ((Number(production?.outputQuantity||0) / Number(production?.xquantity||0)) * 100).toFixed(2);
     // const extraCost = Number(production?.extraCost || 0);
     // const prodCost = Number(production?.productionCost || 0);
@@ -114,7 +114,7 @@ const OutputDetails = ({production, openWizard}:OutputDetailsProps) => {
                 <>
                     <div className="flex flex-row items-center gap-4">
                         <span className="truncate w-1/2 md:w-1/5" >Output Quantity:</span>
-                        <span className="text-gray-600 truncate " >{production?.outputQuantity} {productToProduce?.uom || ''}</span>
+                        <span className="text-gray-600 truncate " >{production?.outputQuantity} units</span>
                     </div>
                     
                     <div className="flex flex-row items-center gap-4">
@@ -134,7 +134,7 @@ const OutputDetails = ({production, openWizard}:OutputDetailsProps) => {
 
                     <div className="flex flex-row items-center gap-4">
                         <span className="truncate w-1/2 md:w-1/5" >Extra Cost:</span>
-                        <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.extraCost?.toFixed(3) || 0}`}</span>
+                        <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.extraCost?.toFixed(2) || 0}`}</span>
                     </div>
                     {/* <div className="flex flex-row items-center gap-4">
                         <span className="truncate w-1/2 md:w-1/5" >Total Cost:</span>

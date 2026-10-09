@@ -22,6 +22,7 @@ import OldStepFinalReview from "./OldStepFinalReview";
 import PrimaryButton from "@/components/shared/buttons/PrimaryButton";
 import { IBatch } from "@/lib/models/batch.model";
 import OldStepOutput from "./OldStepOutput";
+import { hasChangedOutput } from "@/functions/helpers";
 
 
 type OldProductionCompProps = {
@@ -295,6 +296,9 @@ const oldGoods = savedGoods.map((ing) => {
     }));
   };
 
+
+  const isChanged = hasChangedOutput(production, data);
+
 //   console.log(currentStep)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -307,7 +311,7 @@ const oldGoods = savedGoods.map((ing) => {
         ...data,
         batch,
         productToProduce: productToProduce?._id,
-        status: production?.status === 'Completed' ? 'Completed' : 'In Progress',
+        status: isChanged ? 'Completed' : production?.status === 'Completed' ? 'Completed' : 'In Progress',
         supervisors: supervisors?.map((sup) => sup._id),
         employees: employees?.map((emp) => emp._id),
         ingredients: ingredients.map((ing) => ({

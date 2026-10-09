@@ -226,7 +226,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
         
                     <div className="flex gap-4 flex-col w-full justify-between">
                         <div className="flex flex-col gap-4 w-full">
-                          <InputWithLabel defaultValue={original?.amount} step={0.0001} onChange={onChange} name="unitPrice" required={!currentProdItem} type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={'Enter unit price'} className="w-full" />
+                          <InputWithLabel defaultValue={original?.amount} step={0.01} onChange={onChange} name="unitPrice" required={!currentProdItem} type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={'Enter unit price'} className="w-full" />
                           <InputWithLabel value={originalCost} onChange={(e)=>setOriginalCost(Number(e.target.value))} name="price" required={!currentProdItem} type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
                           {
                             otherCurrency &&

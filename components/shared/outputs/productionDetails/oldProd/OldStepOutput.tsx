@@ -17,16 +17,16 @@ const OldStepOutput = ({production, onchange, currency, savedCurrency}:OldStepOu
     <div className="space-y-5 animate-fadeIn" >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <InputWithLabel defaultValue={production?.outputQuantity} onChange={onchange} label="Actual output quantity *"
-          name="outputQuantity" type="number" min={0.0001} step={0.0001} placeholder="10" required={!production?.outputQuantity} 
+          name="outputQuantity" type="number" min={0} step={0.01} placeholder="10" required={!production?.outputQuantity} 
         />
         <InputWithLabel defaultValue={production?.rejQuantity} onChange={onchange} label="Rejected quantity"
-          name="rejQuantity" type="number" min={0} step={0.0001} placeholder="10" required 
+          name="rejQuantity" type="number" min={0} step={0.01} placeholder="10" 
         />
         <InputWithLabel defaultValue={production?.lossQuantity} onChange={onchange} label="Loss quantity"
-          name="lossQuantity" type="number" min={0} step={0.0001} placeholder="10" required 
+          name="lossQuantity" type="number" min={0} step={0.01} placeholder="10" 
         />
         <InputWithLabel defaultValue={rawExtraCost} onChange={onchange} label={`Extra cost on production (${currency?.symbol})`}
-          name="extraCost" type="number" min={0} step={0.0001} placeholder="10" required 
+          name="extraCost" type="number" min={0} step={0.01} placeholder="10" 
         />
       </div>
 

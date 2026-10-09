@@ -36,7 +36,7 @@ const SelectedProductOrderItem = ({product, quantity, setProducts, products, set
         <div className="flex items-center gap-2">
             <FiMinusCircle onClick={handleMinus} size={20} className="text-gray-400 hover:text-gray-500 cursor-pointer" />
             {/* <span className="mlabel" >{quantity}</span> */}
-            <input step={0.0001} onChange={handleChange} type="number" value={quantity}  className="w-8 outline-none text-center border-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+            <input step={0.01} onChange={handleChange} type="number" value={quantity}  className="w-8 outline-none text-center border-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
             <GoPlusCircle onClick={handleAdd} size={20} className="text-gray-400 hover:text-gray-500 cursor-pointer" />
             <MdOutlineCancel onClick={handleRemove} size={20} className="text-red-400 hover:text-red-500 cursor-pointer" />
         </div>

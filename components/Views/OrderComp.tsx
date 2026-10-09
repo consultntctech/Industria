@@ -201,11 +201,11 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
                   {/* <GenericLabel label="Select product"
                     input={<SearchSelectProducts value={savedProduct} setSelect={setProduct} type="Finished Good" />}
                   />
-                  <InputWithLabel defaultValue={currentOrder?.quantity} onChange={onChange} name="quantity"  min={0} step={0.0001}  label="Enter quantity" className="w-full" /> */}
-                  <InputWithLabel defaultValue={original?.amount} placeholder="this is optional"  onChange={(e)=>setCost(Number(e.target.value))} name="price"  min={0} step={0.0001}  label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                  <InputWithLabel defaultValue={currentOrder?.quantity} onChange={onChange} name="quantity"  min={0} step={0.01}  label="Enter quantity" className="w-full" /> */}
+                  <InputWithLabel defaultValue={original?.amount} placeholder="this is optional"  onChange={(e)=>setCost(Number(e.target.value))} name="price"  min={0} step={0.01}  label={otherCurrency ? otherLabel : costLabel} className="w-full" />
                   {
                     otherCurrency && otherCurrency?.type !== 'default' &&
-                    <InputWithLabel value={price} placeholder="this is optional"  readOnly  min={0} step={0.0001}  label={costLabel} className="w-full" />
+                    <InputWithLabel value={price} placeholder="this is optional"  readOnly  min={0} step={0.01}  label={costLabel} className="w-full" />
                   }
                   <TextAreaWithLabel defaultValue={currentOrder?.instruction} name="instruction" onChange={onChange} placeholder="enter instruction" label="Order instructions" className="w-full" />
                 </div>

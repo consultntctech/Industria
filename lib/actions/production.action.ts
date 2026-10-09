@@ -1158,7 +1158,6 @@ export async function getProduction(id: string): Promise<IResponse> {
         { path: "supervisors" },
         { path: "employees", populate: { path: "department" } },
         { path: "labourerAllocations.labourer" },
-        { path: "labourers" },
         { path: "original.currency" },
         { path: "createdBy" },
         { path: "batch" },

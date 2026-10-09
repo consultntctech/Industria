@@ -123,22 +123,22 @@ const InputDetails = ({production, setActiveTab, openWizard}:InputDetailsProps) 
 
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Production Cost:</span>
-          <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.pCost?.toFixed(3) || '0'}`}</span>
+          <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.pCost?.toFixed(2) || '0'}`}</span>
         </div>
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Labour Cost:</span>
-          <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.labourCost?.toFixed(3) || '0'}`}</span>
+          <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.labourCost?.toFixed(2) || '0'}`}</span>
         </div>
         
         <div className="flex flex-row items-center gap-4">
           <span className="truncate w-1/2 md:w-1/5" >Total Cost:</span>
-          <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.productionCost?.toFixed(3)}`}</span>
+          <span className="text-gray-600 flex-1 md:flex-5" >{`${currency?.symbol || ''}${production?.productionCost?.toFixed(2)}`}</span>
         </div>
         {
           original && savedCurrency?.type !== 'default' &&
           <div className="flex flex-row items-center gap-4">
             <span className="truncate w-1/2 md:w-1/5" >Total Cost ({savedCurrency?.symbol || ''}):</span>
-            <span className="text-gray-600 flex-1 md:flex-5" >{`${savedCurrency?.symbol || ''}${original?.amount?.toFixed(3) || 'Unavailable'}`}</span>
+            <span className="text-gray-600 flex-1 md:flex-5" >{`${savedCurrency?.symbol || ''}${original?.amount?.toFixed(2) || 'Unavailable'}`}</span>
           </div>
         }
 
