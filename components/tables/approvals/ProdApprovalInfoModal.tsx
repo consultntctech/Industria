@@ -117,7 +117,7 @@ const ProdApprovalInfoModal = ({openNew, refetch, setOpenNew, currentProdApprova
         }
     }
 
-    const approveContent = `Are you sure you want to approve this production? This will create ${production?.outputQuantity} ${product?.uom?.toLowerCase() || 'units'} of ${product?.name} as finished goods.`;
+    const approveContent = `Are you sure you want to approve this production? This will create ${production?.outputQuantity} ${product?.uom?.toLowerCase() || 'units'} of ${product?.name} as unfinished goods.`;
     const rejectContent = `Are you sure you want to reject this production? This will send the production back to the production team for further work.`;
 
   return (

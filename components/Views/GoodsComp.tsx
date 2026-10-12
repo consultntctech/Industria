@@ -65,7 +65,7 @@ const GoodsComp = ({openNew, setOpenNew, currentGood, setCurrentGood}:GoodsCompP
           }
         } catch (error) {
           console.log(error);
-          enqueueSnackbar('Error occured while updating finished goods', {variant:'error'});
+          enqueueSnackbar('Error occured while updating unfinished goods', {variant:'error'});
         }finally{
           setLoading(false);
         }
@@ -75,8 +75,8 @@ const GoodsComp = ({openNew, setOpenNew, currentGood, setCurrentGood}:GoodsCompP
         <div className="flex w-[90%] md:w-[50%]">
             <form ref={formRef} onSubmit={handleUpdate}  className="formBox relative p-4 flex-col gap-8 w-full" >
                 <div className="flex flex-col gap-1">
-                    <span className="title" >Update finished goods</span>
-                    <span className="greyText" >Add more to the finished goods</span>
+                    <span className="title" >Update unfinished goods</span>
+                    <span className="greyText" >Add some description to the unfinished goods</span>
                 </div>
         
                 <div className="flex flex-col lg:flex-row gap-4 items-stretch">

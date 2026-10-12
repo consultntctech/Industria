@@ -28,7 +28,7 @@ const DashInventoryLineChart = ({ stats, isPending }: DashInventoryLineChartProp
                 xAxis={[{ data: xData, scaleType:'band', disableLine:true, disableTicks:true}]}
                 series={[
                     {data:raw,  color:'#0076D1', label:'Raw Materials', id:'rawMaterials', showMark:false},
-                    {data:finished, color:'teal', label:'Finished Goods', id:'finishedGoods', showMark:false}
+                    {data:finished, color:'teal', label:'Unfinished Goods', id:'finishedGoods', showMark:false}
                 ]}
                 yAxis={[{ disableLine:true, disableTicks:true}]}
                 height={300}

@@ -89,7 +89,7 @@ const LineItemsTable = ({ pack}:LineItemTableProps) => {
   return (
     <div className='table-main2' >
         <div className="flex items-center justify-between gap-5">
-            <span className='font-bold text-xl' >Line Items</span>
+            <span className='font-bold text-xl' >Finished Goods</span>
             {
                 isEditor &&
                 <SecondaryButton onClick={()=>setShowPriceAll(true)} text={`Set price for all`} className='px-4 py-1' />

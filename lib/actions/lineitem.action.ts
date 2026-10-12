@@ -23,10 +23,10 @@ export async function createLineItems (data:Partial<ILineItem>[]):Promise<IRespo
     try {
         await connectDB();
         const lineItems = await LineItem.insertMany(data);
-        return respond('Line items created successfully', false, lineItems, 201);
+        return respond('Finished Goods created successfully', false, lineItems, 201);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while creating line items', true, {}, 500);
+        return respond('Error occured while creating finished goods', true, {}, 500);
     }
 }
 
@@ -38,10 +38,10 @@ export async function createPriceForAllLineItemsInPackage (packageId: string, pr
             { package: packageId },
             { price, original }
         );
-        return respond('Line items price updated successfully', false, lineItems, 200);
+        return respond('Finished Goods price updated successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while updating line items', true, {}, 500);
+        return respond('Error occured while updating finished goods', true, {}, 500);
     }
 }
 
@@ -52,10 +52,10 @@ export async function publishLineItemsForPackage (packageId: string): Promise<IR
             { package: packageId },
             { status: 'Available' }
         );
-        return respond('Line items published successfully', false, lineitems, 200);
+        return respond('Finished Goods published successfully', false, lineitems, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while publishing line items', true, {}, 500);
+        return respond('Error occured while publishing finished goods', true, {}, 500);
     }
 }
 
@@ -63,10 +63,10 @@ export async function updateLineItem (data: Partial<ILineItem>): Promise<IRespon
     try {
         await connectDB();
         const updatedLineItem = await LineItem.findByIdAndUpdate(data._id, data, { new: true });
-        return respond('Line item updated successfully', false, updatedLineItem, 200);
+        return respond('Finished Good updated successfully', false, updatedLineItem, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while updating line item', true, {}, 500);
+        return respond('Error occured while updating finished good', true, {}, 500);
     }
 }
 
@@ -81,10 +81,10 @@ export async function getLineItems (): Promise<IResponse> {
         populate('createdBy').
         populate('soldTo').
         populate('org').lean() as unknown as ILineItem[];
-        return respond('Line items found successfully', false, lineItems, 200);
+        return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching line items', true, {}, 500);
+        return respond('Error occured while fetching finished goods', true, {}, 500);
     }
 }
 
@@ -99,10 +99,10 @@ export async function getAvailableLineItems (): Promise<IResponse> {
         populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
-        return respond('Line items found successfully', false, lineItems, 200);
+        return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching line items', true, {}, 500);
+        return respond('Error occured while fetching finished goods', true, {}, 500);
     }
 }
 
@@ -118,10 +118,10 @@ export async function getAvailableLineItemsByOrg (orgId:string): Promise<IRespon
         populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
-        return respond('Line items found successfully', false, lineItems, 200);
+        return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching line items', true, {}, 500);
+        return respond('Error occured while fetching finished goods', true, {}, 500);
     }
 }
 
@@ -158,10 +158,10 @@ export async function getAvailableLineItemsByProduct(
 
     const lineItems = await mongooseQuery.lean() as unknown as ILineItem[];
 
-    return respond("Line items found successfully", false, lineItems, 200);
+    return respond("Finished Goods found successfully", false, lineItems, 200);
   } catch (error) {
     console.log(error);
-    return respond("Error occurred while fetching line items", true, {}, 500);
+    return respond("Error occurred while fetching finished goods", true, {}, 500);
   }
 }
 
@@ -177,10 +177,10 @@ export async function getLineItemsByProduct (productId: string): Promise<IRespon
         populate('soldTo').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
-        return respond('Line items found successfully', false, lineItems, 200);
+        return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching line items', true, {}, 500);
+        return respond('Error occured while fetching finished goods', true, {}, 500);
     }
 }
 
@@ -196,10 +196,10 @@ export async function getAvailableLineItemsByProducts (products: string[]): Prom
         populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
-        return respond('Line items found successfully', false, lineItems, 200);
+        return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching line items', true, {}, 500);
+        return respond('Error occured while fetching finished goods', true, {}, 500);
     }
 }
 
@@ -215,10 +215,10 @@ export async function getAvailableLineItemsByProductAndOrg (productId: string, o
         populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
-        return respond('Line items found successfully', false, lineItems, 200);
+        return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching line items', true, {}, 500);
+        return respond('Error occured while fetching finished goods', true, {}, 500);
     }
 }
 
@@ -233,10 +233,10 @@ export async function getLineItemsByProductAndOrg (productId: string, orgId:stri
         populate('original.currency').
         populate('createdBy').
         populate('org').lean() as unknown as ILineItem[];
-        return respond('Line items found successfully', false, lineItems, 200);
+        return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching line items', true, {}, 500);
+        return respond('Error occured while fetching finished goods', true, {}, 500);
     }
 }
 
@@ -253,10 +253,10 @@ export async function getLineItemsByPackage (packageId: string): Promise<IRespon
         .populate('batch')
         .populate('soldTo')
         .populate('org').lean() as unknown as ILineItem[];
-        return respond('Line items found successfully', false, lineItems, 200);
+        return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching line items', true, {}, 500);
+        return respond('Error occured while fetching finished goods', true, {}, 500);
     }
 }
 
@@ -273,10 +273,10 @@ export async function getLineItemsByPackageAndOrg (packageId: string, org:string
         .populate('createdBy')
         .populate('batch')
         .populate('org').lean() as unknown as ILineItem[];
-        return respond('Line items found successfully', false, lineItems, 200);
+        return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching line items', true, {}, 500);
+        return respond('Error occured while fetching finished goods', true, {}, 500);
     }
 }
 
@@ -293,10 +293,10 @@ export async function getLineItemsByOrg (org: string): Promise<IResponse> {
         .populate('soldTo')
         .populate('batch')
         .populate('org').lean() as unknown as ILineItem[];
-        return respond('Line items found successfully', false, lineItems, 200);
+        return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching line items', true, {}, 500);
+        return respond('Error occured while fetching finished goods', true, {}, 500);
     }
 }
 
@@ -316,10 +316,10 @@ export async function getLineItem (id: string): Promise<IResponse> {
         ]);
         if ("allowed" in check === false) return check;
         const lineItem = check.doc;
-        return respond("Line item retrieved successfully", false, lineItem, 200);
+        return respond("Finished Good retrieved successfully", false, lineItem, 200);
     } catch (error) {
         console.log(error);
-        return respond("Error occured retrieving line item", true, {}, 500);
+        return respond("Error occured retrieving finished good", true, {}, 500);
     }
 }
 
@@ -328,12 +328,12 @@ export async function deleteLineItem (id: string): Promise<IResponse> {
         await connectDB();
         const lineItem = await LineItem.findById(id);
         if (!lineItem) {
-            return respond("Line item not found", true, {}, 404);
+            return respond("Finished Good not found", true, {}, 404);
         }
         const deletedLineItem = await LineItem.deleteOne({ _id: id });
-        return respond("Line item deleted successfully", false, deletedLineItem, 200);
+        return respond("Finished Good deleted successfully", false, deletedLineItem, 200);
     } catch (error) {
         console.log(error);
-        return respond("Error occured while deleting line item", true, {}, 500);
+        return respond("Error occured while deleting finished good", true, {}, 500);
     }
 }

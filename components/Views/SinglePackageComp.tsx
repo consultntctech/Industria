@@ -25,7 +25,7 @@ const SinglePackageComp = ({currentPackage}:SinglePackageCompProps) => {
           onClickFirstTab={()=>setActiveTab('first')}
           SecondTabText="Secondary Details" onClickSecondTab={()=>setActiveTab('second')} showSecondTab
           ThirdTabText="Packaging Materials" onClickThirdTab={()=>setActiveTab('third')} showThirdTab
-          FourthTabText="Line Items" onClickFourthTab={()=>setActiveTab('fourth')} showFourthTab
+          FourthTabText="Products" onClickFourthTab={()=>setActiveTab('fourth')} showFourthTab
         />
   
         {

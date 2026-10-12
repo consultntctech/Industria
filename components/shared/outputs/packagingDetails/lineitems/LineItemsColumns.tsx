@@ -81,7 +81,7 @@ export const LineItemsColumns = (
 
         {
             field:'good',
-            headerName: 'Finished Good',
+            headerName: 'Unfinished Goods',
             width:170,
             valueFormatter: (_, row:ILineItem)=>{
                 const good = row?.good as IGood;

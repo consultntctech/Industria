@@ -137,7 +137,7 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
             handleClose={handleClose} 
             agreeClick={handleUpdateRaw} 
             title="Deem Raw Materials" 
-            content="The value you provide here will be deducted from the finished quantity. This value can be changed any time." 
+            content="The value you provide here will be deducted from the processed quantity. This value can be changed any time." 
             onChange={(e)=>setRaw(Number(e.target.value))}
             type='number'
             defaultValue={currentGood?.raw}

@@ -70,7 +70,7 @@ export const NavLinks = (): INavBarItem[] => {
         {id: '40', tableids: ['8', '88'], title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/processing'},
         {id: '106', tableids: ['91'], title:'Labourers', icon: <GrUserWorker />, link: '/dashboard/processing/labourers'},
         { id: "41", tableids:['8'], title: "Production", icon: <FiRefreshCw />, link: "/dashboard/processing/production" },
-        { id: "42", tableids:['88'], title: "Goods", icon: <CiBag1 />, link: "/dashboard/processing/goods" },
+        { id: "42", tableids:['88'], title: "Unfinished Goods", icon: <CiBag1 />, link: "/dashboard/processing/goods" },
       ],
     },
     {

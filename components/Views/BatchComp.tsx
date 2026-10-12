@@ -137,7 +137,7 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
                       input={
                         <select defaultValue={currentBatch?.type} onChange={onSelectChange} name="type" className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
                           <option  value="Raw Material">Raw Material</option>
-                          <option value="Finished Good">Finished Good</option>
+                          <option value="Finished Good">Unfinished Good</option>
                           <option value="Packaging">Packaging</option>
                       </select>
                       }

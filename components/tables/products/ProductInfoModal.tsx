@@ -42,7 +42,7 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentProduct, setCurrentProd
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Type</span>
-                <span className="mtext">{currentProduct?.type}</span>
+                <span className="mtext">{currentProduct?.type === 'Raw Material' ? 'Raw Materials' : 'Unfinished Goods'}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Category</span>
@@ -52,6 +52,10 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentProduct, setCurrentProd
             <div className="flex flex-col">
                 <span className="mlabel">Stock</span>
                 <span className="mtext">{currentProduct?.stock || '0'}</span>
+            </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Threshold</span>
+                <span className="mtext">{currentProduct?.threshold || '0'}</span>
             </div>
 
             <div className="flex flex-col">

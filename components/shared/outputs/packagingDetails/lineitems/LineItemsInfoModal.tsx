@@ -88,7 +88,7 @@ const LineItemsInfoModal = ({infoMode, setInfoMode, currentLineItem, setCurrentL
                 <Link  href={`/dashboard/products/types?Id=${product?._id}`} className="mtext link">{product?.name}</Link>
             </div>
             <div className="flex flex-col">
-                <span className="mlabel">Finished Good</span>
+                <span className="mlabel">Unfinished Good</span>
                 <Link  href={`/dashboard/processing/goods?Id=${good?._id}`} className="mtext link">{good?.name}</Link>
             </div>  
             <div className="flex flex-col">

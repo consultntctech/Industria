@@ -26,7 +26,7 @@ const OrderLineItemsTable = ({currentOrder, needed, setLines}:OrderLineItemsTabl
    
   return (
     <div className='max-w-[78vw] xl:max-w-[74vw] bg-white gap-4 p-4 flex flex-col rounded border border-gray-200' >
-        <span className="font-semibold text-base" >Select line items</span>
+        <span className="font-semibold text-base" >Select product(s)</span>
         <div className="flex flex-wrap gap-4">
             {
                 needed.map((item, index)=>{

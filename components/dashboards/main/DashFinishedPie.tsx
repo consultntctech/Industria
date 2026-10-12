@@ -22,7 +22,7 @@ const DashFinishedPie = ({stats, isPending}: DashFinishedPieProps) => {
   return (
     <div className='w-[86vw] lg:w-[48%] p-6 rounded-2xl shadow-xl flex flex-col gap-4'>
         <div className="flex flex-col gap-1">
-            <span className="semibold" >Finished Goods</span>
+            <span className="semibold" >Unfinished Goods</span>
             <span className="greyText2">Available goods ready for sale</span>
         </div>
         {

@@ -17,7 +17,7 @@ export async function createGood(data: Partial<IGood>): Promise<IResponse> {
     await connectDB();
 
     if (!data.name) {
-      return respond("Name is required to create finished goods", true, {}, 400);
+      return respond("Name is required to create ununfinished goods", true, {}, 400);
     }
 
     // 1️⃣ Build prefix based on name (first 3 letters)
@@ -72,10 +72,10 @@ export async function getGoods():Promise<IResponse>{
         populate('createdBy').
         populate('product').
         populate('org').lean() as unknown as IGood[];
-        return respond('Finished goods found successfully', false, goods, 200);
+        return respond('Unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching finished goods', true, {}, 500);
+        return respond('Error occured while fetching unfinished goods', true, {}, 500);
     }
 }
 
@@ -88,10 +88,10 @@ export async function getAvailableGoods():Promise<IResponse>{
         populate('createdBy').
         populate('product').
         populate('org').lean() as unknown as IGood[];
-        return respond('Available finished goods found successfully', false, goods, 200);
+        return respond('Available unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching available finished goods', true, {}, 500);
+        return respond('Error occured while fetching available unfinished goods', true, {}, 500);
     }
 }
 
@@ -105,10 +105,10 @@ export async function getAvailableGoodsByOrg(orgId:string):Promise<IResponse>{
         populate('createdBy').
         populate('product').
         populate('org').lean() as unknown as IGood[];
-        return respond('Available finished goods found successfully', false, goods, 200);
+        return respond('Available unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching available finished goods', true, {}, 500);
+        return respond('Error occured while fetching available unfinished goods', true, {}, 500);
     }
 }
 
@@ -122,10 +122,10 @@ export async function getGoodsWithRawRawMaterialsByOrgAndBatch(orgId:string, bat
         populate('createdBy').
         populate('product').
         populate('org').lean() as unknown as IGood[];
-        return respond('Finished goods found successfully', false, goods, 200);
+        return respond('Unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching finished goods', true, {}, 500);
+        return respond('Error occured while fetching unfinished goods', true, {}, 500);
     }
 }
 
@@ -139,10 +139,10 @@ export async function getAvailableGoodsByProduct(productId:string):Promise<IResp
         populate('createdBy').
         populate('product').
         populate('org').lean() as unknown as IGood[];
-        return respond('Available finished goods found successfully', false, goods, 200);
+        return respond('Available unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching available finished goods', true, {}, 500);
+        return respond('Error occured while fetching available unfinished goods', true, {}, 500);
     }
 }
 
@@ -156,10 +156,10 @@ export async function getAvailableGoodsByOrgAndProduct(orgId:string, productId:s
         populate('createdBy').
         populate('product').
         populate('org').lean() as unknown as IGood[];
-        return respond('Available finished goods found successfully', false, goods, 200);
+        return respond('Available unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching available finished goods', true, {}, 500);
+        return respond('Error occured while fetching available unfinished goods', true, {}, 500);
     }
 }
 
@@ -179,10 +179,10 @@ export async function getGoodsByOrg(orgId:string):Promise<IResponse>{
         populate('createdBy').
         populate('product').
         populate('org').lean() as unknown as IGood[];
-        return respond('Finished goods found successfully', false, goods, 200);
+        return respond('Unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while fetching finished goods', true, {}, 500);
+        return respond('Error occured while fetching unfinished goods', true, {}, 500);
     }
 }
 
@@ -191,10 +191,10 @@ export async function updateGood(data:Partial<IGood>):Promise<IResponse>{
     try {
         await connectDB();
         const updatedGood = await Good.findByIdAndUpdate(data._id, data, { new: true });
-        return respond('Finished good updated successfully', false, updatedGood, 200);
+        return respond('Unfinished good updated successfully', false, updatedGood, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while updating finished good', true, {}, 500);
+        return respond('Error occured while updating unfinished good', true, {}, 500);
     }
 }
 
@@ -210,10 +210,10 @@ export async function getGood(id:string):Promise<IResponse>{
         if ("allowed" in check === false) return check;
         const good = check.doc;
 
-        return respond("Finished good retrieved successfully", false, good, 200);
+        return respond("Unfinished good retrieved successfully", false, good, 200);
     } catch (error) {
         console.log(error);
-        return respond("Error occured retrieving finished good", true, {}, 500);
+        return respond("Error occured retrieving unfinished good", true, {}, 500);
     }
 }
 
@@ -225,9 +225,9 @@ export async function deleteGood(id:string):Promise<IResponse>{
             Good.deleteOne({ _id: id }),
             Production.findByIdAndUpdate(good?.production, {status:'In Progress'}, {new:true})
         ])
-        return respond('Finished good deleted successfully', false, deletedGood, 200);
+        return respond('Unfinished good deleted successfully', false, deletedGood, 200);
     } catch (error) {
         console.log(error);
-        return respond('Error occured while deleting finished good', true, {}, 500);
+        return respond('Error occured while deleting unfinished good', true, {}, 500);
     }
 }

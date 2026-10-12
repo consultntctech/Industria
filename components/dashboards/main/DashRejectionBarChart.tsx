@@ -30,7 +30,7 @@ const DashRejectionBarChart = ({ stats, isPending }: DashRejectionBarChartProps)
                 xAxis={[{ data: xData, scaleType:'band', disableLine:true, disableTicks:true}]}
                 series={[
                     {data:raw, area:true, color:'orange', label:'Raw Materials', id:'rawMaterials', showMark:false},
-                    {data:production, area:true, color:'darkorange', label:'Finished Goods', id:'finishedGoods', showMark:false}
+                    {data:production, area:true, color:'darkorange', label:'Unfinished Goods', id:'finishedGoods', showMark:false}
                 ]}
                 yAxis={[{ disableLine:true, disableTicks:true}]}
                 height={300}

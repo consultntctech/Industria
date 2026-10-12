@@ -272,7 +272,7 @@ const NewPackageComp = () => {
                     label="Product to package"
                     input={<SearchSelectProducts type='Finished Good' required setSelect={setProduct} />}
                 />
-                <GenericLabel label='Finished goods'
+                <GenericLabel label='Unfinished goods'
                     input={<SearchSelectAvMultipleGoods productId={product?._id as string} setSelection={setGoods} />}
                 />
                 {
