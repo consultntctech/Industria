@@ -21,11 +21,24 @@ export const ProductColumns = (
             width:120,
         },
         
+        {
+            field: 'code',
+            headerName: 'Code',
+            width:120,
+        },
 
         {
             field: 'type',
             headerName: 'Product Type',
             width:110,
+            valueFormatter: (_, row:IProduct)=>{
+                const type = row?.type === 'Raw Material' ? 'Raw Materials' : 'Unfinished Goods';
+                return type;
+            },
+            valueGetter: (_, row:IProduct)=>{
+                const type = row?.type === 'Raw Material' ? 'Raw Materials' : 'Unfinished Goods';
+                return type;
+            }
         },
 
         {

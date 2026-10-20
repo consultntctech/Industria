@@ -10,21 +10,85 @@ import '../models/category.model';
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import LineItem from "../models/lineitem.model";
 import RMaterial from "../models/rmaterial.mode";
-import { IOrganization } from "../models/org.model";
+// import { IOrganization } from "../models/org.model";
 import { Types } from "mongoose";
 import Production from "../models/production.model";
 
-export async function createProduct(data:Partial<IProduct>):Promise<IResponse>{
+
+
+
+// Turns an id, an ObjectId, or a populated document into a plain id string
+type RefLike = string | Types.ObjectId | { _id: string | Types.ObjectId };
+
+// Turns an id, an ObjectId, or a populated document into a plain id string
+function idOf(value: RefLike | null | undefined): string | undefined {
+    if (!value) return undefined;
+    if (typeof value === 'string') return value;
+    if (value instanceof Types.ObjectId) return value.toString();
+    return value._id.toString();
+}
+
+// Case insensitive matching
+const CASE_INSENSITIVE = { locale: 'en', strength: 2 } as const;
+
+/**
+ * Returns an error message if the name or code is already taken, otherwise null.
+ * Name: unique within the same org and type. Code: unique within the org (any type).
+ */
+async function findProductConflict(args: {
+    org: string;
+    type: string;
+    name?: string;
+    code?: string;
+    excludeId?: string;
+}): Promise<string | null> {
+    const { org, type, name, code, excludeId } = args;
+    const notSelf = excludeId ? { _id: { $ne: excludeId } } : {};
+
+    const [nameTaken, codeTaken] = await Promise.all([
+        name ? Product.exists({ ...notSelf, org, type, name }).collation(CASE_INSENSITIVE) : null,
+        code ? Product.exists({ ...notSelf, org, code }).collation(CASE_INSENSITIVE) : null,
+    ]);
+
+    if (nameTaken && codeTaken) return 'A product with this name and code already exists';
+    if (nameTaken) return 'A product with this name already exists for this product type';
+    if (codeTaken) return 'A product with this code already exists';
+    return null;
+}
+
+
+
+export async function createProduct(data: Partial<IProduct>): Promise<IResponse> {
     try {
         await connectDB();
+        // console.log('Data: ', data)
+        const name = data?.name?.trim();
+        const code = data?.code?.trim();
+        const type = data?.type;
+        const org = idOf(data?.org);
+
+        if (!org) {
+    return respond('Organization is required', true, {}, 400);
+}
+if (!type) {
+    return respond('Product type is required', true, {}, 400);
+}
+
+        const conflict = await findProductConflict({ org, type, name, code });
+        if (conflict) {
+            return respond(conflict, true, {}, 400);
+        }
+
         const newData = {
             ...data,
-            lowerName: data?.name?.trim()?.toLowerCase(),
-        }
-        const oldProduct = await Product.findOne({ lowerName: newData?.lowerName, type:newData.type, org: newData.org });
-        if (oldProduct) {
-            return respond('Product already exists', true, {}, 400);
-        }
+            name,
+            code,
+            type,
+            org,
+            lowerName: name?.toLowerCase(),
+            lowerCode: code ? code.toLowerCase() : null,
+        };
+
         const product = await Product.create(newData);
         return respond('Product created successfully', false, product, 201);
     } catch (error) {
@@ -121,22 +185,42 @@ export async function getProductsByOrg(orgId: string): Promise<IResponse> {
 }
 
 
-export async function updateProduct(data:Partial<IProduct>):Promise<IResponse>{
+
+export async function updateProduct(data: Partial<IProduct>): Promise<IResponse> {
     try {
         await connectDB();
-        const org =  data?.org as IOrganization;
-        const newData = {
-            ...data,
-            lowerName: data?.name?.trim()?.toLowerCase(),
-            org: org?._id
+        const name = data?.name?.trim();
+        const code = data?.code?.trim();
+        const type = idOf(data?.type);
+        const org = idOf(data?.org);
+
+        if (!org || !type) {
+            return respond('Product type and organization are required', true, {}, 400);
         }
 
-        const oldProduct = await Product.findOne({ lowerName: newData.lowerName, type:newData.type, org: newData.org });
-        // console.log(oldProduct?._id?.toString(), data._id);
-        if ( oldProduct && (oldProduct?._id?.toString() !== newData._id)) {
-            return respond('Product already exists', true, {}, 400);
+        const conflict = await findProductConflict({
+            org,
+            type,
+            name,
+            code,
+            excludeId: data._id,
+        });
+        if (conflict) {
+            return respond(conflict, true, {}, 400);
         }
-        const updatedProduct = await Product.findByIdAndUpdate(newData._id, newData, { new: true });
+
+        const newData = {
+            ...data,
+            name,
+            code,
+            type,
+            org,
+            lowerName: name?.toLowerCase(),
+            // null (not undefined) so a cleared code is actually cleared in the database
+            lowerCode: code ? code.toLowerCase() : null,
+        };
+
+        const updatedProduct = await Product.findByIdAndUpdate(data._id, newData, { new: true });
         return respond('Product updated successfully', false, updatedProduct, 200);
     } catch (error) {
         console.log(error);

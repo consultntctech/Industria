@@ -14,6 +14,8 @@ export interface IProduct extends Document {
     _id: string;
     name: string;
     lowerName: string;
+    code: string;
+    lowerCode: string;
     uom?: string;
     threshold: number;
     category: string | Types.ObjectId | ICategory;
@@ -30,7 +32,9 @@ export interface IProduct extends Document {
 
 const ProductSchema = new Schema<IProduct>({
     name: { type: String, required: true },
-    lowerName: { type: String, lowercase:true },
+    lowerName: { type: String, lowercase:false },
+    code: { type: String, required: false },
+    lowerCode: { type: String, lowercase:true },
     uom: { type: String, required: false },
     threshold: { type: Number, required: true, default: 0 },
     stock: { type: Number, required: true, default: 0 },

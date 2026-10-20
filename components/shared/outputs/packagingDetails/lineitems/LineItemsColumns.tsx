@@ -139,7 +139,7 @@ export const LineItemsColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const customer = params?.row?.soldTo as ICustomer;
                 return (
-                    <Linker tableId="33" link={`/dashboard/distribution/customers?Id=${customer?._id}`} placeholder={customer?.name} />
+                    <Linker tableId="33" link={`/dashboard/transactions/customers?Id=${customer?._id}`} placeholder={customer?.name} />
                 )
             }
         },

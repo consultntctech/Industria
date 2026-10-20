@@ -21,7 +21,7 @@ export const CustomersColoumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const customer = params?.row as ICustomer;
                 return (
-                    <Linker tableId="33" link={`/dashboard/distribution/customers/${customer?._id}`} placeholder={customer?.name} />
+                    <Linker tableId="33" link={`/dashboard/transactions/customers/${customer?._id}`} placeholder={customer?.name} />
                 )
             }
         },

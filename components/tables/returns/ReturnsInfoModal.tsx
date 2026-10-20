@@ -54,7 +54,7 @@ const ReturnsInfoModal = ({infoMode, setInfoMode, currentReturn, setCurrentRetur
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Customer</span>
-                <Linker tableId="33" link={`/dashboard/distribution/customers/${customer?._id}`} placeholder={customer?.name} />
+                <Linker tableId="33" link={`/dashboard/transactions/customers/${customer?._id}`} placeholder={customer?.name} />
             </div>
             
             <div className="flex flex-col">

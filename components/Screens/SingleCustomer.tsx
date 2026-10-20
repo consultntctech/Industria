@@ -15,7 +15,7 @@ const SingleCustomer = ({customer}:SingleCustomerProps) => {
   return (
     <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
         <div className="flex w-full items-center gap-1 flex-row">
-            <Title showback={false} title="Customers" isLink link="/dashboard/distribution/customers" />
+            <Title showback={false} title="Customers" isLink link="/dashboard/transactions/customers" />
             <div className="title hidden md:block">/</div>
             <Title className="hidden md:flex" showback={false} title={customer?.name} isLink={false} />
         </div>

@@ -175,7 +175,7 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
                             currentRole ?
                             <>
                             {
-                                // oldTable &&
+                                oldTable &&
                                 <GenericLabel label="Select table"
                                     input={<SearchSelectTable value={oldTable} setSelect={setTable}  required={!table} />}
                                 />

@@ -28,7 +28,7 @@ export const OrdersMiniColumns = (
             renderCell: (params:GridRenderCellParams)=>{
                 const customer = params?.row?.customer as ICustomer;
                 return (
-                    <Link key={customer?._id} href={`/dashboard/distribution/customers?Id=${customer?._id}`} className="link" >{customer?.name}</Link>
+                    <Link key={customer?._id} href={`/dashboard/transactions/customers?Id=${customer?._id}`} className="link" >{customer?.name}</Link>
                 )
             }
         },

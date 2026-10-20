@@ -40,6 +40,11 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentProduct, setCurrentProd
                 <span className="mlabel">Name</span>
                 <span className="mtext">{currentProduct?.name}</span>
             </div>
+
+            <div className="flex flex-col">
+                <span className="mlabel">Product Code</span>
+                <span className="mtext">{currentProduct?.code || 'Not Set'}</span>
+            </div>
             <div className="flex flex-col">
                 <span className="mlabel">Type</span>
                 <span className="mtext">{currentProduct?.type === 'Raw Material' ? 'Raw Materials' : 'Unfinished Goods'}</span>

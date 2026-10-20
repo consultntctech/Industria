@@ -75,7 +75,7 @@ const LineItemsInfoModal = ({infoMode, setInfoMode, currentLineItem, setCurrentL
                 customer &&
                 <div className="flex flex-col">
                     <span className="mlabel">Sold To</span>
-                    <Linker tableId="33" link={`/dashboard/distribution/customers?Id=${customer?._id}`} placeholder={customer?.name} />
+                    <Linker tableId="33" link={`/dashboard/transactions/customers?Id=${customer?._id}`} placeholder={customer?.name} />
                 </div>
             }
 

@@ -23,6 +23,7 @@ type ProductTypesCompProps = {
   setCurrentProduct: Dispatch<SetStateAction<IProduct | null>>;
 }
 
+
 const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduct}:ProductTypesCompProps) => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<IProduct>>({type:'Raw Material'});
@@ -51,7 +52,7 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
         if(currentProduct){
             setData({...currentProduct});// Set form data when currentUser changes
         }else{
-            setData({});// Reset form data when currentUser is null
+            setData({type: 'Raw Material'});// Reset form data when currentUser is null
         }
     }, [currentProduct])
 
@@ -79,10 +80,16 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
      const handleSubmit = async(e:FormEvent<HTMLFormElement>)=>{
         e.preventDefault();
         setLoading(true);
+
         
         try {
-          const formData:Partial<IProduct> = {...data, name:data?.name?.trim(), org:user?.org, category, suppliers, createdBy:user?._id, creator: user?.name};
+          if(!data?.name?.trim() || !data?.code?.trim()){
+              enqueueSnackbar('Please enter a name and a code', {variant:'error'});
+              return;
+          }
+          const formData:Partial<IProduct> = {...data, name:data?.name?.trim(), code: data?.code?.trim(), org:user?.org, category, suppliers, createdBy:user?._id, creator: user?.name};
           const res = await createProduct(formData);
+          // console.log('Data: ', formData)
           enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
           if(!res.error){
               formRef.current?.reset();
@@ -103,10 +110,15 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
         setLoading(true);
         
         try {
-          const supplierIds = savedSuppliers.map(supplier=>supplier._id);
+          if(!data?.name?.trim() || !data?.code?.trim()){
+              enqueueSnackbar('Please enter a name and a code', {variant:'error'});
+              return;
+          }
+          const supplierIds = savedSuppliers.map(supplier=>supplier._id) ?? [];
           const res = await updateProduct({
             ...data,
             name:data?.name?.trim(), 
+            code:data?.code?.trim(),
             suppliers: suppliers.length ? suppliers : supplierIds,
             category: category || savedCategory._id,
           });
@@ -137,7 +149,8 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
 
         <div className="flex flex-col lg:flex-row gap-4 items-stretch">
           <div className="flex gap-4 flex-col w-full">
-            <InputWithLabel defaultValue={data?.name} onChange={onChange} name="name" required placeholder="eg. Cassava" label="Name" className="w-full" />
+            <InputWithLabel defaultValue={data?.name} onChange={onChange} name="name" placeholder="eg. Cassava" label="Name" className="w-full" />
+            <InputWithLabel defaultValue={data?.code} onChange={onChange} name="code" required placeholder="eg. C001" label="Product Code" className="w-full" />
             {
               openNew &&
               <GenericLabel
@@ -150,9 +163,9 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
               <GenericLabel 
                 label='Select product type'
                 input={
-                  <select defaultValue={currentProduct?.type} onChange={onSelectChange} name="type" className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
+                  <select defaultValue={currentProduct? currentProduct?.type : 'Raw Material'} onChange={onSelectChange} name="type" className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
                     <option  value="Raw Material">Raw Material</option>
-                    <option value="Finished Good">Finished Good</option>
+                    <option value="Finished Good">Unfinished Good</option>
                 </select>
                 }
               />
