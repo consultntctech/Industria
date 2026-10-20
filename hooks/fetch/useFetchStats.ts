@@ -1,17 +1,15 @@
 import { IDashboardStats, IDashStats, IGlobalFinance, IOrderAndSalesStats, IStats, ITransactCount, ITransactMontly } from "@/types/Types"
-import { getCostStats, getCostStatsByOrg, getDashboardStats, getDashboardStatsByOrg, getGlobalFinanceStats, getGlobalFinanceStatsByOrg, getMonthlyTransactionCounts, getMonthlyTransactionCountsByOrg, getMonthlyTransactionSummary, getMonthlyTransactionSummaryByOrg, getOrderAndSalesStats, getOrderAndSalesStatsByOrg, getStats, getStatsByOrg, getUserDashStats } from "@/lib/actions/stats.action";
+import { getCostStatsByOrg, getDashboardStatsByOrg, getGlobalFinanceStatsByOrg, getMonthlyTransactionCountsByOrg, getMonthlyTransactionSummaryByOrg,  getOrderAndSalesStatsByOrg, getStatsByOrg, getUserDashStats } from "@/lib/actions/stats.action";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
-import { isSystemAdmin } from "@/Data/roles/permissions";
 import { ICostStats } from "@/types/FinanceTypes";
 
 export const useFetchStats = () => {
   const {user} = useAuth();
-  const isAdmin = isSystemAdmin(user);
   const fetchStats = async ():Promise<IStats | null> => {
       try {
           if(!user) return null;
-          const res = isAdmin ? await getStats() : await getStatsByOrg(user?.org);
+          const res = await getStatsByOrg(user?.org);
           const data = res.payload as IStats;
           return data;
       } catch (error) {
@@ -33,11 +31,10 @@ export const useFetchStats = () => {
 
 export const useFetchTransactMonthly = (month?:number, year?:number, type?:"quantity" | "price") => {
   const {user} = useAuth();
-  const isAdmin = isSystemAdmin(user);
   const fetchStats = async():Promise<ITransactMontly | null> => {
       try {
           if(!user) return null;
-          const res = isAdmin ? await getMonthlyTransactionSummary(month, year, type) : await getMonthlyTransactionSummaryByOrg(user?.org, month, year, type);  
+          const res = await getMonthlyTransactionSummaryByOrg(user?.org, month, year, type);  
           const data = res.payload as ITransactMontly;
           return data;
       } catch (error) {
@@ -58,11 +55,10 @@ export const useFetchTransactMonthly = (month?:number, year?:number, type?:"quan
 
 export const useFetchMonthlyTransactionCounts = () => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchMonthlyTransactionCounts = async ():Promise<ITransactCount | null> => {
         try {
             if(!user) return null;
-            const res = isAdmin ? await getMonthlyTransactionCounts() : await getMonthlyTransactionCountsByOrg(user?.org);
+            const res = await getMonthlyTransactionCountsByOrg(user?.org);
             const data = res.payload as ITransactCount;
             return data;
         } catch (error) {
@@ -84,11 +80,10 @@ export const useFetchMonthlyTransactionCounts = () => {
 
 export const useFetchOrderAndSalesStats = () => {
   const {user} = useAuth();
-  const isAdmin = isSystemAdmin(user);
   const fetchOrderAndSalesStats = async ():Promise<IOrderAndSalesStats[] | null> => {
       try {
           if(!user) return null;
-          const res = isAdmin ? await getOrderAndSalesStats() : await getOrderAndSalesStatsByOrg(user?.org);
+          const res = await getOrderAndSalesStatsByOrg(user?.org);
           const data = res.payload as IOrderAndSalesStats[];
           return data;
       } catch (error) {
@@ -109,11 +104,10 @@ export const useFetchOrderAndSalesStats = () => {
 
 export const useFetchGlobalFinanceStats = () => {
   const {user} = useAuth();
-  const isAdmin = isSystemAdmin(user);
   const fetchGlobalFinanceStats = async ():Promise<IGlobalFinance | null> => {
       try {
           if(!user) return null;
-          const res = isAdmin ? await getGlobalFinanceStats() : await getGlobalFinanceStatsByOrg(user?.org);
+          const res = await getGlobalFinanceStatsByOrg(user?.org);
           const data = res.payload as IGlobalFinance;
           return data;
       } catch (error) {
@@ -136,11 +130,10 @@ export const useFetchGlobalFinanceStats = () => {
 
 export const useFetchDashboardStats = () => {
   const {user} = useAuth();
-  const isAdmin = isSystemAdmin(user);
   const fetchDashboardStats = async ():Promise<IDashboardStats | null> => {
       try {
           if(!user) return null;
-          const res = isAdmin ?  await getDashboardStats() : await getDashboardStatsByOrg(user?.org);
+          const res = await getDashboardStatsByOrg(user?.org);
           const data = res.payload as IDashboardStats;
           return data;
       } catch (error) {
@@ -187,11 +180,10 @@ export const useFetchUserDashboardStats = () => {
 
 export const useFetchCostStats = () => {
   const {user} = useAuth();
-  const isAdmin = isSystemAdmin(user);
   const fetchCostStats = async ():Promise<ICostStats | null> => {
       try {
           if(!user) return null;
-          const res = isAdmin ? await getCostStats() : await getCostStatsByOrg(user?.org);
+          const res = await getCostStatsByOrg(user?.org);
           const data = res.payload as ICostStats;
           return data;
       } catch (error) {

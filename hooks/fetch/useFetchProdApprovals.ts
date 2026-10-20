@@ -1,16 +1,14 @@
-import { getProdApprovals, getProdApprovalsByOrg } from "@/lib/actions/prodapproval.action";
+import { getProdApprovalsByOrg } from "@/lib/actions/prodapproval.action";
 import { IProdApproval } from "@/lib/models/prodapproval.model";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
-import { isSystemAdmin } from "@/Data/roles/permissions";
 
 export const useFetchProdApprovals = () => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchProdApprovals = async ():Promise<IProdApproval[]> => {
         try {
             if(!user) return [];
-            const res = isAdmin ? await getProdApprovals() : await getProdApprovalsByOrg(user?.org);
+            const res = await getProdApprovalsByOrg(user?.org);
             const data = res.payload as IProdApproval[];
             return data
             .sort((a, b) => a.status === 'Pending' ? 1 : b.status === 'Pending' ? -1 : 0)

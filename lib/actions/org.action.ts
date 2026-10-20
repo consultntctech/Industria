@@ -92,6 +92,31 @@ export async function updateOrg(org:Partial<IOrganization>):Promise<IResponse>{
     }
 }
 
+export async function acceptOrgTerms(orgId: string): Promise<IResponse> {
+  try {
+    const session = await getSession();
+    if (!session) return respond('You must be signed in', true, {}, 401);
+    if (String(session.org) !== String(orgId)) return respond('Not allowed', true, {}, 403);
+
+    await connectDB();
+    await Organization.updateOne(
+      { _id: orgId },
+      {
+        hasAgreedTerms: true,
+        termsAcceptedAt: new Date(),
+        termsAcceptedBy: session._id,
+        termsVersion: '1.0',
+      }
+    );
+    return respond('Policy accepted. You can find this policy in the footer of the application', false, {}, 200);
+  } catch (error) {
+    console.log(error);
+    return respond('Error occured while saving your consent', true, {}, 500);
+  }
+}
+
+
+
 export async function deleteOrg(id:string):Promise<IResponse>{
     try {
         await connectDB();

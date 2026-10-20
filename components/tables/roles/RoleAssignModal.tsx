@@ -1,12 +1,11 @@
 import SearchSelectMultipleDepartments from "@/components/shared/inputs/dropdowns/SearchSelectMultipleDepartments";
 import SearchSelectMultipleUsers from "@/components/shared/inputs/dropdowns/SearchSelectMultipleUsers";
-import SearchSelectOrgs from "@/components/shared/inputs/dropdowns/SearchSelectOrgs";
 import GenericLabel from "@/components/shared/inputs/GenericLabel";
-import { isSystemAdmin } from "@/Data/roles/permissions";
-import { useAuth, useCanUser } from "@/hooks/useAuth";
+import {  useCanUser } from "@/hooks/useAuth";
 import { assignRolesToDepartments } from "@/lib/actions/department.action";
 import { AssignRolesToUsers } from "@/lib/actions/user.action";
 import { IDepartment } from "@/lib/models/department.model";
+import { IOrganization } from "@/lib/models/org.model";
 import { IRole } from "@/lib/models/role.model";
 import { IUser } from "@/lib/models/user.model";
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
@@ -25,14 +24,11 @@ const RoleAssignModal = ({currentRole,  setCurrentRole, open, setOpen}:RoleAssig
     const [users, setUsers] = useState<IUser[]>([]);
     const [departments, setDepartments] = useState<IDepartment[]>([]);
     const [mode, setMode] = useState<'users'|'departments'>('users');
-    const [org, setOrg] = useState<string>('');
     
-    const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const editor = useCanUser('95', 'UPDATE');
     // console.log('User: ', user);
     // console.log('Role: ', currentRole);
-    
+    const currentOrg = currentRole?.org as IOrganization;
     const userIds = users?.map(u=>u._id);
     const deptIds = departments?.map(d=>d._id);
     const handleClose = ()=>{
@@ -96,19 +92,16 @@ const RoleAssignModal = ({currentRole,  setCurrentRole, open, setOpen}:RoleAssig
                     }
                     />
             </div>
-            {
-                isAdmin && mode === 'departments' &&
-                <GenericLabel label="Select Organization" input={<SearchSelectOrgs setOrgId={setOrg} width={280} />} />
-            }
+           
             <DialogContentText style={{width:280, fontSize:12, color:'black'}} >
                 {mode === 'users' ?`Select a user to assign this role to`:'Select a department to assign this role to'}
             </DialogContentText>
             <form onSubmit={mode === 'users' ? agreeClick : agreeDepartments} id="role-component-form">
                 {
                     mode === 'users' ?
-                    <SearchSelectMultipleUsers showMe={false} showAdmins={false} width={280} setSelection={setUsers} />
+                    <SearchSelectMultipleUsers orgId={currentOrg?._id} showMe={false} showAdmins={false} width={280} setSelection={setUsers} />
                     :
-                    <SearchSelectMultipleDepartments setSelection={setDepartments} orgId={org} width={280} />
+                    <SearchSelectMultipleDepartments setSelection={setDepartments} orgId={currentOrg?._id} width={280} />
                 }
             </form>
         </DialogContent>

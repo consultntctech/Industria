@@ -1,10 +1,10 @@
 import { ViewCreator } from '@/components/PermisionHelpers/PermisionHelpers';
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
 import { isSystemAdmin } from '@/Data/roles/permissions';
-import { TableData } from '@/Data/roles/table';
+import { gloAdminTable, TableData } from '@/Data/roles/table';
 import { formatDate } from '@/functions/dates';
 import { getRoleTitles } from '@/functions/helpers';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useIsGlobalAdmin } from '@/hooks/useAuth';
 import { IOrganization } from '@/lib/models/org.model';
 import { IRole } from '@/lib/models/role.model';
 import { IUser } from '@/lib/models/user.model';
@@ -20,11 +20,14 @@ type RolesInfoModalProps = {
 
 const RolesInfoModal = ({infoMode, setInfoMode, currentRole, setCurrentRole}:RolesInfoModalProps) => {
     const {user} = useAuth();
+    const isGlobal = useIsGlobalAdmin();
     const isAdmin = isSystemAdmin(user);
+    const admin = isAdmin || isGlobal;
     const creator = currentRole?.createdBy as IUser;
     const org = currentRole?.org as IOrganization;
     const titles = getRoleTitles(currentRole);
-    const table = TableData.find(t=>t.id===currentRole?.permissions?.tableid);
+    const tables = admin ? [...TableData, gloAdminTable] : TableData;
+    const table = tables.find(t=>t.id===currentRole?.permissions?.tableid);
     // console.log('Creator:', creator);
     const handleClose = ()=>{
         setInfoMode(false);

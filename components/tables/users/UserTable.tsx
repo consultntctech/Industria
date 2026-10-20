@@ -9,10 +9,11 @@ import  { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { UserColoumns } from './UserColumns'
 import UserInfoModal from './UserInfoModal'
 import { useSearchParams } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth, useIsGlobalAdmin } from '@/hooks/useAuth'
 import { isSystemAdmin } from '@/Data/roles/permissions'
 import { IEmployee } from '@/lib/models/employee.model';
 import { createEmployee } from '@/lib/actions/employee.action';
+import SearchSelectOrgs from '@/components/shared/inputs/dropdowns/SearchSelectOrgs';
 
 type UserTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -24,11 +25,15 @@ const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => 
     const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
     const [showEmployee, setShowEmployee] = useState<boolean>(false);
+    const [orgId, setOrgId] = useState<string>('');
     const {user} = useAuth();
     const isAdmin = isSystemAdmin(user);
-    const {users, isPending, refetch} = useFetchUsers(false);
+    const isGlobal = useIsGlobalAdmin();
+    const admin = isAdmin || isGlobal;
+    const {users, isPending, refetch} = useFetchUsers(false, admin, orgId);
     const searchParams = useSearchParams();
     const userId = searchParams.get("Id");
+
 
     useEffect(() => {
         if (!userId) return;
@@ -60,6 +65,11 @@ const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => 
     }, [userId]);
 
 
+    useEffect(()=>{
+        if(user){
+            setOrgId(user?.org);
+        }
+    }, [user])
 
     const paginationModel = { page: 0, pageSize: 15 };
 
@@ -142,7 +152,13 @@ const UserTable = ({setOpenNew, currentUser, setCurrentUser}:UserTableProps) => 
 
   return (
     <div className='table-main2' >
-        <span className='font-bold text-xl' >Users</span>
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <span className='font-bold text-xl' >Users</span>
+            {
+                isAdmin &&
+                <SearchSelectOrgs setOrgId={setOrgId}   width={250} />
+            }
+        </div>
         <UserInfoModal refetch={refetch} infoMode={showInfo} setInfoMode={setShowInfo} currentUser={currentUser} setCurrentUser={setCurrentUser} />
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteUser} title="Delete User" content={content} />
         <DialogueAlet open={showEmployee} handleClose={handleClose} agreeClick={handleAddEmployee} title="Add Employee" content={addEmployeContent} />

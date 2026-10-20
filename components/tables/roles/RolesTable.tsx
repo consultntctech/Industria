@@ -10,6 +10,10 @@ import { useSearchParams } from "next/navigation";
 import RolesInfoModal from "./RolesInfoModal";
 import { RolesColumns } from "./RolesColumns";
 import RoleAssignModal from "./RoleAssignModal";
+import SearchSelectOrgs from "@/components/shared/inputs/dropdowns/SearchSelectOrgs";
+// import { IOrganization } from "@/lib/models/org.model";
+import { useAuth } from "@/hooks/useAuth";
+import { isSystemAdmin } from "@/Data/roles/permissions";
 
 type RolesTableProps = {
     setOpenNew:Dispatch<SetStateAction<boolean>>;
@@ -17,13 +21,18 @@ type RolesTableProps = {
     setCurrentRole:Dispatch<SetStateAction<IRole | null>>;
 }
 
+
+
 const RolesTable = ({setOpenNew, currentRole, setCurrentRole}:RolesTableProps) => {
     const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
     const [showAssign, setShowAssign] = useState(false);
-    
+    const [orgId, setOrgId] = useState<string>('');
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
 
-    const {roles, isPending, refetch} = useFetchRoles();
+    const {roles, isPending, refetch} = useFetchRoles(orgId);
+    // const currentOrg = roles?.at(0)?.org as IOrganization;
 
 
     const searchParams = useSearchParams();
@@ -58,6 +67,11 @@ const RolesTable = ({setOpenNew, currentRole, setCurrentRole}:RolesTableProps) =
             };
         }, [RoleId]);
 
+        useEffect(()=>{
+            if(user){
+                setOrgId(user?.org);
+            }
+        }, [user])
 
     const paginationModel = { page: 0, pageSize: 15 };
 
@@ -107,11 +121,17 @@ const RolesTable = ({setOpenNew, currentRole, setCurrentRole}:RolesTableProps) =
 
   return (
     <div className='table-main2' >
-        <span className='font-bold text-xl' >Roles</span>
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <span className='font-bold text-xl' >Roles</span>
+            {
+                isAdmin &&
+                <SearchSelectOrgs setOrgId={setOrgId}   width={250} />
+            }
+        </div>
         <RoleAssignModal currentRole={currentRole} setCurrentRole={setCurrentRole} open={showAssign} setOpen={setShowAssign} />
         <RolesInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentRole={currentRole} setCurrentRole={setCurrentRole} />
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteItem} title="Delete Role" content={content} />
-        <div className="flex w-full">
+        <div className="flex w-full flex-col">
             {
                 // loading ? 
                 // <LinearProgrewss className='w-full' />
@@ -138,6 +158,7 @@ const RolesTable = ({setOpenNew, currentRole, setCurrentRole}:RolesTableProps) =
                         // checkboxSelection
                         className='dark:bg-[#0F1214] dark:border dark:text-blue-800'
                         sx={{ border: 0 }}
+                        
                         // slots={{toolbar:GridToolbar}}
                         showToolbar
                         slotProps={{
@@ -146,7 +167,7 @@ const RolesTable = ({setOpenNew, currentRole, setCurrentRole}:RolesTableProps) =
                                 printOptions:{
                                     hideFooter:true, hideToolbar:true
                                 }
-                            }
+                            },
                         }}
                     />
                 </Paper>

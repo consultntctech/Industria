@@ -1,17 +1,15 @@
-import { getApprovedPackages, getApprovedPackagesByOrg, getLastSixMonthsPackages, getLastSixMonthsPackagesByOrg, getPackagedProductStats, getPackagedProductStatsByOrg, getPackages, getPackagesByOrg, getPackageStats, getPackageStatsByOrg } from "@/lib/actions/package.action";
+import { getApprovedPackagesByOrg, getLastSixMonthsPackagesByOrg, getPackagedProductStatsByOrg, getPackagesByOrg, getPackageStatsByOrg } from "@/lib/actions/package.action";
 import { IPackage } from "@/lib/models/package.model";
 import { IMonthlyStats, IPackagedProducts, IPackageStats, QuanityOrPrice } from "@/types/Types";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
-import { isSystemAdmin } from "@/Data/roles/permissions";
 
 export const useFetchPackages = () => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchPackages = async ():Promise<IPackage[]> => {
         try {
             if(!user) return [];
-            const res = isAdmin ? await getPackages() : await getPackagesByOrg(user?.org);
+            const res =await getPackagesByOrg(user?.org);
             const data = res.payload as IPackage[];
             return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {
@@ -31,11 +29,10 @@ export const useFetchPackages = () => {
 
 export const useFetchApprovedPackages = () => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchApprovedPackages = async ():Promise<IPackage[]> => {
         try {
             if(!user) return [];
-            const res = isAdmin ? await getApprovedPackages() : await getApprovedPackagesByOrg(user?.org);
+            const res = await getApprovedPackagesByOrg(user?.org);
             const data = res.payload as IPackage[];
             return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {
@@ -56,11 +53,10 @@ export const useFetchApprovedPackages = () => {
 
 export const useFetchSixMonthPackages = () => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchPackages = async ():Promise<IMonthlyStats[]> => {
         try {
             if(!user) return [];
-            const res = isAdmin ? await getLastSixMonthsPackages() : await getLastSixMonthsPackagesByOrg(user?.org);
+            const res = await getLastSixMonthsPackagesByOrg(user?.org);
             const data = res.payload as IMonthlyStats[];
             return data;
         } catch (error) {
@@ -80,11 +76,10 @@ export const useFetchSixMonthPackages = () => {
 
 export const useFetchPackageStats = (type: 'quantity' | 'price'='quantity') => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchStats = async ():Promise<IPackageStats | null> => {
         try {
             if(!user) return null;
-            const res = isAdmin ? await getPackageStats(type) : await getPackageStatsByOrg(user?.org, type);
+            const res = await getPackageStatsByOrg(user?.org, type);
             const data = res.payload as IPackageStats;
             return data;
         } catch (error) {
@@ -105,11 +100,10 @@ export const useFetchPackageStats = (type: 'quantity' | 'price'='quantity') => {
 
 export const useFetchPackagedProductStats = (type:QuanityOrPrice = "quantity") => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchStats = async ():Promise<IPackagedProducts[]> => {
         try {
             if(!user) return [];
-            const res = isAdmin ? await getPackagedProductStats(type) : await getPackagedProductStatsByOrg(user?.org, type);
+            const res = await getPackagedProductStatsByOrg(user?.org, type);
             const data = res.payload as IPackagedProducts[];
             return data;
         } catch (error) {

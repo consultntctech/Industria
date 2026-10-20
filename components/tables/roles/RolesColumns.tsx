@@ -3,9 +3,12 @@ import { IRole } from "@/lib/models/role.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IUser } from "@/lib/models/user.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { TableData } from "@/Data/roles/table";
+import { gloAdminTable, TableData } from "@/Data/roles/table";
 import { IOperation } from "@/types/Types";
 import { Assigner, Deleter, Editor, Linker, ViewCreator, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
+import { useAuth, useIsGlobalAdmin } from "@/hooks/useAuth";
+import { isSystemAdmin } from "@/Data/roles/permissions";
+import { globalAdminTableId } from "@/Data/constants";
 
 export const RolesColumns = (
     handleInfo: (role:IRole)=>void,
@@ -13,6 +16,16 @@ export const RolesColumns = (
     handleAssign: (role:IRole)=>void,
     handleDelete: (role:IRole)=>void,
 ):GridColDef[]=>{
+    const {user} = useAuth();
+    const isGlobal = useIsGlobalAdmin();
+    const isAdmin = isSystemAdmin(user);
+    const admin = isAdmin || isGlobal;
+    // alert(admin)
+    const tables = admin ? [...TableData, gloAdminTable] : TableData;
+//     tables.map((table) => {
+//   console.log('rendering:', table.name);
+// //   return ( /* your existing item JSX */ );
+// })
 
     return [
 
@@ -27,13 +40,14 @@ export const RolesColumns = (
             headerName: 'Table',
             width:100,
             valueFormatter: (_, row:IRole)=>{
+                
                 const tableId = row?.permissions?.tableid;
-                const table = TableData.find(t=>t.id===tableId)?.name;
+                const table = tables.find(t=>t.id===tableId)?.name;
                 return table ? table : '';
             },
             valueGetter: (_, row:IRole)=>{
                 const tableId = row?.permissions?.tableid;
-                const table = TableData.find(t=>t.id===tableId)?.name;
+                const table = tables.find(t=>t.id===tableId)?.name;
                 return table ? table : '';
             },
         },
@@ -145,12 +159,14 @@ export const RolesColumns = (
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
             // console.log(params.row?.id)
+            const table = params?.row as IRole;
+            const isGTable = table?.permissions?.tableid === globalAdminTableId;
             return(
                 <div className="h-full flex-center gap-3">
                     <Viewer tableId="27" tip="View role" onClick={()=>handleInfo(params?.row)} />
-                    <Editor tableId="27" tip="Edit role" onClick={()=>handleEdit(params?.row)} />
-                    <Assigner tableId="38" tip="Assign role" onClick={()=>handleAssign(params?.row)} />
-                    <Deleter tableId="27" tip="Delete role" onClick={()=>handleDelete(params?.row)} />
+                    <Editor className={`${(admin && isGTable) ? 'flex' : (isGTable && !admin) ? 'hidden':'flex'}`} tableId="27" tip="Edit role" onClick={()=>handleEdit(params?.row)} />
+                    <Assigner className={`${(admin && isGTable) ? 'flex' : (isGTable && !admin) ? 'hidden':'flex'}`} tableId="38" tip="Assign role" onClick={()=>handleAssign(params?.row)} />
+                    <Deleter className={`${(admin && isGTable) ? 'flex' : (isGTable && !admin) ? 'hidden':'flex'}`} tableId="27" tip="Delete role" onClick={()=>handleDelete(params?.row)} />
                 </div>
             )
         },

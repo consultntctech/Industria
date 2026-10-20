@@ -1,17 +1,15 @@
-import { isSystemAdmin } from "@/Data/roles/permissions";
 import { useAuth } from "../useAuth";
 import { IEquipment } from "@/lib/models/equipment.model";
-import { getEquipments, getEquipmentsByOrg, getEquipmentsByType, getEquipmentStatsByOrg } from "@/lib/actions/equipment.action";
+import {  getEquipmentsByOrg, getEquipmentsByType, getEquipmentStatsByOrg } from "@/lib/actions/equipment.action";
 import { useQuery } from "@tanstack/react-query";
 import { IEquipmentStatsPayload } from "@/types/EquipmentTypes";
 
 export const useFetchEquipment = () => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchEquipment = async ():Promise<IEquipment[]> => {
         try {
             if(!user) return [];
-            const res = isAdmin ? await getEquipments() : await getEquipmentsByOrg(user?.org);
+            const res = await getEquipmentsByOrg(user?.org);
             const data = res.payload as IEquipment[];
             return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {

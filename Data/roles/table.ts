@@ -165,3 +165,11 @@ export const TableData:ITable[] = [
     }
     
 ].sort((a,b)=>a.name.localeCompare(b.name))
+
+
+ export const gloAdminTable:ITable = {
+        id:'15',
+        name: 'Global Admin',
+        description: 'Everything in the organization',
+        level: 5
+    }

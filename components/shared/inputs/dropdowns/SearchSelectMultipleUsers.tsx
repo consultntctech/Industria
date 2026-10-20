@@ -16,11 +16,13 @@ type SearchSelectMultipleUsersProps = {
     showMe?:boolean;
     showAdmins?:boolean;
     placeholder?:string;
+    disabled?:boolean;
+    orgId?: string;
 }
 
-const SearchSelectMultipleUsers = ({setSelection, showMe, showAdmins, width, required, value, placeholder}:SearchSelectMultipleUsersProps) => {
+const SearchSelectMultipleUsers = ({setSelection, showMe, showAdmins, width, required, value, placeholder, disabled, orgId}:SearchSelectMultipleUsersProps) => {
     const [search, setSearch] = useState<string>('');
-    const {users, isPending} = useFetchUsers(showMe, showAdmins);
+    const {users, isPending} = useFetchUsers(showMe, showAdmins, orgId);
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
     const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
@@ -31,6 +33,7 @@ const SearchSelectMultipleUsers = ({setSelection, showMe, showAdmins, width, req
     <Autocomplete
         disableCloseOnSelect
         multiple
+        disabled={disabled}
         filterSelectedOptions
         defaultValue={value}
         options={users}

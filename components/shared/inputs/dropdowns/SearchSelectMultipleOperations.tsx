@@ -15,9 +15,10 @@ type SearchSelectMultipleOperationsProps = {
     width?:number;
     required?:boolean;
     value?:IOperation[];
+    disabled? :boolean;
 }
 
-const SearchSelectMultipleOperations = ({setSelection, table,  width, required, value}:SearchSelectMultipleOperationsProps) => {
+const SearchSelectMultipleOperations = ({setSelection, table, disabled, width, required, value}:SearchSelectMultipleOperationsProps) => {
     const [search, setSearch] = useState<string>('');
     const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
     const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -28,6 +29,7 @@ const SearchSelectMultipleOperations = ({setSelection, table,  width, required, 
     <Autocomplete
         disableCloseOnSelect
         multiple
+        disabled={disabled}
         filterSelectedOptions
         defaultValue={value}
         options={OperationData(table)}

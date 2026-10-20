@@ -8,6 +8,7 @@ import '../models/user.model'
 import '../models/org.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import User, { IUser } from "../models/user.model";
+import { getSession } from "../session";
 
 function isRole(obj: unknown): obj is IRole {
   return !!obj && typeof obj === 'object' && 'permissions' in obj;
@@ -84,9 +85,21 @@ export async function getRole(id: string): Promise<IResponse> {
   }
 }
 
-export async function deleteRole(id:string):Promise<IResponse>{
-    try {
-        await connectDB();
+export async function deleteRole(id: string): Promise<IResponse> {
+  try {
+      await connectDB();
+        const session = await getSession();
+        if (!session) {
+            return respond('You must be signed in to delete a role', true, {}, 401);
+        }
+
+
+        // Block the operation if the role is assigned to the person deleting it
+        const isAssignedToMe = await User.exists({ _id: session._id, roles: id });
+        if (isAssignedToMe) {
+            return respond('You cannot delete a role that is assigned to you', true, {}, 403);
+        }
+
         const deletedRole = await Role.deleteOne({ _id: id });
         return respond('Role deleted successfully', false, deletedRole, 200);
     } catch (error) {
@@ -94,7 +107,6 @@ export async function deleteRole(id:string):Promise<IResponse>{
         return respond('Error occured while deleting role', true, {}, 500);
     }
 }
-
 
 export async function getUserPermissions(userId: string): Promise<IResponse> {
   try {

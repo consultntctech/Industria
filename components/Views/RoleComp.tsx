@@ -1,4 +1,4 @@
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, useIsGlobalAdmin } from "@/hooks/useAuth";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
@@ -13,7 +13,11 @@ import GenericLabel from "../shared/inputs/GenericLabel";
 import SearchSelectTable from "../shared/inputs/dropdowns/SearchSelectTable";
 import SearchSelectMultipleOperations from "../shared/inputs/dropdowns/SearchSelectMultipleOperations";
 import { useFetchRoles } from "@/hooks/fetch/useFetchRoles";
-import {useCanUser } from "@/hooks/useAuth";;
+import {useCanUser } from "@/hooks/useAuth";import { isSystemAdmin } from "@/Data/roles/permissions";
+import { IOrganization } from "@/lib/models/org.model";
+import SearchSelectOrgs from "../shared/inputs/dropdowns/SearchSelectOrgs";
+import { globalAdminTableId } from "@/Data/constants";
+;
 
 type RoleCompProps = {
   openNew:boolean;
@@ -28,13 +32,33 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
     const [operations, setOperations] = useState<IOperation[]>([]);
     const [table, setTable] = useState<ITable | null>(null);
     const {user} = useAuth();
+    const [orgId, setOrgId] = useState<string>('');
 
     const permissions = data?.permissions
-    const oldTable = TableData.filter(t=>t.id===permissions?.tableid)[0]
+
+    const isGlobal = useIsGlobalAdmin();
+
+    // const roles = queryClient.getQueryData<ISessionRole[]>(['permissions', user?._id]);
+    // const isGlobal = isGlobalAdmin(roles);
+    const isAdmin = isSystemAdmin(user);
+    const admin = isAdmin || isGlobal;
+
+    const gloAdmin:ITable = {
+        id:'15',
+        name: 'Global Admin',
+        description: 'Everything in the organization',
+        level: 5
+    }
+
+    const tables = admin ? [gloAdmin, ...TableData]: TableData;
+
+    const oldTable = tables.filter(t=>t.id===permissions?.tableid)[0]
     const oldOperations = permissions?.operations as IOperation[]
 
     const formRef = useRef<HTMLFormElement>(null);
     const {refetch} = useFetchRoles();
+
+    const organization = currentRole?.org as IOrganization;
 
     const isCreator = useCanUser('27', 'CREATE');
     const isEditor = useCanUser('27', 'UPDATE');
@@ -45,6 +69,7 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
             setData({...currentRole});
             setTable(oldTable);
             setOperations(oldOperations);
+            setOrgId(organization?._id);
         }else{
             setData({});
         }
@@ -80,7 +105,7 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
                     tableid:table?.id as string,
                     operations
                 },
-                org:user?.org,
+                org: isAdmin ? orgId : user?.org,
                 createdBy:user?._id,
                 creator:user?.name
             }
@@ -115,6 +140,7 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
                     operations
                 },
             }
+            // console.log('Form Data: ', formData);
             const res = await updateRole(formData);
             enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
             if(!res.error){
@@ -129,6 +155,7 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
             setLoading(false);
         }
     }
+    // console.log('Table: ', table)
 
     // if(!openNew) return null;
   return (
@@ -148,15 +175,15 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
                             currentRole ?
                             <>
                             {
-                                oldTable &&
+                                // oldTable &&
                                 <GenericLabel label="Select table"
-                                    input={<SearchSelectTable value={oldTable} setSelect={setTable}  required />}
+                                    input={<SearchSelectTable value={oldTable} setSelect={setTable}  required={!table} />}
                                 />
                             }
                             {
                                 oldOperations  &&
                                 <GenericLabel label="Select operations"
-                                input={<SearchSelectMultipleOperations table={table} value={oldOperations} setSelection={setOperations}  />}
+                                input={<SearchSelectMultipleOperations table={table} value={oldOperations} setSelection={setOperations} required={operations?.length === 0}  />}
                                 />
                             }
                             </>
@@ -166,7 +193,7 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
                                     input={<SearchSelectTable value={oldTable} setSelect={setTable}  required />}
                                 />
                                 <GenericLabel label="Select operations"
-                                    input={<SearchSelectMultipleOperations table={table} value={oldOperations} setSelection={setOperations}  />}
+                                    input={<SearchSelectMultipleOperations table={table} value={oldOperations} setSelection={setOperations} required={operations?.length===0} />}
                                 />
                             </>
                         }
@@ -174,11 +201,17 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
         
                     <div className="flex gap-4 flex-col w-full justify-between">
                         <div className="flex flex-col gap-4 w-full">
+                            {
+                                (isAdmin && !currentRole) &&
+                                <GenericLabel label="Organization"
+                                    input={<SearchSelectOrgs value={organization} setOrgId={setOrgId} required={!currentRole} />}
+                                />
+                            }
                             <TextAreaWithLabel defaultValue={currentRole?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                         </div>
                         {
                             (isCreator || isEditor) &&
-                            <PrimaryButton disabled={currentRole ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentRole ? "Update" : "Submit"} className="w-full mt-4" />
+                            <PrimaryButton disabled={((oldTable?.id === globalAdminTableId) && !admin) ? true : currentRole ? !isEditor : !isCreator} loading={loading} type="submit" text={loading?"loading" : currentRole ? "Update" : "Submit"} className={"w-full mt-4"} />
                         }
                     </div>
                 </div>

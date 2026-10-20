@@ -1,16 +1,14 @@
-import { getAvailableProdItems, getAvailableProdItemsByOrg, getProdItems, getProdItemsByOrg } from "@/lib/actions/proditem.action";
+import { getAvailableProdItemsByOrg, getProdItemsByOrg } from "@/lib/actions/proditem.action";
 import { IProdItem } from "@/lib/models/proditem.model";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
-import { isSystemAdmin } from "@/Data/roles/permissions";
 
 export const useFetchProditem = () => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchProditem = async ():Promise<IProdItem[]> => {
         try {
             if(!user) return [];
-            const res = isAdmin ? await getProdItems() : await getProdItemsByOrg(user?.org);
+            const res = await getProdItemsByOrg(user?.org);
             const data = res.payload as IProdItem[];
             return data.sort((a, b) => new Date(b?.createdAt)!.getTime() - new Date(a?.createdAt)!.getTime());
         } catch (error) {
@@ -30,11 +28,10 @@ export const useFetchProditem = () => {
 
 export const useFetchAvailableProditems = () => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchAvailableProditems = async ():Promise<IProdItem[]> => {
         try {
             if(!user) return [];
-            const res = isAdmin ? await getAvailableProdItems() : await getAvailableProdItemsByOrg(user?.org);
+            const res = await getAvailableProdItemsByOrg(user?.org);
             const data = res.payload as IProdItem[];
             return data.sort((a, b) => new Date(b?.createdAt)!.getTime() - new Date(a?.createdAt)!.getTime());
         } catch (error) {

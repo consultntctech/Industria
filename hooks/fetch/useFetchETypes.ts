@@ -1,17 +1,15 @@
-import { isSystemAdmin } from "@/Data/roles/permissions";
 import { useAuth } from "../useAuth";
 import { IEType } from "@/lib/models/etype.model";
 import { useQuery } from "@tanstack/react-query";
-import { getETypes, getETypesByCategory, getETypesByOrg } from "@/lib/actions/etype.action";
+import { getETypesByCategory, getETypesByOrg } from "@/lib/actions/etype.action";
 
 export const useFetchETypes = () => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
 
     const fetchETypes = async ():Promise<IEType[]> => {
         try {
             if(!user) return [];
-            const res = isAdmin ? await getETypes() : await getETypesByOrg(user?.org);
+            const res = await getETypesByOrg(user?.org);
             const data = res.payload as IEType[];
             return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {

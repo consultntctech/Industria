@@ -1,5 +1,5 @@
 import { getForgotByToken } from "@/lib/actions/forgot.action";
-import { getUser, getUsers, getUsersByDepartment, getUsersByOrg } from "@/lib/actions/user.action";
+import { getUser,  getUsersByDepartment, getUsersByOrg } from "@/lib/actions/user.action";
 import { IForgot } from "@/lib/models/forgot.model";
 import { IUser } from "@/lib/models/user.model";
 import { useQuery } from "@tanstack/react-query";
@@ -10,16 +10,17 @@ import {  isDbGlobalAdmin, isSystemAdmin } from "@/Data/roles/permissions";
 import { IRole } from "@/lib/models/role.model";
 // import { IRole } from "@/lib/models/role.model";
 
-export const useFetchUsers = (showMe:boolean=true, showAdmins:boolean=true) => {
+export const useFetchUsers = (showMe:boolean=true, showAdmins:boolean=true, orgId?:string) => {
     const {user} = useAuth();
     const global = useIsGlobalAdmin();
     // console.log(global, showAdmins)
 
     const isAdmin = isSystemAdmin(user);
+    const id = isAdmin ? orgId : user?.org;
     const fetchUsers = async():Promise<IUser[]>=>{
         try {
-            if(!user) return [];
-            const res = isAdmin ? await getUsers() : await getUsersByOrg(user?.org);
+            if(!user || !id) return [];
+            const res = await getUsersByOrg(id);
             const users = res.payload as IUser[];
             // console.log('Users 2: ', users)
             return users
@@ -38,7 +39,7 @@ export const useFetchUsers = (showMe:boolean=true, showAdmins:boolean=true) => {
     }
 
     const {data:users=[], isPending, refetch} = useQuery({
-        queryKey: ['users', showMe],
+        queryKey: ['users', showMe, showAdmins, id],
         queryFn: fetchUsers,
         enabled: !!user
     })

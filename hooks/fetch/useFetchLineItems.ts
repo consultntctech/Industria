@@ -1,16 +1,14 @@
-import { getAvailableLineItems, getAvailableLineItemsByOrg, getAvailableLineItemsByProduct, getAvailableLineItemsByProducts, getLineItems, getLineItemsByOrg, getLineItemsByPackage, getLineItemsByPackageAndOrg, getLineItemsByProduct, getLineItemsByProductAndOrg } from "@/lib/actions/lineitem.action";
+import {  getAvailableLineItemsByOrg, getAvailableLineItemsByProduct, getAvailableLineItemsByProducts,  getLineItemsByOrg,  getLineItemsByPackageAndOrg, getLineItemsByProductAndOrg } from "@/lib/actions/lineitem.action";
 import { ILineItem } from "@/lib/models/lineitem.model";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
-import { isSystemAdmin } from "@/Data/roles/permissions";
 
 export const useFetchLineItems = () => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchLineItems = async ():Promise<ILineItem[]> => {
         try {
             if(!user) return [];
-            const res = isAdmin ? await getLineItems() : await getLineItemsByOrg(user?.org);
+            const res = await getLineItemsByOrg(user?.org);
             const data = res.payload as ILineItem[];
             return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {
@@ -30,11 +28,10 @@ export const useFetchLineItems = () => {
 
 export const useFetchAvailableLineItems = () => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchLineItems = async ():Promise<ILineItem[]> => {
         try {
             if(!user) return [];
-            const res = isAdmin ? await getAvailableLineItems() : await getAvailableLineItemsByOrg(user?.org);
+            const res = await getAvailableLineItemsByOrg(user?.org);
             const data = res.payload as ILineItem[];
             return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {
@@ -54,11 +51,10 @@ export const useFetchAvailableLineItems = () => {
 
 export const useFetchLineItemsByPackage = (packageId:string) => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchLineItems = async ():Promise<ILineItem[]> => {
         try {
             if (!packageId || !user) return [];
-            const res = isAdmin ? await getLineItemsByPackage(packageId) : await getLineItemsByPackageAndOrg(packageId, user?.org);
+            const res = await getLineItemsByPackageAndOrg(packageId, user?.org);
             const data = res.payload as ILineItem[];
             return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {
@@ -79,11 +75,10 @@ export const useFetchLineItemsByPackage = (packageId:string) => {
 
 export const useFetchLineItemsByProduct = (productId:string) => {
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchLineItems = async ():Promise<ILineItem[]> => {
         try {
             if (!productId || !user) return [];
-            const res = isAdmin ? await getLineItemsByProduct(productId) : await getLineItemsByProductAndOrg(productId, user?.org);
+            const res = await getLineItemsByProductAndOrg(productId, user?.org);
             const data = res.payload as ILineItem[];
             return data.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime());
         } catch (error) {

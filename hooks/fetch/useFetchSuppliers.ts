@@ -1,17 +1,15 @@
-import { getProductSuppliers, getProductSuppliersByOrg, getSupplierItems, getSuppliers, getSuppliersByOrg } from "@/lib/actions/supplier.action";
+import { getProductSuppliersByOrg, getSupplierItems, getSuppliersByOrg } from "@/lib/actions/supplier.action";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
-import { isSystemAdmin } from "@/Data/roles/permissions";
 import { ISupplierStats } from "@/types/OtherTypes";
 
 export const useFetchSuppliers = ()=>{
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchSuppliers = async():Promise<ISupplier[]>=>{
         try {
             if(!user) return [];
-            const res = isAdmin ? await getSuppliers() : await getSuppliersByOrg(user?.org);
+            const res = await getSuppliersByOrg(user?.org);
             const suppliers = res.payload as ISupplier[];
             return suppliers;
         } catch (error) {
@@ -32,11 +30,10 @@ export const useFetchSuppliers = ()=>{
 
 export const useFetchProductSuppliers = (id:string)=>{
     const {user} = useAuth();
-    const isAdmin = isSystemAdmin(user);
     const fetchProductSuppliers = async():Promise<ISupplier[]>=>{
         try {
             if(!id || !user) return [];
-            const res = isAdmin ? await getProductSuppliers(id) : await getProductSuppliersByOrg(user?.org, id);
+            const res = await getProductSuppliersByOrg(user?.org, id);
             const suppliers = res.payload as ISupplier[];
             return suppliers;
         } catch (error) {
