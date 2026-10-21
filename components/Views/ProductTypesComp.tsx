@@ -166,6 +166,7 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
                   <select defaultValue={currentProduct? currentProduct?.type : 'Raw Material'} onChange={onSelectChange} name="type" className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
                     <option  value="Raw Material">Raw Material</option>
                     <option  value="Work in Progress">Work in Progress</option>
+                    <option  value="Packaging Material">Packaging Material</option>
                     <option value="Finished Good">Unfinished Good</option>
                 </select>
                 }
