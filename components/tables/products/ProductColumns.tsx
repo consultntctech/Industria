@@ -32,11 +32,11 @@ export const ProductColumns = (
             headerName: 'Product Type',
             width:110,
             valueFormatter: (_, row:IProduct)=>{
-                const type = row?.type === 'Raw Material' ? 'Raw Materials' : 'Unfinished Goods';
+                const type = row?.type === 'Finished Good' ? 'Unfinished Good' : row?.type;
                 return type;
             },
             valueGetter: (_, row:IProduct)=>{
-                const type = row?.type === 'Raw Material' ? 'Raw Materials' : 'Unfinished Goods';
+                const type = row?.type === 'Finished Good' ? 'Unfinished Good' : row?.type;
                 return type;
             }
         },
