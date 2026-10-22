@@ -75,8 +75,14 @@ export const TableData:ITable[] = [
     },
     {
         id:'12',
-        name: 'Packaging Materials',
-        description: 'Packaging materials table',
+        name: 'Packaging Material Items',
+        description: 'Packaging material items table',
+        level: 4
+    },
+    {
+        id:'17',
+        name: 'Types',
+        description: 'Packaging material types table',
         level: 4
     },
     {

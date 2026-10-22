@@ -103,7 +103,7 @@ const SupplierComp = ({openNew, setOpenNew, currentSupplier, setCurrentSupplier}
                 <div className="flex gap-4 flex-col w-full">
                 <InputWithLabel defaultValue={currentSupplier?.name} onChange={onChange} name="name" required placeholder="enter name" label="Company/Individual name" className="w-full" />
                 <InputWithLabel defaultValue={currentSupplier?.person} onChange={onChange} name="person" required placeholder="enter name" label="Enter contact person's name" className="w-full" />
-                <InputWithLabel defaultValue={currentSupplier?.email} onChange={onChange} name="email" required type="email" placeholder="enter email" label="Email" className="w-full" />
+                <InputWithLabel defaultValue={currentSupplier?.email} onChange={onChange} name="email" type="email" placeholder="enter email" label="Email" className="w-full" />
                 <InputWithLabel defaultValue={currentSupplier?.phone} onChange={onChange} name="phone" required placeholder="enter phone" label="Phone" className="w-full" />
                 <InputWithLabel defaultValue={currentSupplier?.address} onChange={onChange} name="address" required placeholder="enter address" label="Address" className="w-full" />
                 </div>

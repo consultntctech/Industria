@@ -17,11 +17,22 @@ import '../models/employee.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Good from "../models/good.model";
 import PackApproval from "../models/packapproval.model";
-import ProdItem, { IProdItem } from "../models/proditem.model";
+import ProdItem from "../models/proditem.model";
 import LineItem from "../models/lineitem.model";
 import { getISOWeek, getISOWeekYear } from "@/functions/helpers";
 import Alert, { IAlert } from "../models/alert.model";
 import mongoose, { Types } from 'mongoose';
+import { IProdType } from "../models/prodtype.model";
+
+
+interface IAlertItem {
+  _id: string;
+  name: string;
+  stock: number;
+  used: number;
+  type?: Pick<IProdType, "threshold" | "reusable"> | null;
+}
+
 
 export async function createPackage(data: Partial<IPackage>): Promise<IResponse> {
   const session = await (await connectDB()).startSession();
@@ -41,9 +52,7 @@ export async function createPackage(data: Partial<IPackage>): Promise<IResponse>
       ]
     });
 
-    // ---------------------------------------------------------
     // 2. Validate ALL goods in array
-    // ---------------------------------------------------------
     if (!pkg.goods || pkg.goods.length === 0) {
       await session.abortTransaction();
       return respond("Goods list cannot be empty", true, {}, 400);
@@ -57,7 +66,6 @@ export async function createPackage(data: Partial<IPackage>): Promise<IResponse>
         return respond(`Good not found: ${g.goodId}`, true, {}, 404);
       }
 
-      // Decrease quantityLeftToPackage by the amount used in package
       if (g.quantity > good.quantityLeftToPackage) {
         await session.abortTransaction();
         return respond(
@@ -75,23 +83,32 @@ export async function createPackage(data: Partial<IPackage>): Promise<IResponse>
       );
     }
 
-    // ---------------------------------------------------------
     // 3. Update ProdItems (materials used)
-    // ---------------------------------------------------------
+    // Invariant: stock + used = quantity, so stock is what is left.
+    // Using a material moves the amount from stock to used. Quantity never changes.
     const touchedMaterialIds = new Set<string>();
 
     if (pkg.packagingMaterial && pkg.packagingMaterial.length > 0) {
       for (const material of pkg.packagingMaterial) {
-        const prodItem = await ProdItem.findById(material.materialId).session(session);
+        const prodItem = await ProdItem.findById(material.materialId)
+          .select("name")
+          .session(session)
+          .lean() as unknown as { _id: string; name: string } | null;
 
         if (!prodItem) {
           await session.abortTransaction();
           return respond(`ProdItem not found: ${material.materialId}`, true, {}, 404);
         }
 
-        const available = prodItem.stock - prodItem.used;
+        // The stock check and the deduction happen in one atomic operation,
+        // so two requests cannot both spend the same remaining stock
+        const updated = await ProdItem.findOneAndUpdate(
+          { _id: prodItem._id, stock: { $gte: material.quantity } },
+          { $inc: { stock: -material.quantity, used: material.quantity } },
+          { session, new: true }
+        );
 
-        if (material.quantity > available) {
+        if (!updated) {
           await session.abortTransaction();
           return respond(
             `Not enough stock for material ${prodItem.name}`,
@@ -101,33 +118,27 @@ export async function createPackage(data: Partial<IPackage>): Promise<IResponse>
           );
         }
 
-        // Update used count
-        await ProdItem.findByIdAndUpdate(
-          prodItem._id,
-          { $inc: { used: material.quantity } },
-          { session }
-        );
-
-        touchedMaterialIds.add(prodItem._id.toString());
+        touchedMaterialIds.add(String(prodItem._id));
       }
     }
 
-    // ---------------------------------------------------------
-    // 3b. Stock alerts for non-reusable ProdItems used
-    // ---------------------------------------------------------
+    // 3b. Stock alerts for non-reusable materials used
     if (touchedMaterialIds.size) {
       const updatedProdItems = await ProdItem.find(
-        { _id: { $in: [...touchedMaterialIds].map(id => new Types.ObjectId(id)) } },
-        { materialName: 1, name: 1, stock: 1, used: 1, threshold: 1, reusable: 1 }
-      ).session(session).lean() as unknown as IProdItem[];
+        { _id: { $in: [...touchedMaterialIds].map((id) => new Types.ObjectId(id)) } },
+        { name: 1, stock: 1, type: 1 }
+      )
+        .populate({ path: "type", select: "threshold reusable" })
+        .session(session)
+        .lean() as unknown as IAlertItem[];
 
       const alerts: Partial<IAlert>[] = [];
 
       for (const item of updatedProdItems) {
-        if (item.reusable) continue; // only alert on consumable materials
+        if (item.type?.reusable) continue; // only alert on consumable materials
 
-        const remaining = item.stock - item.used;
-        const threshold = item.threshold ?? 0;
+        const remaining = item.stock; // stock is already what is left
+        const threshold = item.type?.threshold ?? 0;
 
         if (remaining <= threshold) {
           alerts.push({
@@ -158,10 +169,8 @@ export async function createPackage(data: Partial<IPackage>): Promise<IResponse>
     }
 
     await session.commitTransaction();
-    session.endSession();
 
     return respond("Package created successfully", false, pkg, 201);
-
   } catch (error) {
     console.error("Error creating package:", error);
 
@@ -170,6 +179,8 @@ export async function createPackage(data: Partial<IPackage>): Promise<IResponse>
     } catch {}
 
     return respond("Error occurred while creating package", true, {}, 500);
+  } finally {
+    await session.endSession();
   }
 }
 
@@ -185,7 +196,7 @@ export async function updatePackagingMaterials(
 
     const oldPackage = await Package.findById(data._id)
       .lean()
-      .session(session) as unknown as IPackage;
+      .session(session) as unknown as IPackage | null;
 
     if (!oldPackage) {
       await session.abortTransaction();
@@ -200,28 +211,36 @@ export async function updatePackagingMaterials(
 
     const touchedMaterialIds = new Set<string>();
 
-    // 2. Reverse OLD ProdItem usage
+    // 2. Reverse OLD ProdItem usage: the amount goes from used back to stock
     for (const oldMat of oldMaterials) {
       await ProdItem.findByIdAndUpdate(
         oldMat.materialId,
-        { $inc: { used: -oldMat.quantity } },
+        { $inc: { stock: oldMat.quantity, used: -oldMat.quantity } },
         { session }
       );
-      touchedMaterialIds.add(oldMat.materialId.toString());
+      touchedMaterialIds.add(String(oldMat.materialId));
     }
 
-    // 3. Apply NEW ProdItem usage (with stock check)
+    // 3. Apply NEW ProdItem usage: the amount goes from stock to used
     for (const newMat of newMaterials) {
-      const prodItem = await ProdItem.findById(newMat.materialId).session(session);
+      const prodItem = await ProdItem.findById(newMat.materialId)
+        .select("name")
+        .session(session)
+        .lean() as unknown as { _id: string; name: string } | null;
 
       if (!prodItem) {
         await session.abortTransaction();
         return respond(`ProdItem not found: ${newMat.materialId}`, true, {}, 404);
       }
 
-      const available = prodItem.stock - prodItem.used;
+      // The stock check and the deduction are one atomic operation
+      const updated = await ProdItem.findOneAndUpdate(
+        { _id: prodItem._id, stock: { $gte: newMat.quantity } },
+        { $inc: { stock: -newMat.quantity, used: newMat.quantity } },
+        { session, new: true }
+      );
 
-      if (newMat.quantity > available) {
+      if (!updated) {
         await session.abortTransaction();
         return respond(
           `Not enough stock for material: ${prodItem.name}`,
@@ -231,15 +250,10 @@ export async function updatePackagingMaterials(
         );
       }
 
-      await ProdItem.findByIdAndUpdate(
-        newMat.materialId,
-        { $inc: { used: newMat.quantity } },
-        { session }
-      );
-      touchedMaterialIds.add(newMat.materialId.toString());
+      touchedMaterialIds.add(String(prodItem._id));
     }
 
-    // 4 & 5. goods reversal/apply — unchanged
+    // 4 & 5. goods reversal/apply, unchanged
     for (const oldG of oldGoods) {
       await Good.findByIdAndUpdate(
         oldG.goodId,
@@ -280,22 +294,25 @@ export async function updatePackagingMaterials(
       { new: true, session }
     );
 
-    // 6b. Stock alerts for non-reusable ProdItems touched
+    // 6b. Stock alerts for non-reusable materials touched
     if (touchedMaterialIds.size) {
       const updatedProdItems = await ProdItem.find(
-        { _id: { $in: [...touchedMaterialIds].map(id => new Types.ObjectId(id)) } },
-        { materialName: 1, name: 1, stock: 1, used: 1, threshold: 1, reusable: 1 }
-      ).session(session).lean() as unknown as IProdItem[];
+        { _id: { $in: [...touchedMaterialIds].map((id) => new Types.ObjectId(id)) } },
+        { name: 1, stock: 1, type: 1 }
+      )
+        .populate({ path: "type", select: "threshold reusable" })
+        .session(session)
+        .lean() as unknown as IAlertItem[];
 
       const alerts: Partial<IAlert>[] = [];
       const createdBy = data.createdBy ?? oldPackage.createdBy;
       const org = data.org ?? oldPackage.org;
 
       for (const item of updatedProdItems) {
-        if (item.reusable) continue;
+        if (item.type?.reusable) continue;
 
-        const remaining = item.stock - item.used;
-        const threshold = item.threshold ?? 0;
+        const remaining = item.stock; // stock is already what is left
+        const threshold = item.type?.threshold ?? 0;
 
         if (remaining <= threshold) {
           alerts.push({
@@ -326,7 +343,6 @@ export async function updatePackagingMaterials(
     }
 
     await session.commitTransaction();
-    session.endSession();
 
     return respond(
       "Packaging materials updated successfully",
@@ -334,13 +350,14 @@ export async function updatePackagingMaterials(
       updatedPackage,
       200
     );
-
   } catch (error) {
     console.error("Error updating packaging materials:", error);
     try {
       await session.abortTransaction();
     } catch {}
     return respond("Error occurred while updating package", true, {}, 500);
+  } finally {
+    await session.endSession();
   }
 }
 
@@ -436,7 +453,7 @@ export async function getPackagesByOrg(orgId:string):Promise<IResponse>{
         .populate('batch')
         .populate('original.currency')
         .populate('storages')
-        .populate('packagingMaterial.materialId')
+        .populate({path: 'packagingMaterial.materialId', populate: {path: 'type'}})
         .populate('org').lean() as unknown as IPackage[];
         return respond('Packages found successfully', false, packages, 200);
     } catch (error) {

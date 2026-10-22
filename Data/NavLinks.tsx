@@ -9,7 +9,7 @@ import { HiOutlineCash, HiOutlineCurrencyDollar, HiOutlineUsers } from "react-ic
 import { HiOutlineUserGroup } from "react-icons/hi2";
 import { IoAlertCircleOutline, IoSettingsOutline } from "react-icons/io5";
 import { LiaRecycleSolid, LiaShoppingBasketSolid, LiaToolsSolid, LiaUsersCogSolid } from "react-icons/lia";
-import { LuBaggageClaim, LuGitPullRequest, LuLayoutDashboard, LuPillBottle, LuShoppingCart } from "react-icons/lu";
+import { LuBaggageClaim, LuGitPullRequest, LuLayoutDashboard, LuPackageOpen, LuPackagePlus, LuPillBottle, LuShoppingCart } from "react-icons/lu";
 import { MdOutlineCategory, MdOutlineStoreMallDirectory, /*MdStackedLineChart*/ } from "react-icons/md";
 import { PiCashRegisterLight, PiCompassToolDuotone, PiToolbox, PiUsersThree } from "react-icons/pi";
 import { RiShieldFlashLine, RiStackLine, RiStackshareLine } from "react-icons/ri";
@@ -80,7 +80,16 @@ export const NavLinks = (): INavBarItem[] => {
       tableids: ['12', '99'],
       subMenu: [
         {id: '50', tableids: ['12', '99'], title:'Dashboard', icon: <TbDashboard />, link: '/dashboard/distribution'},
-        { id: "52", tableids: ['12'], title: "Packaging Mat.", icon: <LuPillBottle />, link: "/dashboard/distribution/packaging-materials" },
+        { 
+          id: "52", 
+          tableids: ['12', '17'], 
+          title: "Packaging Mat.",
+          icon: <LuPillBottle />,
+          subMenu:[
+            { id: "522", tableids: ['17'], title: "Types", icon: <LuPackageOpen />, link: "/dashboard/distribution/materials/types" },
+            { id: "521", tableids: ['12'], title: "Items", icon: <LuPackagePlus />, link: "/dashboard/distribution/materials/items" },
+          ]
+        },
         { id: "53", tableids: ['99'], title: "Packaging", icon: <TfiPackage />, link: "/dashboard/distribution/packaging" },
       ],
     },

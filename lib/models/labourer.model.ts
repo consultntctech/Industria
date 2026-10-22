@@ -19,7 +19,7 @@ export interface ILabourer {
 
 const LabourerSchema = new Schema<ILabourer>({
     name:{type:String, required:true},
-    address:{type:String, required:true},
+    address:{type:String, required:false},
     phone:{type:String, required:true},
     email:{type:String, required:false},
     rate:{type:Number, required:false},

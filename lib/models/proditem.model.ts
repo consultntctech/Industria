@@ -1,11 +1,12 @@
 import { Document, model, models, Schema, Types } from "mongoose";
-import { ISupplier } from "./supplier.model";
 import { IUser } from "./user.model";
 import { IOrganization } from "./org.model";
 import Production from "./production.model";
 import Package from "./package.model";
 import { IOriginalPrice } from "@/types/Types";
 import { IStorage } from "./storage.model";
+import { IProdType } from "./prodtype.model";
+import { ISupplier } from "./supplier.model";
 
 export interface IProdItem extends Document {
     _id: string;
@@ -14,18 +15,14 @@ export interface IProdItem extends Document {
     quantity: number;
     price: number;
     dateReceived: Date,
-    category: string;
-    subcategory: string;
-    uom: string;
-    threshold: number;
     unitPrice: number;
     original: IOriginalPrice;
     qStatus: string;
     stock: number;
     used: number;
-    storages: string[] | Types.ObjectId[] | IStorage[];
-    reusable: boolean;
+    type: string | Types.ObjectId | IProdType;
     suppliers: string[] | Types.ObjectId[] | ISupplier[];
+    storages: string[] | Types.ObjectId[] | IStorage[];
     description: string;
     creator: string;
     createdBy: string | Types.ObjectId | IUser;
@@ -39,20 +36,16 @@ const ProdItemSchema = new Schema<IProdItem>({
     materialName: { type: String, required: true },
     name: { type: String, required: true },
     quantity: { type: Number, required: true },
-    category: { type: String, required: true },
-    subcategory: { type: String, required: true },
     dateReceived: {type: Date},
-    uom: { type: String, required: false, default:'units' },
-    threshold: { type: Number, required: false, default:0 },
     unitPrice: { type: Number, required: false },
     qStatus: { type: String, required: false, default:'Pass' },
     original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},
     stock: { type: Number, required: false },
     used: { type: Number, required: false, default:0 },
+    type: { type: Schema.Types.ObjectId, ref: 'ProdType', required: false },
     storages: [{ type: Schema.Types.ObjectId, ref: 'Storage', default: [] }],
+    suppliers: [{ type: Schema.Types.ObjectId, ref: 'Supplier', default: [] }],
     price: { type: Number, required: false },
-    reusable: { type: Boolean, required: false },
-    suppliers: { type: [Schema.Types.ObjectId], ref: 'Supplier', required: false },
     creator: String,
     description: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },

@@ -7,9 +7,11 @@ import { INavBarItem } from "@/types/NavBar.types";
 import { FaChevronUp, FaChevronDown } from "react-icons/fa";
 import { flattenNav } from "@/functions/helpers";
 import { useAuth } from "@/hooks/useAuth";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { filterNavLinks } from "@/Data/roles/permissions";
 import { skipToken, useQuery } from "@tanstack/react-query";
 import { ISessionRole } from "@/types/Types";
+import NavSubGroup from "./NavSubGroup";
 
 type NavBarContentProps = {
   isNavOpen: boolean;
@@ -18,21 +20,25 @@ type NavBarContentProps = {
 const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
   const { user } = useAuth();
   const { data: roles } = useQuery<ISessionRole[]>({
-    queryKey: ['permissions', user?._id],
+    queryKey: ["permissions", user?._id],
     queryFn: skipToken,
     enabled: Boolean(user),
   });
-  
+
   const links = useMemo(
     () => filterNavLinks(user, roles, NavLinks()),
     [user, roles]
   );
   const pathname = usePathname();
+  const router = useRouter();
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const [currentItem, setCurrentItem] = useState<INavBarItem | null>(links?.[0] ?? null);
   const [openSubMenuId, setOpenSubMenuId] = useState<string | null>(null);
-
-  const router = useRouter();
+  // Inline (accordion) group used below the lg breakpoint
+  const [openGroupId, setOpenGroupId] = useState<string | null>(null);
+  // Ids of every ancestor of the active item, used to highlight groups
+  const [activeTrail, setActiveTrail] = useState<string[]>([]);
 
   // 🧭 Update active item based on current route
   useEffect(() => {
@@ -44,24 +50,21 @@ const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
           ? pathname === "/dashboard"
           : pathname.startsWith(item.link!)
       )
-      .sort(
-        (a, b) =>
-          (b.item.link?.length ?? 0) - (a.item.link?.length ?? 0)
-      )[0];
+      .sort((a, b) => (b.item.link?.length ?? 0) - (a.item.link?.length ?? 0))[0];
 
     if (match) {
       setCurrentItem(match.item);
-      setOpenSubMenuId(match.parentId);
+      setActiveTrail(match.ancestorIds);
+      setOpenSubMenuId(match.ancestorIds[0] ?? null);
+      setOpenGroupId(match.ancestorIds[1] ?? null);
     }
   }, [pathname, links]);
 
-
   const handleTopLevelClick = (item: INavBarItem) => {
     setCurrentItem(item);
-    if(item?.link){
+    if (item?.link) {
       router.push(item.link);
-    }
-    else if (item.subMenu && item.subMenu.length > 0) {
+    } else if (item.subMenu && item.subMenu.length > 0) {
       setOpenSubMenuId((prev) => (prev === item.id ? null : item.id));
     } else {
       setOpenSubMenuId(null);
@@ -71,15 +74,26 @@ const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
   const handleSubItemClick = (parentId: string, subItem: INavBarItem) => {
     setCurrentItem(subItem);
     setOpenSubMenuId(parentId);
-    if(subItem?.link){
+    if (subItem?.link) {
       router.push(subItem.link);
     }
+  };
+
+  const handleNestedItemClick = (leaf: INavBarItem) => {
+    setCurrentItem(leaf);
+    if (leaf.link) {
+      router.push(leaf.link);
+    }
+  };
+
+  const handleGroupToggle = (groupId: string) => {
+    setOpenGroupId((prev) => (prev === groupId ? null : groupId));
   };
 
   const isActiveTopLevel = (item: INavBarItem) => currentItem?.id === item.id;
   const isActiveSubItem = (subItem: INavBarItem) => currentItem?.id === subItem.id;
 
-  const renderIcon = (iconElem: React.ReactNode, active: boolean) => {
+  const renderIcon = (iconElem: React.ReactNode, active: boolean): React.ReactNode => {
     if (!React.isValidElement<{ className?: string }>(iconElem)) return iconElem;
     const existingClass = iconElem.props.className ?? "";
     const computed = active ? "text-black" : "text-gray-500";
@@ -92,7 +106,7 @@ const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
       {links.map((item) => {
         const activeTop = isActiveTopLevel(item);
         const subOpen = openSubMenuId === item.id;
-        const hasSubMenu = item.subMenu && item.subMenu.length > 0;
+        const hasSubMenu = Boolean(item.subMenu && item.subMenu.length > 0);
 
         return (
           <div key={item.id}>
@@ -104,7 +118,7 @@ const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
             >
               <div className="flex items-center gap-3">
                 {renderIcon(item.icon, activeTop)}
-                <span className={`${activeTop ? "text-black" : "text-gray-500"}`}>
+                <span className={activeTop ? "text-black" : "text-gray-500"}>
                   {item.title}
                 </span>
               </div>
@@ -118,7 +132,23 @@ const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
 
             {hasSubMenu && subOpen && (
               <div className="ml-6 mt-1 flex flex-col gap-2">
-                { item?.subMenu && item?.subMenu.map((subItem) => {
+                {item.subMenu?.map((subItem) => {
+                  if (subItem.subMenu && subItem.subMenu.length > 0) {
+                    return (
+                      <NavSubGroup
+                        key={subItem.id}
+                        group={subItem}
+                        isDesktop={isDesktop}
+                        isGroupActive={activeTrail.includes(subItem.id)}
+                        isInlineOpen={openGroupId === subItem.id}
+                        currentItemId={currentItem?.id}
+                        onToggleInline={handleGroupToggle}
+                        onLeafClick={handleNestedItemClick}
+                        renderIcon={renderIcon}
+                      />
+                    );
+                  }
+
                   const activeSub = isActiveSubItem(subItem);
                   return (
                     <div
@@ -129,7 +159,7 @@ const NavBarContent = ({ isNavOpen }: NavBarContentProps) => {
                       }`}
                     >
                       {renderIcon(subItem.icon, activeSub)}
-                      <span className={`${activeSub ? "text-black" : "text-gray-500"}`}>
+                      <span className={activeSub ? "text-black" : "text-gray-500"}>
                         {subItem.title}
                       </span>
                     </div>

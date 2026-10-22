@@ -5,15 +5,11 @@ import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
 import { FaChevronUp } from "react-icons/fa";
 import GenericLabel from "../shared/inputs/GenericLabel";
-import SearchSelectMultipleSuppliers from "../shared/inputs/dropdowns/SearchSelectMultipleSuppliers";
 import { createProdItem, updateProdItem } from "@/lib/actions/proditem.action";
 import { IProdItem } from "@/lib/models/proditem.model";
 import { enqueueSnackbar } from "notistack";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
-import { ISupplier } from "@/lib/models/supplier.model";
 import { useFetchProditem } from "@/hooks/fetch/useFetchProditem";
-import { PACKAGING_CATEGORY, PACKAGING_SUBCATEGORY, TPackagingProcess } from "@/Data/PackagingProcesses";
-import SearchSelectPackagingType from "../shared/inputs/dropdowns/SearchSelectPackagingType";
 import CustomCheckV2 from "../misc/CustomCheckV2";
 import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
@@ -22,6 +18,11 @@ import { IOriginalPrice } from "@/types/Types";
 import { IStorage } from "@/lib/models/storage.model";
 import SearchSelectMultipleStorages from "../shared/inputs/dropdowns/SearchSelectMultipleStorages";
 import { formatDate, today } from "@/functions/dates";
+import { ISupplier } from "@/lib/models/supplier.model";
+import { IProdType } from "@/lib/models/prodtype.model";
+import SearchSelectProdType from "../shared/inputs/dropdowns/SearchSelectProdType";
+import SearchSelectMultipleSuppliersByProdType from "../shared/inputs/dropdowns/SearchSelectMultipleSuppliersByProdType";
+import CloseButton from "../misc/CloseButton";
 ;
 
 type ProdItemCompProps = {
@@ -33,11 +34,11 @@ type ProdItemCompProps = {
 
 const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}:ProdItemCompProps) => {
     const [loading, setLoading] = useState<boolean>(false);
-    const [suppliers, setSuppliers] = useState<string[]>([]);
     const [data, setData] = useState<Partial<IProdItem>>({dateReceived:new Date()});
-    const [category, setCategory] = useState<TPackagingProcess | null>(null);
-    const [subcategory, setSubcategory] = useState<TPackagingProcess | null>(null);
-    const [reusable, setReusable] = useState<boolean>(false);
+
+    // const [reusable, setReusable] = useState<boolean>(false);
+    const [suppliers, setSuppliers] = useState<ISupplier[]>([]);
+    const [prodType, setProdType] = useState<IProdType | null>(null);
     // const [price, setPrice] = useState<number>(0);
     const [useRate, setUseRate] = useState(false);
     const [originalCost, setOriginalCost] = useState(0);
@@ -51,10 +52,11 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     const isCreator = useCanUser('12', 'CREATE');
     const isEditor = useCanUser('12', 'UPDATE');
 
-    const savedSuppliers = currentProdItem?.suppliers as unknown as ISupplier[];
     const savedCurrency = currentProdItem?.original?.currency as IOtherCurrency;
     const original = currentProdItem?.original as IOriginalPrice;
     const savedStorages = currentProdItem?.storages as IStorage[];
+    const savedSuppliers = currentProdItem?.suppliers as ISupplier[];
+    const savedProdType = currentProdItem?.type as IProdType;
 
     const showRate = exposeRate(savedCurrency, otherCurrency);
     const rate = currencyRate(original, otherCurrency, useRate, showRate);
@@ -66,16 +68,12 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     useEffect(() => {
         if(currentProdItem){
             setData({...currentProdItem});
-            setSuppliers(savedSuppliers.map(supplier=>supplier._id));
-            setReusable(currentProdItem?.reusable);
-            setCategory({label:currentProdItem?.category});
-            setSubcategory({label:currentProdItem?.subcategory});
             setOriginalCost(original?.amount || 0);
             setOtherCurrency(savedCurrency);
             setStorages(savedStorages);
+            setSuppliers(savedSuppliers);
+            setProdType(savedProdType);
         }else{
-            setData({});
-            setSuppliers([]);
             setData({dateReceived:new Date()})
         }
     }, [currentProdItem])
@@ -114,10 +112,11 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
         try {
           const prod: Partial<IProdItem> = {
             ...data, 
-            org:user?.org, suppliers, createdBy:user?._id, creator: user?.name,
-            stock: data.quantity, reusable,
-            used: 0, category: category?.label, subcategory: subcategory?.label,
+            org:user?.org, createdBy:user?._id, creator: user?.name,
+            stock: data.quantity, 
+            used: 0, suppliers: suppliers.map((item)=>item._id),
             price,
+            type: prodType?._id,
             original:{
               amount: originalCost,
               rate,
@@ -134,45 +133,55 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
           }
         } catch (error) {
           console.log(error);
-          enqueueSnackbar('Error occured while creating production item', {variant:'error'});
+          enqueueSnackbar('Error occured while creating packaging material item', {variant:'error'});
         }finally{
           setLoading(false);
         }
     }
 
+    
+const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setLoading(true);
 
-    const handleUpdate = async(e:React.FormEvent<HTMLFormElement>)=>{
-        e.preventDefault();
-        setLoading(true);
-        
-        try {
-          const prod: Partial<IProdItem> = {
-            ...data, 
-            suppliers,
-            stock: data.quantity, reusable,
-            category: category?.label, subcategory: subcategory?.label,
-            price,
-            original:{
-              amount: originalCost,
-              rate,
-              currency: otherCurrency?._id as string,
-            },
-            storages: storages.map((item)=>item._id),
-          }
-          const res = await updateProdItem(prod);
-          enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
-          if(!res.error){
-              formRef.current?.reset();
-              handleClose();
-              refetch()
-          }
-        } catch (error) {
-          console.log(error);
-          enqueueSnackbar('Error occured while creating production item', {variant:'error'});
-        }finally{
-          setLoading(false);
-        }
+  try {
+    // stock, used and the ownership fields are not sent: the server calculates or keeps them
+    const {
+      stock: _stock,
+      used: _used,
+      org: _org,
+      createdBy: _createdBy,
+      creator: _creator,
+      ...fields
+    } = data;
+
+    const prod: Partial<IProdItem> = {
+      ...fields,
+      price,
+      suppliers: suppliers.map((item) => item._id),
+      type: prodType?._id || savedProdType?._id,
+      original: {
+        amount: originalCost,
+        rate,
+        currency: otherCurrency?._id as string,
+      },
+      storages: storages.map((item) => item._id),
+    };
+
+    const res = await updateProdItem(prod);
+    enqueueSnackbar(res.message, { variant: res.error ? 'error' : 'success' });
+    if (!res.error) {
+      formRef.current?.reset();
+      handleClose();
+      refetch();
     }
+  } catch (error) {
+    console.log(error);
+    enqueueSnackbar('Error occured while updating packaging material item', { variant: 'error' });
+  } finally {
+    setLoading(false);
+  }
+};
 
     // console.log('Reusable: ', reusable)
     const costLabel = `Total cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
@@ -180,10 +189,10 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
 
   return (
     <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`}>
-        <form ref={formRef} onSubmit={currentProdItem ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
+        <form ref={formRef} onSubmit={currentProdItem ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full relative" >
             <div className="flex flex-col gap-1">
-                <span className="title" >{currentProdItem ? 'Edit packaging item' : 'Add new packaging item'}</span>
-                <span className="greyText" >These are extra materials you used for production. Eg. sacks, bottles, etc</span>
+                <span className="title" >{currentProdItem ? 'Edit packaging material item' : 'Add new packaging material item'}</span>
+                <span className="greyText" >These are materials you use for packaging. Eg. sacks, bottles, etc</span>
             </div>
 
             {
@@ -191,21 +200,18 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
                 <div className="flex flex-col lg:flex-row gap-4 items-stretch">
                     <div className="flex gap-4 flex-col w-full">
                         <InputWithLabel defaultValue={currentProdItem?.name} onChange={onChange} name="name" required placeholder="enter name" label="Item name" className="w-full" />
-                        <GenericLabel
-                            label="Select category"
-                            input={<SearchSelectPackagingType dfValue={category} list={PACKAGING_CATEGORY} caption="Packaging category" value={category} setValue={setCategory} />}
-                        />
-                        <GenericLabel
-                            label="Select subcategory"
-                            input={<SearchSelectPackagingType dfValue={subcategory} list={PACKAGING_SUBCATEGORY} caption="Packaging subcategory" value={subcategory} setValue={setSubcategory} />}
-                        />
-                        
-                        <GenericLabel
-                            label="Select suppliers"
-                            input={<SearchSelectMultipleSuppliers value={savedSuppliers} setSelection={setSuppliers} />}
-                        />
+
                         <GenericLabel 
-                            label='Select quality status'
+                            label='Select material type'
+                            input={<SearchSelectProdType setSelect={setProdType} value={savedProdType} required={!currentProdItem} />}
+                        />
+
+                        <GenericLabel
+                            label='Select suppliers'
+                            input={<SearchSelectMultipleSuppliersByProdType typeId={prodType?._id} value={savedSuppliers} setSelection={setSuppliers} />}
+                        />
+
+                        <GenericLabel
                             input={
                                 <select defaultValue={currentProdItem?.qStatus}  onChange={onSelectChange} name="qStatus" className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
                                 <option  value="Pass">Pass</option>
@@ -215,8 +221,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
                             }
                         />
                         <InputWithLabel defaultValue={currentProdItem? formatDate(currentProdItem?.dateReceived) : today()} onChange={onChange} max={today()} name="dateReceived" type="date" required={!currentProdItem} label="Date received" className="w-full" />
-                        <InputWithLabel defaultValue={currentProdItem?.threshold} onChange={onChange} name="threshold" type="number" min={0} placeholder="0" label="Reorder threshold" className="w-full" />
-                        <InputWithLabel defaultValue={currentProdItem?.quantity} onChange={onChange} name="quantity" required type="number" min={1} placeholder="10" label="Enter quantity" className="w-full" />
+                        <InputWithLabel step={0.01}  min={Math.max(1, currentProdItem?.used ?? 0)} defaultValue={currentProdItem?.quantity} onChange={onChange} name="quantity" required type="number" placeholder="10" label="Enter quantity" className="w-full" />
                         <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentProdItem} setSelect={setOtherCurrency} value={savedCurrency} />} />
                         {
                             showRate &&
@@ -232,12 +237,11 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
                             otherCurrency &&
                             <InputWithLabel value={price}  name="price" type="number" readOnly min={0} placeholder={`${currency?.symbol}25.5`} label={costLabel} className="w-full" />
                           }
-                          <InputWithLabel defaultValue={currentProdItem?.uom} onChange={onChange} name="uom" placeholder='eg. liters' label='Unit of measure' className="w-full" />
                           <GenericLabel label="Storage" input={<SearchSelectMultipleStorages  placeholder="Storage locations" required={storages?.length === 0} value={savedStorages} setSelection={setStorages} />}  />
-                          <div className="flex flex-row items-center gap-4">
+                          {/* <div className="flex flex-row items-center gap-4">
                               <span className="smallText">This item is reusable</span>
                               <CustomCheckV2 checked={reusable} setChecked={setReusable} />
-                          </div>
+                          </div> */}
                           
                           <TextAreaWithLabel defaultValue={currentProdItem?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                         </div>
@@ -252,6 +256,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
             <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
                 <FaChevronUp />
             </div>
+            <CloseButton onClick={handleClose} />
         </form>
     </div>
   )

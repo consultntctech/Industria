@@ -34,14 +34,14 @@ const ProdItemTable = ({setOpenNew, currentProdItem, setCurrentProdItem}:ProdIte
             const res = await getProdItem(productId);
             if (!isMounted) return;
 
-            const userData = res.payload as IProdItem;
+            const data = res.payload as IProdItem;
             if (!res.error) {
-                setCurrentProdItem(userData);
+                setCurrentProdItem(data);
                 setShowInfo(true);
             }
             } catch (error) {
             if (isMounted) {
-                enqueueSnackbar("Error occurred while fetching production item", { variant: "error" });
+                enqueueSnackbar("Error occurred while fetching packaging meterial item", { variant: "error" });
             }
             }
         };
@@ -90,16 +90,16 @@ const ProdItemTable = ({setOpenNew, currentProdItem, setCurrentProdItem}:ProdIte
             }
         } catch (error) {
             console.log(error);
-            enqueueSnackbar('Error occured while deleting production item', {variant:'error'});
+            enqueueSnackbar('Error occured while deleting packaging material item', {variant:'error'});
         }
     }
 
 
-    const content = currentProdItem ? `Are you sure you want to delete production item ${currentProdItem.name} ? This action cannot be undone.` : '';
+    const content = currentProdItem ? `Are you sure you want to delete packaing material item ${currentProdItem?.name} ? This action cannot be undone.` : '';
 
   return (
     <div className='table-main2' >
-        <span className='font-bold text-xl' >Materials</span>
+        <span className='font-bold text-xl' >Items</span>
         <ProductInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentProdItem={currentProdItem} setCurrentProdItem={setCurrentProdItem} />
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteItem} title="Delete Item" content={content} />
         <div className="flex w-full">
@@ -122,11 +122,8 @@ const ProdItemTable = ({setOpenNew, currentProdItem, setCurrentProdItem}:ProdIte
                                   uom: false,
                                   qStatus: false,
                                   used: false,
-                                  threshold: false,
-                                  reusable: false,
                                   quantity: false,
                                   materialName: false,
-                                  category:false,
                                   storages: false,
                                   description: false,
                                   original: false,

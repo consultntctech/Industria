@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { IOrganization } from '@/lib/models/org.model';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import { IProdItem } from '@/lib/models/proditem.model';
+import { IProdType } from '@/lib/models/prodtype.model';
 import { IStorage } from '@/lib/models/storage.model';
 import { ISupplier } from '@/lib/models/supplier.model';
 import { IUser } from '@/lib/models/user.model';
@@ -31,6 +32,7 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
     const original = currentProdItem?.original as IOriginalPrice;
     const savedCurrency = currentProdItem?.original?.currency as IOtherCurrency;
     const storages = currentProdItem?.storages as IStorage[];
+    const prodType = currentProdItem?.type as IProdType;
 
     // const rate = Number(original?.rate || 1);
     // console.log(rate, currentProdItem?.unitPrice)
@@ -55,28 +57,18 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
                 <span className="mtext">{currentProdItem?.name}</span>
             </div>
             <div className="flex flex-col">
-                <span className="mlabel">Category</span>
-                <span className="mtext">{currentProdItem?.category}</span>
+                <span className="mlabel">Material Type</span>
+                <Linker tableId='17' link={`/dashboard/distribution/materials/types?Id=${prodType?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={prodType?.name} />
             </div>
-            <div className="flex flex-col">
-                <span className="mlabel">Subcategory</span>
-                <span className="mtext">{currentProdItem?.subcategory}</span>
-            </div>
-            <div className="flex flex-col">
-                <span className="mlabel">Unit of measure</span>
-                <span className="mtext">{currentProdItem?.uom}</span>
-            </div>
-            <div className="flex flex-col">
-                <span className="mlabel">Reorder threshold</span>
-                <span className="mtext">{currentProdItem?.threshold}</span>
-            </div>
+            
+           
             <div className="flex flex-col">
                 <span className="mlabel">Quality status</span>
                 <span className="mtext">{currentProdItem?.qStatus}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Resuable item</span>
-                <span className="mtext">{currentProdItem?.reusable ? 'Yes' : 'No'}</span>
+                <span className="mtext">{prodType?.reusable ? 'Yes' : 'No'}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Quantity received</span>
@@ -84,7 +76,7 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Quantity in stock</span>
-                <span className="mtext">{currentProdItem?.stock < 0 ? 0 : currentProdItem?.stock}</span>
+                <span className="mtext">{currentProdItem?.stock <= 0 ? 0 : currentProdItem?.stock}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Unit price</span>

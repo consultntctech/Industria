@@ -14,7 +14,7 @@ const ProdItems = () => {
     const isCreator = useCanUser( '12', 'CREATE');
 
   return (
-    <TopContent showAdd={isCreator} isLink={false} title="Packaging Materials" openNew={openNew} setOpenNew={setOpenNew}>
+    <TopContent showAdd={isCreator} isLink={false} title="Packaging Material Items" openNew={openNew} setOpenNew={setOpenNew}>
       <PermissionGuard tableId={['12']} >
         <ProdItemComp currentProdItem={currentProdItem} setCurrentProdItem={setCurrentProdItem} openNew={openNew} setOpenNew={setOpenNew}/>
         <ProdItemTable setOpenNew={setOpenNew} currentProdItem={currentProdItem} setCurrentProdItem={setCurrentProdItem} />

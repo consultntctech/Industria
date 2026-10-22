@@ -25,7 +25,7 @@ export const PackProdItemsColumn = (
             renderCell: (params:GridRenderCellParams)=>{
                 const product = params?.row?.materialId as IProdItem;
                 return (
-                    <Linker tableId="12" link={`/dashboard/distribution/packaging-materials?Id=${product?._id}`} placeholder={product?.materialName} />
+                    <Linker tableId="12" link={`/dashboard/distribution/materials/items?Id=${product?._id}`} placeholder={product?.materialName} />
                 )
             }
         },

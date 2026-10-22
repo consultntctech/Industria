@@ -104,15 +104,15 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
       }
     }, [data.qRejected])
 
-    useEffect(() => {
-      if(product){
-        setData((pre)=>({
-          ...pre, product: product._id || savedProduct?._id,
-          price: (data?.unitPrice! * data.qReceived!) - (data.discount! - data?.charges!),
-          qAccepted: data.qReceived! - data.qRejected!
-        }))
-      } 
-    }, [data.qReceived, data.qRejected, data.discount, data.charges, product?.id, data?.unitPrice])
+   useEffect(() => {
+    if (product) {
+      setData((pre) => ({
+        ...pre,
+        product: product._id || savedProduct?._id,
+        price: (data?.unitPrice! * data.qReceived!) - (data.discount! - data?.charges!),
+      }));
+    }
+  }, [data.qReceived, data.qRejected, data.discount, data.charges, product?.id, data?.unitPrice]);
 
     const onChange = (e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
         setData((pre)=>({
@@ -135,7 +135,9 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
         
         try {
           const rmData:Partial<IRMaterial> = {
-            ...data, product: product?._id, batch, createdBy:user?._id, org:user?.org, creator: user?.name,
+            ...data, 
+            qAccepted: Number(data.qReceived) - Number(data.qRejected),
+            product: product?._id, batch, createdBy:user?._id, org:user?.org, creator: user?.name,
             original:{
               amount: originalAmount,
               rate,
@@ -166,8 +168,15 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
         setLoading(true);
         
         try {
+          const {
+            qAccepted: _qAccepted,
+            org: _org,
+            createdBy: _createdBy,
+            creator: _creator,
+            ...fields
+          } = data;
           const resData = {
-            ...data, 
+             ...fields,
             batch: batch || savedBatch?._id,
             product: product?._id || savedProduct?._id,
              original:{
@@ -196,6 +205,9 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
         }
     }
 
+    const consumed = currentMaterial
+      ? (currentMaterial.qReceived - (currentMaterial.qRejected ?? 0)) - currentMaterial.qAccepted
+      : 0;
 
     // console.log("Suppliers: ", suppliers)
 
@@ -250,7 +262,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
                 <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
               }
               <InputWithLabel step={0.01} required={!currentMaterial} defaultValue={currentMaterial?.unitPrice} onChange={onChange} name="unitPrice"  type="number" min={0} placeholder="eg. 25" label="Enter unit price" className="w-full" />
-              <InputWithLabel step={0.01} required={!currentMaterial} defaultValue={currentMaterial?.qReceived} onChange={onChange} name="qReceived" type="number" min={0} placeholder="eg. 1000" label="Quantity received" className="w-full" />
+              <InputWithLabel step={0.01} required={!currentMaterial} defaultValue={currentMaterial?.qReceived} onChange={onChange} name="qReceived" type="number" min={consumed + Number(data.qRejected ?? 0)} placeholder="eg. 1000" label="Quantity received" className="w-full" />
             </div>
 
             <div className="flex gap-4 flex-col w-full justify-between">

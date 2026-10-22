@@ -177,28 +177,22 @@ export function getISOWeekYear(date: Date): number {
 
 
 
-type FlatNavItem = {
+export type FlatNavItem = {
   item: INavBarItem;
-  parentId: string | null;
+  ancestorIds: string[];
 };
 
-export const flattenNav = (links: INavBarItem[]): FlatNavItem[] => {
-  const result: FlatNavItem[] = [];
-
-  for (const item of links) {
-    if (item.link) {
-      result.push({ item, parentId: null });
-    }
-
-    if (item.subMenu) {
-      for (const sub of item.subMenu) {
-        result.push({ item: sub, parentId: item.id });
-      }
-    }
-  }
-
-  return result;
-};
+export const flattenNav = (
+  links: INavBarItem[],
+  ancestorIds: string[] = []
+): FlatNavItem[] =>
+  links.flatMap((item): FlatNavItem[] => {
+    const own: FlatNavItem[] = item.link ? [{ item, ancestorIds }] : [];
+    const children: FlatNavItem[] = item.subMenu
+      ? flattenNav(item.subMenu, [...ancestorIds, item.id])
+      : [];
+    return [...own, ...children];
+  });
 
 
 

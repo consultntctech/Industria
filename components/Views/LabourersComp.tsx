@@ -12,6 +12,7 @@ import { IOrganization } from '@/lib/models/org.model';
 import { useFetchLabourers } from '@/hooks/fetch/useFetchLabourers';
 import { useAuth, useCanUser } from '@/hooks/useAuth';
 import {  isSystemAdmin } from '@/Data/roles/permissions';
+import CloseButton from '../misc/CloseButton';
 
 
 type LabourerCompProps = {
@@ -98,7 +99,7 @@ const LabourersComp = ({openNew, setOpenNew, currentLabourer, setCurrentLabourer
   return (
      <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
       
-      <form ref={formRef} onSubmit={currentLabourer ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
+      <form ref={formRef} onSubmit={currentLabourer ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full relative" >
         <div className="flex flex-col gap-1">
           <span className="title" >{currentLabourer ? 'Edit labourer' : 'Add new labourer'}</span>
           <span className="greyText" >{currentLabourer ? 'Edit the details of the labourer' : 'Create a new labourer to handle operations'}</span>
@@ -134,6 +135,8 @@ const LabourersComp = ({openNew, setOpenNew, currentLabourer, setCurrentLabourer
         <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
           <FaChevronUp />
         </div>
+
+        <CloseButton onClick={handleClose} />
       </form>
     </div>
   )

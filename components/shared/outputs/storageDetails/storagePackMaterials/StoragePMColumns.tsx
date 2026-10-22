@@ -20,7 +20,7 @@ export const StoragePMColumns = ():GridColDef[]=>{
             renderCell: (params:GridRenderCellParams)=>{
                 const proditem = params?.row as IProdItem;
                 return (
-                    <Linker tableId="12" link={`/dashboard/distribution/packaging-materials?Id=${proditem?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={proditem?.name} />
+                    <Linker tableId="12" link={`/dashboard/distribution/materials/items?Id=${proditem?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={proditem?.name} />
                 )
             }
         },

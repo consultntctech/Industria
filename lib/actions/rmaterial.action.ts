@@ -12,6 +12,7 @@ import '../models/storage.model';
 import Product, { IProduct } from "../models/product.model";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Production from "../models/production.model";
+import {Types} from "mongoose";
 
 export async function createRMaterial(data: Partial<IRMaterial>): Promise<IResponse> {
   try {
@@ -165,10 +166,74 @@ export async function getRawMaterialsBySupplierByOrg(org:string, supplierId:stri
 }
 
 
-export async function updateRMaterial(data:Partial<IRMaterial>):Promise<IResponse>{
+export async function updateRMaterial(data: Partial<IRMaterial>): Promise<IResponse> {
     try {
         await connectDB();
-        const updatedMaterial = await RMaterial.findByIdAndUpdate(data._id, data, { new: true });
+
+        if (!data._id || !Types.ObjectId.isValid(data._id)) {
+            return respond('Invalid raw material id', true, {}, 400);
+        }
+
+        const existing = await RMaterial.findById(data._id)
+            .select('qReceived qRejected qAccepted')
+            .lean() as unknown as Pick<IRMaterial, 'qReceived' | 'qRejected' | 'qAccepted'> | null;
+
+        if (!existing) {
+            return respond('Raw material not found', true, {}, 404);
+        }
+
+        // Fields the client must never set directly
+        const {
+            _id,
+            qAccepted: _qAccepted,
+            org: _org,
+            createdBy: _createdBy,
+            creator: _creator,
+            ...fields
+        } = data;
+
+        const oldReceived = existing.qReceived ?? 0;
+        const oldRejected = existing.qRejected ?? 0;
+
+        // Form values arrive as strings, so convert them
+        const newReceived = fields.qReceived !== undefined ? Number(fields.qReceived) : oldReceived;
+        const newRejected = fields.qRejected !== undefined ? Number(fields.qRejected) : oldRejected;
+
+        if (!Number.isFinite(newReceived) || !Number.isFinite(newRejected) || newReceived < 0 || newRejected < 0) {
+            return respond('Quantities must be valid positive numbers', true, {}, 400);
+        }
+        if (newRejected > newReceived) {
+            return respond('Rejected quantity cannot be more than the quantity received', true, {}, 400);
+        }
+
+        fields.qReceived = newReceived;
+        fields.qRejected = newRejected;
+
+        // What production has already taken out of this material
+        const consumed = (oldReceived - oldRejected) - existing.qAccepted;
+        const newAccepted = newReceived - newRejected - consumed;
+
+        if (newAccepted < 0) {
+            return respond(
+                `Received minus rejected cannot be lower than the ${consumed} already used in production`,
+                true,
+                {},
+                400
+            );
+        }
+
+        // The filter pins the stock we read, so a production created at the same
+        // moment cannot be overwritten
+        const updatedMaterial = await RMaterial.findOneAndUpdate(
+            { _id, qAccepted: existing.qAccepted },
+            { $set: { ...fields, qAccepted: newAccepted } },
+            { new: true }
+        );
+
+        if (!updatedMaterial) {
+            return respond('This material changed while you were editing it. Please refresh and try again', true, {}, 409);
+        }
+
         return respond('Raw Material updated successfully', false, updatedMaterial, 200);
     } catch (error) {
         console.log(error);

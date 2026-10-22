@@ -87,7 +87,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
                     <div className="flex flex-col gap-0.5">
                         {
                             proditems?.map((item, index) => (
-                                <Link key={index} href={`/dashboard/distribution/packaging-materials?Id=${item?._id}`} className="link mtext">
+                                <Link key={index} href={`/dashboard/distribution/materials/items?Id=${item?._id}`} className="link mtext">
                                     {item?.name}
                                 </Link>
                             ))

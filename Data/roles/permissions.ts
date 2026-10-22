@@ -106,25 +106,22 @@ export const filterNavLinks = (
 ): INavBarItem[] => {
   return links.reduce<INavBarItem[]>((acc, link) => {
     const filteredSubMenu = link.subMenu
-      ? filterNavLinks(user, roles, link.subMenu)   // roles passed down here
+      ? filterNavLinks(user, roles, link.subMenu)
       : undefined;
 
-    const canSeeParent = canSeeNavItem(user, roles, link.tableids);
     const hasVisibleChildren = Boolean(filteredSubMenu?.length);
+    const isPureGroup = Boolean(link.subMenu?.length) && !link.link;
 
-    if (!canSeeParent && !hasVisibleChildren) {
-      return acc;
-    }
+    const isVisible = isPureGroup
+      ? hasVisibleChildren
+      : canSeeNavItem(user, roles, link.tableids) || hasVisibleChildren;
 
-    acc.push({
-      ...link,
-      subMenu: filteredSubMenu,
-    });
+    if (!isVisible) return acc;
 
+    acc.push({ ...link, subMenu: filteredSubMenu });
     return acc;
   }, []);
 };
-
 
 
 

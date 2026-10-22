@@ -4,6 +4,7 @@ import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IOrganization } from "@/lib/models/org.model";
 import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { IProdItem } from "@/lib/models/proditem.model";
+import { IProdType } from "@/lib/models/prodtype.model";
 import { IProduct } from "@/lib/models/product.model";
 import { IStorage } from "@/lib/models/storage.model";
 import { ISupplier } from "@/lib/models/supplier.model";
@@ -13,9 +14,9 @@ import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 
 
 export const ProdItemColumns = (
-    handleInfo: (user:IProdItem)=>void,
-    handleEdit: (user:IProdItem)=>void,
-    handleDelete: (user:IProdItem)=>void,
+    handleInfo: (item:IProdItem)=>void,
+    handleEdit: (item:IProdItem)=>void,
+    handleDelete: (item:IProdItem)=>void,
 ):GridColDef[]=>{
     const {currency} = useCurrencyConfig();
     return [
@@ -31,14 +32,23 @@ export const ProdItemColumns = (
             width:120,
         },
         {
-            field:'category',
-            headerName: 'Category',
-            width:100
-        },
-        {
-            field:'subcategory',
-            headerName: 'Subcategory',
-            width:100
+            field:'type',
+            headerName: 'Type',
+            width:100,
+            valueFormatter: (_, row:IProdItem)=>{
+                const type = row?.type as IProdType;
+                return type ? type?.name : '';
+            },
+            valueGetter: (_, row:IProdItem)=>{
+                const type = row?.type as IProdType;
+                return type ? type?.name : '';
+            },
+            renderCell: (params:GridRenderCellParams)=>{
+                const type = params?.row?.type as IProdType;
+                return (
+                    <Linker link={`/dashboard/distribution/materials/types?Id=${type?._id}`} placeholder={type?.name} tableId="17" />
+                )
+            }
         },
 
         {
@@ -67,12 +77,7 @@ export const ProdItemColumns = (
                 return used;
             }
         },
-        {
-            field: 'threshold',
-            headerName: 'Threshold',
-            width:80,
-            headerAlign: 'center',
-        },
+        
 
         {
             field: 'unitPrice',
@@ -105,7 +110,15 @@ export const ProdItemColumns = (
             field: 'uom',
             headerName: 'Unit of measure',
             width:100,
-            headerAlign:'center'
+            headerAlign:'center',
+            valueFormatter: (_, row:IProdItem)=>{
+                const type = row?.type as IProdType;
+                return type ? type?.uom : '';
+            },
+            valueGetter: (_, row:IProdItem)=>{
+                const type = row?.type as IProdType;
+                return type ? type?.uom : '';
+            },
         },
         {
             field: 'qStatus',
@@ -113,20 +126,7 @@ export const ProdItemColumns = (
             width:100,
             headerAlign:'center'
         },
-        {
-            field: 'reusable',
-            headerName: 'Reusable',
-            width:100,
-            headerAlign:'center',
-            valueFormatter:(_, row:IProdItem)=>{
-                const reusable = row?.reusable as boolean;
-                return reusable ? 'Yes' : 'No';
-            },
-            valueGetter:(_, row:IProdItem)=>{
-                const reusable = row?.reusable as boolean;
-                return reusable ? 'Yes' : 'No';
-            }
-        },
+       
 
         {
             field:'suppliers',
