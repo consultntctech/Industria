@@ -273,7 +273,7 @@ export async function deleteProdType(id: string): Promise<IResponse> {
 
     const inProdItem = await ProdItem.exists({ type: id });
     if (inProdItem) {
-      return respond('Cannot delete this material type because it is used in production items', true, {}, 409);
+      return respond('Cannot delete this material type because it is used in packaging material items', true, {}, 409);
     }
 
     const deletedProdType = await ProdType.deleteOne({ _id: id });
