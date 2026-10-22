@@ -166,14 +166,14 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
                   <select defaultValue={currentProduct? currentProduct?.type : 'Raw Material'} onChange={onSelectChange} name="type" className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
                     <option  value="Raw Material">Raw Material</option>
                     <option  value="Work in Progress">Work in Progress</option>
-                    <option  value="Packaging Material">Packaging Material</option>
-                    <option value="Finished Good">Unfinished Good</option>
+                    {/* <option  value="Packaging Material">Packaging Material</option> */}
+                    <option value="Finished Good">Finished Good</option>
                 </select>
                 }
               />
             }
             {/* <InputWithLabel onChange={onChange} name="unitCost" required type="number" min={0} placeholder="enter price" label="Unit cost" className="w-full" /> */}
-            <InputWithLabel onChange={onChange} defaultValue={data?.threshold} name="threshold" required type="number" min={0} placeholder="enter threshold" label="Threshold" className="w-full" />
+            <InputWithLabel onChange={onChange} defaultValue={data?.threshold} name="threshold" required type="number" min={0} placeholder="Reorder level" label="Threshold" className="w-full" />
           </div>
 
           <div className="flex gap-4 flex-col w-full justify-between">
