@@ -52,7 +52,7 @@ const ProdTypeComp = ({openNew, setOpenNew, currentProdType, setCurrentProdType}
             setSuppliers(savedSuppliers.map(supplier=>supplier._id));
             setReusable(currentProdType?.reusable);
             setCategory({label:currentProdType?.category});
-            setSubcategory({label:currentProdType?.subcategory});
+            setSubcategory({label:currentProdType?.subcategory ?? ''});
         }else{
             setData({});
             setSuppliers([]);
