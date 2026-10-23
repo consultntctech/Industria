@@ -46,7 +46,7 @@ export const PACKAGING_CATEGORY:TPackagingProcess[] = [
 
 export const PACKAGING_SUBCATEGORY: TPackagingProcess[] = [
   { id: "1", label: "Bottle", hint: "Used to package liquid products" },
-  { id: '2', label: 'Canning', hint: 'Sealing products in metal cans' },
+  { id: '2', label: 'Can', hint: 'Sealing products in metal cans' },
   { id: "3", label: "Label", hint: "Product identification and branding" },
   { id: "4", label: "Box", hint: "Outer packaging for protection or shipping" },
   { id: "5", label: "Sack", hint: "Bulk or granular product packaging" },
