@@ -33,7 +33,7 @@ const ProdTypeSchema = new Schema<IProdType>({
     code: { type: String, required: true },
     codeLower: { type: String, required: true },
     category: { type: String, required: true },
-    subcategory: { type: String, required: true },
+    subcategory: { type: String, required: false },
     uom: { type: String, required: false, default:'units' },
     threshold: { type: Number, required: false, default:0 },
     stock: { type: Number, required: false },

@@ -151,7 +151,7 @@ const ProdTypeComp = ({openNew, setOpenNew, currentProdType, setCurrentProdType}
                         <InputWithLabel defaultValue={currentProdType?.code} onChange={onChange} name="code" required placeholder="enter code" label="Item code" className="w-full" />
                         <GenericLabel
                             label="Select category"
-                            input={<SearchSelectPackagingType dfValue={category} list={PACKAGING_CATEGORY} caption="Packaging category" value={category} setValue={setCategory} />}
+                            input={<SearchSelectPackagingType require={!currentProdType?.category} dfValue={category} list={PACKAGING_CATEGORY} caption="Packaging category" value={category} setValue={setCategory} />}
                         />
                         <GenericLabel
                             label="Select subcategory"

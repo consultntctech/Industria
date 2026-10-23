@@ -10,11 +10,12 @@ type SearchSelectPackagingTypeProps = {
     setValue: Dispatch<SetStateAction<TPackagingProcess | null>>;
     dfValue?: TPackagingProcess | null;
     width?: number;
+    require?: boolean;
 }
 
 const filter = createFilterOptions<TPackagingProcess>();
 
-export default function SearchSelectPackagingType({ list, caption, value, width, setValue, dfValue }: SearchSelectPackagingTypeProps) {
+export default function SearchSelectPackagingType({ list, caption, value, width, require, setValue, dfValue }: SearchSelectPackagingTypeProps) {
 
   return (
     <Autocomplete
@@ -54,6 +55,7 @@ export default function SearchSelectPackagingType({ list, caption, value, width,
       handleHomeEndKeys
       id="free-solo-with-text-demo"
       options={list}
+      
       getOptionLabel={(option) => {
         // Value selected with enter, right from the input
         if (typeof option === 'string') {
@@ -77,7 +79,7 @@ export default function SearchSelectPackagingType({ list, caption, value, width,
       sx={{ width: width || '100%' }}
       freeSolo
       renderInput={(params) => (
-        <TextField  {...params} size='small' label={caption} />
+        <TextField required={require}  {...params} size='small' label={caption} />
       )}
     />
   );
