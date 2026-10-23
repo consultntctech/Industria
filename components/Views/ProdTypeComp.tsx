@@ -56,6 +56,8 @@ const ProdTypeComp = ({openNew, setOpenNew, currentProdType, setCurrentProdType}
         }else{
             setData({});
             setSuppliers([]);
+            setCategory({label:''});
+            setSubcategory({label:''});
         }
     }, [currentProdType])
 
@@ -63,6 +65,8 @@ const ProdTypeComp = ({openNew, setOpenNew, currentProdType, setCurrentProdType}
         setOpenNew(false);
         setCurrentProdType(null);
         setSuppliers([]);
+        setCategory({label:''});
+        setSubcategory({label:''});
     }
 
 
