@@ -24,6 +24,7 @@ import { IOriginalPrice } from "@/types/Types";
 import GenericLabel from "../shared/inputs/GenericLabel";
 import CustomCheckV2 from "../misc/CustomCheckV2";
 import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
+import { useFetchTransConfig } from "@/hooks/fetch/useFetchTransConfig";
 ;
 
 type SalesCompProps = {
@@ -42,9 +43,11 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
     const [data, setData] = useState<Partial<ISales>>({});
     const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
     const [useRate, setUseRate] = useState(false);
+    const [invoice, setInvoice] = useState('');
     // const [batch, setBatch] = useState<string>('');
     const {user} = useAuth();
     const {currency} = useCurrencyConfig();
+    const {config} = useFetchTransConfig();
 
     // const {lineItems:items, isPending} = useFetchAvailableLineItemsByProduct(product?._id as string, batch);
 
@@ -132,6 +135,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                 org:user?.org,
                 createdBy:user?._id,
                 creator: user?.name,
+                invoice:{code:invoice, auto:false},
                 original:{
                     amount: beforeRateNetCharge,
                     rate: rate,
@@ -248,7 +252,21 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
         
                     <div className="flex gap-4 flex-col w-full justify-between">
                         <div className="flex flex-col gap-4 w-full">
-                            <SearchSelectCustomers required={!currentSales} value={savedCustomer} setSelect={setCustomer} />
+                            <div className="flex gap-4 flex-col w-full md:flex-row md:items-end">
+                                <SearchSelectCustomers required={!currentSales} value={savedCustomer} setSelect={setCustomer} />
+                                {
+                                    !(config?.invoice?.useConfig || currentSales) &&
+                                    <InputWithLabel required={!config?.invoice?.useConfig} onChange={(e)=>setInvoice(e.target.value)} name="invoice"  placeholder="eg. 00001" label="Invoice number" className="w-full" />
+                                }
+                            </div>
+                            <div className="flex gap-4 flex-col w-full md:flex-row">
+                                <InputWithLabel defaultValue={currentSales?.port} onChange={onChange} name="port"  label="Port of destination" />
+                                <InputWithLabel defaultValue={currentSales?.shipping} onChange={onChange} name="shipping"  label="Shipping line" />
+                            </div>
+                            <div className="flex gap-4 flex-col w-full md:flex-row">
+                                <InputWithLabel defaultValue={currentSales?.billOfLanding} onChange={onChange} name="billOfLanding"  label="Bill of Landing number" />
+                                <InputWithLabel defaultValue={currentSales?.container} onChange={onChange} name="container"  label="Container number" />
+                            </div>
                             <TextAreaWithLabel defaultValue={currentSales?.narration} name="narration" onChange={onChange} placeholder="enter narration" label="Narration" className="w-full" />
                         </div>
                         {

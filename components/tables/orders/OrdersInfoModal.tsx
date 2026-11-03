@@ -1,5 +1,5 @@
 import InfoModalContainer from '@/components/shared/outputs/InfoModalContainer'
-import { formatTimestamp } from '@/functions/dates';
+import { formatTimestamp, getDaysDifference } from '@/functions/dates';
 import { IOrganization } from '@/lib/models/org.model';
 import { IUser } from '@/lib/models/user.model';
 import Link from 'next/link';
@@ -48,8 +48,26 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
         <div className='flex flex-col gap-4 w-full' >
             <div className="flex flex-col">
                 <span className="mlabel">Ordered On</span>
-                <span className="mtext">{formatTimestamp(currentOrder?.createdAt)}</span>
+                <span className="mtext">{formatTimestamp(currentOrder?.orderDate)}</span>
             </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Number of days old</span>
+                <span className="mtext">{getDaysDifference(currentOrder?.orderDate)}</span>
+            </div>
+            {
+                currentOrder?.purchaseOrder &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Purchase Order</span>
+                    <span className="mtext">{currentOrder?.purchaseOrder}</span>
+                </div>
+            }
+            {
+                currentOrder?.salesOrder?.code &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Sales Order</span>
+                    <span className="mtext">{currentOrder?.salesOrder?.code}</span>
+                </div>
+            }
             <div className="flex flex-col">
                 <span className="mlabel">Customer</span>
                 <Linker tableId="33" link={`/dashboard/transactions/customers/${customer?._id}`} placeholder={customer?.name} />
@@ -104,6 +122,11 @@ const OrdersInfoModal = ({infoMode, setInfoMode, currentOrder, setCurrentOrders}
             <div className="flex flex-col">
                 <span className="mlabel">Instructions</span>
                 <span className="mtext">{currentOrder?.instruction || 'None'}</span>
+            </div>
+            
+            <div className="flex flex-col">
+                <span className="mlabel">Freight terms</span>
+                <span className="mtext">{currentOrder?.freight || 'None'}</span>
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Description</span>

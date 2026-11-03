@@ -15,6 +15,14 @@ export interface ISales extends Document {
     price: number;
     discount: number;
     charges: number;
+    invoice: {
+        code: string;
+        auto: boolean
+    };
+    port: string;
+    shipping: string;
+    container: string;
+    billOfLanding: string;
     creator: string;
     order : string | Types.ObjectId | IOrder;
     ordered: boolean;
@@ -34,6 +42,11 @@ const SalesSchema = new Schema<ISales>({
     discount: { type: Number, required: false, default:0 },
     charges: { type: Number, required: false, default:0 },
     creator: String,
+    invoice: {code:{type:String, unique:true}, auto: Boolean},
+    port: String,
+    shipping: String,
+    container: String,
+    billOfLanding: String,
     order: { type: Schema.Types.ObjectId, ref: 'Order', required: false },
     ordered: { type: Boolean, required: false, default: false },
     original: {type:{amount:Number, rate:Number, currency:{type: Schema.Types.ObjectId, ref: 'OtherCurrency'}}, required: false},

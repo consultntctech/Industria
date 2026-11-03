@@ -2,7 +2,7 @@
 
 import { IResponse } from "@/types/Types";
 import Sales, { ISales } from "../models/sales.model";
-import { respond } from "../misc";
+import { INumberResult, respond } from "../misc";
 import { connectDB } from "../mongoose";
 import LineItem, { ILineItem } from "../models/lineitem.model";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
@@ -10,6 +10,8 @@ import Alert, { IAlert } from "../models/alert.model";
 import mongoose, { Types } from "mongoose";
 import Product from "../models/product.model";
 import '../models/othercurrency.model';
+import { getInvoice } from "./transconfig.action";
+import '../models/order.model';
 
 
 interface ILineItemLean {
@@ -56,8 +58,21 @@ export async function createSales(
     session.startTransaction();
 
     try {
+        if(!data?.org){
+            return respond('No organization found for the transaction', true, {}, 404);
+        }
+        const invRes = await getInvoice(data?.org?.toString())
+        const invoice = invRes.payload as INumberResult
+        const invoiceData = {
+            code: data?.invoice?.code || invoice?.code,
+            auto: data?.invoice?.code ? false : invoice?.auto
+        }
+        if(!invoiceData?.code){
+            return respond('Could not generete or find invoice number for the transaction', true, {}, 404);
+        }
+        const salesData:Partial<ISales> = {...data, invoice:invoiceData }
       // 1️⃣ Create sales record
-      const newSales = await Sales.create([data], { session });
+      const newSales = await Sales.create([salesData], { session });
 
       const itemIds: Types.ObjectId[] =
         (data.products ?? []).map(normalizeLineItemId);
@@ -200,6 +215,7 @@ export async function getSales():Promise<IResponse>{
         await connectDB();
         const sales = await Sales.find().
         populate('customer').
+        populate('order').
         populate({path:'products', populate:[{path:'product'}, {path:'batch'}]}).
         populate('createdBy').
         populate('original.currency').
@@ -218,6 +234,7 @@ export async function getSalesByOrg(orgId:string):Promise<IResponse>{
         populate('customer').
         populate({path:'products', populate:[{path:'product'}, {path:'batch'}]}).
         populate('createdBy').
+        populate('order').
         populate('original.currency').
         populate('org').lean() as unknown as ISales[];
         return respond('Sales found successfully', false, sales, 200);

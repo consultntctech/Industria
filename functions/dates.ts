@@ -101,3 +101,18 @@ export async function hasPassedOneHour(
   const ONE_HOUR_MS = 60 * 60 * 1000;
   return Date.now() - date.getTime() >= ONE_HOUR_MS;
 }
+
+
+
+export function getDaysDifference(date: Date | string): number {
+    const inputDate = new Date(date);
+    const today = new Date();
+
+    // Normalize both dates to midnight
+    inputDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const difference = Math.abs(today.getTime() - inputDate.getTime());
+
+    return Math.floor(difference / (1000 * 60 * 60 * 24));
+}

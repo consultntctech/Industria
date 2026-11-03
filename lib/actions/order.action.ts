@@ -2,7 +2,7 @@
 
 import { IOrderStats, IResponse } from "@/types/Types";
 import Order, { IOrder } from "../models/order.model";
-import { respond } from "../misc";
+import { INumberResult, respond } from "../misc";
 import { connectDB } from "../mongoose";
 import '../models/org.model';
 import '../models/user.model'
@@ -12,12 +12,26 @@ import '../models/othercurrency.model'
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 import Alert from "../models/alert.model";
 import { Types } from "mongoose";
+import { getSalesOrder } from "./transconfig.action";
 
 
 export async function createOrder(data:Partial<IOrder>):Promise<IResponse>{
     try {
         await connectDB();
-        const order = await Order.create(data);
+        if(!data?.org){
+            return respond('No organization found for the transaction', true, {}, 404);
+        }
+        const orderRes = await getSalesOrder(data?.org?.toString());
+        const resPayload = orderRes?.payload as INumberResult;
+        const salesOData = {
+            code: data?.salesOrder?.code || resPayload?.code,
+            auto: data?.salesOrder?.auto ? false : resPayload?.auto
+        }
+        if(!salesOData?.code){
+            return respond('Could not generate or find sales order for the transaction', true, {}, 404);
+        }
+        const orderData = {...data, salesOrder:salesOData}
+        const order = await Order.create(orderData);
         return respond('Order created successfully', false, order, 201);
     } catch (error) {
         console.log(error);

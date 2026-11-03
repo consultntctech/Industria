@@ -14,6 +14,7 @@ import { Linker, ViewCreator } from '@/components/PermisionHelpers/PermisionHelp
 import { getProductCounts } from '@/functions/helpers';
 import { IOriginalPrice } from '@/types/Types';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
+import { IOrder } from '@/lib/models/order.model';
 
 type SalesInfoModalProps = {
     infoMode:boolean,
@@ -43,8 +44,9 @@ const SalesInfoModal = ({infoMode, setInfoMode, currentSale, setCurrentSale}:Sal
     // const charge = (currentSale?.charges || 0) * (original?.rate || 1);
     // const discount = (currentSale?.discount || 0) * (original?.rate || 1);
     const amt = Number(currentSale?.price || 0) / Number(original?.rate || 1);
+    const order = currentSale?.order as IOrder;
 
-    console.log('Sales: ', currentSale)
+    // console.log('Sales: ', currentSale)
     // console.log('Creator:', creator);
     const handleClose = ()=>{
         setInfoMode(false);
@@ -59,6 +61,13 @@ const SalesInfoModal = ({infoMode, setInfoMode, currentSale, setCurrentSale}:Sal
                 <span className="mlabel">Sold On</span>
                 <span className="mtext">{formatTimestamp(currentSale?.createdAt)}</span>
             </div>
+            {
+                currentSale?.invoice?.code &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Invoice number</span>
+                    <span className="mtext">{currentSale?.invoice?.code}</span>
+                </div>
+            }
             <div className="flex flex-col">
                 <span className="mlabel">Customer</span>
                 <Linker tableId="33" link={`/dashboard/transactions/customers/${customer?._id}`} placeholder={customer?.name} />
@@ -93,10 +102,49 @@ const SalesInfoModal = ({infoMode, setInfoMode, currentSale, setCurrentSale}:Sal
                     })
                 }
             </div>
+            {
+                currentSale?.port &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Port of destination</span>
+                    <span className="mtext">{currentSale?.port}</span>
+                </div>
+            }
+            {
+                currentSale?.shipping &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Shipping line</span>
+                    <span className="mtext">{currentSale?.shipping}</span>
+                </div>
+            }
+            {
+                currentSale?.container &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Container number</span>
+                    <span className="mtext">{currentSale?.container}</span>
+                </div>
+            }
+            {
+                currentSale?.billOfLanding &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Bill of landing number</span>
+                    <span className="mtext">{currentSale?.billOfLanding}</span>
+                </div>
+            }
             <div className="flex flex-col">
                 <span className="mlabel">Narration</span>
                 <span className="mtext">{currentSale?.narration || 'None'}</span>
             </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Ordered</span>
+                <span className="mtext">{currentSale?.ordered ? 'Yes':'No'}</span>
+            </div>
+            {
+                order &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Order</span>
+                    <Linker tableId="86" link={`/dashboard/transactions/orders?Id=${order?._id}`} placeholder={order?.salesOrder?.code || order?.purchaseOrder} />
+                </div>
+            }
            
             
              <div className="flex flex-col">

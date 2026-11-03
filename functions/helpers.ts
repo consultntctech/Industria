@@ -275,3 +275,20 @@ export const hasChangedOutput = (production:IProduction|null, data:Partial<IProd
   if(production?.notes?.trim() !== data?.notes?.trim()?.trim()) return true;
   return false;
 }
+
+
+
+
+export function generateCodePreview(
+    length: number,
+    prefix: string = "",
+    suffix: string = ""
+): string {
+    if (!Number.isInteger(length) || length < 1) {
+        return ''
+    }
+
+    const number = "1".padStart(length, "0");
+
+    return `${prefix}${number}${suffix}`;
+}

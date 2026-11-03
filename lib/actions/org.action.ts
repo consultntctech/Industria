@@ -7,6 +7,7 @@ import { connectDB } from "../mongoose";
 import { getSession } from "../session";
 import Currency, { ICurrency } from "../models/currency.model";
 import OtherCurrency from "../models/othercurrency.model";
+import TransConfig from "../models/transconfig.model";
 // import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
 export async function createOrg(org:Partial<IOrganization>, currency:Partial<ICurrency>):Promise<IResponse>{
@@ -21,10 +22,17 @@ export async function createOrg(org:Partial<IOrganization>, currency:Partial<ICu
             note: '',
             creator: currency.creator,
             org: newOrg._id,
-        }
+        };
+        const config = {
+            salesOrder:{ useConfig:true, length:4, auto: true },
+            invoice:{ useConfig:true, length:5, auto:true},
+            org: newOrg._id,
+            creator: currency?.creator ?? ''
+        } 
         await Promise.all([
             Currency.create({...currency, org: newOrg._id}),
-            OtherCurrency.create(otherCurrency)
+            OtherCurrency.create(otherCurrency),
+            TransConfig.create(config)
         ]);
         return respond('Organization created successfully', false, newOrg, 201);
     } catch (error) {

@@ -4,6 +4,7 @@ import { getProductCounts } from "@/functions/helpers";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { ICustomer } from "@/lib/models/customer.model";
 import { ILineItem } from "@/lib/models/lineitem.model";
+import { IOrder } from "@/lib/models/order.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { ISales } from "@/lib/models/sales.model";
 import { IUser } from "@/lib/models/user.model";
@@ -28,6 +29,17 @@ export const SalesColoumns = (
             },
             valueGetter:(_, row:ISales)=>{
                 return formatTimestamp(row?.createdAt)
+            }
+        },
+        {
+            field: 'invoice',
+            headerName: 'Invoice #',
+            width:150,
+            valueFormatter: (_, row:ISales)=>{
+                return row?.invoice?.code || '';
+            },
+            valueGetter: (_, row:ISales)=>{
+                return row?.invoice?.code || '';
             }
         },
         {
@@ -106,6 +118,26 @@ export const SalesColoumns = (
             width:100,
         },
         {
+            field: 'port',
+            headerName: 'Port of destination',
+            width:150,
+        },
+        {
+            field: 'shipping',
+            headerName: 'Shipping line',
+            width:150,
+        },
+        {
+            field: 'container',
+            headerName: 'Container #',
+            width:150,
+        },
+        {
+            field: 'billOfLanding',
+            headerName: 'Bill of landing #',
+            width:150,
+        },
+        {
             field: 'ordered',
             headerName: 'Ordered',
             width:100,
@@ -114,6 +146,25 @@ export const SalesColoumns = (
             },
             valueGetter:(_, row:ISales)=>{
                 return row?.ordered ? 'Yes' : 'No';
+            }
+        },
+        {
+            field: 'order',
+            headerName: 'Order',
+            width:170,
+            valueFormatter: (_, row:ISales)=>{
+                const order = row?.order as IOrder;
+                return  order.salesOrder?.code || order?.purchaseOrder || '';
+            },
+            valueGetter: (_, row:ISales)=>{
+                const order = row?.order as IOrder;
+                return  order.salesOrder?.code || order?.purchaseOrder || '';
+            },
+            renderCell: (params:GridRenderCellParams)=>{
+                const order = params?.row?.order as IOrder;
+                return (
+                    <Linker tableId="86" link={`/dashboard/transactions/orders?Id=${order?._id}`} placeholder={order?.salesOrder?.code || order?.purchaseOrder} />
+                )
             }
         },
 

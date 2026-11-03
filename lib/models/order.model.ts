@@ -12,7 +12,14 @@ export interface IOrder extends Document {
     products: { product: string | Types.ObjectId | IProduct, quantity: number }[];
     quantity: number;
     price: number;
+    salesOrder: {
+        code: string;
+        auto: boolean
+    };
+    purchaseOrder: string;
+    orderDate: string;
     deadline: string;
+    freight:string;
     fulfilledAt: string;
     instruction: string;
     creator: string;
@@ -32,6 +39,10 @@ const OrderSchema = new Schema<IOrder>({
     products: [{ product:{type: Schema.Types.ObjectId, ref: 'Product', required: true}, quantity: Number }],
     quantity: { type: Number, required: false, default: 1 },
     price: { type: Number, required: false, default: 0 },
+    salesOrder: {code: {type:String, unique:true}, auto:Boolean},
+    purchaseOrder: String,
+    orderDate: String,
+    freight: String,
     deadline: { type: String, required: false },
     instruction: String,
     creator: String,

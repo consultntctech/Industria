@@ -23,6 +23,7 @@ import { INeed, IOriginalPrice, OrderSelectType } from "@/types/Types";
 import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import SearchSelectCurrencies from "@/components/shared/inputs/dropdowns/SearchSelectCurrencies";
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
+// import { useFetchTransConfig } from "@/hooks/fetch/useFetchTransConfig";
 ;
 
 type OrdersFulfillCompModalProps = {
@@ -45,6 +46,8 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
     const original = currentOrder?.original as IOriginalPrice;
     const savedCurrency = original?.currency as IOtherCurrency;
     const items = currentOrder?.products as OrderSelectType[];
+    
+    
 
     const price = lineItems.reduce((acc, { price }) => acc + price, 0) || (currentOrder?.price||0);
     // console.log(price)
@@ -52,6 +55,7 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
     const {currency} = useCurrencyConfig();
     const utils = useQueryClient();
     const {user} = useAuth();
+    
     const isEditor = useCanUser('86', 'UPDATE');
     const customer = currentOrder?.customer as ICustomer;
 

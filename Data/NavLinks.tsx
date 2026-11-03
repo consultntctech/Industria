@@ -10,7 +10,7 @@ import { HiOutlineUserGroup } from "react-icons/hi2";
 import { IoAlertCircleOutline, IoSettingsOutline } from "react-icons/io5";
 import { LiaRecycleSolid, LiaShoppingBasketSolid, LiaToolsSolid, LiaUsersCogSolid } from "react-icons/lia";
 import { LuBaggageClaim, LuGitPullRequest, LuLayoutDashboard, LuPackageOpen, LuPackagePlus, LuPillBottle, LuShoppingCart } from "react-icons/lu";
-import { MdOutlineCategory, MdOutlineStoreMallDirectory, /*MdStackedLineChart*/ } from "react-icons/md";
+import { MdOutlineCategory, MdOutlinePointOfSale, MdOutlineStoreMallDirectory, /*MdStackedLineChart*/ } from "react-icons/md";
 import { PiCashRegisterLight, PiCompassToolDuotone, PiToolbox, PiUsersThree } from "react-icons/pi";
 import { RiShieldFlashLine, RiStackLine, RiStackshareLine } from "react-icons/ri";
 import { RxStack } from "react-icons/rx";
@@ -118,11 +118,11 @@ export const NavLinks = (): INavBarItem[] => {
       id: '14',
       title: 'Equipment',
       icon: <TbTool />,
-      tableids: ['92', '93', '94'],
+      tableids: ['94'],
       subMenu: [
-        { id: '140', tableids: ['92', '93', '94'], title: 'Dashboard', icon: <TbDashboard />, link: '/dashboard/equipment' },
-        { id: '142', tableids: ['93'], title: 'Categories', icon: <LiaToolsSolid />, link: '/dashboard/equipment/categories' },
-        { id: '141', tableids: ['92'], title: 'Types', icon: <PiCompassToolDuotone />, link: '/dashboard/equipment/types' },
+        { id: '140', tableids: ['94'], title: 'Dashboard', icon: <TbDashboard />, link: '/dashboard/equipment' },
+        { id: '142', tableids: ['94'], title: 'Categories', icon: <LiaToolsSolid />, link: '/dashboard/equipment/categories' },
+        { id: '141', tableids: ['94'], title: 'Types', icon: <PiCompassToolDuotone />, link: '/dashboard/equipment/types' },
         { id: '143', tableids: ['94'], title: 'Items', icon: <PiToolbox />, link: '/dashboard/equipment/items' },
       ]
     },
@@ -149,7 +149,7 @@ export const NavLinks = (): INavBarItem[] => {
       tableids: ['0', '48'],
       subMenu: [
         { id: "101", tableids:['48'], title: "Batch No.", icon: <RiStackLine />, link: "/dashboard/config/batch-no" },
-        // { id: "102", title: "Serial No.", icon: <TbLine />, link: "/dashboard/config/serial-no" },
+        { id: "102", tableids:['48'], title: "Transaction", icon: <MdOutlinePointOfSale />, link: "/dashboard/config/transaction" },
         { id: "103", tableids:['48'], title: "Org Settings", icon: <RiStackshareLine />, link: "/dashboard/config/org-settings" },
         { id: "104", tableids:['48'], title: "Currency", icon: <HiOutlineCurrencyDollar />, link: "/dashboard/config/currency" },
         { id: "105", tableids:['0'], title: "User Account", icon: <FaRegUser />, link: "/dashboard/config/profile" },

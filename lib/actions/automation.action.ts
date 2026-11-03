@@ -10,6 +10,8 @@ import Product from "../models/product.model";
 import Category from "../models/category.model";
 import Good from "../models/good.model";
 import Production from "../models/production.model";
+import Organization from "../models/org.model";
+import TransConfig from '../models/transconfig.model';
 
 export async function updateCurrencies(){
     try {
@@ -132,6 +134,27 @@ export async function updateProductionSupervisors(){
     }
 }
 
+
+export async function updateAllOrgTransConfig(){
+    try {
+        await connectDB();
+        const orgs = await Organization.find();
+        await Promise.all(
+            orgs.map((org)=>{
+                 const config = {
+                    salesOrder:{ useConfig:true, length:4, auto: false },
+                    invoice:{ useConfig:true, length:5, auto:false},
+                    org: org._id,
+                    creator: ''
+                };
+                return TransConfig.create(config);
+            })
+        )
+        return respond('Trasaction configs set', false, {}, 201)
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 // export async function updateProductionLabourers(){
 //     try {

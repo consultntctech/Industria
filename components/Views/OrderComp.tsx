@@ -25,6 +25,7 @@ import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
 import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
 import CustomCheckV2 from "../misc/CustomCheckV2";
+import { useFetchTransConfig } from "@/hooks/fetch/useFetchTransConfig";
 
 
 
@@ -45,10 +46,13 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
   const [useRate, setUseRate] = useState(false);
   const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
   const [cost, setCost] = useState<number>(0);
+  const [salesOrder, setSalesOrder] = useState('');
+
   const formRef = useRef<HTMLFormElement>(null);
   const {currency} = useCurrencyConfig();
   const utils = useQueryClient();
   const {user} = useAuth();
+  const {config} = useFetchTransConfig();
   const isCreator = useCanUser('86', 'CREATE');
   const isEditor = useCanUser('86', 'UPDATE');
 
@@ -96,6 +100,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
         creator: user?.name,
         createdBy:user?._id,
         quantity: qty,
+        salesOrder: {code:salesOrder, auto:false},
         price: 0,
         amountReceived:price,
         original:{
@@ -134,6 +139,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
         customer: customer?._id || savedCustomer?._id,
         products: products.map(item => ({product:item.product._id, quantity:item.quantity})),
         quantity: qty,
+        // salesOrder: {code:salesOrder || currentOrder?.salesOrder?.code, auto:currentOrder?.salesOrder?.auto || false},
         price,
         original:{
           amount: cost,
@@ -207,12 +213,20 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
                     otherCurrency && otherCurrency?.type !== 'default' &&
                     <InputWithLabel value={price} placeholder="this is optional"  readOnly  min={0} step={0.01}  label={costLabel} className="w-full" />
                   }
+                  <InputWithLabel defaultValue={currentOrder?.purchaseOrder} onChange={onChange} name="purchaseOrder" placeholder="enter purchase order" label="Purchase order" className="w-full" />
+                  {
+                    !(config?.salesOrder.useConfig || currentOrder) &&
+                    <InputWithLabel required={!config?.salesOrder?.useConfig} onChange={(e)=>setSalesOrder(e.target.value)} name="salesOrder" placeholder="enter sales order" label="Sales order" className="w-full" />
+                  }
                   <TextAreaWithLabel defaultValue={currentOrder?.instruction} name="instruction" onChange={onChange} placeholder="enter instruction" label="Order instructions" className="w-full" />
                 </div>
     
                 <div className="flex gap-4 flex-col w-full justify-between">
                     <div className="flex flex-col gap-4 w-full">
-                      <InputWithLabel min={currentOrder ? '' : today()} defaultValue={formatDate(currentOrder?.deadline)} type="date" onChange={onChange} name="deadline" label="Deadline" />
+
+                      <InputWithLabel required max={currentOrder ? '' : today()} defaultValue={formatDate(currentOrder?.orderDate)} type="date" onChange={onChange} name="orderDate" label="Order Date" />
+                      <InputWithLabel required min={currentOrder ? '' : today()} defaultValue={formatDate(currentOrder?.deadline)} type="date" onChange={onChange} name="deadline" label="Deadline" />
+                      <TextAreaWithLabel defaultValue={currentOrder?.freight} name="freight" onChange={onChange} placeholder="enter freight details" label="Freight terms" className="w-full" />
                       <TextAreaWithLabel defaultValue={currentOrder?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                     </div>
                     {

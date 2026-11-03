@@ -139,22 +139,22 @@ export const TableData:ITable[] = [
         description: 'Labourers table',
         level: 4
     },
-    {
-        id: '92',
-        name: 'Equipment Types',
-        description: 'Equipment types table',
-        level: 4
-    },
-    {
-        id: '93',
-        name: 'Equipment Categories',
-        description: 'Equipment categories table',
-        level: 4
-    },
+    // {
+    //     id: '92',
+    //     name: 'Equipment Types',
+    //     description: 'Equipment types table',
+    //     level: 4
+    // },
+    // {
+    //     id: '93',
+    //     name: 'Equipment Categories',
+    //     description: 'Equipment categories table',
+    //     level: 4
+    // },
     {
         id: '94',
-        name: 'Equipment Items',
-        description: 'Equipment items table',
+        name: 'Equipment',
+        description: 'Everything about equipment',
         level: 4
     },
     {

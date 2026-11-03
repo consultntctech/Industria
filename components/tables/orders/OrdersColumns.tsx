@@ -1,5 +1,5 @@
 import { Deleter, Editor, Fulfiller, Linker, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
-import {  formatDate, formatTimestamp } from "@/functions/dates";
+import {  formatDate, formatTimestamp, getDaysDifference } from "@/functions/dates";
 import { isDeadlinePast } from "@/functions/helpers";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { ICustomer } from "@/lib/models/customer.model";
@@ -21,7 +21,17 @@ export const OrdersColumns = (
 
     return [
 
-        
+        {
+            field: 'orderDate',
+            headerName: 'Ordered On',
+            width:100,
+            valueFormatter:(_, row:IOrder)=>{
+                return formatTimestamp(row?.orderDate)
+            },
+            valueGetter:(_, row:IOrder)=>{
+                return formatTimestamp(row?.orderDate)
+            }
+        },
         {
             field: 'customer',
             headerName: 'Customer',
@@ -73,6 +83,7 @@ export const OrdersColumns = (
             headerName: `Price ${currency?.symbol || ''}`,
             width:100,
         },
+
          {
             field: 'original',
             headerName: 'Original Amount',
@@ -104,8 +115,36 @@ export const OrdersColumns = (
             }
         },
         
-
-       
+        {
+            field: 'purchaseOrder',
+            headerName: `Purchase Order`,
+            width:100,
+        },
+        {
+            field: 'salesOrder',
+            headerName: `Sales Order`,
+            width:100,
+            valueFormatter: (_, row:IOrder)=>{
+                const salesOrder = row?.salesOrder;
+                return salesOrder?.code || '';
+            },
+            valueGetter: (_, row:IOrder)=>{
+                const salesOrder = row?.salesOrder;
+                return salesOrder?.code || '';
+            }
+        },
+        {
+            field:'daysOld',
+            headerName: 'Days Old',
+            width:100,
+            valueFormatter:(_, row:IOrder)=>{
+                return getDaysDifference(row?.orderDate)
+            },
+            valueGetter:(_, row:IOrder)=>{
+                return getDaysDifference(row?.orderDate)
+            }
+        },
+        
         {
             field: 'deadline',
             headerName: `Deadline`,
@@ -125,6 +164,11 @@ export const OrdersColumns = (
         {
             field: 'instruction',
             headerName: `Instructions`,
+            width:150,
+        },
+        {
+            field: 'freight',
+            headerName: `Freight terms`,
             width:150,
         },
         {
@@ -196,7 +240,7 @@ export const OrdersColumns = (
         },
         {
             field: 'createdAt',
-            headerName: 'Ordered On',
+            headerName: 'Created On',
             width:100,
             valueFormatter:(_, row:IOrder)=>{
                 return formatTimestamp(row?.createdAt)
