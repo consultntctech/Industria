@@ -23,6 +23,8 @@ import { IProdType } from "@/lib/models/prodtype.model";
 import SearchSelectProdType from "../shared/inputs/dropdowns/SearchSelectProdType";
 import SearchSelectMultipleSuppliersByProdType from "../shared/inputs/dropdowns/SearchSelectMultipleSuppliersByProdType";
 import CloseButton from "../misc/CloseButton";
+import SearchSelectBatches from "../shared/inputs/dropdowns/SearchSelectBatches";
+import { IBatch } from "@/lib/models/batch.model";
 ;
 
 type ProdItemCompProps = {
@@ -44,6 +46,8 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     const [originalCost, setOriginalCost] = useState(0);
     const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
     const [storages, setStorages] = useState<IStorage[]>([]);
+    const [batch, setBatch] = useState<string>('');
+    const [showReason, setShowReason] = useState<boolean>(false);
     const formRef = useRef<HTMLFormElement>(null);
     const {user} = useAuth();
     const {currency} = useCurrencyConfig();
@@ -57,12 +61,16 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     const savedStorages = currentProdItem?.storages as IStorage[];
     const savedSuppliers = currentProdItem?.suppliers as ISupplier[];
     const savedProdType = currentProdItem?.type as IProdType;
+    const savedBatch = currentProdItem?.batch as IBatch;
 
     const showRate = exposeRate(savedCurrency, otherCurrency);
     const rate = currencyRate(original, otherCurrency, useRate, showRate);
 
     // const originalCost = (data?.quantity || 0) * (data?.unitPrice || 0);
     const price = originalCost * rate;
+    const originalCharges = (currentProdItem?.charges || 0) / (original?.rate || 1);
+    const charges = data?.charges ? data.charges * rate : originalCharges * rate;
+
 
 
     useEffect(() => {
@@ -73,6 +81,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
             setStorages(savedStorages);
             setSuppliers(savedSuppliers);
             setProdType(savedProdType);
+            setBatch(savedBatch?._id || '');
         }else{
             setData({dateReceived:new Date()})
         }
@@ -86,11 +95,19 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
 
     useEffect(() => {
       if(data.quantity && data.unitPrice && !currentProdItem){
-        setOriginalCost(data.quantity * data.unitPrice);
+        setOriginalCost(((data.quantity || 0) - (data.qRejected || 0)) * data.unitPrice);
       }else{
         setOriginalCost(original?.amount || 0);
       }
-    }, [data.quantity, data.unitPrice, currentProdItem])
+    }, [data.quantity, data.unitPrice, data?.qRejected, currentProdItem])
+
+    useEffect(() => {
+      if(data.qRejected && data.qRejected > 0){
+        setShowReason(true);
+      }else{
+        setShowReason(false);
+      }
+    }, [data.qRejected])
 
     const onChange = (e:React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>)=>{
         setData((pre)=>({
@@ -113,10 +130,11 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
           const prod: Partial<IProdItem> = {
             ...data, 
             org:user?.org, createdBy:user?._id, creator: user?.name,
-            stock: data.quantity, 
+            stock: (data?.quantity || 0) - (  data?.qRejected || 0), 
             used: 0, suppliers: suppliers.map((item)=>item._id),
-            price,
+            price, charges,
             type: prodType?._id,
+            batch,
             original:{
               amount: originalCost,
               rate,
@@ -158,6 +176,7 @@ const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     const prod: Partial<IProdItem> = {
       ...fields,
       price,
+      charges,
       suppliers: suppliers.map((item) => item._id),
       type: prodType?._id || savedProdType?._id,
       original: {
@@ -165,6 +184,7 @@ const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
         rate,
         currency: otherCurrency?._id as string,
       },
+      batch,
       storages: storages.map((item) => item._id),
     };
 
@@ -187,6 +207,9 @@ const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
     const costLabel = `Total cost (${currency?.symbol || currency?.name || 'Primary currency'})`;
     const otherLabel = `Total cost (${otherCurrency?.symbol || otherCurrency?.name})`;
 
+    const chargeLabel = `Charges (${currency?.symbol || currency?.name || 'Primary currency'})`;
+    const otherChargeLabel = `Charges (${otherCurrency?.symbol || otherCurrency?.name})`;
+
   return (
     <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`}>
         <form ref={formRef} onSubmit={currentProdItem ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full relative" >
@@ -207,6 +230,11 @@ const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
                         />
 
                         <GenericLabel
+                          label='Select batch'
+                          input={<SearchSelectBatches required={!currentProdItem} type="Packaging Material" value={savedBatch} setSelect={setBatch} />}
+                        />
+
+                        <GenericLabel
                             label='Select suppliers'
                             input={<SearchSelectMultipleSuppliersByProdType typeId={prodType?._id} value={savedSuppliers} setSelection={setSuppliers} />}
                         />
@@ -221,27 +249,35 @@ const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
                             }
                         />
                         <InputWithLabel defaultValue={currentProdItem? formatDate(currentProdItem?.dateReceived) : today()} onChange={onChange} max={today()} name="dateReceived" type="date" required={!currentProdItem} label="Date received" className="w-full" />
-                        <InputWithLabel step={0.01}  min={Math.max(1, currentProdItem?.used ?? 0)} defaultValue={currentProdItem?.quantity} onChange={onChange} name="quantity" required type="number" placeholder="10" label="Enter quantity" className="w-full" />
                         <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentProdItem} setSelect={setOtherCurrency} value={savedCurrency} />} />
                         {
-                            showRate &&
+                          showRate &&
                           <GenericLabel label='Use current rate' input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} className="flex-row items-center gap-6" />
+                        }
+                        <InputWithLabel step={0.01}  min={Math.max(1, currentProdItem?.used ?? 0)} defaultValue={currentProdItem?.quantity} onChange={onChange} name="quantity" required type="number" placeholder="10" label="Enter quantity received" className="w-full" />
+                        <InputWithLabel step={0.01}  min={Math.max(1, currentProdItem?.used ?? 0)} defaultValue={currentProdItem?.qRejected} onChange={onChange} name="qRejected" required type="number" placeholder="10" label="Enter quantity rejected" className="w-full" />
+                        {
+                          showReason &&
+                          <TextAreaWithLabel required={showReason} defaultValue={currentProdItem?.reasonForRejection} name="reasonForRejection" onChange={onChange} placeholder="enter reason for rejection" label="Reason for rejection" className="w-full" />
                         }
                     </div>
         
                     <div className="flex gap-4 flex-col w-full justify-between">
                         <div className="flex flex-col gap-4 w-full">
+
                           <InputWithLabel defaultValue={original?.amount} step={0.01} onChange={onChange} name="unitPrice" required={!currentProdItem} type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={'Enter unit price'} className="w-full" />
                           <InputWithLabel value={originalCost} onChange={(e)=>setOriginalCost(Number(e.target.value))} name="price" required={!currentProdItem} type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
+                          <InputWithLabel defaultValue={originalCharges} onChange={onChange} name="charges" type="number" min={0} placeholder={`${currency?.symbol}25.5`} label={otherChargeLabel} className="w-full" />
+
                           {
-                            otherCurrency &&
+                            (otherCurrency && otherCurrency?.type !== 'default') &&
+                            <>
                             <InputWithLabel value={price}  name="price" type="number" readOnly min={0} placeholder={`${currency?.symbol}25.5`} label={costLabel} className="w-full" />
+                            <InputWithLabel value={charges}  type="number" readOnly min={0} placeholder={`${currency?.symbol}5.5`} label={chargeLabel} className="w-full" />
+                            </>
                           }
+                          <InputWithLabel value={price + charges}  type="number" readOnly min={0} placeholder={`${currency?.symbol}30.5`} label={`Total (${currency?.symbol || currency?.name || 'Primary currency'})`} className="w-full" />
                           <GenericLabel label="Storage" input={<SearchSelectMultipleStorages  placeholder="Storage locations" required={storages?.length === 0} value={savedStorages} setSelection={setStorages} />}  />
-                          {/* <div className="flex flex-row items-center gap-4">
-                              <span className="smallText">This item is reusable</span>
-                              <CustomCheckV2 checked={reusable} setChecked={setReusable} />
-                          </div> */}
                           
                           <TextAreaWithLabel defaultValue={currentProdItem?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
                         </div>

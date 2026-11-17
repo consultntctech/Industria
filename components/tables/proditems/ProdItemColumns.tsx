@@ -1,6 +1,7 @@
 import { Deleter, Editor, Linker, ViewCreator, Viewer } from "@/components/PermisionHelpers/PermisionHelpers";
 import { formatDate } from "@/functions/dates";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
+import { IBatch } from "@/lib/models/batch.model";
 import { IOrganization } from "@/lib/models/org.model";
 import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { IProdItem } from "@/lib/models/proditem.model";
@@ -52,10 +53,42 @@ export const ProdItemColumns = (
         },
 
         {
+            field:'batch',
+            headerName: 'Batch',
+            width:100,
+            valueFormatter: (_, row:IProdItem)=>{
+                const batch = row?.batch as IBatch;
+                return batch ? batch?.code : '';
+            },
+            valueGetter: (_, row:IProdItem)=>{
+                const batch = row?.batch as IBatch;
+                return batch ? batch?.code : '';
+            },
+            renderCell: (params:GridRenderCellParams)=>{
+                const batch = params?.row?.batch as IBatch;
+                return (
+                    <Linker link={`/dashboard/products/batches?Id=${batch?._id}`} placeholder={batch?.code} tableId="55" />
+                )
+            }
+
+        },
+
+        {
             field: 'quantity',
             headerName: 'Quantity received',
             width:110,
             headerAlign: 'center',
+        },
+        {
+            field: 'qRejected',
+            headerName: 'Quantity rejected',
+            width:110,
+            headerAlign: 'center',
+        },
+        {
+            field: 'reasonForRejection',
+            headerName: 'Reason for rejection',
+            width:150,
         },
         {
             field: 'stock',
@@ -86,10 +119,34 @@ export const ProdItemColumns = (
             headerAlign:'center'
         },
         {
+            field: 'charges',
+            headerName: currency ? `Charges (${currency.symbol})` : 'Charges',
+            width:100,
+            headerAlign:'center'
+        },
+        {
             field: 'price',
             headerName: currency ? `Total Price (${currency.symbol})` : 'Total Price',
             width:100,
             headerAlign:'center'
+        },
+        {
+            field: 'cost',
+            headerName: currency ? `Total Cost (${currency.symbol})` : 'Total Cost',
+            width:100,
+            headerAlign:'center',
+            valueFormatter: (_, row:IProdItem)=>{
+                const price = row?.price || 0;
+                const charges = row?.charges || 0;
+                const total = price + charges;
+                return `${currency?.symbol || ''} ${total}`;
+            },
+            valueGetter: (_, row:IProdItem)=>{
+                const price = row?.price || 0;
+                const charges = row?.charges || 0;
+                const total = price + charges;
+                return `${currency?.symbol || ''} ${total}`;
+            }
         },
         {
             field: 'original',
@@ -98,12 +155,16 @@ export const ProdItemColumns = (
             valueFormatter: (_, row:IProdItem)=>{
                 const original = row?.original as IOriginalPrice;
                 const cy = original?.currency as IOtherCurrency;
-                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount}` : 0;
+                const rate = original?.rate || 1;
+                const originalCharges = (row?.charges || 0) / rate;
+                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount + originalCharges}` : 0;
             },
             valueGetter: (_, row:IProdItem)=>{
                 const original = row?.original as IOriginalPrice;
                 const cy = original?.currency as IOtherCurrency;
-                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount}` : 0;
+                const rate = original?.rate || 1;
+                const originalCharges = (row?.charges || 0) / rate;
+                return original ? `${cy?.symbol || cy?.name || ''} ${original?.amount + originalCharges}` : 0;
             }
         },
         {

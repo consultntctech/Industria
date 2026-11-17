@@ -139,6 +139,7 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
                           <option  value="Raw Material">Raw Material</option>
                           <option value="Finished Good">Unfinished Good</option>
                           <option value="Packaging">Packaging</option>
+                          <option value="Packaging Material">Packaging Material</option>
                       </select>
                       }
                     />

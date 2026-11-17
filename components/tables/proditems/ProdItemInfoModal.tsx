@@ -4,6 +4,7 @@ import { isSystemAdmin } from '@/Data/roles/permissions';
 import { formatDate } from '@/functions/dates';
 import { useCurrencyConfig } from '@/hooks/config/useCurrencyConfig';
 import { useAuth } from '@/hooks/useAuth';
+import { IBatch } from '@/lib/models/batch.model';
 import { IOrganization } from '@/lib/models/org.model';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import { IProdItem } from '@/lib/models/proditem.model';
@@ -33,6 +34,9 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
     const savedCurrency = currentProdItem?.original?.currency as IOtherCurrency;
     const storages = currentProdItem?.storages as IStorage[];
     const prodType = currentProdItem?.type as IProdType;
+    const batch = currentProdItem?.batch as IBatch;
+    const charges = currentProdItem?.charges || 0;
+    const originalCharges = charges / (original?.rate || 1);
 
     // const rate = Number(original?.rate || 1);
     // console.log(rate, currentProdItem?.unitPrice)
@@ -60,6 +64,13 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
                 <span className="mlabel">Material Type</span>
                 <Linker tableId='17' link={`/dashboard/distribution/materials/types?Id=${prodType?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={prodType?.name} />
             </div>
+            {
+                batch &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Batch</span>
+                    <Linker tableId='55' link={`/dashboard/products/batches?Id=${batch?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={batch?.code} />
+                </div>
+            }
             
            
             <div className="flex flex-col">
@@ -75,6 +86,17 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
                 <span className="mtext">{currentProdItem?.quantity}</span>
             </div>
             <div className="flex flex-col">
+                <span className="mlabel">Quantity rejected</span>
+                <span className="mtext">{currentProdItem?.qRejected || 0}</span>
+            </div>
+            {
+                Number(currentProdItem?.qRejected) > 0 &&
+                <div className="flex flex-col">
+                    <span className="mlabel">Reason for rejection</span>
+                    <span className="mtext">{currentProdItem?.reasonForRejection || 'None'}</span>
+                </div>
+            }
+            <div className="flex flex-col">
                 <span className="mlabel">Quantity in stock</span>
                 <span className="mtext">{currentProdItem?.stock <= 0 ? 0 : currentProdItem?.stock}</span>
             </div>
@@ -82,16 +104,20 @@ const ProdItemInfoModal = ({infoMode, setInfoMode, currentProdItem, setCurrentPr
                 <span className="mlabel">Unit price</span>
                 <span className="mtext">{savedCurrency?.symbol || currency?.symbol || ''}{currentProdItem?.unitPrice}</span>
             </div>
+            <div className="flex flex-col">
+                <span className="mlabel">Charges</span>
+                <span className="mtext">{savedCurrency?.symbol || currency?.symbol || ''}{currentProdItem?.charges}</span>
+            </div>
             {
                 original &&
                 <div className="flex flex-col">
                     <span className="mlabel">Total price</span>
-                    <span className="mtext">{savedCurrency?.symbol || savedCurrency?.name || ''}{original?.amount || 0}</span>
+                    <span className="mtext">{savedCurrency?.symbol || savedCurrency?.name || ''}{(original?.amount || 0) + (originalCharges || 0)}</span>
                 </div>
             }
             <div className="flex flex-col">
                 <span className="mlabel">{`Total price (${currency?.symbol || 'Primary currency'})`}</span>
-                <span className="mtext">{currency?.symbol || ''}{currentProdItem?.price}</span>
+                <span className="mtext">{currency?.symbol || ''}{currentProdItem?.price + charges}</span>
             </div>
             
             <div className="flex flex-col">

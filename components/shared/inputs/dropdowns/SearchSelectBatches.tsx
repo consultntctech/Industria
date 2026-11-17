@@ -8,7 +8,7 @@ type SearchSelectBatchesProps = {
     value?: IBatch | null,
     width?: number,
     required?:boolean,
-    type?:'Raw Material'|'Finished Good' |'Packaging',
+    type?:'Raw Material'|'Finished Good' |'Packaging' | 'Packaging Material',
     disabled?:boolean
 }
 const SearchSelectBatches = ({setSelect, type, required, value, width, disabled}:SearchSelectBatchesProps) => {
@@ -20,8 +20,8 @@ const SearchSelectBatches = ({setSelect, type, required, value, width, disabled}
             disablePortal
             disabled={disabled}
             options={batches}
-            onChange={(e, item:IBatch|null)=>{
-                console.log(e.target)
+            onChange={(_, item:IBatch|null)=>{
+                // console.log(e.target)
                 if(setSelect){
                     setSelect(item?._id as string)
                 }

@@ -130,6 +130,10 @@ const ProdItemTable = ({setOpenNew, currentProdItem, setCurrentProdItem}:ProdIte
                                   createdBy:false,
                                   createdAt:false,
                                   updatedAt:false,
+                                  batch:false,
+                                  price: false,
+                                  qRejected: false,
+                                  reasonForRejection: false,
                                 }
                               }
                          }}

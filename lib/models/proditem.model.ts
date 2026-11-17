@@ -7,6 +7,7 @@ import { IOriginalPrice } from "@/types/Types";
 import { IStorage } from "./storage.model";
 import { IProdType } from "./prodtype.model";
 import { ISupplier } from "./supplier.model";
+import { IBatch } from "./batch.model";
 
 export interface IProdItem extends Document {
     _id: string;
@@ -14,6 +15,10 @@ export interface IProdItem extends Document {
     name: string;
     quantity: number;
     price: number;
+    charges: number;
+    batch: string | Types.ObjectId | IBatch;
+    qRejected: number;
+    reasonForRejection: string;
     dateReceived: Date,
     unitPrice: number;
     original: IOriginalPrice;
@@ -46,6 +51,10 @@ const ProdItemSchema = new Schema<IProdItem>({
     storages: [{ type: Schema.Types.ObjectId, ref: 'Storage', default: [] }],
     suppliers: [{ type: Schema.Types.ObjectId, ref: 'Supplier', default: [] }],
     price: { type: Number, required: false },
+    charges: { type: Number, required: false },
+    batch: { type: Schema.Types.ObjectId, ref: 'Batch', required: false },
+    qRejected: { type: Number, required: false },
+    reasonForRejection: { type: String, required: false },
     creator: String,
     description: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },
