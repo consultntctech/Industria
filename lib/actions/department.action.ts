@@ -28,9 +28,9 @@ export async function getDepartments():Promise<IResponse>{
     try {
         await connectDB();
         const departments = await Department.find()
-        .populate('org')
-        .populate('head')
-        .populate('createdBy')
+        .populate('org', 'name logo')
+        .populate('head', 'name email photo')
+        .populate('createdBy', 'name email photo')
         .lean() as unknown as IDepartment[];
         return respond('Departments found successfully', false, departments, 200);
     } catch (error) {
@@ -83,9 +83,9 @@ export async function getDepartmentsByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const departments = await Department.find({ org: orgId })
-        .populate('org')
-        .populate('head')
-        .populate('createdBy')
+        .populate('org', 'name logo')
+        .populate('head', 'name email photo')
+        .populate('createdBy', 'name email photo')
         .lean() as unknown as IDepartment[];
         return respond('Departments found successfully', false, departments, 200);
     } catch (error) {

@@ -31,10 +31,10 @@ export async function getReturns():Promise<IResponse>{
     try {
         await connectDB();
         const returns = await Returns.find()
-        .populate('org')
+        .populate('org', 'name logo')
         .populate('customer')
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('original.currency')
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, returns, 200);
@@ -48,10 +48,10 @@ export async function getReturnsByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const returns = await Returns.find({ org: orgId })
-        .populate('org')
+        .populate('org', 'name logo')
         .populate('customer')
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('original.currency')
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, returns, 200);
@@ -66,10 +66,10 @@ export async function getReturnsByCustomer(customerId:string):Promise<IResponse>
     try {
         await connectDB();
         const returns = await Returns.find({ customer: customerId })
-        .populate('org')
+        .populate('org', 'name logo')
         .populate('customer')
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('original.currency')
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, returns, 200);
@@ -83,10 +83,10 @@ export async function getReturnsByProduct(productId:string):Promise<IResponse>{
     try {
         await connectDB();
         const returns = await Returns.find({ products: productId })
-        .populate('org')
+        .populate('org', 'name logo')
         .populate('customer')
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('original.currency')
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, returns, 200);
@@ -100,10 +100,10 @@ export async function getReturnsByOrgAndCustomer(orgId:string, customerId:string
     try {
         await connectDB();
         const returns = await Returns.find({ org: orgId, customer: customerId })
-        .populate('org')
+        .populate('org', 'name logo')
         .populate('customer')
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('original.currency')
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, returns, 200);
@@ -129,9 +129,9 @@ export async function getTodayReturns(): Promise<IResponse> {
     })
       .populate("customer")
       .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
-      .populate("createdBy")
+      .populate("createdBy", "name email photo")
       .populate("original.currency")
-      .populate("org")
+      .populate("org", "name logo")
       .lean<IReturns[]>();
 
     return respond("Returns found successfully", false, sales, 200);
@@ -153,9 +153,9 @@ export async function getTodayReturnsByOrg(orgId:string):Promise<IResponse>{
         const sales = await Returns.find({ org: orgId, createdAt: { $gte: start, $lt: end } })
         .populate("customer")
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
-        .populate("createdBy")
+        .populate("createdBy", "name email photo")
         .populate("original.currency")
-        .populate("org")
+        .populate("org", "name logo")
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, sales, 200);
     } catch (error) {
@@ -170,10 +170,10 @@ export async function getReturnsByOrgAndProduct(orgId:string, productId:string):
     try {
         await connectDB();
         const returns = await Returns.find({ org: orgId, products: productId })
-        .populate('org')
+        .populate('org', 'name logo')
         .populate('customer')
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('original.currency')
         .lean<IReturns[]>();
         return respond('Returns found successfully', false, returns, 200);

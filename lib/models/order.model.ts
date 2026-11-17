@@ -64,6 +64,12 @@ OrderSchema.pre('save', function (next) {
     next();
 });
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+OrderSchema.index({ org: 1, createdAt: -1 });
+OrderSchema.index({ org: 1, customer: 1 });
+OrderSchema.index({ org: 1, status: 1 });
+OrderSchema.index({ products: 1 });
+
 const Order = models?.Order || model<IOrder>('Order', OrderSchema);
 export default Order;
 

@@ -1,54 +1,293 @@
 @import "tailwindcss";
 
-.formBox{
-  @apply bg-white rounded-md flex shadow-lg border border-gray-200
+/* `dark:` utilities follow the class MUI puts on <html> (see AppThemeProvider),
+   not the OS setting, so the in-app theme switch drives everything. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ───────────────────────── Design tokens ───────────────────────── */
+:root {
+  color-scheme: light;
+  --app-bg: #f5f7fb;
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+  --surface-3: #f1f5f9;
+  --surface-hover: #f1f5f9;
+  --surface-active: #e2e8f0;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --text: #0f172a;
+  --text-2: #334155;
+  --text-muted: #64748b;
+  --text-faint: #9ea2a8;
+  --link: #2563eb;
+  --brand-from: #4f46e5;
+  --brand-to: #0ea5e9;
+  --shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 8px 24px -8px rgb(15 23 42 / 0.12);
 }
 
-.title{
-  @apply text-xl md:text-2xl font-bold
+.dark {
+  color-scheme: dark;
+  --app-bg: #0b0f17;
+  --surface: #121826;
+  --surface-2: #161d2c;
+  --surface-3: #1b2333;
+  --surface-hover: #1f2939;
+  --surface-active: #263043;
+  --border: #263043;
+  --border-strong: #334055;
+  --text: #e5e7eb;
+  --text-2: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-faint: #7c8798;
+  --link: #93c5fd;
+  --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -8px rgb(0 0 0 / 0.6);
 }
 
-.subtitle{
-  @apply md:text-xl font-medium
+html,
+body {
+  margin: 0;
+  background-color: var(--app-bg);
+  color: var(--text);
 }
 
-.greyText{
-  @apply text-[#9ea2a8] text-[0.8rem] font-medium
-}
-.smallText{
-  @apply text-black text-[0.8rem] font-medium
-}
-.greyText2{
-  @apply text-[#9ea2a8] text-[0.7rem] font-medium
-}
-.smallText2{
-  @apply text-black text-[0.7rem] font-medium
+/* ───────────────────────── App primitives ───────────────────────── */
+.formBox {
+  @apply rounded-xl flex border;
+  background-color: var(--surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
 }
 
-.table-main2{
-    @apply max-w-[78vw] xl:max-w-[74vw] bg-white gap-4 p-4 flex flex-col rounded shadow-md border border-gray-200
-}
-.table-main1{
-    @apply max-w-[78vw] lg:max-w-[40vw] xl:max-w-[40vw] bg-white gap-4 p-4 flex flex-col rounded shadow-xl
+.surface {
+  background-color: var(--surface);
+  border-color: var(--border);
 }
 
-.flex-center{
-  @apply flex items-center justify-center
+.title {
+  @apply text-xl md:text-2xl font-bold;
+  color: var(--text);
 }
 
-.link{
-  @apply text-blue-600 hover:underline cursor-pointer
+.subtitle {
+  @apply md:text-xl font-medium;
 }
 
-
-.mlabel{
-  @apply text-slate-700  font-medium
+.greyText {
+  @apply text-[0.8rem] font-medium;
+  color: var(--text-faint);
+}
+.smallText {
+  @apply text-[0.8rem] font-medium;
+  color: var(--text);
+}
+.greyText2 {
+  @apply text-[0.7rem] font-medium;
+  color: var(--text-faint);
+}
+.smallText2 {
+  @apply text-[0.7rem] font-medium;
+  color: var(--text);
 }
 
-.mtext{
-  @apply text-[0.9rem]
+.table-main2 {
+  @apply max-w-[78vw] xl:max-w-[74vw] gap-4 p-4 flex flex-col rounded-xl border;
+  background-color: var(--surface);
+  border-color: var(--border);
+  box-shadow: var(--shadow);
+}
+.table-main1 {
+  @apply max-w-[78vw] lg:max-w-[40vw] xl:max-w-[40vw] gap-4 p-4 flex flex-col rounded-xl;
+  background-color: var(--surface);
+  box-shadow: var(--shadow);
 }
 
-.semibold{
-  @apply font-semibold text-[1rem]
+.flex-center {
+  @apply flex items-center justify-center;
+}
+
+.link {
+  @apply hover:underline cursor-pointer;
+  color: var(--link);
+}
+
+.mlabel {
+  @apply font-medium;
+  color: var(--text-2);
+}
+
+.mtext {
+  @apply text-[0.9rem];
+}
+
+.semibold {
+  @apply font-semibold text-[1rem];
+}
+
+/* Native form controls pick up the theme. */
+input,
+select,
+textarea {
+  color: var(--text);
+  background-color: transparent;
+}
+select option {
+  background-color: var(--surface);
+  color: var(--text);
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--text-faint);
+}
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--brand-from) 45%, transparent);
+  outline-offset: 1px;
+}
+
+/* Sign-in / reset screens */
+.auth-bg {
+  background:
+    radial-gradient(60rem 40rem at 10% -10%, color-mix(in srgb, var(--brand-from) 18%, transparent), transparent 60%),
+    radial-gradient(50rem 35rem at 110% 110%, color-mix(in srgb, var(--brand-to) 18%, transparent), transparent 60%),
+    var(--app-bg);
+}
+
+/* Keyboard hint chips (search button, palette footer) */
+.kbd {
+  @apply inline-flex items-center rounded border px-1.5 text-[0.7rem] font-medium leading-5;
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+  background-color: var(--surface-2);
+}
+
+/* ─────────────── Dark-mode remap of hard-coded utility colours ───────────────
+   Hundreds of components use literal light-palette utilities (bg-white,
+   text-gray-600, border-gray-200 …). Rather than touching every file, the
+   dark theme remaps those utilities onto the tokens above. These rules are
+   unlayered, so they win over Tailwind's layered utilities; explicit
+   `dark:` utilities are left alone. */
+.dark .bg-white { background-color: var(--surface); }
+.dark .bg-gray-50,
+.dark .bg-slate-50 { background-color: var(--surface-2); }
+.dark .bg-slate-50\/50 { background-color: color-mix(in srgb, var(--surface-2) 60%, transparent); }
+.dark .bg-gray-100,
+.dark .bg-slate-100 { background-color: var(--surface-3); }
+.dark .bg-gray-200,
+.dark .bg-slate-200 { background-color: var(--surface-active); }
+.dark .bg-slate-300 { background-color: #334055; }
+.dark .bg-indigo-50,
+.dark .bg-indigo-50\/60 { background-color: rgb(99 102 241 / 0.14); }
+.dark .bg-emerald-50 { background-color: rgb(16 185 129 / 0.14); }
+.dark .bg-amber-50\/20 { background-color: rgb(245 158 11 / 0.08); }
+
+.dark .hover\:bg-gray-100:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-slate-200:hover { background-color: var(--surface-hover); }
+.dark .hover\:bg-blue-200:hover { background-color: rgb(59 130 246 / 0.25); }
+
+.dark .text-black,
+.dark .text-gray-900,
+.dark .text-slate-900,
+.dark .text-slate-800 { color: var(--text); }
+.dark .text-gray-700,
+.dark .text-gray-600,
+.dark .text-slate-700,
+.dark .text-slate-600 { color: var(--text-2); }
+.dark .text-gray-500,
+.dark .text-slate-500 { color: var(--text-muted); }
+.dark .text-gray-400,
+.dark .text-slate-400 { color: var(--text-faint); }
+.dark .hover\:text-black:hover { color: #fff; }
+.dark .hover\:text-slate-600:hover,
+.dark .hover\:text-gray-500:hover { color: var(--text-2); }
+
+.dark .text-blue-800,
+.dark .text-blue-700,
+.dark .text-blue-600 { color: #93c5fd; }
+.dark .text-indigo-600,
+.dark .text-indigo-900 { color: #a5b4fc; }
+.dark .text-red-700,
+.dark .text-red-600 { color: #f87171; }
+.dark .text-green-700,
+.dark .text-green-600 { color: #4ade80; }
+.dark .text-yellow-700 { color: #facc15; }
+.dark .text-amber-900 { color: #fcd34d; }
+.dark .text-emerald-600 { color: #34d399; }
+
+.dark .border-gray-100,
+.dark .border-gray-200,
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-200\/60 { border-color: var(--border); }
+.dark .border-gray-300,
+.dark .border-slate-300,
+.dark .border-gray-400,
+.dark .border-slate-400 { border-color: var(--border-strong); }
+.dark .border-indigo-100 { border-color: rgb(99 102 241 / 0.3); }
+.dark .border-emerald-100 { border-color: rgb(16 185 129 / 0.3); }
+
+.dark .shadow,
+.dark .shadow-md,
+.dark .shadow-lg,
+.dark .shadow-xl { box-shadow: var(--shadow); }
+
+/* ───────────────────────── Scrollbars ─────────────────────────
+   Slim, rounded, theme-aware thumbs on a transparent track. The thumb is
+   inset with a transparent border so it floats inside the gutter and grows
+   slightly on hover. Applies everywhere (page, tables, modals, dropdowns). */
+:root {
+  --scroll-thumb: rgb(100 116 139 / 0.35);
+  --scroll-thumb-hover: color-mix(in srgb, var(--brand-from) 70%, transparent);
+  --scroll-thumb-active: var(--brand-from);
+}
+.dark {
+  --scroll-thumb: rgb(148 163 184 / 0.25);
+  --scroll-thumb-hover: color-mix(in srgb, #818cf8 70%, transparent);
+  --scroll-thumb-active: #818cf8;
+}
+
+/* Chromium, Edge, Safari */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--scroll-thumb);
+  background-clip: content-box;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  min-height: 40px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scroll-thumb-hover);
+  border-width: 2px;
+}
+::-webkit-scrollbar-thumb:active {
+  background-color: var(--scroll-thumb-active);
+}
+::-webkit-scrollbar-button {
+  display: none;
+}
+
+/* Firefox (no pseudo-elements; Chromium ignores the ::-webkit rules above
+   if these standard properties are set, so they're scoped to Firefox). */
+@supports (-moz-appearance: none) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scroll-thumb) transparent;
+  }
+  *:hover {
+    scrollbar-color: var(--scroll-thumb-hover) transparent;
+  }
+}
+
+/* MUI X DataGrid: keep the column header row distinct in both themes. */
+.MuiDataGrid-root .MuiDataGrid-columnHeaders,
+.MuiDataGrid-root .MuiDataGrid-columnHeader {
+  background-color: var(--surface-2);
 }

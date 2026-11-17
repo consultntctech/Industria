@@ -1,4 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
+import CloseButton from "../misc/CloseButton";
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
@@ -23,7 +25,6 @@ import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
 import { IOriginalPrice } from "@/types/Types";
 import GenericLabel from "../shared/inputs/GenericLabel";
 import CustomCheckV2 from "../misc/CustomCheckV2";
-import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
 import { useFetchTransConfig } from "@/hooks/fetch/useFetchTransConfig";
 ;
 
@@ -41,7 +42,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
     // const [isSelectedAll, setIsSelectedAll] = useState<boolean>(false);
     const [customer, setCustomer] = useState<ICustomer | null>(null);
     const [data, setData] = useState<Partial<ISales>>({});
-    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+    const otherCurrency = useActiveCurrency();
     const [useRate, setUseRate] = useState(false);
     const [invoice, setInvoice] = useState('');
     // const [batch, setBatch] = useState<string>('');
@@ -96,7 +97,6 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
             setData({...currentSales});
             setLineItems(savedItems);
             setCustomer(savedCustomer);
-            setOtherCurrency(currentCurrency);
         }
        else{
            setData({});
@@ -198,6 +198,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
         {
             openNew &&
             <form ref={formRef} onSubmit={ currentSales ? handleUpdate : handleSubmit}  className="formBox relative p-4 flex-col gap-8 w-full" >
+              <CloseButton onClick={handleClose} />
                 
                 <div className="flex flex-col  gap-4 items-stretch">
                     <div className="flex flex-col gap-4 w-full">
@@ -226,7 +227,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                         
                         <SalesLineItemsTable currentSales={currentSales} needed={needed} lines={lineItems} setLines={setLineItems} />
                         <div className="flex gap-4 flex-col w-full md:flex-row">
-                            <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentSales} setSelect={setOtherCurrency} value={currentCurrency} />} />
+                            <ActiveCurrencyField savedCurrency={currentCurrency} />
                             {
                                 showRate &&
                                 <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />

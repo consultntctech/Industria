@@ -67,8 +67,8 @@ export async function getEmployees():Promise<IResponse>{
     try {
         await connectDB();
         const employees = await Employee.find()
-        .populate('userAccount')
-        .populate('org')
+        .populate('userAccount', 'name email photo')
+        .populate('org', 'name logo')
         .populate('department');
         return respond('Employees found successfully', false, employees, 200);
     } catch (error) {
@@ -81,8 +81,8 @@ export async function getEmployeeByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const employees = await Employee.find({ org: orgId })
-        .populate('userAccount')
-        .populate('org')
+        .populate('userAccount', 'name email photo')
+        .populate('org', 'name logo')
         .populate('department');
         return respond('Employees found successfully', false, employees, 200);
     } catch (error) {
@@ -108,8 +108,8 @@ export async function getEmployeesByDepartment(departmentId:string):Promise<IRes
     try {
         await connectDB();
         const employees = await Employee.find({ department: departmentId })
-        .populate('userAccount')
-        .populate('org')
+        .populate('userAccount', 'name email photo')
+        .populate('org', 'name logo')
         .populate('department');;
         return respond('Employees found successfully', false, employees, 200);
     } catch (error) {
@@ -165,7 +165,7 @@ export async function deleteEmployee(id:string):Promise<IResponse>{
 export const getEmployeeByEmail = async(email:string):Promise<IResponse> => {
   try {
     await connectDB();
-    const user = await Employee.findOne({ email: email.toLowerCase()?.trim() }).populate('org');
+    const user = await Employee.findOne({ email: email.toLowerCase()?.trim() }).populate('org', 'name logo');
     return respond('Employee found successfully', false, user, 200);
   } catch (error) {
     console.log(error);

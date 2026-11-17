@@ -105,8 +105,8 @@ export async function getProducts(): Promise<IResponse> {
     const products = await Product.find()
       .populate('category')
       .populate('suppliers')
-      .populate('createdBy')
-      .populate('org')
+      .populate('createdBy', 'name email photo')
+      .populate('org', 'name logo')
       .lean() as unknown as IProduct[];
 
     const productIds = products.map(p => p._id);
@@ -148,8 +148,8 @@ export async function getProductsByOrg(orgId: string): Promise<IResponse> {
     const products = await Product.find({ org: orgId })
       .populate('category')
       .populate('suppliers')
-      .populate('createdBy')
-      .populate('org')
+      .populate('createdBy', 'name email photo')
+      .populate('org', 'name logo')
       .lean() as unknown as IProduct[];
 
     const productIds = products.map(p => p._id);

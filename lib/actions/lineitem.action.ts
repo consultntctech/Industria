@@ -78,9 +78,9 @@ export async function getLineItems (): Promise<IResponse> {
         populate('good').
         populate('package').
         populate('original.currency').
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('soldTo').
-        populate('org').lean() as unknown as ILineItem[];
+        populate('org', 'name logo').lean() as unknown as ILineItem[];
         return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
@@ -97,8 +97,8 @@ export async function getAvailableLineItems (): Promise<IResponse> {
         populate('batch').
         populate('package').
         populate('original.currency').
-        populate('createdBy').
-        populate('org').lean() as unknown as ILineItem[];
+        populate('createdBy', 'name email photo').
+        populate('org', 'name logo').lean() as unknown as ILineItem[];
         return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
@@ -116,8 +116,8 @@ export async function getAvailableLineItemsByOrg (orgId:string): Promise<IRespon
         populate('batch').
         populate('package').
         populate('original.currency').
-        populate('createdBy').
-        populate('org').lean() as unknown as ILineItem[];
+        populate('createdBy', 'name email photo').
+        populate('org', 'name logo').lean() as unknown as ILineItem[];
         return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
@@ -149,8 +149,8 @@ export async function getAvailableLineItemsByProduct(
       .populate('batch')
       .populate("package")
       .populate("original.currency")
-      .populate("createdBy")
-      .populate("org");
+      .populate("createdBy", "name email photo")
+      .populate("org", "name logo");
 
     if (limit && limit > 0) {
       mongooseQuery = mongooseQuery.limit(limit);
@@ -175,8 +175,8 @@ export async function getLineItemsByProduct (productId: string): Promise<IRespon
         populate('package').
         populate('original.currency').
         populate('soldTo').
-        populate('createdBy').
-        populate('org').lean() as unknown as ILineItem[];
+        populate('createdBy', 'name email photo').
+        populate('org', 'name logo').lean() as unknown as ILineItem[];
         return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
@@ -194,8 +194,8 @@ export async function getAvailableLineItemsByProducts (products: string[]): Prom
         populate('batch').
         populate('package').
         populate('original.currency').
-        populate('createdBy').
-        populate('org').lean() as unknown as ILineItem[];
+        populate('createdBy', 'name email photo').
+        populate('org', 'name logo').lean() as unknown as ILineItem[];
         return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
@@ -213,8 +213,8 @@ export async function getAvailableLineItemsByProductAndOrg (productId: string, o
         populate('batch').
         populate('package').
         populate('original.currency').
-        populate('createdBy').
-        populate('org').lean() as unknown as ILineItem[];
+        populate('createdBy', 'name email photo').
+        populate('org', 'name logo').lean() as unknown as ILineItem[];
         return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
@@ -231,8 +231,8 @@ export async function getLineItemsByProductAndOrg (productId: string, orgId:stri
         populate('package').
         populate('soldTo').
         populate('original.currency').
-        populate('createdBy').
-        populate('org').lean() as unknown as ILineItem[];
+        populate('createdBy', 'name email photo').
+        populate('org', 'name logo').lean() as unknown as ILineItem[];
         return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
@@ -249,10 +249,10 @@ export async function getLineItemsByPackage (packageId: string): Promise<IRespon
         .populate('good')
         .populate('package')
         .populate('original.currency')
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('batch')
         .populate('soldTo')
-        .populate('org').lean() as unknown as ILineItem[];
+        .populate('org', 'name logo').lean() as unknown as ILineItem[];
         return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
@@ -270,9 +270,9 @@ export async function getLineItemsByPackageAndOrg (packageId: string, org:string
         .populate('package')
         .populate('soldTo')
         .populate('original.currency')
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('batch')
-        .populate('org').lean() as unknown as ILineItem[];
+        .populate('org', 'name logo').lean() as unknown as ILineItem[];
         return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);
@@ -289,10 +289,10 @@ export async function getLineItemsByOrg (org: string): Promise<IResponse> {
         .populate('good')
         .populate('package')
         .populate('original.currency')
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('soldTo')
         .populate('batch')
-        .populate('org').lean() as unknown as ILineItem[];
+        .populate('org', 'name logo').lean() as unknown as ILineItem[];
         return respond('Finished Goods found successfully', false, lineItems, 200);
     } catch (error) {
         console.log(error);

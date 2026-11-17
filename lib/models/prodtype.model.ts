@@ -47,5 +47,9 @@ const ProdTypeSchema = new Schema<IProdType>({
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+ProdTypeSchema.index({ org: 1, createdAt: -1 });
+ProdTypeSchema.index({ org: 1, nameLower: 1 });
+
 const ProdType = models?.ProdType || model<IProdType>('ProdType', ProdTypeSchema);
 export default ProdType;

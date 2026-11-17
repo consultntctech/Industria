@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material"
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton } from "@mui/material"
+import { IoClose } from "react-icons/io5";
 
 type DialogueAletProps = {
     open:boolean;
@@ -18,9 +19,12 @@ const DialogueAlet = ({open, handleClose, agreeClick, title, content, agreeText=
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
+        <DialogTitle id="alert-dialog-title" sx={{ pr: 6 }}>
           {title}
         </DialogTitle>
+        <IconButton aria-label="Close" onClick={handleClose} sx={{ position: "absolute", right: 8, top: 8 }}>
+            <IoClose />
+        </IconButton>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             {content}

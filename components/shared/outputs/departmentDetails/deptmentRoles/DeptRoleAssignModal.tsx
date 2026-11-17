@@ -1,4 +1,5 @@
 import SearchSelectMultipleRoles from "@/components/shared/inputs/dropdowns/SearchSelectMultipleRoles";
+import { IoClose } from "react-icons/io5";
 import SearchSelectMultipleTemplates from "@/components/shared/inputs/dropdowns/SearchSelectMultipleTemplates";
 // import SearchSelectOrgs from "@/components/shared/inputs/dropdowns/SearchSelectOrgs";
 import GenericLabel from "@/components/shared/inputs/GenericLabel";
@@ -10,7 +11,7 @@ import { IDepartment } from "@/lib/models/department.model";
 import { IRole } from "@/lib/models/role.model";
 import { IRoleTemplate } from "@/lib/models/roletemplate.model";
 // import { IUser } from "@/lib/models/user.model";
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton } from "@mui/material";
 // import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 import { Dispatch, FormEvent,  SetStateAction, useState } from "react";
@@ -69,7 +70,10 @@ const DeptRoleAssignModal = ({department, open, setOpen}:DeptRoleAssignModalProp
     
   return (
     <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Assign Role</DialogTitle>
+        <DialogTitle sx={{ pr: 6 }}>Assign Role</DialogTitle>
+        <IconButton aria-label="Close" onClick={handleClose} sx={{ position: "absolute", right: 8, top: 8 }}>
+            <IoClose />
+        </IconButton>
         <DialogContent>
             {/* {
                 isAdmin &&

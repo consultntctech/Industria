@@ -78,9 +78,9 @@ export async function getOrders():Promise<IResponse>{
         const orders = await Order.find()
         .populate('customer')
         .populate({path:'products', populate:{path:'product'}})
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('original.currency')
-        .populate('org')
+        .populate('org', 'name logo')
         .lean<IOrder[]>();
         return respond('Orders found successfully', false, orders, 200);
     } catch (error) {
@@ -145,9 +145,9 @@ export async function getTodayOrders():Promise<IResponse>{
         })
         .populate('customer')
         .populate({path:'products', populate:{path:'product'}})
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('original.currency')
-        .populate('org')
+        .populate('org', 'name logo')
         .lean<IOrder[]>();
         return respond('Orders found successfully', false, orders, 200);
     } catch (error) {
@@ -168,9 +168,9 @@ export async function getTodayOrdersByOrg(orgId:string):Promise<IResponse>{
         const orders = await Order.find({ org: orgId, createdAt: { $gte: start, $lt: end } })
         .populate('customer')
         .populate({path:'products', populate:{path:'product'}})
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('original.currency')
-        .populate('org')
+        .populate('org', 'name logo')
         .lean<IOrder[]>();
         return respond('Orders found successfully', false, orders, 200);
     } catch (error) {
@@ -186,9 +186,9 @@ export async function getOrdersByOrg(orgId:string):Promise<IResponse>{
         const orders = await Order.find({ org: orgId })
          .populate('customer')
         .populate({path:'products', populate:{path:'product'}})
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate('original.currency')
-        .populate('org')
+        .populate('org', 'name logo')
         .lean<IOrder[]>();
         return respond('Orders found successfully', false, orders, 200);
     } catch (error) {

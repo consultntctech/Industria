@@ -11,6 +11,10 @@ export interface IUser {
     email: string;
     photo: string;
     hasRequestedUpdate?: boolean;
+    /** The currency this user enters amounts in (chosen from the header). */
+    preferredCurrency?: string | Types.ObjectId | null;
+    /** Id of the user's only valid session; a new sign-in replaces it. */
+    activeSessionId?: string | null;
     password:string;
     roles: string[] | Types.ObjectId[] | IRole[];
     department: string | Types.ObjectId  | IDepartment;
@@ -26,6 +30,9 @@ const UserSchema = new Schema<IUser>({
     address: { type: String, required: false },
     phone: { type: String, required: false },
     hasRequestedUpdate: { type: Boolean, default: false },
+    preferredCurrency: { type: Schema.Types.ObjectId, ref: 'OtherCurrency', required: false, default: null },
+    // select:false keeps it out of every user query unless asked for explicitly.
+    activeSessionId: { type: String, select: false, default: null },
     email: { type: String, required: true, unique:true },
     department: { type: Schema.Types.ObjectId, ref: 'Department', required: false },
     photo: {type:String, default:'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80'},
@@ -36,6 +43,10 @@ const UserSchema = new Schema<IUser>({
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})
     
+
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+UserSchema.index({ org: 1, createdAt: -1 });
+UserSchema.index({ department: 1 });
 
 const User = models?.User || model<IUser>('User', UserSchema);
 export default User;

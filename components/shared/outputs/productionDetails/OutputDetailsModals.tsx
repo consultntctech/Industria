@@ -1,5 +1,6 @@
 // import { FaChevronUp } from "react-icons/fa"
 import ModalContainer from "../ModalContainer"
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 // import { IoIosClose } from "react-icons/io"
 import { useEffect, useRef, useState } from "react";
 import { IProduction } from "@/lib/models/production.model";
@@ -13,7 +14,6 @@ import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/li
 import { IOriginalPrice } from "@/types/Types";
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
 import GenericLabel from "../../inputs/GenericLabel";
-import SearchSelectCurrencies from "../../inputs/dropdowns/SearchSelectCurrencies";
 import CustomCheckV2 from "@/components/misc/CustomCheckV2";
 ;
 
@@ -26,7 +26,7 @@ const OutputDetailsModals = ({production}:OutputDetailsModalsProps) => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<IProduction>>({});
     const [useRate, setUseRate] = useState(false);
-    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
+    const otherCurrency = useActiveCurrency();
     const [extraCost, setExtraCost] = useState(0);
     const formRef = useRef<HTMLFormElement>(null);
     const {currency} = useCurrencyConfig();
@@ -58,7 +58,6 @@ const OutputDetailsModals = ({production}:OutputDetailsModalsProps) => {
     useEffect(() => {
         if(production){
             setData({...production});
-            setOtherCurrency(savedCurrency);
             setExtraCost(ogExtra);
         }
     }, [production])
@@ -122,7 +121,7 @@ const OutputDetailsModals = ({production}:OutputDetailsModalsProps) => {
                     <InputWithLabel defaultValue={production?.outputQuantity} type="number" onChange={onChange} name="outputQuantity" min={0} required placeholder="eg. 20" label="Actual output quantity" className="w-full" />
                     <InputWithLabel defaultValue={production?.rejQuantity} type="number" onChange={onChange} name="rejQuantity" min={0}  placeholder="eg. 2" label="Rejected quantity" className="w-full" />
                     <InputWithLabel defaultValue={production?.lossQuantity} type="number" onChange={onChange} name="lossQuantity" min={0}  placeholder="eg. 1" label="Loss quantity" className="w-full" />
-                    <GenericLabel label="Select currency" input={<SearchSelectCurrencies  setSelect={setOtherCurrency} value={savedCurrency} />} />
+                    <ActiveCurrencyField savedCurrency={savedCurrency} />
                     {
                         showRate &&
                         <GenericLabel label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />

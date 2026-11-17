@@ -1,4 +1,5 @@
 import PrimaryButton from "@/components/shared/buttons/PrimaryButton";
+import CloseButton from "../../misc/CloseButton";
 import InputWithLabel from "@/components/shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "@/components/shared/inputs/TextAreaWithLabel";
 import ModalContainer from "@/components/shared/outputs/ModalContainer";
@@ -90,7 +91,8 @@ const OtherCurrencyComp = ({openNew, setOpenNew, currentOtherCurrency, setCurren
   return (
     <ModalContainer open={openNew} handleClose={handleClose}>
         <div className="flex max-h-[90%] w-[90%] md:w-[50%]">
-            <form ref={formRef} onSubmit={currentOtherCurrency ? handleUpdate : handleSubmit} className="flex-col overflow-y-scroll scrollbar-custom w-full gap-8 p-4 formBox">
+            <form ref={formRef} onSubmit={currentOtherCurrency ? handleUpdate : handleSubmit} className="flex-col overflow-y-scroll scrollbar-custom w-full gap-8 p-4 formBox relative">
+              <CloseButton onClick={handleClose} />
                 <div className="flex flex-col gap-1">
                     <span className="title" >{currentOtherCurrency ? 'Edit currency' : 'Add new currency'}</span>
                     <span className="greyText" >Currencies are used to convert financial values</span>

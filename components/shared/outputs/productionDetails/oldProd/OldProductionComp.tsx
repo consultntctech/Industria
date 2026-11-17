@@ -1,6 +1,7 @@
 "use client";
 
 import { useCanUser } from "@/hooks/useAuth";
+import { useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import { Activity, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { IProduct } from "@/lib/models/product.model";
 import { IRMaterial } from "@/lib/models/rmaterial.mode";
@@ -51,7 +52,7 @@ const OldProductionComp = ({ production, setCurrentStep, currentStep, showWizard
   // Form State
   const [batch, setBatch] = useState<string>("");
   const [productToProduce, setProductToProduce] = useState<IProduct | null>(null);
-  const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+  const otherCurrency = useActiveCurrency();
 
   const [productBatchId, setProductBatchId] = useState<string>("");
   const [rawMaterials, setRawMaterials] = useState<IRMaterial[]>([]);
@@ -166,7 +167,6 @@ const oldGoods = savedGoods.map((ing) => {
     if(production){
       setProductToProduce(savedProduct);
       setBatch(savedBatch?._id);
-      setOtherCurrency(savedCurrency);
       setSupervisors(savedSupervisors);
       setEmployees(savedEmployees);
       setIngredients(oldIngredients);
@@ -463,7 +463,6 @@ const validateAndNext = () => {
                     production={production}
                     setProductToProduce={setProductToProduce}
                     setBatch={setBatch}
-                    setOtherCurrency={setOtherCurrency}
                     onChange={onChange}
                 />
             </Activity>

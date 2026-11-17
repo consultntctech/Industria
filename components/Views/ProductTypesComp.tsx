@@ -1,4 +1,5 @@
 import { Activity, ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react";
+import CloseButton from "../misc/CloseButton";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
 import { FaChevronUp } from "react-icons/fa";
@@ -141,7 +142,8 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
   return (
     <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
       
-      <form ref={formRef} onSubmit={currentProduct ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
+      <form ref={formRef} onSubmit={currentProduct ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full relative" >
+        <CloseButton onClick={handleClose} />
         <div className="flex flex-col gap-1">
           <span className="title" >{currentProduct ? 'Edit product' : 'Add new product'}</span>
           <span className="greyText" >These are the ones you buy for production or sell to customers</span>

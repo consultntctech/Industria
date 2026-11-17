@@ -1,7 +1,7 @@
 import { IProduction } from '@/lib/models/production.model';
+import CloseButton from "../../../misc/CloseButton";
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import ModalContainer from '../ModalContainer';
-import { IoIosClose } from 'react-icons/io';
 import { FaChevronUp } from 'react-icons/fa';
 import GenericLabel from '../../inputs/GenericLabel';
 import SearchSelectBatches from '../../inputs/dropdowns/SearchSelectBatches';
@@ -245,9 +245,7 @@ const ProductionContentModal = ({openNew, setOpenNew, production}:ProductionCont
 
                 </div>
         
-                <div className="flex w-fit transition-all absolute top-1 right-1 hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
-                    <IoIosClose className="text-red-700" />
-                </div>
+                <CloseButton onClick={handleClose} />
                 <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
                     <FaChevronUp />
                 </div>

@@ -33,7 +33,7 @@ export const useSettings = () => {
     tertiaryColour: org?.tcolor ,
     appName: org?.appName || "Industra",
     appDescription: org?.description|| "Manage your industrial tasks with ease",
-    logo: org?.logo || "/images/bird-colorful-gradient-design-vector_343694-2506.jpg",
+    logo: org?.logo || "/brand/industra-mark.svg",
     isPending, isSuccess, refetch,
     org
   };

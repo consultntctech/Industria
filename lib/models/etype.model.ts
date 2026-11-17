@@ -47,5 +47,9 @@ ETypeSchema.pre('deleteOne', { document: false, query: true }, async function(ne
     }
 });
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+ETypeSchema.index({ org: 1, createdAt: -1 });
+ETypeSchema.index({ category: 1 });
+
 const EType = models?.EType || model<IEType>('EType', ETypeSchema);
 export default EType;

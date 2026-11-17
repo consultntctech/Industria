@@ -31,9 +31,9 @@ export async function getProdApprovals():Promise<IResponse>{
         await connectDB();
         const prodApprovals = await ProdApproval.find()
         .populate({path:'production', populate:{path:'productToProduce'}})
-        .populate('createdBy')
-        .populate('approver')
-        .populate('org') as unknown as IProdApproval[];
+        .populate('createdBy', 'name email photo')
+        .populate('approver', 'name email photo')
+        .populate('org', 'name logo') as unknown as IProdApproval[];
         return respond('Production approvals found successfully', false, prodApprovals, 200);
     } catch (error) {
         console.log(error);
@@ -47,9 +47,9 @@ export async function getProdApprovalsByOrg(orgId:string):Promise<IResponse>{
         await connectDB();
         const prodApprovals = await ProdApproval.find({ org: orgId })
         .populate({path:'production', populate:{path:'productToProduce'}})
-        .populate('createdBy')
-        .populate('approver')
-        .populate('org') as unknown as IProdApproval[];
+        .populate('createdBy', 'name email photo')
+        .populate('approver', 'name email photo')
+        .populate('org', 'name logo') as unknown as IProdApproval[];
         return respond('Production approvals found successfully', false, prodApprovals, 200);
     } catch (error) {
         console.log(error);

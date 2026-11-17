@@ -48,5 +48,9 @@ const EquipmentSchema = new Schema<IEquipment>({
 }, {timestamps:true})
     
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+EquipmentSchema.index({ org: 1, createdAt: -1 });
+EquipmentSchema.index({ type: 1 });
+
 const Equipment = models?.Equipment || model<IEquipment>('Equipment', EquipmentSchema);
 export default Equipment;

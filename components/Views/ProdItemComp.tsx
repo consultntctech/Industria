@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
@@ -13,7 +14,6 @@ import { useFetchProditem } from "@/hooks/fetch/useFetchProditem";
 import CustomCheckV2 from "../misc/CustomCheckV2";
 import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
-import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
 import { IOriginalPrice } from "@/types/Types";
 import { IStorage } from "@/lib/models/storage.model";
 import SearchSelectMultipleStorages from "../shared/inputs/dropdowns/SearchSelectMultipleStorages";
@@ -44,7 +44,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     // const [price, setPrice] = useState<number>(0);
     const [useRate, setUseRate] = useState(false);
     const [originalCost, setOriginalCost] = useState(0);
-    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
+    const otherCurrency = useActiveCurrency();
     const [storages, setStorages] = useState<IStorage[]>([]);
     const [batch, setBatch] = useState<string>('');
     const [showReason, setShowReason] = useState<boolean>(false);
@@ -64,7 +64,7 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
     const savedBatch = currentProdItem?.batch as IBatch;
 
     const showRate = exposeRate(savedCurrency, otherCurrency);
-    const rate = currencyRate(original, otherCurrency, useRate, showRate);
+    const rate = currencyRate(original, otherCurrency, showRate, useRate);
 
     // const originalCost = (data?.quantity || 0) * (data?.unitPrice || 0);
     const price = originalCost * rate;
@@ -77,7 +77,6 @@ const ProdItemComp = ({openNew, setOpenNew, currentProdItem, setCurrentProdItem}
         if(currentProdItem){
             setData({...currentProdItem});
             setOriginalCost(original?.amount || 0);
-            setOtherCurrency(savedCurrency);
             setStorages(savedStorages);
             setSuppliers(savedSuppliers);
             setProdType(savedProdType);
@@ -249,7 +248,7 @@ const handleUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
                             }
                         />
                         <InputWithLabel defaultValue={currentProdItem? formatDate(currentProdItem?.dateReceived) : today()} onChange={onChange} max={today()} name="dateReceived" type="date" required={!currentProdItem} label="Date received" className="w-full" />
-                        <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentProdItem} setSelect={setOtherCurrency} value={savedCurrency} />} />
+                        <ActiveCurrencyField savedCurrency={savedCurrency} />
                         {
                           showRate &&
                           <GenericLabel label='Use current rate' input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} className="flex-row items-center gap-6" />

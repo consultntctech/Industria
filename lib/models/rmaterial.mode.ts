@@ -71,6 +71,13 @@ const RMaterialSchema = new Schema<IRMaterial>({
 }, {timestamps:true})
 
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+RMaterialSchema.index({ org: 1, createdAt: -1 });
+RMaterialSchema.index({ product: 1, createdAt: -1 });
+RMaterialSchema.index({ org: 1, batch: 1, qAccepted: 1 });
+RMaterialSchema.index({ suppliers: 1 });
+RMaterialSchema.index({ storages: 1 });
+
 const RMaterial = models?.RMaterial || model<IRMaterial>('RMaterial', RMaterialSchema);
 
 export default RMaterial;

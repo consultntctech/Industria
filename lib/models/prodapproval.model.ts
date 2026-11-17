@@ -30,5 +30,9 @@ const ProdApprovalSchema = new Schema<IProdApproval>({
 }, {timestamps:true})
 
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+ProdApprovalSchema.index({ org: 1, createdAt: -1 });
+ProdApprovalSchema.index({ production: 1, status: 1 });
+
 const ProdApproval = models?.ProdApproval || model<IProdApproval>('ProdApproval', ProdApprovalSchema);
 export default ProdApproval;

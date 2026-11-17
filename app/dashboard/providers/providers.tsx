@@ -1,11 +1,10 @@
 'use client';
 import { ReactNode } from "react";
-import {  QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { SnackbarProvider } from "notistack";
 import { usePermissions } from "@/hooks/useAuth";
 import { queryClient } from "@/lib/queryClient";
-
-// const queryClient = new QueryClient();
+import AppThemeProvider from "@/components/theme/AppThemeProvider";
 
 export const PermissionBootStrap = () => {
     usePermissions();
@@ -15,8 +14,10 @@ export const PermissionBootStrap = () => {
 export default function Providers({children}:{children:ReactNode}) {
     return (
         <QueryClientProvider client={queryClient}>
-            <PermissionBootStrap/>
-            {children}
+            <AppThemeProvider>
+                <PermissionBootStrap/>
+                {children}
+            </AppThemeProvider>
         </QueryClientProvider>
     )
 }

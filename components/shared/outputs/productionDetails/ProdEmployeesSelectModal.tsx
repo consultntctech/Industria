@@ -1,9 +1,9 @@
 import { IProduction } from "@/lib/models/production.model";
+import CloseButton from "../../../misc/CloseButton";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import ModalContainer from "../ModalContainer";
 import PrimaryButton from "../../buttons/PrimaryButton";
 import { useCanUser } from "@/hooks/useAuth";
-import { IoIosClose } from "react-icons/io";
 import { FaChevronUp } from "react-icons/fa";
 import { updateProduction } from "@/lib/actions/production.action";
 import { enqueueSnackbar } from "notistack";
@@ -91,9 +91,7 @@ const ProdEmployeesSelectModal = ({openEmployees, setOpenEmployees, production }
 
                 </div>
         
-                <div className="flex w-fit transition-all absolute top-1 right-1 hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
-                    <IoIosClose className="text-red-700" />
-                </div>
+                <CloseButton onClick={handleClose} />
                 <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
                     <FaChevronUp />
                 </div>

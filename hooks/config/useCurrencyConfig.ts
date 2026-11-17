@@ -18,7 +18,7 @@ export const useCurrencyConfig = () => {
     }
 
     const {data:currency, refetch, isPending:currencyLoading, isSuccess} = useQuery({
-        queryKey:['currencyconf'],
+        queryKey:['currencyconf', user?.org],
         queryFn:fetchCurrency,
         enabled:!!user?.org
     })

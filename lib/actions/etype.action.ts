@@ -69,9 +69,9 @@ export async function getETypes(): Promise<IResponse> {
     await connectDB();
 
     const types = await EType.find()
-      .populate('createdBy')
+      .populate('createdBy', 'name email photo')
       .populate('category')
-      .populate('org')
+      .populate('org', 'name logo')
       .lean() as unknown as IEType[];
 
     const typesWithCounts = await attachEquipmentCounts(types);
@@ -88,10 +88,10 @@ export async function getETypesByOrg(orgId: string): Promise<IResponse> {
     await connectDB();
 
     const types = await EType.find({ org: orgId })
-      .populate('createdBy')
+      .populate('createdBy', 'name email photo')
       .populate('category')
       .populate('category')
-      .populate('org')
+      .populate('org', 'name logo')
       .lean() as unknown as IEType[];
 
     const typesWithCounts = await attachEquipmentCounts(types);
@@ -107,9 +107,9 @@ export async function getETypesByCategory(categoryId: string): Promise<IResponse
   try {
     await connectDB();
     const types = await EType.find({ category: categoryId })
-      .populate('createdBy')
+      .populate('createdBy', 'name email photo')
       .populate('category')
-      .populate('org')
+      .populate('org', 'name logo')
       .lean() as unknown as IEType[];
     return respond('Types found successfully', false, types, 200);
   } catch (error) {

@@ -24,9 +24,9 @@ export async function getRoleTemplates():Promise<IResponse>{
     try {
         await connectDB();
         const roleTemplates = await RoleTemplate.find()
-        .populate('org')
+        .populate('org', 'name logo')
         .populate('roles')
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .lean() as unknown as IRoleTemplate[];
         return respond('Role templates found successfully', false, roleTemplates, 200);
     } catch (error) {
@@ -39,9 +39,9 @@ export async function getRoleTemplatesByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const roleTemplates = await RoleTemplate.find({ org: orgId })
-        .populate('org')
+        .populate('org', 'name logo')
         .populate('roles')
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .lean() as unknown as IRoleTemplate[];
         return respond('Role templates found successfully', false, roleTemplates, 200);
     } catch (error) {

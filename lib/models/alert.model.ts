@@ -31,5 +31,9 @@ const AlertSchema = new Schema<IAlert>({
     org: { type: Schema.Types.ObjectId, ref: 'Organization', required: false },
 }, {timestamps:true})
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+AlertSchema.index({ org: 1, createdAt: -1 });
+AlertSchema.index({ org: 1, receiver: 1 });
+
 const Alert = models?.Alert || model<IAlert>('Alert', AlertSchema);
 export default Alert;

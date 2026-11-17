@@ -101,5 +101,10 @@ LineItemSchema.pre('findOneAndDelete', async function (next) {
 });
 
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+LineItemSchema.index({ org: 1, createdAt: -1 });
+LineItemSchema.index({ package: 1, status: 1 });
+LineItemSchema.index({ org: 1, product: 1 });
+
 const LineItem = models?.LineItem || model<ILineItem>('LineItem', LineItemSchema);
 export default LineItem;

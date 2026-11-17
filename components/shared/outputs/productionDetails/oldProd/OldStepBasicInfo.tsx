@@ -2,7 +2,7 @@ import React, { Dispatch } from "react";
 import GenericLabel from "@/components/shared/inputs/GenericLabel";
 import SearchSelectProducts from "@/components/shared/inputs/dropdowns/SearchSelectProducts";
 import SearchSelectBatches from "@/components/shared/inputs/dropdowns/SearchSelectBatches";
-import SearchSelectCurrencies from "@/components/shared/inputs/dropdowns/SearchSelectCurrencies";
+import { ActiveCurrencyField } from "@/components/currency/CurrencyProvider";
 import { IProduct } from "@/lib/models/product.model";
 import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { IProduction } from "@/lib/models/production.model";
@@ -12,7 +12,6 @@ import InputWithLabel from "@/components/shared/inputs/InputWithLabel";
 interface OldStepBasicInfoProps {
   setProductToProduce: Dispatch<React.SetStateAction<IProduct | null>>;
   setBatch: Dispatch<React.SetStateAction<string>>;
-  setOtherCurrency: Dispatch<React.SetStateAction<IOtherCurrency | null>>;
   production: IProduction | null;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
@@ -20,7 +19,6 @@ interface OldStepBasicInfoProps {
 const OldStepBasicInfo: React.FC<OldStepBasicInfoProps> = ({
   setProductToProduce,
   setBatch,
-  setOtherCurrency,
   production,
   onChange,
 }) => {
@@ -40,10 +38,7 @@ const OldStepBasicInfo: React.FC<OldStepBasicInfoProps> = ({
           label="Select Batch *"
           input={<SearchSelectBatches value={batch} type="Finished Good" required={!batch} setSelect={setBatch} />}
         />
-        <GenericLabel
-          label="Select Currency *"
-          input={<SearchSelectCurrencies value={currency} required={!currency} setSelect={setOtherCurrency} />}
-        />
+        <ActiveCurrencyField label="Currency *" savedCurrency={currency} />
         <InputWithLabel
             onChange={onChange}
             name="xquantity"

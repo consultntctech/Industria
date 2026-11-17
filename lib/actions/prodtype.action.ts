@@ -45,8 +45,8 @@ export async function getProdTypes(): Promise<IResponse> {
 
     const prodTypes = await ProdType.find()
       .populate('suppliers')
-      .populate('createdBy')
-      .populate('org')
+      .populate('createdBy', 'name email photo')
+      .populate('org', 'name logo')
       .lean() as unknown as IProdType[];
 
     // Totals per type, computed from the items that depend on it
@@ -91,8 +91,8 @@ export async function getProdTypesByOrg(orgId: string): Promise<IResponse> {
 
     const prodTypes = await ProdType.find({ org: orgId })
       .populate('suppliers')
-      .populate('createdBy')
-      .populate('org')
+      .populate('createdBy', 'name email photo')
+      .populate('org', 'name logo')
       .lean() as unknown as IProdType[];
 
     // Totals per type, computed from the items that depend on it

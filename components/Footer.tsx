@@ -34,7 +34,7 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="border-t border-slate-300 p-4 w-full flex-center" >
+    <footer className="border-t border-slate-200 p-4 w-full flex-center text-sm text-slate-500" >
       <PrivacyConsentModal
         orgName={org?.name ?? ''}
         appName={appName ?? brand?.name}

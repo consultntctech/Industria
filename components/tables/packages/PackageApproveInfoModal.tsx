@@ -1,4 +1,5 @@
 import PrimaryButton from '@/components/shared/buttons/PrimaryButton';
+import CloseButton from "../../misc/CloseButton";
 import SecondaryButton from '@/components/shared/buttons/SecondaryButton';
 import GenericLabel from '@/components/shared/inputs/GenericLabel';
 import TextAreaWithLabel from '@/components/shared/inputs/TextAreaWithLabel';
@@ -12,7 +13,6 @@ import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import { enqueueSnackbar } from 'notistack';
 import  { Dispatch, SetStateAction,  useState } from 'react'
 import { FaChevronUp } from 'react-icons/fa';
-import { IoIosClose } from 'react-icons/io';
 import '@/styles/customscroll.css'
 import DialogueAlet from '@/components/misc/DialogueAlet';
 import { IGood } from '@/lib/models/good.model';
@@ -173,9 +173,7 @@ const ApprovalsApprovalInfoModal = ({openNew, refetch, setOpenNew, currentApprov
 
                 </div>
         
-                <div className="flex w-fit transition-all absolute top-1 right-1 hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
-                    <IoIosClose className="text-red-700" />
-                </div>
+                <CloseButton onClick={handleClose} />
                 <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
                     <FaChevronUp />
                 </div>

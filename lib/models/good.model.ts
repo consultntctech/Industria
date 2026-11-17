@@ -91,5 +91,12 @@ GoodSchema.pre('deleteMany', async function (next) {
     }
 });
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+GoodSchema.index({ org: 1, createdAt: -1 });
+GoodSchema.index({ org: 1, quantityLeftToPackage: 1 });
+GoodSchema.index({ production: 1 });
+GoodSchema.index({ product: 1 });
+GoodSchema.index({ org: 1, batch: 1 });
+
 const Good = models?.Good || model<IGood>('Good', GoodSchema);
 export default Good;

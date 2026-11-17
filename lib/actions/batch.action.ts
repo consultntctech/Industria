@@ -163,8 +163,8 @@ export async function getBatches():Promise<IResponse>{
     try {
         await connectDB();
         const batches = await Batch.find()
-        .populate('createdBy')
-        .populate('org')
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo')
         .populate('config').lean() as unknown as IBatch[];
         return respond('Batches found successfully', false, batches, 200);
     } catch (error) {
@@ -178,8 +178,8 @@ export async function getBatchesByOrg(orgId:string):Promise<IResponse>{
   try {
     await connectDB();
         const batches = await Batch.find({ org: orgId })
-        .populate('createdBy')
-        .populate('org')
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo')
         .populate('config').lean() as unknown as IBatch[];
         return respond('Batches found successfully', false, batches, 200);
     } catch (error) {
@@ -215,8 +215,8 @@ export async function getBatchesWithGoods(): Promise<IResponse> {
 
         // 2️⃣ Fetch the batch documents and populate
         const batches = await Batch.find({ _id: { $in: batchIds } })
-            .populate("createdBy")
-            .populate("org")
+            .populate("createdBy", "name email photo")
+            .populate("org", "name logo")
             .populate("config")
             .lean<IBatch[]>();
 
@@ -259,8 +259,8 @@ export async function getBatchesWithGoodsByOrg(orgId:string):Promise<IResponse>{
 
         // 2️⃣ Fetch the batch documents and populate
         const batches = await Batch.find({ _id: { $in: batchIds } })
-            .populate("createdBy")
-            .populate("org")
+            .populate("createdBy", "name email photo")
+            .populate("org", "name logo")
             .populate("config")
             .lean<IBatch[]>();
 
@@ -301,8 +301,8 @@ export async function getBatchesWithFinishedGoodsByOrg(orgId:string):Promise<IRe
 
         // 2️⃣ Fetch the batch documents and populate
         const batches = await Batch.find({ _id: { $in: batchIds } })
-            .populate("createdBy")
-            .populate("org")
+            .populate("createdBy", "name email photo")
+            .populate("org", "name logo")
             .populate("config")
             .lean<IBatch[]>();
 
@@ -341,8 +341,8 @@ export async function getBatchesWithLineItems(): Promise<IResponse> {
 
         // 2️⃣ Fetch & populate batch docs
         const batches = await Batch.find({ _id: { $in: batchIds } })
-            .populate("createdBy")
-            .populate("org")
+            .populate("createdBy", "name email photo")
+            .populate("org", "name logo")
             .populate("config")
             .lean<IBatch[]>();
 
@@ -382,8 +382,8 @@ export async function getBatchesWithLineItemsByOrg(orgId: string): Promise<IResp
 
         // 2️⃣ Fetch & populate batch docs
         const batches = await Batch.find({ _id: { $in: batchIds } })
-            .populate("createdBy")
-            .populate("org")
+            .populate("createdBy", "name email photo")
+            .populate("org", "name logo")
             .populate("config")
             .lean<IBatch[]>();
 

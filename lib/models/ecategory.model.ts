@@ -38,5 +38,8 @@ ECategorySchema.pre('deleteOne', { document: false, query: true }, async functio
     }
 });
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+ECategorySchema.index({ org: 1, createdAt: -1 });
+
 const ECategory = models?.ECategory || model<IECategory>('ECategory', ECategorySchema);
 export default ECategory;

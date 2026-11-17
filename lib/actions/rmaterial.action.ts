@@ -69,8 +69,8 @@ export async function getRMaterials():Promise<IResponse>{
         .populate('storages')
         .populate('batch')
         .populate('original.currency')
-        .populate('createdBy')
-        .populate('org') as unknown as IRMaterial[];
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo') as unknown as IRMaterial[];
         return respond('Raw Materials found successfully', false, materials, 200);
     } catch (error) {
         console.log(error);
@@ -120,8 +120,8 @@ export async function getRMaterialsByOrg(orgId:string):Promise<IResponse>{
         .populate('storages')
         .populate('batch')
         .populate('original.currency')
-        .populate('createdBy')
-        .populate('org') as unknown as IRMaterial[];
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo') as unknown as IRMaterial[];
         return respond('Raw Materials found successfully', false, materials, 200);
     } catch (error) {
         console.log(error);
@@ -138,8 +138,8 @@ export async function getRawMaterialsBySupplier(supplierId:string):Promise<IResp
         .populate('suppliers')
         .populate('storages')
         .populate('batch')
-        .populate('createdBy')
-        .populate('org') as unknown as IRMaterial[];
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo') as unknown as IRMaterial[];
         return respond('Raw Materials found successfully', false, materials, 200);
     } catch (error) {
         console.log(error);
@@ -156,8 +156,8 @@ export async function getRawMaterialsBySupplierByOrg(org:string, supplierId:stri
         .populate('suppliers')
         .populate('storages')
         .populate('batch')
-        .populate('createdBy')
-        .populate('org') as unknown as IRMaterial[];
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo') as unknown as IRMaterial[];
         return respond('Raw Materials found successfully', false, materials, 200);
     } catch (error) {
         console.log(error);

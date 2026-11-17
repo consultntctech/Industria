@@ -1,6 +1,6 @@
 import { FaChevronUp } from "react-icons/fa"
+import CloseButton from "../../../misc/CloseButton";
 import ModalContainer from "../ModalContainer"
-import { IoIosClose } from "react-icons/io"
 import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import InputWithLabel from "../../inputs/InputWithLabel";
 import PrimaryButton from "../../buttons/PrimaryButton";
@@ -247,9 +247,7 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
                     </div>
                 </div>
         
-                <div className="flex w-fit transition-all absolute top-1 right-1 hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={()=>setOpenNew(false)} >
-                    <IoIosClose className="text-red-700" />
-                </div>
+                <CloseButton onClick={()=>setOpenNew(false)} />
                 <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={()=>setOpenNew(false)} >
                     <FaChevronUp />
                 </div>

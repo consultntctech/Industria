@@ -1,10 +1,10 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import CloseButton from "../misc/CloseButton";
 import ModalContainer from "../shared/outputs/ModalContainer";
 import { FaChevronUp } from "react-icons/fa";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
-import { IoIosClose } from "react-icons/io";
 import { ICategory } from "@/lib/models/category.model";
 import { createCategory, updateCategory } from "@/lib/actions/category.action";
 import { enqueueSnackbar } from "notistack";
@@ -111,9 +111,7 @@ const ProdCatComp = ({openNew, setOpenNew, currentCategory, setCurrentCategory}:
 
                 </div>
         
-                <div className="flex w-fit transition-all absolute top-1 right-1 hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
-                    <IoIosClose className="text-red-700" />
-                </div>
+                <CloseButton onClick={handleClose} />
                 <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
                     <FaChevronUp />
                 </div>

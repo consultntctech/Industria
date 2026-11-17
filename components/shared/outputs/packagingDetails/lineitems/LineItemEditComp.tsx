@@ -1,4 +1,6 @@
 import { ILineItem } from "@/lib/models/lineitem.model";
+import CloseButton from "../../../../misc/CloseButton";
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import ModalContainer from "../../ModalContainer"
 import { useEffect, useRef, useState } from "react";
 import { updateLineItem } from "@/lib/actions/lineitem.action";
@@ -6,7 +8,6 @@ import { enqueueSnackbar } from "notistack";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import InputWithLabel from "@/components/shared/inputs/InputWithLabel";
 import PrimaryButton from "@/components/shared/buttons/PrimaryButton";
-import { IoIosClose } from "react-icons/io";
 import { FaChevronUp } from "react-icons/fa";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { Tooltip } from "@mui/material";
@@ -14,7 +15,6 @@ import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/li
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
 import { IOriginalPrice } from "@/types/Types";
 import GenericLabel from "@/components/shared/inputs/GenericLabel";
-import SearchSelectCurrencies from "@/components/shared/inputs/dropdowns/SearchSelectCurrencies";
 import '@/styles/customscroll.css'
 import CustomCheckV2 from "@/components/misc/CustomCheckV2";
 
@@ -30,7 +30,7 @@ type LineItemEditCompProps = {
 const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setCurrentLineItem}:LineItemEditCompProps) => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<Partial<ILineItem>>({});
-    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+    const otherCurrency = useActiveCurrency();
     const [useRate, setUseRate] = useState(false);
     const [price, setPrice] = useState<number>(0);
     const formRef = useRef<HTMLFormElement>(null);
@@ -48,7 +48,6 @@ const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setC
     useEffect(() => {
         if(currentLineItem){
             setData({...currentLineItem});
-            setOtherCurrency(currentCurrency);
             setPrice(original?.amount || 0);
         }else{
             setData({});// Reset form data when currentUser is null
@@ -105,7 +104,7 @@ const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setC
                         <InputWithLabel defaultValue={currentLineItem?.name} onChange={onChange} name="name" required placeholder="eg. item 1" label="Name" className="w-full" />
                     </Tooltip>
                     <InputWithLabel defaultValue={currentLineItem?.serialNumber} onChange={onChange} name="serialNumber" placeholder="eg. S1234" label="Serial Number" className="w-full" />
-                    <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!original} setSelect={setOtherCurrency} value={currentCurrency} />} />
+                    <ActiveCurrencyField savedCurrency={currentCurrency} />
                     {
                         showRate &&
                         <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
@@ -123,9 +122,7 @@ const LineItemEditComp = ({showEdit, refetch, setShowEdit, currentLineItem, setC
 
                 </div>
         
-                <div className="flex w-fit transition-all absolute top-1 right-1 hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
-                    <IoIosClose className="text-red-700" />
-                </div>
+                <CloseButton onClick={handleClose} />
                 <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
                     <FaChevronUp />
                 </div>

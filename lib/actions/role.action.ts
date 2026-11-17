@@ -29,8 +29,8 @@ export async function getRoles():Promise<IResponse>{
     try {
         await connectDB();
         const roles = await Role.find()
-        .populate('org')
-        .populate('createdBy')
+        .populate('org', 'name logo')
+        .populate('createdBy', 'name email photo')
         .lean() as unknown as IRole[];
         return respond('Roles found successfully', false, roles, 200);
     } catch (error) {
@@ -43,8 +43,8 @@ export async function getRolesByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const roles = await Role.find({ org: orgId })
-        .populate('org')
-        .populate('createdBy')
+        .populate('org', 'name logo')
+        .populate('createdBy', 'name email photo')
         .lean() as unknown as IRole[];
         return respond('Roles found successfully', false, roles, 200);
     } catch (error) {

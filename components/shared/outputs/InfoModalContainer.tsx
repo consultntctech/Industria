@@ -1,7 +1,7 @@
 import { Modal } from "@mui/material"
 import { ReactNode } from "react";
-import { IoIosArrowRoundBack } from "react-icons/io";
 import '@/styles/customscroll.css';
+import CloseButton from "@/components/misc/CloseButton";
 
 type InfoModalContainerProps = {
     handleClose:()=>void;
@@ -18,13 +18,9 @@ const InfoModalContainer = ({handleClose, infoMode, children}:InfoModalContainer
         aria-describedby="modal-modal-description"
         className='flex size-full justify-end'
     >
-        <div className="flex flex-col min-w-72 max-w-80 h-full bg-white rounded-l-lg p-4 overflow-y-scroll scrollbar-custom">
-            <div onClick={handleClose}  className="flex gap-1 cursor-pointer items-center mb-5 w-fit">
-               <IoIosArrowRoundBack size={24} /> 
-               <span>Close</span>
-            </div>
-
-              {children}
+        <div className="relative flex flex-col min-w-72 max-w-80 sm:max-w-96 h-full bg-white border-l border-gray-200 rounded-l-xl p-4 pt-12 overflow-y-auto scrollbar-custom shadow-xl">
+            <CloseButton onClick={handleClose} className="top-3 right-3" />
+            {children}
         </div>
     </Modal>
   )

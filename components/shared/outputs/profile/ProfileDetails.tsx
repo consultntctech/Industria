@@ -10,8 +10,8 @@ import Image from "next/image";
 import Uploader from "@/components/misc/Uploader";
 import { updateUserV2 } from "@/lib/actions/user.action";
 import { enqueueSnackbar } from "notistack";
-import { ISession } from "@/types/Types";
-import { createSession } from "@/lib/session";
+import { refreshSession } from "@/lib/session";
+import { useQueryClient } from "@tanstack/react-query";
 import { useCanUser } from "@/hooks/useAuth";
 import GenericLabel from "../../inputs/GenericLabel";
 import { IDepartment } from "@/lib/models/department.model";
@@ -21,6 +21,7 @@ import { IOrganization } from "@/lib/models/org.model";
 
 const ProfileDetails = () => {
     const {userProfile, isPending, refetch} = useFetchUserProfile();
+    const queryClient = useQueryClient();
     const formRef = useRef<HTMLFormElement>(null);
 
     const [data, setData] = useState<Partial<IUser>>({});
@@ -48,10 +49,11 @@ const ProfileDetails = () => {
             if(!userProfile) return;
             const updatedData:Partial<IUser> = {...data, photo:logo.url};
             const res = await updateUserV2(updatedData);
-            const session = res.payload as ISession;
-            await createSession(session);
             enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
             if(!res.error){
+                // Server re-signs the current session with the new name/photo.
+                await refreshSession();
+                queryClient.invalidateQueries({queryKey:['user']});
                 formRef.current?.reset();
                 refetch();
             }

@@ -77,5 +77,12 @@ ProdItemSchema.pre('deleteOne', { document: false, query: true }, async function
     }
 });
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+ProdItemSchema.index({ org: 1, createdAt: -1 });
+ProdItemSchema.index({ type: 1 });
+ProdItemSchema.index({ suppliers: 1 });
+ProdItemSchema.index({ storages: 1 });
+ProdItemSchema.index({ org: 1, batch: 1 });
+
 const ProdItem = models?.ProdItem || model<IProdItem>('ProdItem', ProdItemSchema);
 export default ProdItem;

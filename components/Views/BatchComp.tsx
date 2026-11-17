@@ -1,4 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import CloseButton from "../misc/CloseButton";
 import { FaChevronUp } from "react-icons/fa";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
@@ -110,7 +111,8 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
   return (
     <ModalContainer open={openNew} handleClose={()=>setOpenNew(false)}>
       <div className={`flex w-[90%] md:w-[50%]`}>
-        <form ref={formRef} onSubmit={currentBatch ? handleUpdate : handleSubmit}  className="flex-col w-full gap-8 p-4 formBox" >
+        <form ref={formRef} onSubmit={currentBatch ? handleUpdate : handleSubmit}  className="flex-col w-full gap-8 p-4 formBox relative" >
+          <CloseButton onClick={handleClose} />
             <div className="flex flex-col gap-1">
                 <span className="title" >{currentBatch ? 'Edit batch code' : 'Add new batch code'}</span>
                 <span className="greyText" >Batch numbers are used to track your inventory</span>

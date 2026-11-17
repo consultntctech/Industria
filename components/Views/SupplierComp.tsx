@@ -1,4 +1,5 @@
 import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react";
+import CloseButton from "../misc/CloseButton";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import { FaChevronUp } from "react-icons/fa";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
@@ -93,7 +94,8 @@ const SupplierComp = ({openNew, setOpenNew, currentSupplier, setCurrentSupplier}
 
   return (
     <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`}>
-        <form ref={formRef} onSubmit={currentSupplier ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
+        <form ref={formRef} onSubmit={currentSupplier ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full relative" >
+          <CloseButton onClick={handleClose} />
             <div className="flex flex-col gap-1">
                 <span className="title" >Add new supplier</span>
                 <span className="greyText" >A supplier is a company or an individual who supplies you goods</span>

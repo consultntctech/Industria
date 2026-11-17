@@ -1,4 +1,5 @@
 import { Dispatch, FormEvent, SetStateAction, useEffect,  useRef, useState } from "react";
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import GenericLabel from "../shared/inputs/GenericLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
@@ -8,7 +9,6 @@ import { IEquipment } from "@/lib/models/equipment.model";
 import { enqueueSnackbar } from "notistack";
 import { useAuth } from "@/hooks/useAuth";
 import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
-import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import CustomCheckV2 from "../misc/CustomCheckV2";
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
@@ -42,7 +42,7 @@ const EquipmentComp = ({openNew, setOpenNew, setCurrentEquipment, currentEquipme
     const [assignedTo, setAssignedTo] = useState<IDepartment | null>(null);
     // const [showRate, setShowRate] = useState(false);
 
-    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
+    const otherCurrency = useActiveCurrency();
 
     const {user} = useAuth();
     const {refetch} = useFetchEquipment();
@@ -80,7 +80,6 @@ const EquipmentComp = ({openNew, setOpenNew, setCurrentEquipment, currentEquipme
     useEffect(() => {
       if(currentEquipment){
         setData({ ...currentEquipment});
-        setOtherCurrency(savedCurrency);
         setOriginalAmount(Number(original?.amount));
         setStorage(savedStorage);
         setType(savedType);
@@ -220,7 +219,7 @@ const EquipmentComp = ({openNew, setOpenNew, setCurrentEquipment, currentEquipme
               <div className="flex flex-col gap-4 w-full">
                 <GenericLabel label="Select storage" input={<SearchSelectStorages value={savedStorage} setSelect={setStorage} required={!currentEquipment} />} />
                 <GenericLabel label="Assigned to" input={<SearchSelectDepartmentsForOrg setSelect={setAssignedTo} required={!currentEquipment} value={assigned} />} />
-                <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentEquipment} setSelect={setOtherCurrency} value={savedCurrency} />} />
+                <ActiveCurrencyField savedCurrency={savedCurrency} />
                 {
                   showRate &&
                   <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />

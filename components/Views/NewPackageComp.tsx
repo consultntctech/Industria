@@ -1,5 +1,6 @@
 'use client';
 import { PACKAGING_PROCESSES, TPackagingProcess } from '@/Data/PackagingProcesses';
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import { useAuth, useCanUser } from '@/hooks/useAuth';
 import { createPackage } from '@/lib/actions/package.action';
 import { createPackApproval } from '@/lib/actions/packapproval.action';
@@ -30,8 +31,6 @@ import { createLineItems } from '@/lib/actions/lineitem.action';
 import SearchSelectProducts from '../shared/inputs/dropdowns/SearchSelectProducts';
 import GoodsQSelector from '../misc/GoodsQSelector';
 import SearchSelectAvMultipleGoods from '../shared/inputs/dropdowns/SearchSelectAvMultipleGoods';
-import { IOtherCurrency } from '@/lib/models/othercurrency.model';
-import SearchSelectCurrencies from '../shared/inputs/dropdowns/SearchSelectCurrencies';
 import { IStorage } from '@/lib/models/storage.model';
 import SearchSelectMultipleStorages from '../shared/inputs/dropdowns/SearchSelectMultipleStorages';
 import SearchSelectEmployees from '../shared/inputs/dropdowns/SearchSelectEmployees';
@@ -54,7 +53,7 @@ const NewPackageComp = () => {
     const [goods, setGoods] = useState<IGood[]>([]);
     const [goodItems, setGoodItems] = useState<IQGSelector[]>([]);
     const [manualCost, setManualCost] = useState<number | null>(null);
-    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+    const otherCurrency = useActiveCurrency();
 
     const {user} = useAuth();
     const router = useRouter();
@@ -353,7 +352,7 @@ const NewPackageComp = () => {
                             </div>
                         </div>
                     }
-                    <GenericLabel label='Select currency' input={<SearchSelectCurrencies setSelect={setOtherCurrency} />} />
+                    <ActiveCurrencyField />
                     <InputWithLabel onChange={changeCost}  name="cost" type="number" value={cost} label={otherCurrency ? otherLabel : costLabel} className="w-full" />
                     {
                         otherCurrency && otherCurrency?.type !== 'default' &&

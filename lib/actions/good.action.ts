@@ -69,9 +69,9 @@ export async function getGoods():Promise<IResponse>{
             }
         }).
         populate('batch').
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('product').
-        populate('org').lean() as unknown as IGood[];
+        populate('org', 'name logo').lean() as unknown as IGood[];
         return respond('Unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
@@ -85,9 +85,9 @@ export async function getAvailableGoods():Promise<IResponse>{
         const goods = await Good.find({ quantityLeftToPackage: { $gt: 0 } }).
         populate({path:'production', populate:{path:'productToProduce'}}).
         populate('batch').
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('product').
-        populate('org').lean() as unknown as IGood[];
+        populate('org', 'name logo').lean() as unknown as IGood[];
         return respond('Available unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
@@ -102,9 +102,9 @@ export async function getAvailableGoodsByOrg(orgId:string):Promise<IResponse>{
         const goods = await Good.find({ org: orgId, quantityLeftToPackage: { $gt: 0 } }).
         populate({path:'production', populate:{path:'productToProduce'}}).
         populate('batch').
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('product').
-        populate('org').lean() as unknown as IGood[];
+        populate('org', 'name logo').lean() as unknown as IGood[];
         return respond('Available unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
@@ -119,9 +119,9 @@ export async function getGoodsWithRawRawMaterialsByOrgAndBatch(orgId:string, bat
         const goods = await Good.find({ org: orgId, batch:batchId, raw: { $gt: 0 } }).
         populate({path:'production', populate:{path:'productToProduce'}}).
         populate('batch').
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('product').
-        populate('org').lean() as unknown as IGood[];
+        populate('org', 'name logo').lean() as unknown as IGood[];
         return respond('Unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
@@ -136,9 +136,9 @@ export async function getAvailableGoodsByProduct(productId:string):Promise<IResp
         const goods = await Good.find({ quantityLeftToPackage: { $gt: 0 }, product:productId }).
         populate({path:'production', populate:{path:'productToProduce'}}).
         populate('batch').
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('product').
-        populate('org').lean() as unknown as IGood[];
+        populate('org', 'name logo').lean() as unknown as IGood[];
         return respond('Available unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
@@ -153,9 +153,9 @@ export async function getAvailableGoodsByOrgAndProduct(orgId:string, productId:s
         const goods = await Good.find({ org: orgId, quantityLeftToPackage: { $gt: 0 }, product:productId }).
         populate({path:'production', populate:{path:'productToProduce'}}).
         populate('batch').
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('product').
-        populate('org').lean() as unknown as IGood[];
+        populate('org', 'name logo').lean() as unknown as IGood[];
         return respond('Available unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);
@@ -176,9 +176,9 @@ export async function getGoodsByOrg(orgId:string):Promise<IResponse>{
             }
         }).
         populate('batch').
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('product').
-        populate('org').lean() as unknown as IGood[];
+        populate('org', 'name logo').lean() as unknown as IGood[];
         return respond('Unfinished goods found successfully', false, goods, 200);
     } catch (error) {
         console.log(error);

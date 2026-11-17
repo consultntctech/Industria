@@ -1,4 +1,5 @@
 import  { ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react";
+import CloseButton from "../misc/CloseButton";
 import InputWithLabel from "../shared/inputs/InputWithLabel"
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel"
 import { FaChevronUp } from "react-icons/fa";
@@ -120,7 +121,8 @@ const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganizati
   return (
     <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
       
-      <form ref={formRef} onSubmit={currentOrganization ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
+      <form ref={formRef} onSubmit={currentOrganization ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full relative" >
+        <CloseButton onClick={handleClose} />
         <div className="flex flex-col gap-1">
           <span className="title" >{currentOrganization ? `Edit organization` : `Add new organization`}</span>
           <span className="greyText" >{currentOrganization ? `Edit organization details` : `Create a new organization to manage manufacturing operations`}</span>

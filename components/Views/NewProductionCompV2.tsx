@@ -1,6 +1,7 @@
 "use client";
 
 import { useAuth, useCanUser } from "@/hooks/useAuth";
+import { useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import { Activity, useEffect, useRef, useState } from "react";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
 import { IProduct } from "@/lib/models/product.model";
@@ -11,7 +12,6 @@ import { enqueueSnackbar } from "notistack";
 import { createProduction } from "@/lib/actions/production.action";
 import { useRouter } from "next/navigation";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
-import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { ILabourer } from "@/lib/models/labourer.model";
 import { IEmployee } from "@/lib/models/employee.model";
 import { IGood } from "@/lib/models/good.model";
@@ -39,7 +39,7 @@ const NewProductionCompV2 = () => {
   // Form State
   const [batch, setBatch] = useState<string>("");
   const [productToProduce, setProductToProduce] = useState<IProduct | null>(null);
-  const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+  const otherCurrency = useActiveCurrency();
 
   const [productBatchId, setProductBatchId] = useState<string>("");
   const [rawMaterials, setRawMaterials] = useState<IRMaterial[]>([]);
@@ -369,7 +369,6 @@ const validateAndNext = () => {
                 <StepBasicInfo
                     setProductToProduce={setProductToProduce}
                     setBatch={setBatch}
-                    setOtherCurrency={setOtherCurrency}
                 />
             </Activity>
                 

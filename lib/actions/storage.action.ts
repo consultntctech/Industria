@@ -31,8 +31,8 @@ export async function getStorages():Promise<IResponse>{
     try {
         await connectDB();
         const storages = await Storage.find()
-        .populate('org')
-        .populate('createdBy')
+        .populate('org', 'name logo')
+        .populate('createdBy', 'name email photo')
         .lean() as unknown as IStorage[];
         return respond('Storages found successfully', false, storages, 200);
     } catch (error) {
@@ -45,8 +45,8 @@ export async function getStoragesByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const storages = await Storage.find({ org: orgId })
-        .populate('org')
-        .populate('createdBy')
+        .populate('org', 'name logo')
+        .populate('createdBy', 'name email photo')
         .lean() as unknown as IStorage[];
         return respond('Storages found successfully', false, storages, 200);
     } catch (error) {
@@ -94,19 +94,19 @@ export async function getItemsInStorage(id:string):Promise<IResponse>{
             .populate('product')
             .populate('suppliers')
             .populate('batch')
-            .populate('createdBy')
+            .populate('createdBy', 'name email photo')
             .lean() as unknown as IRMaterial[],
 
             ProdItem.find({storages: id})
             .populate('suppliers')
-            .populate('createdBy')
+            .populate('createdBy', 'name email photo')
             .lean() as unknown as IProdItem[],
 
             Package.find({storages: id})
             .populate('batch')
-            .populate('approvedBy')
-            .populate('supervisor')
-            .populate('createdBy')
+            .populate('approvedBy', 'name email photo')
+            .populate('supervisor', 'name email photo')
+            .populate('createdBy', 'name email photo')
             .lean() as unknown as IPackage[],
         ]);
 

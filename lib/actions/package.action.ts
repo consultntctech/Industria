@@ -369,7 +369,7 @@ export async function getApprovedPackages():Promise<IResponse>{
         await connectDB();
         const packages = await Package.find({ approvalStatus: 'Approved', accepted: { $gt: 0 } })
         .populate({path:'goods', populate:{path:'goodId', populate:[{path:'batch'}, {path:'production', populate:{path:'productToProduce'}}]}})
-        .populate('supervisor')
+        .populate('supervisor', 'name email photo')
         .populate('storages')
         .populate('batch')
         .populate('original.currency')
@@ -379,9 +379,9 @@ export async function getApprovedPackages():Promise<IResponse>{
             path:'materialId'
           }
         })
-        .populate('createdBy')
-        .populate('approvedBy')
-        .populate('org').lean() as unknown as IPackage[];
+        .populate('createdBy', 'name email photo')
+        .populate('approvedBy', 'name email photo')
+        .populate('org', 'name logo').lean() as unknown as IPackage[];
         return respond('Approved packages found successfully', false, packages, 200);
     } catch (error) {
         console.log(error);
@@ -395,9 +395,9 @@ export async function getApprovedPackagesByOrg(orgId:string):Promise<IResponse>{
         await connectDB();
         const packages = await Package.find({ org: orgId, approvalStatus: 'Approved', accepted: { $gt: 0 } })
         .populate({path:'goods', populate:{path:'goodId', populate:[{path:'batch'}, {path:'production', populate:{path:'productToProduce'}}]}})
-        .populate('supervisor')
-        .populate('createdBy')
-        .populate('approvedBy')
+        .populate('supervisor', 'name email photo')
+        .populate('createdBy', 'name email photo')
+        .populate('approvedBy', 'name email photo')
         .populate('batch')
         .populate('original.currency')
         .populate('storages')
@@ -407,7 +407,7 @@ export async function getApprovedPackagesByOrg(orgId:string):Promise<IResponse>{
             path:'materialId'
           }
         })
-        .populate('org').lean() as unknown as IPackage[];
+        .populate('org', 'name logo').lean() as unknown as IPackage[];
         return respond('Approved packages found successfully', false, packages, 200);
     } catch (error) {
         console.log(error);
@@ -422,7 +422,7 @@ export async function getPackages():Promise<IResponse>{
         await connectDB();
         const packages = await Package.find()
         .populate({path:'goods', populate:{path:'goodId', populate:[{path:'batch'}, {path:'product'}, {path:'production', populate:{path:'productToProduce'}}]}})
-        .populate('supervisor')
+        .populate('supervisor', 'name email photo')
         .populate('storages')
         .populate('batch')
         .populate('original.currency')
@@ -432,9 +432,9 @@ export async function getPackages():Promise<IResponse>{
             path:'materialId'
           }
         })
-        .populate('createdBy')
-        .populate('approvedBy')
-        .populate('org').lean() as unknown as IPackage[];
+        .populate('createdBy', 'name email photo')
+        .populate('approvedBy', 'name email photo')
+        .populate('org', 'name logo').lean() as unknown as IPackage[];
         return respond('Packages found successfully', false, packages, 200);
     } catch (error) {
         console.log(error);
@@ -447,14 +447,14 @@ export async function getPackagesByOrg(orgId:string):Promise<IResponse>{
         await connectDB();
         const packages = await Package.find({ org: orgId })
         .populate({path:'goods', populate:{path:'goodId', populate:[{path:'batch'}, {path:'product'}, {path:'production', populate:{path:'productToProduce'}}]}})
-        .populate('supervisor')
-        .populate('createdBy')
-        .populate('approvedBy')
+        .populate('supervisor', 'name email photo')
+        .populate('createdBy', 'name email photo')
+        .populate('approvedBy', 'name email photo')
         .populate('batch')
         .populate('original.currency')
         .populate('storages')
         .populate({path: 'packagingMaterial.materialId', populate: {path: 'type'}})
-        .populate('org').lean() as unknown as IPackage[];
+        .populate('org', 'name logo').lean() as unknown as IPackage[];
         return respond('Packages found successfully', false, packages, 200);
     } catch (error) {
         console.log(error);

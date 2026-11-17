@@ -1,6 +1,7 @@
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
+import CloseButton from "../../../misc/CloseButton";
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import ModalContainer from '../ModalContainer';
-import { IoIosClose } from 'react-icons/io';
 import { FaChevronUp } from 'react-icons/fa';
 import GenericLabel from '../../inputs/GenericLabel';
 import InputWithLabel from '../../inputs/InputWithLabel';
@@ -17,7 +18,6 @@ import { updatePackagingMaterials } from '@/lib/actions/package.action';
 import { useCanUser } from '@/hooks/useAuth';
 import { IOtherCurrency } from '@/lib/models/othercurrency.model';
 import { currencyRate, exposeRate } from '@/functions/currencyHelpers';
-import SearchSelectCurrencies from '../../inputs/dropdowns/SearchSelectCurrencies';
 import CustomCheckV2 from '@/components/misc/CustomCheckV2';
 import '@/styles/customscroll.css'
 // import { arraysEqual } from '@/functions/helpers';
@@ -35,7 +35,7 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
   const [data, setData] = React.useState<Partial<IPackage>>({});
   const [packagingMaterial, setPackagingMaterial] = useState<IProdItem[]>([]);
   const [packItems, setPackItems] = useState<IQSelector[]>([]);
-  const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+  const otherCurrency = useActiveCurrency();
   const [useRate, setUseRate] = useState(false);
 //   const [cost, setCost] = useState<number>(0);
   const [manualCost, setManualCost] = useState<number | null>(null);
@@ -80,7 +80,6 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
             setPackagingMaterial(oldPackingMaterial);
             setPackItems(formaattedItems);
             setManualCost(null);
-            setOtherCurrency(currentCurrency);
         }
     }, [pack])
 
@@ -214,7 +213,7 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
                                     input={<SearchSelectMultipleProdItems value={proditems} setSelection={setProditems} />}
                                 />
                             } */}
-                            <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!original} setSelect={setOtherCurrency} value={currentCurrency} />} />
+                            <ActiveCurrencyField savedCurrency={currentCurrency} />
                             {
                                 showRate &&
                                 <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
@@ -233,9 +232,7 @@ const PackageContentModal = ({openNew, setOpenNew, pack}:PackageContentModalProp
 
                 </div>
         
-                <div className="flex w-fit transition-all absolute top-1 right-1 hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
-                    <IoIosClose className="text-red-700" />
-                </div>
+                <CloseButton onClick={handleClose} />
                 <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
                     <FaChevronUp />
                 </div>

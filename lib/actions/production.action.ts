@@ -789,8 +789,8 @@ export async function getProductions():Promise<IResponse>{
         const productions = await Production.find()
         .populate('productToProduce')
         .populate('batch')
-        .populate('createdBy')
-        .populate('org')
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo')
         return respond('Productions found successfully', false, productions, 200);
     } catch (error) {
         console.log(error);
@@ -804,8 +804,8 @@ export async function getProductionsByOrg(orgId:string):Promise<IResponse>{
         const productions = await Production.find({ org: orgId })
         .populate('productToProduce')
         .populate('batch')
-        .populate('createdBy')
-        .populate('org')
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo')
         return respond('Productions found successfully', false, productions, 200);
     } catch (error) {
         console.log(error);

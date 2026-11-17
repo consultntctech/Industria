@@ -2,20 +2,17 @@ import React, { Dispatch } from "react";
 import GenericLabel from "@/components/shared/inputs/GenericLabel";
 import SearchSelectProducts from "@/components/shared/inputs/dropdowns/SearchSelectProducts";
 import SearchSelectBatches from "@/components/shared/inputs/dropdowns/SearchSelectBatches";
-import SearchSelectCurrencies from "@/components/shared/inputs/dropdowns/SearchSelectCurrencies";
+import { ActiveCurrencyField } from "@/components/currency/CurrencyProvider";
 import { IProduct } from "@/lib/models/product.model";
-import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 
 interface StepBasicInfoProps {
   setProductToProduce: Dispatch<React.SetStateAction<IProduct | null>>;
   setBatch: Dispatch<React.SetStateAction<string>>;
-  setOtherCurrency: Dispatch<React.SetStateAction<IOtherCurrency | null>>;
 }
 
 const StepBasicInfo: React.FC<StepBasicInfoProps> = ({
   setProductToProduce,
   setBatch,
-  setOtherCurrency,
 }) => {
   return (
     <div className="space-y-5 animate-fadeIn">
@@ -27,10 +24,7 @@ const StepBasicInfo: React.FC<StepBasicInfoProps> = ({
         label="Select Batch *"
         input={<SearchSelectBatches type="Finished Good" required setSelect={setBatch} />}
       />
-      <GenericLabel
-        label="Select Currency *"
-        input={<SearchSelectCurrencies required setSelect={setOtherCurrency} />}
-      />
+      <ActiveCurrencyField label="Currency *" />
     </div>
   );
 };

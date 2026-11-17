@@ -1,11 +1,10 @@
-import SearchSelectCurrencies from "@/components/shared/inputs/dropdowns/SearchSelectCurrencies";
-import GenericLabel from "@/components/shared/inputs/GenericLabel";
+import { IoClose } from "react-icons/io5";
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { createPriceForAllLineItemsInPackage } from "@/lib/actions/lineitem.action";
 import { ILineItem } from "@/lib/models/lineitem.model";
-import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { IOriginalPrice } from "@/types/Types";
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material"
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, IconButton } from "@mui/material"
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 import { ComponentProps, useState } from "react";
@@ -18,7 +17,7 @@ type LineItemPriceChangerProps = {
 } & ComponentProps<typeof TextField>
 
 const LineItemPriceChanger = ({open, handleClose, refetch, packageId}:LineItemPriceChangerProps) => {
-    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+    const otherCurrency = useActiveCurrency();
     const [loading, setLoading] = useState(false);
     const [price, setPrice] = useState<number>(0);
     const {currency} = useCurrencyConfig();
@@ -56,16 +55,16 @@ const LineItemPriceChanger = ({open, handleClose, refetch, packageId}:LineItemPr
     const otherLabel = `Price (${otherCurrency?.symbol || otherCurrency?.name})`;
   return (
     <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{title}</DialogTitle>
+        <DialogTitle sx={{ pr: 6 }}>{title}</DialogTitle>
+        <IconButton aria-label="Close" onClick={handleClose} sx={{ position: "absolute", right: 8, top: 8 }}>
+            <IoClose />
+        </IconButton>
         <DialogContent>
           <DialogContentText>
             {content}
           </DialogContentText>
             <form id="price-form" >
-              <GenericLabel
-                label="Select currency"
-                input={<SearchSelectCurrencies  setSelect={setOtherCurrency}  />}
-              />
+              <ActiveCurrencyField />
               <TextField
                 autoFocus
                 required

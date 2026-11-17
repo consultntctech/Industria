@@ -33,8 +33,8 @@ export async function getAlerts():Promise<IResponse>{
         await connectDB();
         const alerts = await Alert.find()
         .populate('item')
-        .populate('org')
-        .populate('createdBy')
+        .populate('org', 'name logo')
+        .populate('createdBy', 'name email photo')
         .lean() as unknown as IAlert[];
         return respond('Alerts found successfully', false, alerts, 200);
     } catch (error) {
@@ -48,8 +48,8 @@ export async function getAlertsByOrg(orgId:string):Promise<IResponse>{
         await connectDB();
         const alerts = await Alert.find({ org: orgId })
         .populate('item')
-        .populate('org')
-        .populate('createdBy')
+        .populate('org', 'name logo')
+        .populate('createdBy', 'name email photo')
         .lean() as unknown as IAlert[];
         return respond('Alerts found successfully', false, alerts, 200);
     } catch (error) {

@@ -30,5 +30,9 @@ const BatchSchema = new Schema<IBatch>({
 }, {timestamps:true})
 
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+BatchSchema.index({ org: 1, createdAt: -1 });
+BatchSchema.index({ org: 1, code: 1 });
+
 const Batch = models?.Batch || model<IBatch>('Batch', BatchSchema);
 export default Batch;

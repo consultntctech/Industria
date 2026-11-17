@@ -32,9 +32,9 @@ export async function getPackApprovals():Promise<IResponse>{
         await connectDB();
         const packApprovals = await PackApproval.find()
         .populate({path:'package', populate:[{path:'goods.goodId'}, {path:'batch'}]})
-        .populate('createdBy')
-        .populate('approver')
-        .populate('org') as unknown as IPackApproval[];
+        .populate('createdBy', 'name email photo')
+        .populate('approver', 'name email photo')
+        .populate('org', 'name logo') as unknown as IPackApproval[];
         return respond('Package approvals found successfully', false, packApprovals, 200);
     } catch (error) {
         console.log(error);
@@ -48,9 +48,9 @@ export async function getPackApprovalsByOrg(orgId:string):Promise<IResponse>{
         await connectDB();
         const packApprovals = await PackApproval.find({ org: orgId })
         .populate({path:'package', populate:[{path:'goods.goodId'}, {path:'batch'}]})
-        .populate('createdBy')
-        .populate('approver')
-        .populate('org') as unknown as IPackApproval[];
+        .populate('createdBy', 'name email photo')
+        .populate('approver', 'name email photo')
+        .populate('org', 'name logo') as unknown as IPackApproval[];
         return respond('Package approvals found successfully', false, packApprovals, 200);
     } catch (error) {
         console.log(error);

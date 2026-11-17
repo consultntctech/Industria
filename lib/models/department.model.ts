@@ -30,5 +30,8 @@ const DepartmentSchema = new Schema<IDepartment>({
 }, {timestamps:true})
     
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+DepartmentSchema.index({ org: 1, createdAt: -1 });
+
 const Department = models?.Department || model<IDepartment>('Department', DepartmentSchema);
 export default Department;

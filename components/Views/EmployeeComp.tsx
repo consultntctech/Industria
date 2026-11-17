@@ -1,4 +1,5 @@
 import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from 'react'
+import CloseButton from "../misc/CloseButton";
 import InputWithLabel from '../shared/inputs/InputWithLabel';
 import { FaChevronUp } from 'react-icons/fa';
 import { enqueueSnackbar } from 'notistack';
@@ -165,7 +166,8 @@ const EmployeeComp = ({openNew, setOpenNew, currentEmployee, setCurrentEmployee}
   return (
      <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
       <DialogueAlet open={showUser} handleClose={handleCloseUser} agreeClick={handleUser} title="User found" content={`A user account already exists for the email '${formData?.email}'. You can only import the user data into this record.`} agreeText="Proceed" disagreeText="Cancel" />
-      <form ref={formRef} onSubmit={currentEmployee ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
+      <form ref={formRef} onSubmit={currentEmployee ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full relative" >
+        <CloseButton onClick={handleClose} />
         <div className="flex flex-col gap-1">
           <span className="title" >{currentEmployee ? 'Edit employee' : 'Add new employee'}</span>
           {

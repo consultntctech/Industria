@@ -99,5 +99,11 @@ ProductSchema.pre('findOneAndDelete', async function (next) {
 });
 
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+ProductSchema.index({ org: 1, createdAt: -1 });
+ProductSchema.index({ org: 1, lowerName: 1 });
+ProductSchema.index({ category: 1 });
+ProductSchema.index({ suppliers: 1 });
+
 const Product = models?.Product || model<IProduct>('Product', ProductSchema);
 export default Product;

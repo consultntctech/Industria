@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from "@mui/material"
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField, IconButton } from "@mui/material"
+import { IoClose } from "react-icons/io5";
 import { ComponentProps } from "react";
 
 type DialogueAlertWithInputProps = {
@@ -14,7 +15,10 @@ type DialogueAlertWithInputProps = {
 const DialogueAlertWithInput = ({open, handleClose, agreeClick, title, content, agreeText="Proceed", disagreeText="Cancel", ...props}:DialogueAlertWithInputProps) => {
   return (
     <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>{title}</DialogTitle>
+        <DialogTitle sx={{ pr: 6 }}>{title}</DialogTitle>
+        <IconButton aria-label="Close" onClick={handleClose} sx={{ position: "absolute", right: 8, top: 8 }}>
+            <IoClose />
+        </IconButton>
         <DialogContent>
           <DialogContentText>
             {content}

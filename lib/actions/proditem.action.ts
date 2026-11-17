@@ -64,12 +64,12 @@ export async function getProdItems():Promise<IResponse>{
     try {
         await connectDB();
         const prodItems = await ProdItem.find().
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('storages').
         populate('batch').
         populate('suppliers').
         populate('original.currency').
-        populate('org').lean() as unknown as IProdItem[];
+        populate('org', 'name logo').lean() as unknown as IProdItem[];
         return respond('Production items found successfully', false, prodItems, 200);
     } catch (error) {
         console.log(error);
@@ -81,13 +81,13 @@ export async function getProdItemsByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const prodItems = await ProdItem.find({ org: orgId }).
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('storages').
         populate('batch').
         populate('suppliers').
         populate('original.currency').
         populate('type').
-        populate('org').lean() as unknown as IProdItem[];
+        populate('org', 'name logo').lean() as unknown as IProdItem[];
         return respond('Production items found successfully', false, prodItems, 200);
     } catch (error) {
         console.log(error);
@@ -99,13 +99,13 @@ export async function getAvailableProdItems():Promise<IResponse>{
     try {
         await connectDB();
         const prodItems = await ProdItem.find({ $or: [{stock: { $gt: 0 }}, {reusable: true}] }).
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('storages').
         populate('batch').
         populate('suppliers').
         populate('type').
         populate('original.currency').
-        populate('org').lean() as unknown as IProdItem[];
+        populate('org', 'name logo').lean() as unknown as IProdItem[];
         return respond('Available production items found successfully', false, prodItems, 200);
     } catch (error) {
         console.log(error);
@@ -134,13 +134,13 @@ export async function getAvailableProdItemsByOrg(orgId: string): Promise<IRespon
             ],
         })
             .populate({ path: 'type', populate: { path: 'suppliers' } })
-            .populate('createdBy')
+            .populate('createdBy', 'name email photo')
             .populate('storages')
             .populate('suppliers')
             .populate('batch')
             .populate('type')
             .populate('original.currency')
-            .populate('org')
+            .populate('org', 'name logo')
             .lean() as unknown as IProdItem[];
 
         return respond('Available production items found successfully', false, prodItems, 200);

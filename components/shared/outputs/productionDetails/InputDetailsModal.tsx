@@ -1,6 +1,7 @@
 import { FaChevronUp } from "react-icons/fa"
+import CloseButton from "../../../misc/CloseButton";
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import ModalContainer from "../ModalContainer"
-import { IoIosClose } from "react-icons/io"
 import { useEffect, useRef, useState } from "react";
 import { IProduction } from "@/lib/models/production.model";
 import InputWithLabel from "../../inputs/InputWithLabel";
@@ -17,7 +18,6 @@ import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import { IOriginalPrice } from "@/types/Types";
 import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
-import SearchSelectCurrencies from "../../inputs/dropdowns/SearchSelectCurrencies";
 import CustomCheckV2 from "@/components/misc/CustomCheckV2";
 import { IEmployee } from "@/lib/models/employee.model";
 import SearchSelectEmployees from "../../inputs/dropdowns/SearchSelectEmployees";
@@ -37,7 +37,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
     const [productToProduce, setProductToProduce] = useState<IProduct|null>(null);
     const [supervisor, setSupervisor] = useState<IEmployee | null>(null);
     const [useRate, setUseRate] = useState(false);
-    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
+    const otherCurrency = useActiveCurrency();
     // const [originalCost, setOriginalCost] = useState(0);
     const [pCost, setPCost] = useState(0);
     const [labourCost, setLabourCost] = useState(0);
@@ -84,7 +84,6 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
             setBatch(batched?._id);
             setProductToProduce(productToProd);
             setSupervisor(supervisord);
-            setOtherCurrency(savedCurrency);
             setData({...production});
             // setOriginalCost(Number(original?.amount || 0));
             setPCost(ogPCost);
@@ -171,7 +170,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
             
                 <div className="flex gap-4 flex-col w-full justify-between">
                     <div className="flex flex-col gap-4 w-full">
-                        <GenericLabel label="Select currency" input={<SearchSelectCurrencies required setSelect={setOtherCurrency} value={savedCurrency} />} />
+                        <ActiveCurrencyField savedCurrency={savedCurrency} />
                         {
                             showRate &&
                         <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
@@ -190,9 +189,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
                 </div>
             </div>
     
-            <div className="flex w-fit transition-all absolute top-1 right-1 hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={()=>setOpenNew(false)} >
-                <IoIosClose className="text-red-700" />
-            </div>
+            <CloseButton onClick={()=>setOpenNew(false)} />
             <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={()=>setOpenNew(false)} >
                 <FaChevronUp />
             </div>

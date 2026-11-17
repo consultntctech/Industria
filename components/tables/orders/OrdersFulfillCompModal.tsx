@@ -1,4 +1,6 @@
 import CustomCheckV2 from "@/components/misc/CustomCheckV2";
+import CloseButton from "../../misc/CloseButton";
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import PrimaryButton from "@/components/shared/buttons/PrimaryButton";
 import GenericLabel from "@/components/shared/inputs/GenericLabel";
 import InputWithLabel from "@/components/shared/inputs/InputWithLabel";
@@ -21,7 +23,6 @@ import {useCanUser } from "@/hooks/useAuth";import OrderLineItemsTable from "./O
 import { IProduct } from "@/lib/models/product.model";
 import { INeed, IOriginalPrice, OrderSelectType } from "@/types/Types";
 import { IOtherCurrency } from "@/lib/models/othercurrency.model";
-import SearchSelectCurrencies from "@/components/shared/inputs/dropdowns/SearchSelectCurrencies";
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
 // import { useFetchTransConfig } from "@/hooks/fetch/useFetchTransConfig";
 ;
@@ -40,7 +41,7 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
     const [lineItems, setLineItems] = useState<ILineItem[]>([]);
     const [isExtraCharges, setIsExtraCharges] = useState(false);
     const [useRate, setUseRate] = useState(false);
-    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+    const otherCurrency = useActiveCurrency();
     const [data, setData] = useState<Partial<ISales>>({price:currentOrder?.price});
     const [constData, setCostData] = useState<{charges:number, discount:number}>({charges:0, discount:0});
     const original = currentOrder?.original as IOriginalPrice;
@@ -114,7 +115,6 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
 
     useEffect(()=>{
         if(currentOrder){
-            setOtherCurrency(savedCurrency);
         }
     },[currentOrder]);
 
@@ -188,6 +188,7 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
     <ModalContainer open={open} handleClose={()=>setOpen(false)}>
         <div className="flex flex-center h-[100vh] w-[90%] md:w-[50%]">
             <form ref={formRef} onSubmit={handleSubmit}  className="formBox overflow-y-scroll scrollbar-custom h-[90%] p-4 flex-col gap-8 w-full relative" >
+              <CloseButton onClick={handleClose} />
                 <div className="flex flex-col gap-1">
                     <span className="title" >Ship order</span>
                     <span className="greyText" >This will create a sale record for the order, and can't be undone</span>
@@ -206,7 +207,7 @@ const OrdersFulfillCompModal = ({currentOrder, refetch, setCurrentOrder, open, s
                             isExtraCharges &&
                             <>
                                 <div className="flex gap-4 flex-col w-full md:flex-row items-center">
-                                    <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!isExtraCharges} setSelect={setOtherCurrency} value={savedCurrency} />} />
+                                    <ActiveCurrencyField savedCurrency={savedCurrency} />
                                     {
                                         showRate &&
                                         <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />

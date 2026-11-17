@@ -30,6 +30,9 @@ const LabourerSchema = new Schema<ILabourer>({
 }, { timestamps: true });
 
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+LabourerSchema.index({ org: 1, createdAt: -1 });
+
 const Labourer = models?.Labourer || model<ILabourer>('Labourer', LabourerSchema);
 
 export default Labourer;

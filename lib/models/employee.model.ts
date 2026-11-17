@@ -33,5 +33,9 @@ const EmployeeSchema = new Schema<IEmployee>({
 }, {timestamps:true})
     
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+EmployeeSchema.index({ org: 1, createdAt: -1 });
+EmployeeSchema.index({ department: 1 });
+
 const Employee = models?.Employee || model<IEmployee>('Employee', EmployeeSchema);
 export default Employee;

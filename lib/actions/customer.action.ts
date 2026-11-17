@@ -29,8 +29,8 @@ export async function getCustomers(): Promise<IResponse> {
   try {
     await connectDB();
     const customers = await Customer.find()
-    .populate('org')
-    .populate('createdBy')
+    .populate('org', 'name logo')
+    .populate('createdBy', 'name email photo')
     .lean() as unknown as ICustomer[];
     return respond('Customers found successfully', false, customers, 200);
   } catch (error) {
@@ -43,8 +43,8 @@ export async function getCustomersByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const customers = await Customer.find({ org: orgId })
-        .populate('org')
-        .populate('createdBy')
+        .populate('org', 'name logo')
+        .populate('createdBy', 'name email photo')
         .lean() as unknown as ICustomer[];
         return respond('Customers found successfully', false, customers, 200);
     } catch (error) {
@@ -88,9 +88,9 @@ export async function getCustomerItems(id:string):Promise<IResponse>{
     try {
         await connectDB();
         const [sales, orders, returns] = await Promise.all([
-          Sales.find({ customer: id }).populate({path:'products', populate:{path:'product'}}).populate('createdBy') as unknown as ISales[],
-          Order.find({ customer: id, status:'Fulfilled' }).populate({path:'products', populate:{path:'product'}}).populate('createdBy') as unknown as IOrder[],
-          Returns.find({ customer: id }).populate({path:'products', populate:{path:'product'}}).populate('createdBy') as unknown as IReturns[],
+          Sales.find({ customer: id }).populate({path:'products', populate:{path:'product'}}).populate('createdBy', 'name email photo') as unknown as ISales[],
+          Order.find({ customer: id, status:'Fulfilled' }).populate({path:'products', populate:{path:'product'}}).populate('createdBy', 'name email photo') as unknown as IOrder[],
+          Returns.find({ customer: id }).populate({path:'products', populate:{path:'product'}}).populate('createdBy', 'name email photo') as unknown as IReturns[],
         ]);
         const data:ICustomerStats = {
           sales: sales?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime()),

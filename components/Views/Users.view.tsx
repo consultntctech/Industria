@@ -1,4 +1,5 @@
 import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from 'react'
+import CloseButton from "../misc/CloseButton";
 import InputWithLabel from '../shared/inputs/InputWithLabel';
 import { FaChevronUp } from 'react-icons/fa';
 import { enqueueSnackbar } from 'notistack';
@@ -147,7 +148,8 @@ const UsersComp = ({openNew, setOpenNew, currentUser, setCurrentUser}:UserCompPr
   return (
      <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
       <DialogueAlet open={showEmployee} handleClose={handleCloseEmployee} agreeClick={handleEmployee} title="Employee found" content={`An employee record already exists for the email '${formData?.email}'. Proceeding will overwrite the details of the employee`} agreeText="Proceed" disagreeText="Cancel" />
-      <form ref={formRef} onSubmit={currentUser ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
+      <form ref={formRef} onSubmit={currentUser ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full relative" >
+        <CloseButton onClick={handleClose} />
         <div className="flex flex-col gap-1">
           <span className="title" >{currentUser ? 'Edit user' : 'Add new user'}</span>
           <span className="greyText" >{currentUser ? 'Edit the details of the user' : 'Create a new user to handle operations'}</span>

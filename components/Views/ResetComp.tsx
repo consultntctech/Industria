@@ -1,5 +1,5 @@
 'use client'
-import Image from 'next/image'
+import { LogoMark } from '../brand/Logo'
 import React, { useRef, useState } from 'react'
 import TextInput from '../shared/inputs/TextInput'
 import Link from 'next/link'
@@ -62,10 +62,10 @@ const ResetComp = () => {
     }
 
   return (
-    <div className='flex size-full items-center justify-center h-[100vh]' >
-        <form ref={formRef} onSubmit={handleSubmit} className="formBox py-6 px-8 flex gap-6 flex-col items-center rounded-3xl">
+    <div className='auth-bg flex size-full items-center justify-center min-h-[100vh] p-4' >
+        <form ref={formRef} onSubmit={handleSubmit} className="formBox py-8 px-8 flex gap-6 flex-col items-center rounded-3xl w-full max-w-md">
             <div className="flex flex-col gap-2 items-center">
-                <Image src="/images/bird-colorful-gradient-design-vector_343694-2506.jpg" alt="logo" width={100} height={100} />
+                <LogoMark size={72} />
                 <span className='title'>Reset your Industra password</span>
                 <span className='greyText' >Create a new password to access your Industra account</span>
             </div>

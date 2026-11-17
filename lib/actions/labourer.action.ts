@@ -23,8 +23,8 @@ export async function getLabourers(): Promise<IResponse> {
   try {
     await connectDB();
     const labourers = await Labourer.find()
-    .populate('org')
-    .populate('createdBy')
+    .populate('org', 'name logo')
+    .populate('createdBy', 'name email photo')
     .lean() as unknown as ILabourer[];
     return respond('Labourers found successfully', false, labourers, 200);
   } catch (error) {
@@ -37,8 +37,8 @@ export async function getLabourersByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const labourers = await Labourer.find({ org: orgId })
-        .populate('org')
-        .populate('createdBy')
+        .populate('org', 'name logo')
+        .populate('createdBy', 'name email photo')
         .lean() as unknown as ILabourer[];
         return respond('Labourers found successfully', false, labourers, 200);
     } catch (error) {

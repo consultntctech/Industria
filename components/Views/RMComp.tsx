@@ -1,4 +1,6 @@
 import { Dispatch, FormEvent, SetStateAction, useEffect,  useRef, useState } from "react";
+import CloseButton from "../misc/CloseButton";
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import GenericLabel from "../shared/inputs/GenericLabel";
 import SearchSelectProducts from "../shared/inputs/dropdowns/SearchSelectProducts";
@@ -16,7 +18,6 @@ import { useFetchRMaterials } from "@/hooks/fetch/useRMaterials";
 import { ISupplier } from "@/lib/models/supplier.model";
 import { IBatch } from "@/lib/models/batch.model";
 import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
-import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import CustomCheckV2 from "../misc/CustomCheckV2";
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
@@ -45,7 +46,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
     const [storages, setStorages] = useState<IStorage[]>([]);
     // const [showRate, setShowRate] = useState(false);
 
-    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
+    const otherCurrency = useActiveCurrency();
 
     const {user} = useAuth();
     const {refetch} = useFetchRMaterials();
@@ -84,7 +85,6 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
     useEffect(() => {
       if(currentMaterial){
         setData({ ...currentMaterial});
-        setOtherCurrency(savedCurrency);
         setStorages(savedStorages);
         setSuppliers(savedSuppliers);
         if(currentMaterial?.product){
@@ -215,7 +215,8 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
      <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`} >
       {
         openNew &&
-        <form ref={formRef} onSubmit={currentMaterial ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
+        <form ref={formRef} onSubmit={currentMaterial ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full relative" >
+          <CloseButton onClick={handleClose} />
           <div className="flex flex-col gap-1">
             <span className="title" >{currentMaterial ? 'Edit raw material' : 'Add new raw material'}</span>
             <span className="greyText" >These are the goods you buy for production</span>
@@ -256,7 +257,7 @@ const RMComp = ({openNew, setOpenNew, setCurrentMaterial, currentMaterial}:RMCom
                 />
               <InputWithLabel defaultValue={currentMaterial?.yield} onChange={onChange} name="yield"  type="number" min={1} placeholder="eg. 2" label="Expected yield rate" className="w-full" />
               <InputWithLabel defaultValue={currentMaterial? formatDate(currentMaterial?.dateReceived) : today()} onChange={onChange} max={today()} name="dateReceived" type="date" required={!currentMaterial} label="Date received" className="w-full" />
-              <GenericLabel label="Select currency" input={<SearchSelectCurrencies  setSelect={setOtherCurrency} value={savedCurrency} />} />
+              <ActiveCurrencyField savedCurrency={savedCurrency} />
               {
                 showRate &&
                 <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />

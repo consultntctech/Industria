@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import { useEffect, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 // import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
@@ -18,8 +19,7 @@ import { createProduction } from "@/lib/actions/production.action";
 import { useRouter } from "next/navigation";
 import { useCurrencyConfig } from "@/hooks/config/useCurrencyConfig";
 import SearchSelectBatchesWithRM from "../shared/inputs/dropdowns/SearchSelectBatchesWithRM";
-import {useCanUser } from "@/hooks/useAuth";import { IOtherCurrency } from "@/lib/models/othercurrency.model";
-import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
+import {useCanUser } from "@/hooks/useAuth";
 // import SearchSelectMultipleLabourers from "../shared/inputs/dropdowns/SearchSelectMultipleLabourers";
 // import { ILabourer } from "@/lib/models/labourer.model";
 import { IEmployee } from "@/lib/models/employee.model";
@@ -40,7 +40,7 @@ const NewProductionComp = () => {
     const [productBatchId, setProductBatchId] = useState<string>('');
     const [rawMaterials, setRawMaterials] = useState<IRMaterial[]>([]);
     const [ingredients, setIngredients] = useState<IIngredient[]>([]);
-    const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency|null>(null);
+    const otherCurrency = useActiveCurrency();
     // const [proditems, setProditems] = useState<IProdItem[]>([]);
     const [data, setData] = useState<Partial<IProduction>>({});
     const [totalPrice, setTotalPrice] = useState(0);
@@ -266,10 +266,7 @@ const NewProductionComp = () => {
                             input={<SearchSelectProducts type="Finished Good" required={true} setSelect={setProductToProduce} />}
                         />
                         <InputWithLabel onChange={onChange} name="xquantity" required type="number" min={1} placeholder="10" label="Expected output quantity" className="w-full" />
-                        <GenericLabel
-                            label="Select currency"
-                            input={<SearchSelectCurrencies required={true} setSelect={setOtherCurrency} />}
-                        />
+                        <ActiveCurrencyField />
                     </div>
         
                     <div className="flex gap-4 flex-col w-full justify-between">

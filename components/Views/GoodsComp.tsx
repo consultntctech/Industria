@@ -1,10 +1,10 @@
 import { updateGood } from "@/lib/actions/good.action";
+import CloseButton from "../misc/CloseButton";
 import { IGood } from "@/lib/models/good.model";
 import { enqueueSnackbar } from "notistack";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import ModalContainer from "../shared/outputs/ModalContainer";
 import { useFetchGoods } from "@/hooks/fetch/useFetchGoods";
-import { IoIosClose } from "react-icons/io";
 import { FaChevronUp } from "react-icons/fa";
 // import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
@@ -92,9 +92,7 @@ const GoodsComp = ({openNew, setOpenNew, currentGood, setCurrentGood}:GoodsCompP
 
                 </div>
         
-                <div className="flex w-fit transition-all absolute top-1 right-1 hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
-                    <IoIosClose className="text-red-700" />
-                </div>
+                <CloseButton onClick={handleClose} />
                 <div className="flex w-fit transition-all hover:bg-gray-100 self-end p-2 rounded-full border border-gray-200 cursor-pointer" onClick={handleClose} >
                     <FaChevronUp />
                 </div>

@@ -23,8 +23,8 @@ export async function getECategories():Promise<IResponse>{
     try {
         await connectDB();
         const cats = await ECategory.find()
-        .populate('createdBy')
-        .populate('org').lean() as unknown as IECategory[];
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo').lean() as unknown as IECategory[];
         return respond('Categories found successfully', false, cats, 200);
     } catch (error) {
         console.log(error);
@@ -36,8 +36,8 @@ export async function getECategoriesByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const cats = await ECategory.find({ org: orgId })
-        .populate('createdBy')
-        .populate('org').lean() as unknown as IECategory[];
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo').lean() as unknown as IECategory[];
         return respond('Categories found successfully', false, cats, 200);
     } catch (error) {
         console.log(error);

@@ -11,6 +11,6 @@ export const systemAdminOnlyTableId = process.env.NEXT_PUBLIC_SYSTEM_ADMIN_ONLY_
 
 export const brand = {
     name: 'Industra',
-    logo: '/images/bird-colorful-gradient-design-vector_343694-2506.jpg',
+    logo: '/brand/industra-mark.svg',
     email: 'akwaaba@sesatechafrica.com'
 }

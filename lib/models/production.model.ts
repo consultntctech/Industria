@@ -177,5 +177,10 @@ ProductionSchema.pre('deleteOne', { document: false, query: true }, async functi
     }
 });
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+ProductionSchema.index({ org: 1, createdAt: -1 });
+ProductionSchema.index({ org: 1, status: 1 });
+ProductionSchema.index({ batch: 1 });
+
 const Production = models?.Production || model<IProduction>('Production', ProductionSchema);
 export default Production;

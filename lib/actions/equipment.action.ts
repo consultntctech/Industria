@@ -29,12 +29,12 @@ export async function getEquipments():Promise<IResponse>{
     try {
         await connectDB();
         const eqs = await Equipment.find()
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate({path:'type', populate:{path:'category'}})
         .populate('location')
-        .populate('assignedTo')
+        .populate('assignedTo', 'name email photo')
         .populate('original.currency')
-        .populate('org').lean() as unknown as IEquipment[];
+        .populate('org', 'name logo').lean() as unknown as IEquipment[];
         return respond('Equipments found successfully', false, eqs, 200);
     } catch (error) {
         console.log(error);
@@ -46,12 +46,12 @@ export async function getEquipmentsByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const eqs = await Equipment.find({ org: orgId })
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate({path:'type', populate:{path:'category'}})
         .populate('location')
-        .populate('assignedTo')
+        .populate('assignedTo', 'name email photo')
         .populate('original.currency')
-        .populate('org').lean() as unknown as IEquipment[];
+        .populate('org', 'name logo').lean() as unknown as IEquipment[];
         return respond('Equipments found successfully', false, eqs, 200);
     } catch (error) {
         console.log(error);
@@ -63,12 +63,12 @@ export async function getEquipmentsByType(typeId:string):Promise<IResponse>{
     try {
         await connectDB();
         const eqs = await Equipment.find({ type: typeId })
-        .populate('createdBy')
+        .populate('createdBy', 'name email photo')
         .populate({path:'type', populate:{path:'category'}})
         .populate('location')
-        .populate('assignedTo')
+        .populate('assignedTo', 'name email photo')
         .populate('original.currency')
-        .populate('org').lean() as unknown as IEquipment[];
+        .populate('org', 'name logo').lean() as unknown as IEquipment[];
         return respond('Equipments found successfully', false, eqs, 200);
     } catch (error) {
         console.log(error);

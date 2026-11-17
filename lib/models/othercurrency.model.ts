@@ -28,5 +28,8 @@ const OtherCurrencySchema = new Schema<IOtherCurrency>({
 }, {timestamps:true})
 
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+OtherCurrencySchema.index({ org: 1, createdAt: -1 });
+
 const OtherCurrency = models?.OtherCurrency || model<IOtherCurrency>('OtherCurrency', OtherCurrencySchema);
 export default OtherCurrency;

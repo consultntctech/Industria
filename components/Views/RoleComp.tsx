@@ -1,4 +1,5 @@
 import { useAuth, useIsGlobalAdmin } from "@/hooks/useAuth";
+import CloseButton from "../misc/CloseButton";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
@@ -163,6 +164,7 @@ const RoleComp = ({openNew, setOpenNew, currentRole, setCurrentRole}:RoleCompPro
         {
             openNew &&
             <form ref={formRef} onSubmit={currentRole ? handleUpdate : handleSubmit}  className="formBox relative p-4 flex-col gap-8 w-full" >
+              <CloseButton onClick={handleClose} />
                 <div className="flex flex-col gap-1">
                     <span className="title" >{currentRole ? 'Edit role permissions' : 'Add new role'}</span>
                     <span className="greyText" >Roles can be assigned to users to perfom certain functionalities</span>

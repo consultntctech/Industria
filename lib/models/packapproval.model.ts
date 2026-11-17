@@ -30,5 +30,9 @@ const PackApprovalSchema = new Schema<IPackApproval>({
 }, {timestamps:true})
 
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+PackApprovalSchema.index({ org: 1, createdAt: -1 });
+PackApprovalSchema.index({ package: 1, status: 1 });
+
 const PackApproval = models?.PackApproval || model<IPackApproval>('PackApproval', PackApprovalSchema);
 export default PackApproval;

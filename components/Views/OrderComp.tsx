@@ -1,6 +1,8 @@
 
 
 import { ChangeEvent, Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import CloseButton from "../misc/CloseButton";
+import { ActiveCurrencyField, useActiveCurrency } from "@/components/currency/CurrencyProvider";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import SearchSelectCustomers from "../shared/inputs/dropdowns/SearchSelectCustomers";
 import { ICustomer } from "@/lib/models/customer.model";
@@ -23,7 +25,6 @@ import { IOriginalPrice, OrderSelectType } from "@/types/Types";
 import SelectedProductOrderItem from "../misc/SelectedProductOrderItem";
 import { IOtherCurrency } from "@/lib/models/othercurrency.model";
 import { currencyRate, exposeRate } from "@/functions/currencyHelpers";
-import SearchSelectCurrencies from "../shared/inputs/dropdowns/SearchSelectCurrencies";
 import CustomCheckV2 from "../misc/CustomCheckV2";
 import { useFetchTransConfig } from "@/hooks/fetch/useFetchTransConfig";
 
@@ -44,7 +45,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
   const [quantity, setQuantity] = useState<number>(1);
   const [products, setProducts] = useState<OrderSelectType[]>([]);
   const [useRate, setUseRate] = useState(false);
-  const [otherCurrency, setOtherCurrency] = useState<IOtherCurrency | null>(null);
+  const otherCurrency = useActiveCurrency();
   const [cost, setCost] = useState<number>(0);
   const [salesOrder, setSalesOrder] = useState('');
 
@@ -81,7 +82,6 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
       setData({...currentOrder});
       setProducts(currentOrder.products as OrderSelectType[]);
       setCost(original?.amount || 0);
-      setOtherCurrency(savedCurrency);
     }else{
       setData({});// Reset form data when currentUser is null
     }
@@ -177,6 +177,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
       {
         openNew &&
         <form ref={formRef} onSubmit={ currentOrder ? handleUpdate : handleSubmit}  className="formBox relative p-4 flex-col gap-8 w-full" >
+          <CloseButton onClick={handleClose} />
             <div className="flex flex-col gap-1">
                 <span className="title" >{currentOrder ? 'Edit order' : 'Add new order'}</span>
                 <span className="greyText" >{currentOrder ? 'Edit the order details' : 'Place an order for requested products'}</span>
@@ -199,7 +200,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
                     label="Select customer"
                     input={<SearchSelectCustomers value={savedCustomer} required={!currentOrder} setSelect={setCustomer} />}
                   />
-                  <GenericLabel label="Select currency" input={<SearchSelectCurrencies required={!currentOrder} setSelect={setOtherCurrency} value={savedCurrency} />} />
+                  <ActiveCurrencyField savedCurrency={savedCurrency} />
                   {
                     showRate &&
                     <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />

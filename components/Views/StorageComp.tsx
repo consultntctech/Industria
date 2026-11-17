@@ -1,4 +1,5 @@
 import { useAuth, useCanUser } from "@/hooks/useAuth";
+import CloseButton from "../misc/CloseButton";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
@@ -96,6 +97,7 @@ const StorageComp = ({openNew, setOpenNew, currentStorage, setCurrentStorage}:St
   return (
     <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`}>
         <form ref={formRef} onSubmit={currentStorage ? handleUpdate : handleSubmit}  className="formBox relative p-4 flex-col gap-8 w-full" >
+          <CloseButton onClick={handleClose} />
             <div className="flex flex-col gap-1">
                 <span className="title" >{currentStorage ? 'Edit storage location' : 'Add new storage location'}</span>
                 <span className="greyText" >These are where your finished goods are stored</span>

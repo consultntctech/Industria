@@ -26,8 +26,8 @@ export async function getSuppliers():Promise<IResponse>{
     try {
         await connectDB();
         const suppliers = await Supplier.find()
-        .populate('createdBy')
-        .populate('org').lean() as unknown as ISupplier[];
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo').lean() as unknown as ISupplier[];
         return respond('Suppliers found successfully', false, suppliers, 200);
     } catch (error) {
         console.log(error);
@@ -64,8 +64,8 @@ export async function getSuppliersByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const suppliers = await Supplier.find({ org: orgId })
-        .populate('createdBy')
-        .populate('org').lean() as unknown as ISupplier[];
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo').lean() as unknown as ISupplier[];
         return respond('Suppliers found successfully', false, suppliers, 200);
     } catch (error) {
         console.log(error);
@@ -106,8 +106,8 @@ export async function getSupplierItems(id:string):Promise<IResponse>{
     try {
         await connectDB();
         const [raw, pack] = await Promise.all([
-          RMaterial.find({ suppliers: id }).populate('createdBy').populate('suppliers').populate('batch').populate('product').lean() as unknown as IRMaterial[],
-          ProdItem.find({ suppliers: id }).populate('createdBy').populate('suppliers').lean() as unknown as IProdItem[],
+          RMaterial.find({ suppliers: id }).populate('createdBy', 'name email photo').populate('suppliers').populate('batch').populate('product').lean() as unknown as IRMaterial[],
+          ProdItem.find({ suppliers: id }).populate('createdBy', 'name email photo').populate('suppliers').lean() as unknown as IProdItem[],
         ]);
         const data:ISupplierStats = {
           rawMaterials: raw?.sort((a, b) => new Date(b?.createdAt!).getTime() - new Date(a?.createdAt!).getTime()),

@@ -1,4 +1,5 @@
 "use server";
+import { issueSession, revokeAllSessions } from "../auth/sessionToken";
 import { IResponse, ISession } from "@/types/Types";
 import { connectDB } from "../mongoose";
 import {
@@ -250,7 +251,8 @@ export async function getUsers(): Promise<IResponse> {
   try {
     await connectDB();
     const users = (await User.find()
-      .populate("org")
+      .select("-password")
+      .populate("org", "name logo")
       .populate("department")
       .populate("roles")
       .lean()) as unknown as IUser[];
@@ -265,7 +267,8 @@ export async function getUsersByOrg(orgId: string): Promise<IResponse> {
   try {
     await connectDB();
     const users = await User.find({ org: orgId })
-      .populate("org")
+      .select("-password")
+      .populate("org", "name logo")
       .populate("department")
       .populate("roles")
       .lean() as unknown as IUser[];
@@ -281,7 +284,8 @@ export async function getUsersByDepartment(departmentId: string): Promise<IRespo
   try {
     await connectDB();
     const users = (await User.find({ department: departmentId })
-      .populate("org")
+      .select("-password")
+      .populate("org", "name logo")
       .populate("department")
       .populate("roles")
       .lean()) as unknown as IUser[];
@@ -393,7 +397,8 @@ export async function getUser(id: string): Promise<IResponse> {
     await connectDB();
     const check = await verifyOrgAccess(User, id, "User", [{ path: "org" }, { path: "department" }, { path: "roles" }]);
     if ("allowed" in check === false) return check;
-    const user = check.doc;
+    // Never ship the password hash to the browser.
+    const { password: _password, ...user } = check.doc.toObject();
     return respond("User retrieved successfully", false, user, 200);
   } catch (error) {
     console.log(error);
@@ -451,6 +456,8 @@ export async function changePasswordByEmail(
       { password: hashedPassword },
       { new: true },
     );
+    // A reset password signs the account out of every browser.
+    await revokeAllSessions(String(user._id));
     await Forgot.deleteOne({ email });
 
     return respond(
@@ -481,6 +488,10 @@ export async function loginUser(data: Partial<IUser>): Promise<IResponse> {
       email: user.email,
       org: user.org.toString(),
     };
+
+    // The server issues the cookie itself. Rotating the session id signs this
+    // user out of any other browser.
+    await issueSession(sessionData);
 
     return respond("Logged in successfully", false, sessionData, 200);
   } catch (error) {
@@ -557,7 +568,7 @@ export async function loginUser(data: Partial<IUser>): Promise<IResponse> {
 export const getUserByEmail = async(email:string):Promise<IResponse> => {
   try {
     await connectDB();
-    const user = await User.findOne({ email: email.toLowerCase()?.trim() }).populate('org');
+    const user = await User.findOne({ email: email.toLowerCase()?.trim() }).select('-password').populate('org', 'name logo');
     return respond('User found successfully', false, user, 200);
   } catch (error) {
     console.log(error);

@@ -217,9 +217,9 @@ export async function getSales():Promise<IResponse>{
         populate('customer').
         populate('order').
         populate({path:'products', populate:[{path:'product'}, {path:'batch'}]}).
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('original.currency').
-        populate('org').lean() as unknown as ISales[];
+        populate('org', 'name logo').lean() as unknown as ISales[];
         return respond('Sales found successfully', false, sales, 200);
     } catch (error) {
         console.log(error);
@@ -233,10 +233,10 @@ export async function getSalesByOrg(orgId:string):Promise<IResponse>{
         const sales = await Sales.find({ org: orgId }).
         populate('customer').
         populate({path:'products', populate:[{path:'product'}, {path:'batch'}]}).
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('order').
         populate('original.currency').
-        populate('org').lean() as unknown as ISales[];
+        populate('org', 'name logo').lean() as unknown as ISales[];
         return respond('Sales found successfully', false, sales, 200);
     } catch (error) {
         console.log(error);
@@ -250,9 +250,9 @@ export async function getSalesByCustomer(customerId:string):Promise<IResponse>{
         const sales = await Sales.find({ customer: customerId }).
         populate('customer').
         populate({path:'products', populate:[{path:'product'}, {path:'batch'}]}).
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('original.currency').
-        populate('org').lean() as unknown as ISales[];
+        populate('org', 'name logo').lean() as unknown as ISales[];
         return respond('Sales found successfully', false, sales, 200);
     } catch (error) {
         console.log(error);
@@ -266,9 +266,9 @@ export async function getSalesByProduct(productId:string):Promise<IResponse>{
         const sales = await Sales.find({ products: productId }).
         populate('customer').
         populate({path:'products', populate:[{path:'product'}, {path:'batch'}]}).
-        populate('createdBy').
+        populate('createdBy', 'name email photo').
         populate('original.currency').
-        populate('org').lean() as unknown as ISales[];
+        populate('org', 'name logo').lean() as unknown as ISales[];
         return respond('Sales found successfully', false, sales, 200);
     } catch (error) {
         console.log(error);
@@ -292,9 +292,9 @@ export async function getTodaySales(): Promise<IResponse> {
     })
       .populate("customer")
       .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
-      .populate("createdBy")
+      .populate("createdBy", "name email photo")
       .populate("original.currency")
-      .populate("org")
+      .populate("org", "name logo")
       .lean<ISales[]>();
 
     return respond("Sales found successfully", false, sales, 200);
@@ -316,9 +316,9 @@ export async function getTodaySalesByOrg(orgId:string):Promise<IResponse>{
         const sales = await Sales.find({ org: orgId, createdAt: { $gte: start, $lt: end } })
         .populate("customer")
         .populate({path:'products', populate:[{path:'product'}, {path:'batch'}]})
-        .populate("createdBy")
+        .populate("createdBy", "name email photo")
         .populate("original.currency")
-        .populate("org")
+        .populate("org", "name logo")
         .lean<ISales[]>();
         return respond('Sales found successfully', false, sales, 200);
     } catch (error) {

@@ -1,10 +1,11 @@
 import SearchSelectCustomers from "@/components/shared/inputs/dropdowns/SearchSelectCustomers";
+import { IoClose } from "react-icons/io5";
 import { deleteReturns } from "@/lib/actions/returns.action";
 import { createSales } from "@/lib/actions/sales.action";
 import { ICustomer } from "@/lib/models/customer.model";
 import { ILineItem } from "@/lib/models/lineitem.model";
 import { IReturns } from "@/lib/models/returns.model";
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from "@mui/material";
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, IconButton } from "@mui/material";
 import { QueryObserverResult, RefetchOptions } from "@tanstack/react-query";
 import { enqueueSnackbar } from "notistack";
 import { Dispatch, FormEvent,  SetStateAction, useState } from "react";
@@ -53,7 +54,10 @@ const ReturnsCompModal = ({currentReturn, refetch, setCurrentReturn, open, setOp
     
   return (
     <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Resale</DialogTitle>
+        <DialogTitle sx={{ pr: 6 }}>Resale</DialogTitle>
+        <IconButton aria-label="Close" onClick={handleClose} sx={{ position: "absolute", right: 8, top: 8 }}>
+            <IoClose />
+        </IconButton>
         <DialogContent>
             <DialogContentText>
             Select a customer to proceed with resale of returned {products?.length > 1 ? 'items' : 'item'}.

@@ -24,5 +24,9 @@ const CategorySchema = new Schema<ICategory>({
 }, {timestamps:true})
     
 
+// Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
+CategorySchema.index({ org: 1, createdAt: -1 });
+CategorySchema.index({ org: 1, lowerName: 1 });
+
 const Category = models?.Category || model<ICategory>('Category', CategorySchema);
 export default Category;

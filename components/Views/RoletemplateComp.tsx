@@ -1,4 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
+import CloseButton from "../misc/CloseButton";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import TextAreaWithLabel from "../shared/inputs/TextAreaWithLabel";
@@ -120,6 +121,7 @@ const RoletemplateComp = ({openNew, setOpenNew, currentRoletemplate, setCurrentR
         {
             openNew &&
             <form ref={formRef} onSubmit={currentRoletemplate ? handleUpdate : handleSubmit}  className="formBox relative p-4 flex-col gap-8 w-full" >
+              <CloseButton onClick={handleClose} />
                 <div className="flex flex-col gap-1">
                     <span className="title" >{currentRoletemplate ? 'Edit role template' : 'Add new role template'}</span>
                     <span className="greyText" >Templates make it quicker to assign roles to users in bulk</span>

@@ -33,8 +33,8 @@ export async function getCategories():Promise<IResponse>{
     try {
         await connectDB();
         const cats = await Category.find()
-        .populate('createdBy')
-        .populate('org').lean() as unknown as ICategory[];
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo').lean() as unknown as ICategory[];
         return respond('Categories found successfully', false, cats, 200);
     } catch (error) {
         console.log(error);
@@ -46,8 +46,8 @@ export async function getCategoriesByOrg(orgId:string):Promise<IResponse>{
     try {
         await connectDB();
         const cats = await Category.find({ org: orgId })
-        .populate('createdBy')
-        .populate('org').lean() as unknown as ICategory[];
+        .populate('createdBy', 'name email photo')
+        .populate('org', 'name logo').lean() as unknown as ICategory[];
         return respond('Categories found successfully', false, cats, 200);
     } catch (error) {
         console.log(error);

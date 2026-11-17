@@ -1,4 +1,5 @@
 import { ChangeEvent, Dispatch, FormEvent, SetStateAction, useEffect, useRef, useState } from "react";
+import CloseButton from "../misc/CloseButton";
 import InputWithLabel from "../shared/inputs/InputWithLabel";
 import { FaChevronUp } from "react-icons/fa";
 import PrimaryButton from "../shared/buttons/PrimaryButton";
@@ -93,7 +94,8 @@ const CustomerComp = ({openNew, setOpenNew, currentCustomer, setCurrentCustomer}
 
   return (
     <div className={`${openNew? 'flex':'hidden'} p-4 lg:p-8 rounded-2xl w-full`}>
-        <form ref={formRef} onSubmit={currentCustomer ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full" >
+        <form ref={formRef} onSubmit={currentCustomer ? handleUpdate : handleSubmit}  className="formBox p-4 flex-col gap-8 w-full relative" >
+          <CloseButton onClick={handleClose} />
             <div className="flex flex-col gap-1">
                 <span className="title" >Add new Customer</span>
                 <span className="greyText" >A Customer is a company or an individual you supply goods to</span>
