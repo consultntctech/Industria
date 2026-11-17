@@ -7,9 +7,11 @@ import { connectDB } from "../mongoose";
 import '../models/org.model';
 import '../models/supplier.model';
 import '../models/othercurrency.model';
+import '../models/batch.model';
 import ProdType from "../models/prodtype.model";
 import { Types } from "mongoose";
 import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
+
 
 export async function createProdItem(data: Partial<IProdItem>): Promise<IResponse> {
   try {
@@ -64,6 +66,7 @@ export async function getProdItems():Promise<IResponse>{
         const prodItems = await ProdItem.find().
         populate('createdBy').
         populate('storages').
+        populate('batch').
         populate('suppliers').
         populate('original.currency').
         populate('org').lean() as unknown as IProdItem[];
@@ -80,6 +83,7 @@ export async function getProdItemsByOrg(orgId:string):Promise<IResponse>{
         const prodItems = await ProdItem.find({ org: orgId }).
         populate('createdBy').
         populate('storages').
+        populate('batch').
         populate('suppliers').
         populate('original.currency').
         populate('type').
@@ -97,6 +101,7 @@ export async function getAvailableProdItems():Promise<IResponse>{
         const prodItems = await ProdItem.find({ $or: [{stock: { $gt: 0 }}, {reusable: true}] }).
         populate('createdBy').
         populate('storages').
+        populate('batch').
         populate('suppliers').
         populate('type').
         populate('original.currency').
@@ -132,6 +137,7 @@ export async function getAvailableProdItemsByOrg(orgId: string): Promise<IRespon
             .populate('createdBy')
             .populate('storages')
             .populate('suppliers')
+            .populate('batch')
             .populate('type')
             .populate('original.currency')
             .populate('org')
@@ -211,6 +217,8 @@ export async function getProdItem(id:string):Promise<IResponse>{
             { path: "createdBy" },
             { path: "suppliers" },
             { path: "storages" },
+            {path: "batch"},
+            {path: "original.currency"},
             { path: "org" },
             { path: "type" },
         ]);
