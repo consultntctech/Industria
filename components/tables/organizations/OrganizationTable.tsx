@@ -6,7 +6,9 @@ import  { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { IOrganization } from '@/lib/models/org.model'
 import { useFetchOrgs } from '@/hooks/fetch/useFetchOrgs'
-import { deleteOrg, getOrg } from '@/lib/actions/org.action'
+import { deleteOrg, getOrg, requestTermsReacceptance } from '@/lib/actions/org.action'
+import { useAuth } from '@/hooks/useAuth'
+import { isSystemAdmin } from '@/Data/roles/permissions'
 import OrganizationInfoModal from './OrganizationInfoModal'
 import { OrganizationColumns } from './OrganizationColumns'
 
@@ -19,6 +21,9 @@ type OrganizationTableProps = {
 const OrganizationTable = ({setOpenNew, currentOrganization, setCurrentOrganization}:OrganizationTableProps) => {
     const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
+    const [showResetTerms, setShowResetTerms] = useState(false);
+    const {user} = useAuth();
+    const isAdmin = isSystemAdmin(user);
 
     const {orgs, isPending, refetch} = useFetchOrgs();
     const searchParams = useSearchParams();
@@ -73,9 +78,28 @@ const OrganizationTable = ({setOpenNew, currentOrganization, setCurrentOrganizat
         setCurrentOrganization(org);
     }
 
+    const handleResetTerms = (org:IOrganization)=>{
+        setShowResetTerms(true);
+        setCurrentOrganization(org);
+    }
+
+    const handleConfirmResetTerms = async()=>{
+        try {
+            if(!currentOrganization) return;
+            const res = await requestTermsReacceptance(currentOrganization._id);
+            enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
+            handleClose();
+            if(!res.error) refetch();
+        } catch (error) {
+            console.log(error);
+            enqueueSnackbar('Error occured while requesting policy acceptance', {variant:'error'});
+        }
+    }
+
     const handleClose = ()=>{
         setShowInfo(false);
         setShowDelete(false);
+        setShowResetTerms(false);
         setCurrentOrganization(null);
     }
 
@@ -102,6 +126,14 @@ const OrganizationTable = ({setOpenNew, currentOrganization, setCurrentOrganizat
         <span className='font-bold text-xl' >Organizations</span>
         <OrganizationInfoModal infoMode={showInfo} setInfoMode={setShowInfo} currentOrganization={currentOrganization} setCurrentOrganization={setCurrentOrganization} />
         <DialogueAlet open={showDelete} handleClose={handleClose} agreeClick={handleDeleteOrganization} title="Delete Organization" content={content} />
+        <DialogueAlet
+            open={showResetTerms}
+            handleClose={handleClose}
+            agreeClick={handleConfirmResetTerms}
+            title="Request policy acceptance"
+            agreeText="Request acceptance"
+            content={currentOrganization ? `${currentOrganization.name} will be marked as not having accepted the privacy policy. Its global admins will be asked to accept the updated policy the next time they use the app.` : ''}
+        />
         <div className="flex w-full">
             {
                 // loading ? 
@@ -112,7 +144,7 @@ const OrganizationTable = ({setOpenNew, currentOrganization, setCurrentOrganizat
                         loading={isPending}
                         getRowId={(row:IOrganization)=>row._id}
                         rows={orgs}
-                        columns={OrganizationColumns(handleInfo, handleEdit, handleDelete)}
+                        columns={OrganizationColumns(handleInfo, handleEdit, handleDelete, isAdmin ? handleResetTerms : undefined)}
                         initialState={{ 
                             pagination: { paginationModel },
                             columns:{
@@ -122,6 +154,8 @@ const OrganizationTable = ({setOpenNew, currentOrganization, setCurrentOrganizat
                                   appName:false,
                                   createdAt:false,
                                   updatedAt:false,
+                                  canCreateUsers:false,
+                                  hasAgreedTerms:false,
                                 }
                               }
                          }}

@@ -14,6 +14,8 @@ import { useFetchOrgs } from "@/hooks/fetch/useFetchOrgs";
 import { useAuth } from "@/hooks/useAuth";
 import { isSystemAdmin } from "@/Data/roles/permissions";
 import { ICurrency } from "@/lib/models/currency.model";
+import { FormControlLabel, Switch } from "@mui/material";
+import { systemAdminOrgId } from "@/Data/constants";
 
 type OrgCompProps = {
   openNew:boolean;
@@ -30,6 +32,10 @@ const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganizati
   const {refetch} = useFetchOrgs();
   const {user} = useAuth();
   const isAdmin = isSystemAdmin(user);
+  // The platform org can always create users, so the switch is meaningless there.
+  const isPlatformOrg = !!currentOrganization && String(currentOrganization._id) === systemAdminOrgId;
+  const showUserCreationSwitch = isAdmin && !isPlatformOrg;
+  const canCreateUsers = formData.canCreateUsers ?? true;
 
 
   useEffect(() => {
@@ -37,7 +43,7 @@ const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganizati
       setFormData(currentOrganization);
       setLogo({url:currentOrganization?.logo, filename:''});
     }
-  }, [currentOrganization?.logo]);
+  }, [currentOrganization?._id, currentOrganization?.logo]);
 
   const cloudinarySuccess = async(result:CloudinaryUploadWidgetResults) =>{
     try {
@@ -64,7 +70,8 @@ const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganizati
       pcolor:(formData.pcolor === '#000000' || !formData.pcolor) ? '#0076D1' : formData.pcolor,
       scolor:(formData.scolor === '#000000' || !formData.scolor) ? '#1c80cc' : formData.scolor,
       tcolor:(formData.tcolor === '#000000' || !formData.tcolor) ? '#005fa3' : formData.tcolor,
-      logo: logo.url
+      logo: logo.url,
+      canCreateUsers,
     }
     try {
       const currencyData:Partial<ICurrency> = {
@@ -94,7 +101,8 @@ const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganizati
 
     try {
       const orgData:Partial<IOrganization> = {
-        ...formData, logo: logo.url
+        ...formData, logo: logo.url,
+        ...(showUserCreationSwitch ? { canCreateUsers } : {}),
       }
       const res = await updateOrg(orgData);
       enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
@@ -164,6 +172,27 @@ const OrgComp = ({openNew, setOpenNew, currentOrganization, setCurrentOrganizati
                 <InputWithLabel defaultValue={currentOrganization?.tcolor} onChange={onChange} name='tcolor' type="color" required placeholder="" label="Tertiary Color" className="w-full cursor-pointer md:w-[5rem]" />
               </div>
               <TextAreaWithLabel defaultValue={currentOrganization?.description} name="description" onChange={onChange} placeholder="enter description" label="Description" className="w-full" />
+              {
+                showUserCreationSwitch &&
+                <div className="flex flex-col gap-1 rounded-lg border border-gray-200 p-3">
+                  <FormControlLabel
+                    sx={{ m: 0, justifyContent: 'space-between' }}
+                    labelPlacement="start"
+                    label={<span className="smallText">Allow this organization to create users</span>}
+                    control={
+                      <Switch
+                        checked={canCreateUsers}
+                        onChange={(e)=>setFormData((pre)=>({...pre, canCreateUsers: e.target.checked}))}
+                      />
+                    }
+                  />
+                  <span className="greyText2">
+                    {canCreateUsers
+                      ? 'Admins in this organization can create user accounts and give employees user accounts.'
+                      : 'No one in this organization (including global admins) can create user accounts or turn employees into users. Existing users can still be edited and deleted, and employees can still be created.'}
+                  </span>
+                </div>
+              }
             </div>
             {
               isAdmin &&

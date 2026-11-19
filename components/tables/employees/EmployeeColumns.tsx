@@ -13,6 +13,8 @@ export const EmployeeColoumns = (
     handleEdit: (emp:IEmployee)=>void,
     handleDelete: (emp:IEmployee)=>void,
     handleAddUser: (emp:IEmployee)=>void,
+    /** Org's "can create users" switch; promoting an employee creates a user. */
+    canCreateUsers: boolean = true,
 ):GridColDef[]=>{
 
 
@@ -138,7 +140,10 @@ export const EmployeeColoumns = (
                 <div className="h-full gap-3 flex-center">
                     <Viewer tableId="96" onClick={()=>handleInfo(params?.row)} tip="View employee" />
                     <Editor tableId="96" onClick={()=>handleEdit(params?.row)} tip="Edit employee" />
-                    <UserMaker tableId="38" onClick={()=>handleAddUser(params?.row)} tip="Add user account for employee" />
+                    {
+                        canCreateUsers &&
+                        <UserMaker tableId="38" onClick={()=>handleAddUser(params?.row)} tip="Add user account for employee" />
+                    }
                     <Deleter tableId="96" onClick={()=>handleDelete(params?.row)} tip="Delete employee" />
                 </div>
             )

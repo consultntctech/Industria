@@ -19,6 +19,8 @@ export interface IOrganization extends Document {
     tcolor: string;
     description: string;
     hasAgreedTerms: boolean;
+    /** When false, nobody in this org can create user accounts (system admins still can). */
+    canCreateUsers: boolean;
     termsAcceptedAt: Date;
     createdBy: string | Types.ObjectId | IUser;
     termsVersion: string;
@@ -33,6 +35,7 @@ export const OrganizationSchema = new Schema({
     appName: String,
     email: { type: String, required: true },
     hasAgreedTerms: { type: Boolean, default: false },
+    canCreateUsers: { type: Boolean, default: true },
     termsAcceptedAt: { type: Date },
     termsVersion: String,
     createdBy: { type: Schema.Types.ObjectId, ref: 'User', required: false },

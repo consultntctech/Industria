@@ -1,4 +1,5 @@
 import DialogueAlet from '@/components/misc/DialogueAlet'
+import { useCanCreateUsers } from '@/config/useSettings';
 import { Paper } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { enqueueSnackbar } from 'notistack'
@@ -21,6 +22,7 @@ type EmployeesTableProps = {
 }
 
 const EmployeesTable = ({setOpenNew, currentEmployee, setCurrentEmployee}:EmployeesTableProps) => {
+    const canCreateUsers = useCanCreateUsers();
     const [showInfo, setShowInfo] = useState(false);
     const [showDelete, setShowDelete] = useState(false);
     const [showAddUser, setShowAddUser] = useState(false);
@@ -156,7 +158,7 @@ const EmployeesTable = ({setOpenNew, currentEmployee, setCurrentEmployee}:Employ
                         loading={isPending}
                         getRowId={(row:IEmployee)=>row._id}
                         rows={employees}
-                        columns={EmployeeColoumns(handleInfo, handleEdit, handleDelete, handleShowUser)}
+                        columns={EmployeeColoumns(handleInfo, handleEdit, handleDelete, handleShowUser, canCreateUsers)}
                         initialState={{ 
                             pagination: { paginationModel },
                             columns:{

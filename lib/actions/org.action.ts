@@ -8,11 +8,38 @@ import { getSession } from "../session";
 import Currency, { ICurrency } from "../models/currency.model";
 import OtherCurrency from "../models/othercurrency.model";
 import TransConfig from "../models/transconfig.model";
+import { systemAdminOrgId } from "@/Data/constants";
+import { isValidObjectId } from "mongoose";
+
+/**
+ * Strip fields that the org create/edit forms must never write:
+ *  - Terms acceptance is only changed by acceptOrgTerms (the org's own admin
+ *    accepting) and requestTermsReacceptance (system admin). Otherwise saving a
+ *    form could mark the policy accepted, or undo a re-acceptance request.
+ *  - Only the platform (system admin) org decides whether an organization may
+ *    create users, and the system admin org itself can always create users.
+ */
+async function sanitizeOrgPayload(org: Partial<IOrganization>, targetId?: string): Promise<void> {
+    const terms = org as Partial<IOrganization> & { termsAcceptedBy?: unknown };
+    delete terms.hasAgreedTerms;
+    delete terms.termsAcceptedAt;
+    delete terms.termsVersion;
+    delete terms.termsAcceptedBy;
+
+    const session = await getSession();
+    const callerIsSystemAdmin = String(session?.org) === systemAdminOrgId;
+    if (!callerIsSystemAdmin || (targetId && String(targetId) === systemAdminOrgId)) {
+        delete org.canCreateUsers;
+    } else if (org.canCreateUsers !== undefined) {
+        org.canCreateUsers = Boolean(org.canCreateUsers);
+    }
+}
 // import { verifyOrgAccess } from "../middleware/verifyOrgAccess";
 
 export async function createOrg(org:Partial<IOrganization>, currency:Partial<ICurrency>):Promise<IResponse>{
     try {
         await connectDB();
+        await sanitizeOrgPayload(org);
         const newOrg = await Organization.create(org);
         const otherCurrency = {
             name: currency.name,
@@ -92,6 +119,7 @@ export async function getOrgById(id:string):Promise<IResponse>{
 export async function updateOrg(org:Partial<IOrganization>):Promise<IResponse>{
     try {
         await connectDB();
+        await sanitizeOrgPayload(org, org._id);
         const updatedOrg = await Organization.findByIdAndUpdate(org._id, org, { new: true });
         return respond('Organization updated successfully', false, updatedOrg, 200);
     } catch (error) {
@@ -120,6 +148,27 @@ export async function acceptOrgTerms(orgId: string): Promise<IResponse> {
   } catch (error) {
     console.log(error);
     return respond('Error occured while saving your consent', true, {}, 500);
+  }
+}
+
+/**
+ * System admins only: clear an organization's policy acceptance so its admins
+ * are asked to accept the (updated) privacy policy again.
+ */
+export async function requestTermsReacceptance(orgId: string): Promise<IResponse> {
+  try {
+    const session = await getSession();
+    if (!session) return respond('You must be signed in', true, {}, 401);
+    if (String(session.org) !== systemAdminOrgId) return respond('Only system administrators can do this', true, {}, 403);
+    if (!isValidObjectId(orgId)) return respond('Invalid organization', true, {}, 400);
+
+    await connectDB();
+    const res = await Organization.updateOne({ _id: orgId }, { hasAgreedTerms: false });
+    if (!res.matchedCount) return respond('Organization not found', true, {}, 404);
+    return respond("The organization's admins will be asked to accept the updated policy", false, {}, 200);
+  } catch (error) {
+    console.log(error);
+    return respond('Error occured while requesting policy acceptance', true, {}, 500);
   }
 }
 

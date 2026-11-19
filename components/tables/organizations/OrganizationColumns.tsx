@@ -3,6 +3,8 @@ import { formatDate } from "@/functions/dates";
 import { IOrganization } from "@/lib/models/org.model";
 import { IUser } from "@/lib/models/user.model";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { Tooltip } from "@mui/material";
+import { MdOutlinePolicy } from "react-icons/md";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,6 +12,8 @@ export const OrganizationColumns = (
     handleInfo: (org:IOrganization)=>void,
     handleEdit: (org:IOrganization)=>void,
     handleDelete: (org:IOrganization)=>void,
+    /** System admins only: ask the org to accept the updated privacy policy. */
+    handleResetTerms?: (org:IOrganization)=>void,
 ):GridColDef[]=>{
 
     return [
@@ -30,6 +34,7 @@ export const OrganizationColumns = (
             headerName: 'Name',
             width:170,
         },
+       
         
         {
             field: 'email',
@@ -75,6 +80,24 @@ export const OrganizationColumns = (
             width:120,
         },
 
+        
+        {
+            field: 'canCreateUsers',
+            headerName: 'Can Create Users',
+            width:130,
+            type:'boolean',
+            // Older organizations without the field default to allowed.
+            valueGetter: (_, row:IOrganization)=> row?.canCreateUsers !== false,
+        },
+
+         {
+            field: 'hasAgreedTerms',
+            headerName: 'Policy Accepted',
+            width:120,
+            type:'boolean',
+            valueGetter: (_, row:IOrganization)=> !!row?.hasAgreedTerms,
+        },
+
         {
             field: 'createdAt',
             headerName: 'Created',
@@ -103,7 +126,7 @@ export const OrganizationColumns = (
         field:'id',
         headerName:'Actions',
         filterable: false,
-        width:120,
+        width:150,
         disableExport: true,
         // params:GridRenderCellParams
         renderCell:(params:GridRenderCellParams)=> {
@@ -113,6 +136,14 @@ export const OrganizationColumns = (
                     <Viewer tableId="100" tip="View organization" onClick={()=>handleInfo(params?.row)} />
                     <Editor tableId="100" tip="Edit organization" onClick={()=>handleEdit(params?.row)} />
                     <Deleter tableId="100" tip="Delete organization" onClick={()=>handleDelete(params?.row)} />
+                    {
+                        handleResetTerms && params?.row?.hasAgreedTerms &&
+                        <Tooltip title="Request acceptance of updated privacy policy">
+                            <button type="button" aria-label="Request acceptance of updated privacy policy" onClick={()=>handleResetTerms(params?.row)} className="flex cursor-pointer text-amber-600">
+                                <MdOutlinePolicy size={18} />
+                            </button>
+                        </Tooltip>
+                    }
                 </div>
             )
         },

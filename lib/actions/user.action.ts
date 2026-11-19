@@ -1,5 +1,6 @@
 "use server";
 import { issueSession, revokeAllSessions } from "../auth/sessionToken";
+import { authorizeUserCreation } from "../auth/userCreationPolicy";
 import { IResponse, ISession } from "@/types/Types";
 import { connectDB } from "../mongoose";
 import {
@@ -92,6 +93,10 @@ export async function createUser(data: Partial<IUser>): Promise<IResponse> {
   let employeeId: string | undefined;
 
   try {
+    // Enforces the org's "can create users" switch on the server.
+    const auth = await authorizeUserCreation(data.org, ["CREATE"]);
+    if ("error" in auth) return auth.error;
+
     await connectDB();
 
     // const existing = await User.findOne({ email: data.email?.toLowerCase()?.trim() });
@@ -180,6 +185,11 @@ export async function createUserFromEmployee(data: Partial<IUser>): Promise<IRes
   let createdUserId: string | undefined;
 
   try {
+    // Promoting an employee creates a user, so the same switch applies.
+    // (The employees-table button is gated on Users CREATE or UPDATE.)
+    const auth = await authorizeUserCreation(data.org, ["CREATE", "UPDATE"]);
+    if ("error" in auth) return auth.error;
+
     await connectDB();
 
     const existing = await User.findOne({ email: data.email?.toLowerCase()?.trim() });
