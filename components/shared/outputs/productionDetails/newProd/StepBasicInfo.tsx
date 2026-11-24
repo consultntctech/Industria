@@ -18,11 +18,11 @@ const StepBasicInfo: React.FC<StepBasicInfoProps> = ({
     <div className="space-y-5 animate-fadeIn">
       <GenericLabel
         label="Product to Produce *"
-        input={<SearchSelectProducts type="Unfinished Good" required setSelect={setProductToProduce} />}
+        input={<SearchSelectProducts type="Processed Good" required setSelect={setProductToProduce} />}
       />
       <GenericLabel
         label="Select Batch *"
-        input={<SearchSelectBatches type="Unfinished Good" required setSelect={setBatch} />}
+        input={<SearchSelectBatches type="Production" required setSelect={setBatch} />}
       />
       <ActiveCurrencyField label="Currency *" />
     </div>

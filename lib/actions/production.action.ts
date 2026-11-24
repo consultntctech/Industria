@@ -295,7 +295,7 @@ export async function createProduction(
 
       const goodResult = await Good.bulkWrite(goodOps, { session });
       if (goodResult.matchedCount !== goodOps.length) {
-        throw new Error("Raw stock of a good changed while creating production. Please retry.");
+        throw new Error("Work-in-progress stock of a good changed while creating production. Please retry.");
       }
 
       for (const good of goodDocs) {
@@ -303,8 +303,8 @@ export async function createProduction(
 
         if (good.raw <= threshold) {
           alerts.push({
-            title: "Processed Goods Stock Critical",
-            body: `${good.name} has reached its raw threshold (${good.raw}).`,
+            title: "Work in Progress Stock Critical",
+            body: `${good.name} has reached its work-in-progress threshold (${good.raw}).`,
             type: "error",
             item: good._id,
             itemModel: "Good",
@@ -313,8 +313,8 @@ export async function createProduction(
           });
         } else if (good.raw <= threshold + 5) {
           alerts.push({
-            title: "Processed Goods Stock Warning",
-            body: `${good.name} is running low on raw stock (${good.raw}).`,
+            title: "Work in Progress Stock Warning",
+            body: `${good.name} is running low on work in progress (${good.raw}).`,
             type: "warning",
             item: good._id,
             itemModel: "Good",
@@ -731,8 +731,8 @@ export async function updateProductionGoods(
 
       if (good.raw <= threshold) {
         alerts.push({
-          title: "Processed Goods Stock Critical",
-          body: `${good.name} has reached its raw threshold (${good.raw}).`,
+          title: "Work in Progress Stock Critical",
+          body: `${good.name} has reached its work-in-progress threshold (${good.raw}).`,
           type: "error",
           item: good._id,
           itemModel: "Good",
@@ -741,8 +741,8 @@ export async function updateProductionGoods(
         });
       } else if (good.raw <= threshold + 5) {
         alerts.push({
-          title: "Processed Goods Stock Warning",
-          body: `${good.name} is running low on raw stock (${good.raw}).`,
+          title: "Work in Progress Stock Warning",
+          body: `${good.name} is running low on work in progress (${good.raw}).`,
           type: "warning",
           item: good._id,
           itemModel: "Good",
@@ -1051,8 +1051,8 @@ async function applyGoodStock(
       good.raw,
       good.threshold ?? 0,
       {
-        critical: ["Processed Goods Stock Critical", `${good.name} has reached its raw threshold (${good.raw}).`],
-        warning: ["Processed Goods Stock Warning", `${good.name} is running low on raw stock (${good.raw}).`],
+        critical: ["Work in Progress Stock Critical", `${good.name} has reached its work-in-progress threshold (${good.raw}).`],
+        warning: ["Work in Progress Stock Warning", `${good.name} is running low on work in progress (${good.raw}).`],
       },
       good._id, "Good", meta
     );

@@ -19,7 +19,7 @@ export const ProductMiniColumns = (
             headerName: 'Product Type',
             width:120,
             valueFormatter: (_, row:IProductWithStock)=>{
-                const type  = row?.type === 'Raw Material' ? 'Raw Materials' : 'Unfinished Goods';
+                const type  = row?.type === 'Raw Material' ? 'Raw Materials' : 'Processed Goods';
                 return type;
             }
         },

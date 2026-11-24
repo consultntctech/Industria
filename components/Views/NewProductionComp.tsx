@@ -247,7 +247,7 @@ const NewProductionComp = () => {
                         <InputWithLabel onChange={onChange} name="name" required placeholder="eg. Coffee Production" label="Give it a name" className="w-full" />
                         <GenericLabel
                             label="Select batch"
-                            input={<SearchSelectBatches type="Unfinished Good" required={true} setSelect={setBatch} />}
+                            input={<SearchSelectBatches type="Production" required={true} setSelect={setBatch} />}
                         />
                         <GenericLabel
                             label="Select supervisors"
@@ -263,7 +263,7 @@ const NewProductionComp = () => {
                         /> */}
                         <GenericLabel
                             label="Product to produce"
-                            input={<SearchSelectProducts type="Unfinished Good" required={true} setSelect={setProductToProduce} />}
+                            input={<SearchSelectProducts type="Processed Good" required={true} setSelect={setProductToProduce} />}
                         />
                         <InputWithLabel onChange={onChange} name="xquantity" required type="number" min={1} placeholder="10" label="Expected output quantity" className="w-full" />
                         <ActiveCurrencyField />
@@ -305,17 +305,17 @@ const NewProductionComp = () => {
                                 </div>
                             }
                             <GenericLabel
-                                label="Select finished batch"
+                                label="Pick a batch to select work in progress"
                                 input={<SearchSelectBatchesWithFinshed  setSelect={setGoodBatch} />}
                             />
                             <GenericLabel
-                                label="Select unfinished goods"
+                                label="Select work in progress"
                                 input={<SearchSelectMultipleGoodsWithRM  setSelection={setGoods} batchId={goodBatch} />}
                             />
                             {
                                 goods?.length > 0 &&
                                 <div className="flex flex-col w-full border border-gray-200 p-2  gap-2 rounded-xl">
-                                    <span className="subtitle text-gray-500 gap-2" >Unfinished Goods</span>
+                                    <span className="subtitle text-gray-500 gap-2" >Work in Progress</span>
                                     <div className="flex flex-row flex-wrap items-center gap-2">
                                         {
                                             goods.map((material, index)=>{

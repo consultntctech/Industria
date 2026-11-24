@@ -67,7 +67,7 @@ const SOURCES: Source[] = [
   { tableId: "55", group: "Batches", model: Batch, fields: ["code"], title: (d) => String(d.code), subtitle: (d) => str(d.type), href: (id) => `/dashboard/products/batches?Id=${id}` },
   { tableId: "87", group: "Raw materials", model: RMaterial, fields: ["materialName"], title: (d) => String(d.materialName), subtitle: (d) => str(d.qStatus), href: (id) => `/dashboard/products/raw-materials?Id=${id}` },
   { tableId: "8", group: "Production", model: Production, fields: ["name"], title: (d) => String(d.name), subtitle: (d) => str(d.status), href: (id) => `/dashboard/processing/production/${id}` },
-  { tableId: "88", group: "Unfinished goods", model: Good, fields: ["name", "serialName"], title: (d) => String(d.name), subtitle: (d) => str(d.serialName), href: (id) => `/dashboard/processing/goods?Id=${id}` },
+  { tableId: "88", group: "Processed goods", model: Good, fields: ["name", "serialName"], title: (d) => String(d.name), subtitle: (d) => str(d.serialName), href: (id) => `/dashboard/processing/goods?Id=${id}` },
   { tableId: "91", group: "Labourers", model: Labourer, fields: ["name", "phone", "email"], title: (d) => String(d.name), subtitle: (d) => join(d.phone, d.email), href: (id) => `/dashboard/processing/labourers?Id=${id}` },
   { tableId: "17", group: "Packaging material types", model: ProdType, fields: ["name", "code"], title: (d) => String(d.name), subtitle: (d) => str(d.code), href: (id) => `/dashboard/distribution/materials/types?Id=${id}` },
   { tableId: "12", group: "Packaging material items", model: ProdItem, fields: ["materialName", "name"], title: (d) => String(d.materialName || d.name), subtitle: (d) => str(d.name), href: (id) => `/dashboard/distribution/materials/items?Id=${id}` },

@@ -53,7 +53,7 @@ const PackInputDetails = ({pack, setActiveTab}:PackInputDetailsProps) => {
         </div>
         
         <div className="flex flex-row items-start gap-4">
-          <span className="truncate w-1/2 md:w-1/5" >Unfinished good:</span>
+          <span className="truncate w-1/2 md:w-1/5" >Processed good:</span>
           {
             products.length > 0 &&
             products?.map((item, index)=>{

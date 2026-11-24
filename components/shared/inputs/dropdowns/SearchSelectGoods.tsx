@@ -37,7 +37,7 @@ const SearchSelectGoods = ({setSelect, required, value, width}:SearchSelectGoods
                     {...params}
                     required={required}
                     size="small"
-                    label= "Unfinished Goods"
+                    label= "Processed Goods"
                     color="primary"
                     className="rounded"
                     slotProps={{

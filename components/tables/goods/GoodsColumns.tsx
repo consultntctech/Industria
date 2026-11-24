@@ -92,7 +92,7 @@ export const GoodColumns = (
         },
         {
             field: 'raw',
-            headerName: 'Raw Quantity',
+            headerName: 'Work in Progress',
             width:100,
             headerAlign: 'center',
             align: 'center',
@@ -213,7 +213,7 @@ export const GoodColumns = (
                     <Editor tableId="88" tip="Edit Goods" onClick={()=>handleEdit(params?.row)} />
                     {
                         isEditor &&
-                        <Tooltip title="Deem Goods as Raw Materials">
+                        <Tooltip title="Move to Work in Progress">
                             <LiaShoppingBasketSolid onClick={()=>handleRawMaterial(params?.row)} className="text-blue-700 cursor-pointer" />
                         </Tooltip>
                     }

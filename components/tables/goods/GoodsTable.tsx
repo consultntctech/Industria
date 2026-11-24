@@ -96,7 +96,7 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
     const handleUpdateRaw = async()=>{
         if(!currentGood) return;
         if(raw > goodCount){
-            enqueueSnackbar(`You can only deem ${goodCount} raw materials`, {variant:'error'});
+            enqueueSnackbar(`You can only move up to ${goodCount} to work in progress`, {variant:'error'});
             return;
         }
         const goodData: Partial<IGood> = {
@@ -127,7 +127,7 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
     // }
 
 
-    // const content = currentGood ? `Are you sure you want to delete Unfinished Goods ${currentGood.name} ? This will also delete all packaged items for these goods.` : '';
+    // const content = currentGood ? `Are you sure you want to delete Processed Goods ${currentGood.name} ? This will also delete all packaged items for these goods.` : '';
 
   return (
     <div className='table-main2' >
@@ -136,14 +136,14 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
             open={showRaw} 
             handleClose={handleClose} 
             agreeClick={handleUpdateRaw} 
-            title="Deem Raw Materials" 
-            content="The value you provide here will be deducted from the processed quantity. This value can be changed any time." 
+            title="Move to Work in Progress" 
+            content="This quantity will be held as work in progress for use in other productions, and deducted from the quantity available to package. You can change it any time." 
             onChange={(e)=>setRaw(Number(e.target.value))}
             type='number'
             defaultValue={currentGood?.raw}
             required
             error={raw > goodCount}
-            helperText={`You can only deem ${goodCount} raw materials`}
+            helperText={`You can only move up to ${goodCount} to work in progress`}
             slotProps={{
                 htmlInput:{
                     min:0, max: goodCount, step:0.01

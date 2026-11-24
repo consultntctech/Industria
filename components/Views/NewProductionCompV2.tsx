@@ -26,7 +26,7 @@ import StepFinalReview from "../shared/outputs/productionDetails/newProd/StepFin
 
 const WIZARD_STEPS = [
   { step: 1, title: "Basic Info", desc: "Product, Batch & Currency" },
-  { step: 2, title: "Materials & Goods", desc: "Raw materials & Processed goods" },
+  { step: 2, title: "Materials & Goods", desc: "Raw materials & work in progress" },
   { step: 3, title: "Labour Costs", desc: "Labourers & spend allocation" },
   { step: 4, title: "Personnel", desc: "Supervisors & employees" },
   { step: 5, title: "Final Review", desc: "Output qty & submission" },
@@ -91,7 +91,7 @@ const NewProductionCompV2 = () => {
     setIngredients((prev) => prev.filter((ing) => validIds.has(ing.materialId)));
   }, [rawMaterials]);
 
-  // Clean unfinished goods ingredients on selection change
+  // Clean work-in-progress ingredients on selection change
   useEffect(() => {
     const validIds = new Set(goods.map((gd) => gd._id));
     setFinishedIngredients((prev) => prev.filter((ing) => validIds.has(ing.materialId)));
@@ -288,7 +288,7 @@ const validateAndNext = () => {
       const material = goods.find((rm) => rm._id === ing.materialId);
       if (ing.qUsed > 0 && Number(material?.raw || 0) < ing.qUsed) {
         enqueueSnackbar(
-          `Insufficient processed goods for ${material?.serialName}. Available: ${material?.raw}, Required: ${ing.qUsed}`,
+          `Insufficient work in progress for ${material?.serialName}. Available: ${material?.raw}, Required: ${ing.qUsed}`,
           { variant: "warning" }
         );
         hasStockError = true;

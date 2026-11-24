@@ -19,8 +19,8 @@ const ProdProductsComp = ({ production, openWizard }:ProdProductsCompProps) => {
     <div className="flex flex-col gap-5" >
         <span className='font-bold text-xl' >Products</span>
         <CustomTabs
-            FirstTabText="Raw" activeTab={activeTab} onClickFirstTab={()=>setActiveTab('first')}
-            SecondTabText="Unfinished" onClickSecondTab={()=>setActiveTab('second')} showSecondTab={true}
+            FirstTabText="Raw Materials" activeTab={activeTab} onClickFirstTab={()=>setActiveTab('first')}
+            SecondTabText="Work in Progress" onClickSecondTab={()=>setActiveTab('second')} showSecondTab={true}
         />
         <ProductionContentModal openNew={openNew} setOpenNew={setOpenNew}  production={production} />
         <ProductionGoodsModal openGoods={openGoods} setOpenGoods={setOpenGoods}  production={production} />

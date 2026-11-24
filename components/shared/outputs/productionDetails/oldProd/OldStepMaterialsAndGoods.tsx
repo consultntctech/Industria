@@ -104,15 +104,15 @@ const OldStepMaterialsAndGoods: React.FC<OldStepMaterialsAndGoodsProps> = ({
         )}
       </div>
 
-      {/* Unfinished Goods Section */}
+      {/* Work in Progress Section */}
       <div className="space-y-4 bg-slate-50/50 p-4 rounded-xl border border-slate-200/60">
-        <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Unfinished Goods</h3>
+        <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Work in Progress</h3>
         <GenericLabel
-          label="Select unfinished batch"
-          input={<SearchSelectBatches type="Unfinished Good" setSelect={setGoodBatch} />}
+          label="Pick a batch to select work in progress"
+          input={<SearchSelectBatches type="Production" setSelect={setGoodBatch} />}
         />
         <GenericLabel
-          label="Select unfinished goods"
+          label="Select work in progress"
           input={<SearchSelectMultipleGoodsWithRM value={savedFinishedGoods} setSelection={setGoods} batchId={goodBatch} />}
         />
 

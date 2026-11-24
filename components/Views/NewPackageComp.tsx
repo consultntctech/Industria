@@ -269,9 +269,9 @@ const NewPackageComp = () => {
                 />
                 <GenericLabel
                     label="Product to package"
-                    input={<SearchSelectProducts type='Unfinished Good' required setSelect={setProduct} />}
+                    input={<SearchSelectProducts type='Processed Good' required setSelect={setProduct} />}
                 />
-                <GenericLabel label='Unfinished goods'
+                <GenericLabel label='Processed goods'
                     input={<SearchSelectAvMultipleGoods productId={product?._id as string} setSelection={setGoods} />}
                 />
                 {

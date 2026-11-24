@@ -48,7 +48,7 @@ const ProductInfoModal = ({infoMode, setInfoMode, currentProduct, setCurrentProd
             <div className="flex flex-col">
                 <span className="mlabel">Type</span>
                 <span className="mtext">{currentProduct?.type}</span>
-                {/* <span className="mtext">{currentProduct?.type === 'Unfinished Goods' ? 'Unfinished Good' : currentProduct?.type}</span> */}
+                {/* <span className="mtext">{currentProduct?.type === 'Processed Goods' ? 'Processed Good' : currentProduct?.type}</span> */}
             </div>
             <div className="flex flex-col">
                 <span className="mlabel">Category</span>

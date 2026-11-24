@@ -63,7 +63,7 @@ const PackageInfoModal = ({infoMode, setInfoMode, currentPackage, setCurrentPack
                 <span className="mtext">{currentPackage?.packagingType}</span>
             </div>
             <div className="flex flex-col">
-                <span className="mlabel">Unfinished Good</span>
+                <span className="mlabel">Processed Good</span>
                 {
                     product ?
                     <Linker tableId='88' link={`/dashboard/processing/goods?Id=${product?._id}`} linkStyle="mtext link" spanStyle='mtext' placeholder={product?.name} />

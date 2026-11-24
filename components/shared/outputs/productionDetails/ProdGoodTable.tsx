@@ -56,7 +56,7 @@ const ProdGoodTable = ({openWizard, production}:ProdGoodTableProps) => {
   return (
     <div className='table-main2' >
         <div className="flex flex-row items-center gap-6">
-            <span className='font-bold text-base' >Unfinished Goods</span>
+            <span className='font-bold text-base' >Work in Progress</span>
             {
                 !(production?.status === 'Pending Approval' || production?.status === 'Approved') && isEditor &&
                 <Tooltip title="Edit production content">

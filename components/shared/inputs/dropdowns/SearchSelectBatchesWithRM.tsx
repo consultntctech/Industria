@@ -8,7 +8,7 @@ type SearchSelectBatchesWithRMProps = {
     value?: IBatch | null,
     width?: number,
     required?:boolean,
-    // type?:'Raw Material'|'Unfinished Good'
+    // type?:'Raw Material'|'Production'
 }
 const SearchSelectBatchesWithRM = ({setSelect,  required, value, width}:SearchSelectBatchesWithRMProps) => {
     const {batches, isPending} = useFetchBatchesWithRMaterials();

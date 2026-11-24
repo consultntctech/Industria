@@ -8,7 +8,7 @@ type SearchSelectBatchesProps = {
     value?: IBatch | null,
     width?: number,
     required?:boolean,
-    type?:'Raw Material'|'Unfinished Good' |'Packaging' | 'Packaging Material',
+    type?:'Raw Material'|'Production' |'Packaging' | 'Packaging Material',
     disabled?:boolean
 }
 const SearchSelectBatches = ({setSelect, type, required, value, width, disabled}:SearchSelectBatchesProps) => {

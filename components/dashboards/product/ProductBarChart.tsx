@@ -26,7 +26,7 @@ const ProductBarChart = ({stats, isPending}:ProductBarChartProps) => {
             <select onChange={(e)=>setType(e.target.value as IProductType | '')} className={`outline-none w-fit border-1 border-gray-300 rounded px-2 py-1 self-end`}  >
                 <option  value="">All</option>
                 <option  value="Raw Material">Raw Material</option>
-                <option value="Unfinished Good">Unfinished Good</option>
+                <option value="Processed Good">Processed Good</option>
             </select>            
         </div>
         {

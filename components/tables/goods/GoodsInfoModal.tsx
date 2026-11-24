@@ -76,7 +76,7 @@ const GoodsInfoModal = ({infoMode, setInfoMode, currentGood, setCurrentGood}:Goo
                 <span className="mtext">{currentGood?.quantityLeftToPackage}</span>
             </div>
             <div className="flex flex-col">
-                <span className="mlabel">Raw Quantity</span>
+                <span className="mlabel">Work in Progress</span>
                 <span className="mtext">{currentGood?.raw || 0}</span>
             </div>
 

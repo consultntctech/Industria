@@ -79,15 +79,15 @@ const StepMaterialsAndGoods: React.FC<StepMaterialsAndGoodsProps> = ({
         )}
       </div>
 
-      {/* Unfinished Goods Section */}
+      {/* Work in Progress Section */}
       <div className="space-y-4 bg-slate-50/50 p-4 rounded-xl border border-slate-200/60">
-        <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Unfinished Goods</h3>
+        <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Work in Progress</h3>
         <GenericLabel
-          label="Select unfinished batch"
+          label="Pick a batch to select work in progress"
           input={<SearchSelectBatchesWithFinshed setSelect={setGoodBatch} />}
         />
         <GenericLabel
-          label="Select unfinished goods"
+          label="Select work in progress"
           input={<SearchSelectMultipleGoodsWithRM setSelection={setGoods} batchId={goodBatch} />}
         />
 

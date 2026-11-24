@@ -28,7 +28,7 @@ const OldGoodQSelector: React.FC<OldGoodQSelectorProps> = ({
           {/* {`${product?.name || material?.serialName} (${batch?.code})`} */}
         </span>
         <span className="text-[10px] uppercase font-bold tracking-wider bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md border border-emerald-100">
-          Unfin Good
+          WIP
         </span>
       </div>
 

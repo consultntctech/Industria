@@ -180,19 +180,19 @@ const ProductionGoodsModal = ({openGoods, setOpenGoods, production}:ProductionGo
                                openGoods &&
                                 <>
                                     <GenericLabel
-                                        label="Pick a batch to select processed goods"
-                                        input={<SearchSelectBatches value={batch} type="Unfinished Good" setSelect={setProductBatchId} />}
+                                        label="Pick a batch to select work in progress"
+                                        input={<SearchSelectBatches value={batch} type="Production" setSelect={setProductBatchId} />}
                                     />
                                     
                                     <GenericLabel
-                                        label="Select processed goods"
+                                        label="Select work in progress"
                                         input={<SearchSelectMultipleGoodsWithRM value={oldGoods} setSelection={setGoods} batchId={productBatchId} />}
                                     />
 
                                     {
                                         goods.length > 0 && 
                                         <div className="flex flex-col w-full border border-gray-200 p-2  gap-2 rounded-xl">
-                                            <span className="subtitle text-gray-500 gap-2" >Processed Goods</span>
+                                            <span className="subtitle text-gray-500 gap-2" >Work in Progress</span>
                                             <div className="flex flex-row flex-wrap items-center gap-2">
                                                 {
                                                     goods.map((material, index)=>{

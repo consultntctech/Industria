@@ -26,7 +26,8 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
   const formRef = useRef<HTMLFormElement>(null);
   const [config, setConfig] = useState<string>('');
   const [isConfig, setIsConfig] = useState<boolean>(true);
-  const [data, setData] = useState<Partial<IBatch>>({type:'Raw Material', isConfig:false});
+  const defaultData: Partial<IBatch> = {type:'Raw Material', isConfig:false};
+  const [data, setData] = useState<Partial<IBatch>>(defaultData);
   const {user} = useAuth();
   const {refetch} = useBatches();
 
@@ -41,16 +42,24 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
     if(currentBatch){
       setData({...currentBatch});
       setIsConfig(currentBatch?.isConfig);
+      setConfig((currentBatch?.config as IBatchConfig)?._id || '');
     }else{
-      setData({});// Reset form data when currentUser is null
+      // Reset to defaults so a new batch always has a type
+      setData(defaultData);
+      setIsConfig(true);
+      setConfig('');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   },  [currentBatch])
 
 
   const handleClose = ()=>{
     setOpenNew(false);
     setCurrentBatch(null);
-    setData({type:'Raw Material', isConfig:false});
+    setData(defaultData);
+    setIsConfig(true);
+    setConfig('');
+    formRef.current?.reset();
   }
 
 
@@ -58,13 +67,20 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
     e.preventDefault();
     setLoading(true);
     try {
-      const batchData:Partial<IBatch> = isConfig ? {...data, isConfig, config, org:user?.org, createdBy:user?._id, creator:user?.name}
-      : {...data, isConfig,  org:user?.org, createdBy:user?._id, creator:user?.name}
+      if(isConfig && !config){
+        enqueueSnackbar('Select a batch configuration', {variant:'error'});
+        return;
+      }
+      const batchData:Partial<IBatch> = {
+        type: data.type || 'Raw Material',
+        isConfig,
+        ...(isConfig ? {config} : {code: data.code}),
+        org:user?.org, createdBy:user?._id, creator:user?.name,
+      };
       const res = await createBatch(batchData);
       enqueueSnackbar(res.message, {variant:res.error ? 'error':'success'});
       if(!res.error){
-        formRef.current?.reset();
-        setOpenNew(false);
+        handleClose();
         refetch();
       }
     } catch (error) {
@@ -80,7 +96,16 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
     setLoading(true);
     
     try {
-      const res = await updateBatch({...data, isConfig});
+      if(isConfig && !config){
+        enqueueSnackbar('Select a batch configuration', {variant:'error'});
+        return;
+      }
+      const res = await updateBatch({
+        _id: currentBatch?._id,
+        type: data.type,
+        isConfig,
+        ...(isConfig ? {config} : {code: data.code}),
+      });
       enqueueSnackbar(res.message, {variant:res.error?'error':'success'});
       if(!res.error){
         formRef.current?.reset();
@@ -137,9 +162,9 @@ const BatchComp = ({openNew, setOpenNew, currentBatch, setCurrentBatch}:BatchCom
                     <GenericLabel 
                       label='Generate for'
                       input={
-                        <select defaultValue={currentBatch?.type} onChange={onSelectChange} name="type" className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
+                        <select value={data.type || 'Raw Material'} onChange={onSelectChange} name="type" className={`outline-none border-1 border-gray-300 rounded px-4 py-1`}  >
                           <option  value="Raw Material">Raw Material</option>
-                          <option value="Unfinished Good">Unfinished Good</option>
+                          <option value="Production">Production</option>
                           <option value="Packaging">Packaging</option>
                           <option value="Packaging Material">Packaging Material</option>
                       </select>
