@@ -23,6 +23,8 @@ const idOf = (v: unknown): string | undefined => {
   return obj._id ? String(obj._id) : String(v);
 };
 
+const isDuplicateKey = (error: unknown) => (error as { code?: number })?.code === 11000;
+
 async function codeExists(org: unknown, code: string, excludeId?: string): Promise<boolean> {
   const filter: Record<string, unknown> = { org, code };
   if (excludeId) filter._id = { $ne: excludeId };
@@ -102,9 +104,18 @@ export async function createBatch(data: Partial<IBatch>): Promise<IResponse> {
       const config = await loadConfig(configId, org);
       if (!config) return respond("Batch configuration not found", true, {}, 404);
 
-      const code = await generateBatchCode(config, org);
-      const newBatch = await Batch.create({ ...base, isConfig: true, config: configId, configType: config.type, code });
-      return respond("Batch code created successfully", false, newBatch, 201);
+      // The unique index rejects a code another request took in the meantime;
+      // generate the next one and try again.
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const code = await generateBatchCode(config, org);
+        try {
+          const newBatch = await Batch.create({ ...base, isConfig: true, config: configId, configType: config.type, code });
+          return respond("Batch code created successfully", false, newBatch, 201);
+        } catch (error) {
+          if (!isDuplicateKey(error)) throw error;
+        }
+      }
+      return respond("Could not reserve a unique batch code. Please try again.", true, {}, 409);
     }
 
     const code = (data.code || "").trim();
@@ -114,6 +125,7 @@ export async function createBatch(data: Partial<IBatch>): Promise<IResponse> {
     const newBatch = await Batch.create({ ...base, isConfig: false, code });
     return respond("Batch code created successfully", false, newBatch, 201);
   } catch (error) {
+    if (isDuplicateKey(error)) return respond("This batch code already exists", true, {}, 409);
     console.error(error);
     return respond("Error occurred while creating batch code", true, {}, 500);
   }
@@ -170,6 +182,7 @@ export async function updateBatch(data: Partial<IBatch>): Promise<IResponse> {
     const updatedBatch = await Batch.findByIdAndUpdate(data._id, update, { new: true });
     return respond("Batch code updated successfully", false, updatedBatch, 200);
   } catch (error) {
+    if (isDuplicateKey(error)) return respond("This batch code already exists. Please try again.", true, {}, 409);
     console.error(error);
     return respond("Error occurred while updating batch code", true, {}, 500);
   }

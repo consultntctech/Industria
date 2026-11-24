@@ -32,7 +32,8 @@ const BatchSchema = new Schema<IBatch>({
 
 // Indexes match the filters used by lib/actions (org-scoped lists sorted by date, lookups by parent).
 BatchSchema.index({ org: 1, createdAt: -1 });
-BatchSchema.index({ org: 1, code: 1 });
+// Batch codes are unique per organization (see scripts/batch-code-unique-index.mjs).
+BatchSchema.index({ org: 1, code: 1 }, { unique: true });
 
 const Batch = models?.Batch || model<IBatch>('Batch', BatchSchema);
 export default Batch;
