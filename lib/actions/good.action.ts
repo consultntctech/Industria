@@ -17,7 +17,7 @@ export async function createGood(data: Partial<IGood>): Promise<IResponse> {
     await connectDB();
 
     if (!data.name) {
-      return respond("Name is required to create ununfinished goods", true, {}, 400);
+      return respond("Name is required to create unfinished goods", true, {}, 400);
     }
 
     // 1️⃣ Build prefix based on name (first 3 letters)

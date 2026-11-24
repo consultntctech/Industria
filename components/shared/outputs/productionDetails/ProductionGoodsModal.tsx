@@ -181,7 +181,7 @@ const ProductionGoodsModal = ({openGoods, setOpenGoods, production}:ProductionGo
                                 <>
                                     <GenericLabel
                                         label="Pick a batch to select processed goods"
-                                        input={<SearchSelectBatches value={batch} type="Finished Good" setSelect={setProductBatchId} />}
+                                        input={<SearchSelectBatches value={batch} type="Unfinished Good" setSelect={setProductBatchId} />}
                                     />
                                     
                                     <GenericLabel

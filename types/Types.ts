@@ -180,7 +180,7 @@ export interface IProductStats{
 }
 
 
-export type IProductType = 'Raw Material' | 'Finished Good'
+export type IProductType = 'Raw Material' | 'Unfinished Good'
 
 
 export interface IProductCardData{

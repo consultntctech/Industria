@@ -91,7 +91,7 @@ const NewProductionCompV2 = () => {
     setIngredients((prev) => prev.filter((ing) => validIds.has(ing.materialId)));
   }, [rawMaterials]);
 
-  // Clean finished goods ingredients on selection change
+  // Clean unfinished goods ingredients on selection change
   useEffect(() => {
     const validIds = new Set(goods.map((gd) => gd._id));
     setFinishedIngredients((prev) => prev.filter((ing) => validIds.has(ing.materialId)));

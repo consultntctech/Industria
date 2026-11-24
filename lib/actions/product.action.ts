@@ -127,7 +127,7 @@ export async function getProducts(): Promise<IResponse> {
 
     const productsWithStock = products.map(product => {
       const idStr = product._id.toString();
-      const stock = product.type === 'Finished Good'
+      const stock = product.type === 'Unfinished Good'
         ? (lineItemMap.get(idStr) ?? 0)
         : (rMaterialMap.get(idStr) ?? 0);
 
@@ -170,7 +170,7 @@ export async function getProductsByOrg(orgId: string): Promise<IResponse> {
 
     const productsWithStock = products.map(product => {
       const idStr = product._id.toString();
-      const stock = product.type === 'Finished Good'
+      const stock = product.type === 'Unfinished Good'
         ? (lineItemMap.get(idStr) ?? 0)
         : (rMaterialMap.get(idStr) ?? 0);
 
@@ -243,7 +243,7 @@ export async function getProduct(id: string): Promise<IResponse> {
 
     const product = check.doc;
 
-    const stock = product.type === 'Finished Good'
+    const stock = product.type === 'Unfinished Good'
       ? await LineItem.countDocuments({ product: product._id, status: 'Available' })
       : await RMaterial.aggregate([
           { $match: { product: product._id } },

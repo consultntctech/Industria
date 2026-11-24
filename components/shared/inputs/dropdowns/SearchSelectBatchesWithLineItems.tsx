@@ -8,7 +8,7 @@ type SearchSelectBatchesWithLineItemsProps = {
     value?: IBatch | null,
     width?: number,
     required?:boolean,
-    // type?:'Raw Material'|'Finished Good'
+    // type?:'Raw Material'|'Unfinished Good'
 }
 const SearchSelectBatchesWithLineItems = ({setSelect,  required, value, width}:SearchSelectBatchesWithLineItemsProps) => {
     const {batches, isPending} = useFetchBatchesWithLineItems();

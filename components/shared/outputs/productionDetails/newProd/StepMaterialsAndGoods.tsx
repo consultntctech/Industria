@@ -79,7 +79,7 @@ const StepMaterialsAndGoods: React.FC<StepMaterialsAndGoodsProps> = ({
         )}
       </div>
 
-      {/* Finished Goods Section */}
+      {/* Unfinished Goods Section */}
       <div className="space-y-4 bg-slate-50/50 p-4 rounded-xl border border-slate-200/60">
         <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Unfinished Goods</h3>
         <GenericLabel

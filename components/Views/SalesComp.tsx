@@ -204,7 +204,7 @@ const SalesComp = ({openNew, setOpenNew, currentSales, setCurrentSales}:SalesCom
                     <div className="flex flex-col gap-4 w-full">
                         {/* <div className="flex gap-4 flex-col w-full md:flex-row ">
                             <GenericLabel label="Product"
-                                input={<SearchSelectProducts required={!currentSales} type="Finished Good" setSelect={setProduct} />}
+                                input={<SearchSelectProducts required={!currentSales} type="Unfinished Good" setSelect={setProduct} />}
                             />
                             <GenericLabel label="Batch (optional)"
                                 input={<SearchSelectBatchesWithLineItems setSelect={setBatch} />}

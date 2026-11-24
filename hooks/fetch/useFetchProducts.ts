@@ -4,7 +4,7 @@ import { IProductStats } from "@/types/Types";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
 
-export const useFetchProducts = (type?:'Raw Material'|'Finished Good'|'Packaging') => {
+export const useFetchProducts = (type?:'Raw Material'|'Unfinished Good'|'Packaging') => {
     const {user} = useAuth();
     const fetchProducts = async():Promise<IProduct[]>=>{
         try {

@@ -38,7 +38,7 @@ const handleAdd = () => {
 
   return (
     <div className={twMerge('flex flex-row gap-3 bg-white rounded-md p-4 md:p-6 border border-gray-200', className)} {...props} >
-        <GenericLabel className="md:w-[43%]" label="Select product" input={<SearchSelectProducts type='Finished Good' value={product} required={required} setSelect={setProduct} />} />
+        <GenericLabel className="md:w-[43%]" label="Select product" input={<SearchSelectProducts type='Unfinished Good' value={product} required={required} setSelect={setProduct} />} />
         {
             product &&
             <SecondaryButton type='button' text="Add" onClick={handleAdd} className="w-fit px-2 py-1 self-end text-sm font-light"  />

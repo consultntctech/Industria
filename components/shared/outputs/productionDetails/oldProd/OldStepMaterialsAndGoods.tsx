@@ -104,12 +104,12 @@ const OldStepMaterialsAndGoods: React.FC<OldStepMaterialsAndGoodsProps> = ({
         )}
       </div>
 
-      {/* Finished Goods Section */}
+      {/* Unfinished Goods Section */}
       <div className="space-y-4 bg-slate-50/50 p-4 rounded-xl border border-slate-200/60">
         <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Unfinished Goods</h3>
         <GenericLabel
           label="Select unfinished batch"
-          input={<SearchSelectBatches type="Finished Good" setSelect={setGoodBatch} />}
+          input={<SearchSelectBatches type="Unfinished Good" setSelect={setGoodBatch} />}
         />
         <GenericLabel
           label="Select unfinished goods"

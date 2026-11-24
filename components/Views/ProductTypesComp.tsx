@@ -42,7 +42,7 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
     const savedCategory = currentProduct?.category as ICategory;
 
     useEffect(()=>{
-        if(data?.type === 'Finished Good'){
+        if(data?.type === 'Unfinished Good'){
             setShowSuppliers(false);
         }else{
             setShowSuppliers(true);
@@ -169,7 +169,7 @@ const ProductTypesComp = ({openNew, setOpenNew, currentProduct, setCurrentProduc
                     <option  value="Raw Material">Raw Material</option>
                     <option  value="Work in Progress">Work in Progress</option>
                     {/* <option  value="Packaging Material">Packaging Material</option> */}
-                    <option value="Finished Good">Finished Good</option>
+                    <option value="Unfinished Good">Unfinished Good</option>
                 </select>
                 }
               />

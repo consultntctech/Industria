@@ -127,7 +127,7 @@ const GoodTable = ({setOpenNew, currentGood, setCurrentGood}:GoodTableProps) => 
     // }
 
 
-    // const content = currentGood ? `Are you sure you want to delete Finished Goods ${currentGood.name} ? This will also delete all packaged items for these goods.` : '';
+    // const content = currentGood ? `Are you sure you want to delete Unfinished Goods ${currentGood.name} ? This will also delete all packaged items for these goods.` : '';
 
   return (
     <div className='table-main2' >

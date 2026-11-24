@@ -198,9 +198,9 @@ const PackInputDetailsModal = ({pack, openNew, setOpenNew}:PackInputDetailsModal
                         />
                          <GenericLabel
                             label="Product to package"
-                            input={<SearchSelectProducts value={savedProduct} type='Finished Good' required setSelect={setProduct} />}
+                            input={<SearchSelectProducts value={savedProduct} type='Unfinished Good' required setSelect={setProduct} />}
                         />
-                        <GenericLabel label='Finished goods'
+                        <GenericLabel label='Unfinished goods'
                             input={<SearchSelectAvMultipleGoods df={savedGoods} productId={product?._id as string} setSelection={setNewGoods} />}
                         />
                         {

@@ -32,11 +32,11 @@ const OldStepBasicInfo: React.FC<OldStepBasicInfoProps> = ({
 
         <GenericLabel
           label="Product to Produce *"
-          input={<SearchSelectProducts value={productToProduce} type="Finished Good" required={!productToProduce} setSelect={setProductToProduce} />}
+          input={<SearchSelectProducts value={productToProduce} type="Unfinished Good" required={!productToProduce} setSelect={setProductToProduce} />}
         />
         <GenericLabel
           label="Select Batch *"
-          input={<SearchSelectBatches value={batch} type="Finished Good" required={!batch} setSelect={setBatch} />}
+          input={<SearchSelectBatches value={batch} type="Unfinished Good" required={!batch} setSelect={setBatch} />}
         />
         <ActiveCurrencyField label="Currency *" savedCurrency={currency} />
         <InputWithLabel

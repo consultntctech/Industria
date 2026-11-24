@@ -8,7 +8,7 @@ type SearchSelectBatchesWithFinshedProps = {
     value?: IBatch | null,
     width?: number,
     required?:boolean,
-    // type?:'Raw Material'|'Finished Good'
+    // type?:'Raw Material'|'Unfinished Good'
 }
 const SearchSelectBatchesWithFinshed = ({setSelect,  required, value, width}:SearchSelectBatchesWithFinshedProps) => {
     const {batches, isPending} = useFetchBatchesWithFinshedMaterials();

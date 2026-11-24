@@ -206,7 +206,7 @@ const OrderComp = ({openNew, setOpenNew, currentOrder, setCurrentOrder}:OrderCom
                     <GenericLabel className="flex-row items-center gap-6" label="Use current rate" input={<CustomCheckV2 checked={useRate} setChecked={setUseRate} />} />
                   }
                   {/* <GenericLabel label="Select product"
-                    input={<SearchSelectProducts value={savedProduct} setSelect={setProduct} type="Finished Good" />}
+                    input={<SearchSelectProducts value={savedProduct} setSelect={setProduct} type="Unfinished Good" />}
                   />
                   <InputWithLabel defaultValue={currentOrder?.quantity} onChange={onChange} name="quantity"  min={0} step={0.01}  label="Enter quantity" className="w-full" /> */}
                   <InputWithLabel defaultValue={original?.amount} placeholder="this is optional"  onChange={(e)=>setCost(Number(e.target.value))} name="price"  min={0} step={0.01}  label={otherCurrency ? otherLabel : costLabel} className="w-full" />

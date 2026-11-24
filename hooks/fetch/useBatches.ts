@@ -3,7 +3,7 @@ import { IBatch } from "@/lib/models/batch.model"
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "../useAuth";
 
-export const useBatches = (type?:'Raw Material'|'Finished Good' |'Packaging' | 'Packaging Material') => {
+export const useBatches = (type?:'Raw Material'|'Unfinished Good' |'Packaging' | 'Packaging Material') => {
     const {user} = useAuth();
     const fetchBatches = async ():Promise<IBatch[]> => {
         try {

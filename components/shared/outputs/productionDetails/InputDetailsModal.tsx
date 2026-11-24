@@ -155,7 +155,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
                     <InputWithLabel defaultValue={production?.name} onChange={onChange} name="name" required placeholder="eg. Coffee Production" label="Give it a name" className="w-full" />
                     <GenericLabel
                         label="Select batch"
-                        input={<SearchSelectBatches type="Finished Good" value={batched} required={true} setSelect={setBatch} />}
+                        input={<SearchSelectBatches type="Unfinished Good" value={batched} required={true} setSelect={setBatch} />}
                     />
                     <GenericLabel
                         label="Select supervisor"
@@ -163,7 +163,7 @@ const InputDetailsModal = ({production, openNew, setOpenNew}:InputDetailsModalPr
                     />
                     <GenericLabel
                         label="Product to produce"
-                        input={<SearchSelectProducts value={productToProd} type="Finished Good" required={true} setSelect={setProductToProduce} />}
+                        input={<SearchSelectProducts value={productToProd} type="Unfinished Good" required={true} setSelect={setProductToProduce} />}
                     />
                     <InputWithLabel onChange={onChange} defaultValue={production?.xquantity} name="xquantity" required type="number" min={1} placeholder="10" label="Expected output quantity" className="w-full" />
                 </div>
