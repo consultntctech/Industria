@@ -1,5 +1,6 @@
 'use client'
 import { useState } from "react";
+import ImportButton from "../import/ImportButton";
 import ProductTypesComp from "../Views/ProductTypesComp"
 import { useSettings } from "@/config/useSettings";
 import Title from "../misc/Title";
@@ -18,10 +19,13 @@ const ProductTypes = () => {
     <div className="flex flex-col w-full gap-8 ml-4 md:ml-4">
         <div className="flex flex-row items-center justify-between w-full">
             <Title title="Products" isLink={false}/>
-            {
-              isCreator &&
-              <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
-            }
+            <div className="flex flex-row items-center gap-3">
+              <ImportButton entity="products" />
+              {
+                isCreator &&
+                <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
+              }
+            </div>
         </div>
         <PermissionGuard tableId={['28']} >
           <ProductTypesComp openNew={openNew} setOpenNew={setOpenNew} currentProduct={currentProduct} setCurrentProduct={setCurrentProduct} />

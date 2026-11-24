@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import TopContent from "../misc/TopContent";
+import ImportButton from "../import/ImportButton";
 import ProdItemComp from "../Views/ProdItemComp";
 import ProdItemTable from "../tables/proditems/ProdItemTable";
 import { IProdItem } from "@/lib/models/proditem.model";
@@ -14,7 +15,7 @@ const ProdItems = () => {
     const isCreator = useCanUser( '12', 'CREATE');
 
   return (
-    <TopContent showAdd={isCreator} isLink={false} title="Packaging Material Items" openNew={openNew} setOpenNew={setOpenNew}>
+    <TopContent actions={<ImportButton entity="packagingItems" />} showAdd={isCreator} isLink={false} title="Packaging Material Items" openNew={openNew} setOpenNew={setOpenNew}>
       <PermissionGuard tableId={['12']} >
         <ProdItemComp currentProdItem={currentProdItem} setCurrentProdItem={setCurrentProdItem} openNew={openNew} setOpenNew={setOpenNew}/>
         <ProdItemTable setOpenNew={setOpenNew} currentProdItem={currentProdItem} setCurrentProdItem={setCurrentProdItem} />

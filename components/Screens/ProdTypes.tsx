@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import TopContent from "../misc/TopContent";
+import ImportButton from "../import/ImportButton";
 
 import { PermissionGuard } from "@/hooks/permissions/PermissionProvider";
 import {  useCanUser } from "@/hooks/useAuth";
@@ -15,7 +16,7 @@ const ProdTypes = () => {
     const isCreator = useCanUser( '17', 'CREATE');
 
   return (
-    <TopContent showAdd={isCreator} isLink={false} title="Packaging Material Types" openNew={openNew} setOpenNew={setOpenNew}>
+    <TopContent actions={<ImportButton entity="packagingTypes" />} showAdd={isCreator} isLink={false} title="Packaging Material Types" openNew={openNew} setOpenNew={setOpenNew}>
       <PermissionGuard tableId={['17']} >
         <ProdTypeComp currentProdType={currentProdType} setCurrentProdType={setCurrentProdType} openNew={openNew} setOpenNew={setOpenNew}/>
         <ProdTypesTable setOpenNew={setOpenNew} currentProdType={currentProdType} setCurrentProdType={setCurrentProdType} />

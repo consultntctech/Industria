@@ -1,5 +1,6 @@
 'use client'
 import  { useState } from 'react'
+import ImportButton from "../import/ImportButton";
 import Title from '../misc/Title'
 import { IoMdAddCircle } from 'react-icons/io'
 import ProdCatComp from '../Views/ProdCatComp';
@@ -18,10 +19,13 @@ const ProductCats = () => {
     <div className="flex flex-col w-full gap-8 ml-4 md:ml-4">
         <div className="flex flex-row items-center justify-between w-full">
             <Title title="Categories" isLink={false}/>
-            {
-              isCreator &&
-              <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
-            }
+            <div className="flex flex-row items-center gap-3">
+              <ImportButton entity="categories" />
+              {
+                isCreator &&
+                <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
+              }
+            </div>
         </div>
         <PermissionGuard tableId={['32']} >
           <ProdCatComp openNew={openNew} setOpenNew={setOpenNew} currentCategory={currentCategory} setCurrentCategory={setCurrentCategory} />

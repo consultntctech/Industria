@@ -1,5 +1,6 @@
 'use client'
 import  { useState } from 'react'
+import ImportButton from "../import/ImportButton";
 import UsersComp from '../Views/Users.view'
 import { IoMdAddCircle } from 'react-icons/io';
 import { useCanCreateUsers, useSettings } from '@/config/useSettings';
@@ -20,10 +21,13 @@ const UsersScreen = () => {
      <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
         <div className="flex w-full items-center flex-row justify-between">
             <Title title="Users" isLink={false}/>
-            {
-                isCreator && canCreateUsers &&
-              <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
-            }
+            <div className="flex flex-row items-center gap-3">
+              <ImportButton entity="users" />
+              {
+                  isCreator && canCreateUsers &&
+                <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
+              }
+            </div>
         </div>
         <PermissionGuard tableId={['38']} >
           {

@@ -1,5 +1,6 @@
 'use client'
 import  { useState } from 'react'
+import ImportButton from "../import/ImportButton";
 import { IoMdAddCircle } from 'react-icons/io';
 import { useSettings } from '@/config/useSettings';
 import Title from '../misc/Title';
@@ -18,10 +19,13 @@ const EmployeesScreen = () => {
      <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
         <div className="flex w-full items-center flex-row justify-between">
             <Title title="Employees" isLink={false}/>
-            {
-                isCreator &&
-              <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
-            }
+            <div className="flex flex-row items-center gap-3">
+              <ImportButton entity="employees" />
+              {
+                  isCreator &&
+                <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
+              }
+            </div>
         </div>
         <PermissionGuard tableId={['96']} >
           <EmployeeComp currentEmployee={currentEmployee} openNew={openNew} setOpenNew={setOpenNew} setCurrentEmployee={setCurrentEmployee}/>

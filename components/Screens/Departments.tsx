@@ -1,5 +1,6 @@
 'use client'
 import { IoMdAddCircle } from "react-icons/io"
+import ImportButton from "../import/ImportButton";
 import Title from "../misc/Title"
 import { useState } from "react";
 import { useSettings } from "@/config/useSettings";
@@ -18,10 +19,13 @@ const Departments = () => {
     <div className="flex flex-col w-full gap-8 ml-4 md:ml-4">
         <div className="flex flex-row items-center justify-between w-full">
             <Title title="Departments" isLink={false}/>
-            {
-                isCreator &&
-              <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
-            }
+            <div className="flex flex-row items-center gap-3">
+              <ImportButton entity="departments" />
+              {
+                  isCreator &&
+                <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
+              }
+            </div>
         </div>
         <PermissionGuard tableId={['95']} >
           <DepartmentComp openNew={openNew} setOpenNew={setOpenNew} currentDepartment={currentDepartment} setCurrentDepartment={setCurrentDepartment} />

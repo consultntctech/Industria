@@ -8,19 +8,23 @@ type TopContentProps = {
   setOpenNew: Dispatch<SetStateAction<boolean>>;
   children:ReactNode,
   showAdd?:boolean
-  
+  /** Extra header controls shown beside the add button (eg. Import). */
+  actions?:ReactNode
 } & ComponentProps<typeof Title>;
-const TopContent = ({openNew, setOpenNew, title, isLink=false, children, showAdd=true}:TopContentProps) => {
+const TopContent = ({openNew, setOpenNew, title, isLink=false, children, showAdd=true, actions}:TopContentProps) => {
     const {primaryColour, isSuccess} = useSettings();
     if(!isSuccess) return null;
   return (
     <div className="flex w-full flex-col gap-8 ml-4 md:ml-4">
         <div className="flex w-full items-center flex-row justify-between">
             <Title title={title} isLink={isLink}/>
-            {
-              showAdd &&
-              <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
-            }
+            <div className="flex flex-row items-center gap-3">
+              {actions}
+              {
+                showAdd &&
+                <IoMdAddCircle onClick={()=>setOpenNew(true)} style={{color:primaryColour}} size={30} className={`${openNew ? 'hidden':'block'} cursor-pointer`} />
+              }
+            </div>
         </div>
         {children}
     </div>
